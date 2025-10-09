@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход для тургидов - Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background: #3E3E3E;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    
+    <div class="login-card max-w-md w-full rounded-2xl shadow-2xl p-8">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-user-tie text-white text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Кабинет тургида</h1>
+            <p class="text-gray-600">Войдите в свой аккаунт</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="login" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-user mr-2 text-blue-600"></i>Логин
+                </label>
+                <input 
+                    type="text" 
+                    id="login" 
+                    name="login" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200"
+                    placeholder="Введите логин"
+                >
+            </div>
+
+            <div class="space-y-2">
+                <label for="password" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-lock mr-2 text-blue-600"></i>Пароль
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200 pr-12"
+                        placeholder="Введите пароль"
+                    >
+                    <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="errorText">Ошибка входа</span>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingMessage" class="hidden bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Вход в систему...
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                id="loginButton"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
+            >
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Войти
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-sm text-gray-600">
+            <p>Забыли пароль? Обратитесь к администратору</p>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <a href="/" class="text-gray-300 hover:text-white transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    На главную
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle password visibility
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = this.querySelector('i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('fa-eye');
+                toggleIcon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('fa-eye-slash');
+                toggleIcon.classList.add('fa-eye');
+            }
+        });
+
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const loginData = {
+                login: formData.get('login'),
+                password: formData.get('password')
+            };
+
+            // Show loading state
+            showLoadingState();
+
+            try {
+                const response = await fetch('/api/guide/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Save token
+                    localStorage.setItem('tourGuideToken', result.token);
+                    localStorage.setItem('tourGuideData', JSON.stringify(result.guide));
+                    
+                    // Redirect to dashboard
+                    window.location.href = '/guide/dashboard.html';
+                } else {
+                    showError(result.message || 'Ошибка входа');
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Ошибка подключения к серверу');
+            } finally {
+                hideLoadingState();
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showLoadingState() {
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('loginButton').disabled = true;
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingMessage').classList.add('hidden');
+            document.getElementById('loginButton').disabled = false;
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('tourGuideToken')) {
+            window.location.href = '/guide/dashboard.html';
+        }
+    </script>
+    
+</body>
+</html>

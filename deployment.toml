@@ -1,0 +1,25 @@
+# Replit Deployment Configuration
+[deployment]
+# Deployment target
+deploymentTarget = "autoscale"
+
+# Command to run the application in production
+run = "npx ts-node src/server.ts"
+
+# Environment variables for production
+[[deployment.env]]
+key = "NODE_ENV"
+value = "production"
+
+
+
+# Build command (if needed)
+build = "npx prisma generate"
+
+# Health check configuration
+[deployment.health]
+path = "/api/health"
+initialDelaySeconds = 30
+periodSeconds = 10
+timeoutSeconds = 5
+failureThreshold = 3

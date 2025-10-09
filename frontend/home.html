@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bunyod-Tour - Туры по Таджикистану</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+
+    <!-- Главный баннер -->
+    <section class="hero-bg banner-height relative flex items-center justify-center text-white">
+        <div class="gradient-overlay absolute inset-0"></div>
+        <div class="relative z-10 text-center max-w-4xl mx-auto px-6">
+            <h1 class="text-6xl font-bold mb-6" data-translate="home.hero.title">
+                Откройте красоту Таджикистана
+            </h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto" data-translate="home.hero.subtitle">
+                Исследуйте захватывающие горы Памира, древние города Шёлкового пути и богатую культуру этой удивительной страны
+            </p>
+        </div>
+        
+        <!-- Точки карусели -->
+        <div class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <div class="w-2 h-2 bg-white rounded-full"></div>
+            <div class="w-2 h-2 bg-white bg-opacity-50 rounded-full"></div>
+            <div class="w-2 h-2 bg-white bg-opacity-50 rounded-full"></div>
+        </div>
+        
+        <!-- Брендинг -->
+        <div class="absolute bottom-8 right-8">
+            <div class="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg text-sm" data-translate="home.branding">
+                Больше с Bunyod-Tour
+            </div>
+        </div>
+    </section>
+
+    <!-- Система фильтров туров -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.find_perfect_tour">
+                Найдите идеальный тур
+            </h2>
+            
+            <!-- Фильтры -->
+            <div class="rounded-lg p-6 mb-12" style="background-color: #3E3E3E;">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Категория -->
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2" data-translate="home.filter.category_label">Категория тура</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="home.filter.all_categories">Все категории</option>
+                            <option value="adventure" data-translate="home.filter.adventure">Приключения</option>
+                            <option value="culture" data-translate="home.filter.culture">Культурные</option>
+                            <option value="nature" data-translate="home.filter.nature">Природа</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Длительность -->
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2" data-translate="home.filter.duration_label">Длительность</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="home.filter.any">Любая</option>
+                            <option value="1-3" data-translate="home.filter.1_3_days">1-3 дня</option>
+                            <option value="4-7" data-translate="home.filter.4_7_days">4-7 дней</option>
+                            <option value="8+" data-translate="home.filter.8_plus_days">8+ дней</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Цена -->
+                    <div>
+                        <label class="block text-sm font-medium text-white mb-2" data-translate="home.filter.price_label">Цена (USD)</label>
+                        <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="home.filter.any_price">Любая цена</option>
+                            <option value="0-100" data-translate="home.filter.up_to_100">До $100</option>
+                            <option value="100-500" data-translate="home.filter.100_500">$100-$500</option>
+                            <option value="500+" data-translate="home.filter.500_plus">$500+</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Кнопка поиска -->
+                    <div class="flex items-end">
+                        <button class="w-full bg-gray-200 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors font-medium shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200" style="box-shadow: 0 4px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);" data-translate="home.filter.find_tours_button">
+                            Найти туры
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Популярные туры -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.popular_tours">
+                Популярные туры
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Тур 1 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+                    <div class="h-64 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-900" data-translate="home.tour1.title">Панорамная дорога Памира</h3>
+                            <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                ★ 4.8
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4 flex-grow" data-translate="home.tour1.description">
+                            Захватывающее путешествие по одной из самых высокогорных дорог мира
+                        </p>
+                        <div class="flex justify-between items-center mt-auto">
+                            <span class="text-2xl font-bold text-blue-600"><span data-translate="home.price_prefix">от</span> $299</span>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors" data-translate="btn.book">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Тур 2 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+                    <div class="h-64 bg-gradient-to-r from-green-500 to-teal-600"></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-900" data-translate="home.tour2.title">Озеро Искандеркуль</h3>
+                            <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                ★ 4.9
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4 flex-grow" data-translate="home.tour2.description">
+                            Живописное горное озеро в окружении заснеженных пиков
+                        </p>
+                        <div class="flex justify-between items-center mt-auto">
+                            <span class="text-2xl font-bold text-blue-600"><span data-translate="home.price_prefix">от</span> $149</span>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors" data-translate="btn.book">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Тур 3 -->
+                <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+                    <div class="h-64 bg-gradient-to-r from-orange-500 to-red-600"></div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-bold text-gray-900" data-translate="home.tour3.title">Древний Пенджикент</h3>
+                            <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                ★ 4.7
+                            </div>
+                        </div>
+                        <p class="text-gray-600 mb-4 flex-grow" data-translate="home.tour3.description">
+                            Исследуйте руины древнего согдийского города и музей Рудаки
+                        </p>
+                        <div class="flex justify-between items-center mt-auto">
+                            <span class="text-2xl font-bold text-blue-600"><span data-translate="home.price_prefix">от</span> $89</span>
+                            <button class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors" data-translate="btn.book">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Статистика -->
+    <section class="py-20 bg-blue-600 text-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-4xl font-bold mb-2">500+</div>
+                    <div class="text-blue-100" data-translate="home.stats.happy_tourists">Довольных туристов</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">25+</div>
+                    <div class="text-blue-100" data-translate="home.stats.unique_tours">Уникальных туров</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">15</div>
+                    <div class="text-blue-100" data-translate="home.stats.years_experience">Лет опыта</div>
+                </div>
+                <div>
+                    <div class="text-4xl font-bold mb-2">4.8★</div>
+                    <div class="text-blue-100" data-translate="home.stats.avg_rating">Средняя оценка</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Гибкость планирования -->
+    <section class="py-20 bg-green-50">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-6 text-gray-900">
+                Планируйте гибко
+            </h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Используйте функцию "Забронировать сейчас и оплатить позже", чтобы забронировать активности без предварительной оплаты.
+            </p>
+        </div>
+    </section>
+
+    <!-- Рекомендуемые туры с 4 турами -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
+                Рекомендуемые туры по Таджикистану
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Тур 1 -->
+                <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full">
+                    <div class="relative overflow-hidden rounded-t-lg">
+                        <div class="w-full h-48 bg-gradient-to-br from-blue-400 to-cyan-600"></div>
+                        <button class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="text-xs text-gray-500 mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Памирские горы, Таджикистан
+                        </div>
+                        <div class="flex items-center text-green-600 text-xs mb-2">
+                            <span class="mr-1">★</span>
+                            <span class="font-semibold">4.8</span>
+                            <span class="text-gray-500 ml-1">(234)</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 flex-grow">
+                            Полный день: Памирское шоссе, горы и озёра
+                        </h3>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="text-lg font-bold">от $120</div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Тур 2 -->
+                <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full">
+                    <div class="relative overflow-hidden rounded-t-lg">
+                        <div class="w-full h-48 bg-gradient-to-br from-green-400 to-emerald-600"></div>
+                        <button class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="text-xs text-gray-500 mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Фанские горы, Таджикистан
+                        </div>
+                        <div class="flex items-center text-green-600 text-xs mb-2">
+                            <span class="mr-1">★</span>
+                            <span class="font-semibold">4.9</span>
+                            <span class="text-gray-500 ml-1">(187)</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 flex-grow">
+                            Треккинг к озёрам семи цветов
+                        </h3>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="text-lg font-bold">от $95</div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Тур 3 -->
+                <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full">
+                    <div class="relative overflow-hidden rounded-t-lg">
+                        <div class="w-full h-48 bg-gradient-to-br from-orange-400 to-red-600"></div>
+                        <button class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="text-xs text-gray-500 mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Душанбе, Таджикистан
+                        </div>
+                        <div class="flex items-center text-green-600 text-xs mb-2">
+                            <span class="mr-1">★</span>
+                            <span class="font-semibold">4.7</span>
+                            <span class="text-gray-500 ml-1">(156)</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 flex-grow">
+                            Культурный тур по столице Таджикистана
+                        </h3>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="text-lg font-bold">от $75</div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Тур 4 -->
+                <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full">
+                    <div class="relative overflow-hidden rounded-t-lg">
+                        <div class="w-full h-48 bg-gradient-to-br from-purple-400 to-pink-600"></div>
+                        <button class="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="p-4 flex flex-col flex-grow">
+                        <div class="text-xs text-gray-500 mb-1 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            Хорог, Таджикистан
+                        </div>
+                        <div class="flex items-center text-green-600 text-xs mb-2">
+                            <span class="mr-1">★</span>
+                            <span class="font-semibold">4.6</span>
+                            <span class="text-gray-500 ml-1">(98)</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 flex-grow">
+                            Приключение в Бадахшане и горячие источники
+                        </h3>
+                        <div class="flex items-center justify-between mt-auto">
+                            <div class="text-lg font-bold">от $180</div>
+                            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                Забронировать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Призыв к действию -->
+    <section class="py-20 bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold mb-6">
+                Готовы к приключению?
+            </h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Забронируйте свой незабываемый тур по Таджикистану прямо сейчас и откройте для себя жемчужину Центральной Азии
+            </p>
+            <button class="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors">
+                Забронировать тур
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+</body>
+</html>

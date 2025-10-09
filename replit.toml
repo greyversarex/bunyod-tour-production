@@ -1,0 +1,17 @@
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = "node index.js"
+build = "npx prisma generate"
+
+[deployment.web]
+port = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[env]
+NODE_ENV = "development"

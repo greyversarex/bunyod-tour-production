@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="hotel.page_title">Каталог отелей - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/multilingual-utils.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <script src="/public/js/utils.js"></script>
+    <link rel="stylesheet" href="/public/css/layout.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ХЕДЕР -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <div class="pt-28">
+        <!-- ❌ СИНИЙ БАННЕР УДАЛЕН по запросу пользователя -->
+
+        <!-- Filters Section -->
+        <div class="max-w-6xl mx-auto px-6 py-6">
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4 flex items-center">
+                    <i class="fas fa-filter text-blue-600 mr-2"></i>
+                    <span data-translate="hotel.search_filters">Фильтры поиска</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- Country filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-translate="hotel.country">Страна</label>
+                        <select id="countryFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="hotel.all_countries">Все страны</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Category filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-translate="hotel.category">Категория</label>
+                        <select id="categoryFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="hotel.all_categories">Все категории</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Stars filter -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-translate="hotel.stars">Звезды</label>
+                        <select id="starsFilter" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="" data-translate="hotel.any_quantity">Любое количество</option>
+                            <option value="5" data-translate="hotel.5_stars">5 звезд</option>
+                            <option value="4" data-translate="hotel.4_stars">4 звезды</option>
+                            <option value="3" data-translate="hotel.3_stars">3 звезды</option>
+                            <option value="2" data-translate="hotel.2_stars">2 звезды</option>
+                            <option value="1" data-translate="hotel.1_star">1 звезда</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Search input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1" data-translate="hotel.search">Поиск</label>
+                        <input type="text" id="searchInput" placeholder="Название отеля..." 
+                               class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mt-4">
+                    <button onclick="clearFilters()" class="text-red-600 hover:text-red-800 font-medium">
+                        <i class="fas fa-times-circle mr-1"></i>
+                        <span data-translate="hotel.clear_filters">Очистить фильтры</span>
+                    </button>
+                    <div class="text-sm text-gray-600">
+                        <span id="resultsCount" data-translate="hotel.showing_results">Показано 0 из 0 отелей</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hotels Grid -->
+        <div class="max-w-6xl mx-auto px-6 pb-12">
+            <div id="hotelsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Hotels will be loaded here -->
+            </div>
+        </div>
+
+        <!-- No results message -->
+        <div id="noResults" class="hidden text-center py-12">
+            <i class="fas fa-bed text-gray-400 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2" data-translate="hotel.no_hotels_found">Отели не найдены</h3>
+            <p class="text-gray-500" data-translate="hotel.try_different_filters">Попробуйте изменить фильтры поиска</p>
+        </div>
+    </div>
+
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ФУТЕР -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Global variables
+        let allHotels = [];
+        let filteredHotels = [];
+
+        // API configuration
+        function getApiUrl() {
+            const hostname = window.location.hostname;
+            if (hostname.includes('replit.dev') || hostname.includes('replit.app')) {
+                return `https://${hostname}/api`;
+            }
+            return '/api';
+        }
+
+        // Load all hotels
+        async function loadHotels() {
+            try {
+                const response = await fetch(`${getApiUrl()}/hotels`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    allHotels = result.data.filter(hotel => hotel.isActive);
+                    filteredHotels = [...allHotels];
+                    displayHotels();
+                    updateResultsCount();
+                } else {
+                    throw new Error(result.message || 'Ошибка загрузки отелей');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки отелей:', error);
+                document.getElementById('hotelsGrid').innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-6xl mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">Ошибка загрузки</h3>
+                        <p class="text-gray-500">Не удалось загрузить список отелей</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display hotels
+        function displayHotels() {
+            const container = document.getElementById('hotelsGrid');
+            const noResults = document.getElementById('noResults');
+            
+            if (filteredHotels.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+            
+            noResults.classList.add('hidden');
+            
+            container.innerHTML = filteredHotels.map(hotel => {
+                // 🌐 МНОГОЯЗЫЧНАЯ ОБРАБОТКА С ИСПОЛЬЗОВАНИЕМ ЦЕНТРАЛЬНОЙ СИСТЕМЫ
+                const currentLang = getCurrentLanguage(); // Получаем текущий язык
+                
+                // Используем новые поля nameRu/nameEn с fallback на старый формат
+                const hotelName = currentLang === 'en' 
+                    ? (hotel.nameEn || hotel.name || '')
+                    : (hotel.nameRu || hotel.name || '');
+                
+                const hotelDesc = currentLang === 'en'
+                    ? (hotel.descriptionEn || hotel.description || '')
+                    : (hotel.descriptionRu || hotel.description || '');
+                
+                // Get first image
+                const firstImage = hotel.images && hotel.images.length > 0 ? hotel.images[0] : null;
+                const imageUrl = firstImage || '/placeholder-hotel.jpg';
+                
+                // Generate stars
+                const stars = Array.from({length: 5}, (_, i) => 
+                    `<i class="fas fa-star ${i < (hotel.stars || 3) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+                ).join('');
+                
+                // Format amenities with translation
+                const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
+                const amenitiesHtml = amenities.slice(0, 3).map(amenity => {
+                    const amenityKey = 'amenity.' + amenity;
+                    const translated = getTranslation(amenityKey);
+                    // Если getTranslation вернул ключ обратно, значит перевода нет - используем оригинальный текст
+                    const translatedAmenity = (translated === amenityKey) ? amenity : translated;
+                    return `<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${translatedAmenity}</span>`;
+                }).join('');
+                
+                // Получаем данные о стране и городе с учетом текущего языка
+                const countryName = currentLang === 'en' 
+                    ? (hotel.country?.nameEn || hotel.country?.nameRu || '')
+                    : (hotel.country?.nameRu || hotel.country?.nameEn || '');
+                const cityName = currentLang === 'en'
+                    ? (hotel.city?.nameEn || hotel.city?.nameRu || '')
+                    : (hotel.city?.nameRu || hotel.city?.nameEn || '');
+                
+                // Формируем строку локации
+                let locationText = '';
+                if (cityName && countryName) {
+                    locationText = `${cityName}, ${countryName}`;
+                } else if (cityName) {
+                    locationText = cityName;
+                } else if (countryName) {
+                    locationText = countryName;
+                }
+                
+                // Безопасный парсинг адреса (строка, JSON-строка или объект)
+                const addressData = safeJsonParse(hotel.address, { ru: '', en: '' });
+                const hotelAddress = getLocalizedText(addressData, currentLang) || '';
+                
+                return `
+                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+                        <div class="relative">
+                            <img src="${getAbsoluteImageUrl(imageUrl)}" alt="${hotelName}" 
+                                 class="w-full h-48 object-cover" 
+                                 onerror="this.src='${getAbsoluteImageUrl('/placeholder-hotel.jpg')}'">
+                            <div class="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded">
+                                ${stars}
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg text-gray-900 mb-1 line-clamp-1">${hotelName}</h3>
+                            
+                            ${locationText ? `
+                            <p class="text-blue-600 text-sm mb-2">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                ${locationText}
+                            </p>
+                            ` : ''}
+                            
+                            ${hotelAddress ? `
+                            <p class="text-gray-600 text-sm mb-2">
+                                <i class="fas fa-map text-gray-400 mr-1"></i>
+                                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelAddress + (cityName ? ', ' + cityName : '') + (countryName ? ', ' + countryName : ''))}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="hover:text-blue-600 transition-colors">
+                                    ${hotelAddress}
+                                    <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                                </a>
+                            </p>
+                            ` : ''}
+                            
+                            ${hotelDesc ? `
+                            <div class="text-gray-600 text-sm mb-3 line-clamp-2">${hotelDesc}</div>
+                            ` : ''}
+                            
+                            <div class="flex flex-wrap gap-1 mb-3">
+                                ${amenitiesHtml}
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm text-gray-500">
+                                    ${hotel.brand ? `<span class="font-medium">${hotel.brand}</span>` : ''}
+                                    ${hotel.category ? `<span class="ml-2">${hotel.category}</span>` : ''}
+                                </div>
+                                <a href="/hotel-template.html?hotel=${hotel.id}" 
+                                   class="text-white px-4 py-2 rounded-lg text-sm font-medium transition-all" 
+                                   style="background: #6B7280; box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);"
+                                   onmouseover="this.style.background='#4B5563'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(107, 114, 128, 0.4)'"
+                                   onmouseout="this.style.background='#6B7280'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(107, 114, 128, 0.3)'">
+                                    ${getTranslation('btn.more_details')}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter hotels
+        function filterHotels() {
+            const countryFilter = document.getElementById('countryFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const starsFilter = document.getElementById('starsFilter').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredHotels = allHotels.filter(hotel => {
+                // Country filter
+                const matchesCountry = !countryFilter || hotel.country === countryFilter;
+                
+                // Category filter  
+                const matchesCategory = !categoryFilter || hotel.category === categoryFilter;
+                
+                // Stars filter
+                const matchesStars = !starsFilter || hotel.stars == parseInt(starsFilter);
+                
+                // Search filter (используем безопасный паттерн)
+                const parsed = safeJsonParse(hotel.name);
+                const hotelName = getLocalizedText(parsed, window.currentLanguage || 'ru');
+                
+                const matchesSearch = !searchTerm || hotelName.toLowerCase().includes(searchTerm) || 
+                                     (hotel.city && hotel.city.toLowerCase().includes(searchTerm));
+                
+                return matchesCountry && matchesCategory && matchesStars && matchesSearch;
+            });
+            
+            displayHotels();
+            updateResultsCount();
+        }
+
+        // Update results count
+        function updateResultsCount() {
+            const count = filteredHotels.length;
+            const total = allHotels.length;
+            const resultsLabel = getTranslation('hotel.showing_results_template') || `Showing ${count} of ${total} hotels`;
+            document.getElementById('resultsCount').textContent = 
+                resultsLabel.replace('{count}', count).replace('{total}', total);
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('countryFilter').value = '';
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('starsFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            
+            filteredHotels = [...allHotels];
+            displayHotels();
+            updateResultsCount();
+        }
+
+        // 🌐 ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКОВ ДЛЯ ОТЕЛЕЙ
+        function updateHotelsLanguage(language) {
+            console.log(`🏨 Переключение языка отелей на: ${language}`);
+            
+            // Обновляем названия отелей
+            updateHotelContent(language);
+            
+            // Перерисовываем список отелей с новым языком
+            displayHotels();
+            
+            // Обновляем счётчик результатов с новым языком
+            updateResultsCount();
+            
+            console.log(`✅ Язык отелей обновлен на: ${language}`);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHotels();
+            
+            // Filter event listeners
+            document.getElementById('countryFilter').addEventListener('change', filterHotels);
+            document.getElementById('categoryFilter').addEventListener('change', filterHotels);
+            document.getElementById('starsFilter').addEventListener('change', filterHotels);
+            document.getElementById('searchInput').addEventListener('input', filterHotels);
+            
+            // 🌐 СЛУШАЕМ СОБЫТИЯ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
+            document.addEventListener('languageChanged', function(event) {
+                updateHotelsLanguage(event.detail.language);
+            });
+            
+            // 🌐 СЛУШАЕМ СОБЫТИЯ ПЕРЕКЛЮЧЕНИЯ ДИНАМИЧЕСКОГО КОНТЕНТА
+            document.addEventListener('dynamicContentTranslated', function(event) {
+                console.log('🔄 Получено событие переключения динамического контента для отелей');
+            });
+        });
+        
+        // Add CSS for line clamp
+        const style = document.createElement('style');
+        style.textContent = `
+            .line-clamp-1 {
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            
+            .line-clamp-2 {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Update placeholders for current language
+        function updatePlaceholders() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.placeholder = getTranslation('hotel.search_placeholder');
+            }
+        }
+
+        // Initialize placeholders when page loads
+        document.addEventListener('DOMContentLoaded', updatePlaceholders);
+        
+        // ✅ АРХИТЕКТУРНАЯ ЧИСТОТА: Google Maps удалён - footer карта автономна!
+    </script>
+</body>
+</html>

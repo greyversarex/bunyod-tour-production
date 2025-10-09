@@ -1,0 +1,27 @@
+Мы провели серию тестов и выявили, что все проблемы с сохранением формы отеля связаны исключительно с рассинхронизацией между объектом `hotelFieldsConfig` и реальной HTML-структурой формы. Предыдущие попытки исправить это были неполными.
+
+**Твоя задача: Провести финальную, принудительную синхронизацию `hotelFieldsConfig` с HTML.**
+
+Действуй строго по этому алгоритму:
+
+1.  **Полностью удали текущий объект `hotelFieldsConfig`** из `<script>` блока в файле `frontend/admin-dashboard.html`.
+
+2.  **Просканируй HTML-код формы с `id="hotelForm"`** и собери точную информацию о КАЖДОM поле, которое должно сохраняться.
+
+3.  **На основе этого сканирования, создай НОВЫЙ, АБСОЛЮТНО КОРРЕКТНЫЙ объект `hotelFieldsConfig` с нуля.** Он должен включать в себя:
+    *   `name`: тип `multilingual`, `elementId` должны быть `['hotelNameRu', 'hotelNameEn']`.
+    *   `description`: тип `multilingual`, `elementId` должны быть `['hotelDescRu', 'hotelDescEn']`.
+    *   `address`: Найди `id` текстового поля для адреса и добавь его в конфиг с типом `'text'`.
+    *   `stars`: Найди `id` `select`-а для звезд и добавь с типом `'number'`.
+    *   `countryId`: Найди `id` `select`-а для **страны** и добавь его с типом `'number'` и `required: true`.
+    *   `cityId`: Найди `id` `select`-а для **города** и добавь с типом `'number'` и `required: true`.
+    *   `roomTypes`: тип `checkboxGroupWithPrices`, `prefix: 'room'`, `types: ['SGL', 'TWL', 'DBL']`.
+    *   `mealTypes`: тип `checkboxGroupWithPrices`, `prefix: 'meal'`, `types: ['RO', 'BB', 'HB', 'FB', 'AI']`.
+    *   `amenities`: Найди **атрибут `name`**, который является общим для всех чекбоксов удобств (wifi, pool, и т.д.), и добавь его в конфиг с типом `'checkboxGroup'`.
+    *   `images`: тип `array`, `elementId: 'hotelImageURLs'`.
+
+4.  **Полностью удали обработчик `onBeforeSave`** из вызова `initEntityForm` для `hotelForm`. Вся логика сбора данных должна находиться **только** внутри `collectFormData`, управляемого через `hotelFieldsConfig`. Финальный вызов `initEntityForm` должен быть чистым и не содержать никаких "костылей".
+
+5.  **Убедись, что у всех чекбоксов удобств** (wifi, pool, parking и т.д.) в HTML есть одинаковый атрибут `name` (например, `name="hotelAmenities"`), который ты указал в `elementId` для `amenities` в конфигурации. Если его нет — **добавь его**.
+
+**Цель:** После твоей работы в коде должен остаться только `hotelFieldsConfig`, который является идеальным отражением HTML, и чистый вызов `initEntityForm`, который на него ссылается. Любые ручные манипуляции с данными отеля перед сохранением должны быть устранены.

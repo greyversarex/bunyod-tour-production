@@ -1,0 +1,716 @@
+import { Request, Response } from 'express';
+import prisma from '../config/database';
+import { GuideData } from '../types/booking';
+import bcrypt from 'bcrypt';
+import { 
+  getLanguageFromRequest, 
+  createLocalizedResponse, 
+  parseMultilingualField,
+  safeJsonParse
+} from '../utils/multilingual';
+
+// ✅ Унифицированная функция нормализации путей к фото
+const normalizePhotoPath = (photoPath: string | null): string | null => {
+  if (!photoPath) return null;
+  
+  // Убираем абсолютные пути файловой системы для безопасности
+  let normalizedPath = photoPath;
+  
+  // Удаляем абсолютные префиксы workspace
+  if (normalizedPath.includes('/home/runner/workspace/')) {
+    normalizedPath = normalizedPath.replace('/home/runner/workspace/', '/');
+  }
+  
+  // Удаляем любой возможный абсолютный путь к проекту
+  if (normalizedPath.includes(process.cwd())) {
+    normalizedPath = normalizedPath.replace(process.cwd(), '');
+  }
+  
+  // Убеждаемся что путь начинается с /
+  return normalizedPath.startsWith('/') ? normalizedPath : `/${normalizedPath}`;
+};
+
+export const createGuide = async (req: Request, res: Response) => {
+  try {
+    const { 
+      name, 
+      description, 
+      photo, 
+      languages, 
+      contact, 
+      experience, 
+      rating, 
+      isActive,
+      login,
+      password,
+      countryId,
+      cityId,
+      passportSeries,
+      registration,
+      residenceAddress,
+      pricePerDay,
+      currency,
+      isHireable
+    } = req.body;
+    
+    // Convert numeric fields
+    const experienceNumber = experience ? parseInt(experience) : null;
+    const ratingNumber = rating ? parseFloat(rating) : null;
+    
+    // ✅ Безопасная обработка pricePerDay с валидацией
+    let pricePerDayNumber: number | null = null;
+    if (pricePerDay) {
+      const parsed = parseFloat(pricePerDay);
+      if (!isNaN(parsed) && parsed > 0) {
+        pricePerDayNumber = parsed;
+      }
+    }
+    
+    // 🔒 Хешируем пароль для безопасности
+    let hashedPassword = null;
+    if (password) {
+      const saltRounds = 10;
+      hashedPassword = await bcrypt.hash(password, saltRounds);
+    }
+    
+    // ✅ Безопасная обработка isActive с правильным значением по умолчанию
+    const active = isActive === undefined ? true : (typeof isActive === 'boolean' ? isActive : String(isActive).toLowerCase() === 'true');
+    
+    // ✅ Валидация currency
+    const validCurrencies = ['TJS', 'USD', 'EUR', 'RUB', 'CNY'];
+    const validatedCurrency = currency && validCurrencies.includes(currency) ? currency : 'TJS';
+    
+    // ✅ Безопасная обработка isHireable с логической связкой к цене
+    let hireable = isHireable === undefined ? true : (typeof isHireable === 'boolean' ? isHireable : String(isHireable).toLowerCase() === 'true');
+    
+    // ✅ Если нет цены или цена <= 0, то гид не может быть доступен для найма
+    if (!pricePerDayNumber || pricePerDayNumber <= 0) {
+      hireable = false;
+    }
+    
+    // Проверка уникальности логина если он задан
+    if (login) {
+      const existingGuide = await prisma.guide.findFirst({ where: { login } });
+      if (existingGuide) {
+        res.status(400).json({
+          success: false,
+          message: 'Логин уже используется другим гидом'
+        });
+        return;
+      }
+    }
+    
+    // Parse multilingual fields properly
+    const parsedName = safeJsonParse(name);
+    const parsedDescription = safeJsonParse(description);
+    
+    const guide = await prisma.guide.create({
+      data: {
+        name: parsedName,
+        description: parsedDescription,
+        photo,
+        languages: typeof languages === 'string' ? languages : JSON.stringify(languages),
+        contact: contact ? (typeof contact === 'string' ? contact : JSON.stringify(contact)) : null,
+        experience: experienceNumber,
+        rating: ratingNumber,
+        isActive: active,
+        login: login || null,
+        password: hashedPassword,
+        countryId: countryId ? parseInt(String(countryId)) : null,
+        cityId: cityId ? parseInt(String(cityId)) : null,
+        passportSeries: passportSeries || null,
+        registration: registration || null,
+        residenceAddress: residenceAddress || null,
+        pricePerDay: pricePerDayNumber,
+        currency: validatedCurrency,
+        isHireable: hireable
+      },
+      include: {
+        guideCountry: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+        guideCity: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+      },
+    });
+
+    // ✅ Нормализация пути к фото
+    const photoPath = normalizePhotoPath(guide.photo);
+
+    // ✅ Обработка связанной страны с безопасным парсингом
+    const processedGuideCountry = guide.guideCountry ? {
+      id: guide.guideCountry.id,
+      name: safeJsonParse(guide.guideCountry.name)
+    } : null;
+
+    // ✅ Обработка связанного города с безопасным парсингом  
+    const processedGuideCity = guide.guideCity ? {
+      id: guide.guideCity.id,
+      name: safeJsonParse(guide.guideCity.name)
+    } : null;
+
+    // 🔒 БЕЗОПАСНОСТЬ: Возвращаем только публичные поля, исключаем PII
+    const safeGuide = {
+      id: guide.id,
+      name: safeJsonParse(guide.name),
+      description: safeJsonParse(guide.description),
+      photo: photoPath,
+      languages: safeJsonParse(guide.languages),
+      experience: guide.experience,
+      rating: guide.rating,
+      pricePerDay: guide.pricePerDay,
+      currency: guide.currency,
+      isHireable: guide.isHireable,
+      isActive: guide.isActive,
+      createdAt: guide.createdAt,
+      updatedAt: guide.updatedAt,
+      guideCountry: processedGuideCountry,
+      guideCity: processedGuideCity,
+      hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
+    };
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Guide created successfully',
+      data: safeGuide,
+    });
+  } catch (error) {
+    console.error('Error creating guide:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to create guide',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+// Get all guides with multilingual support
+// GET /api/guides?lang=en/ru&includeRaw=true
+export const getAllGuides = async (req: Request, res: Response) => {
+  try {
+    const language = getLanguageFromRequest(req);
+    const includeRaw = req.query.includeRaw === 'true';
+    
+    const guides = await prisma.guide.findMany({
+      where: {
+        isActive: true,
+      },
+      include: {
+        tourGuides: {
+          include: {
+            tour: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+        guideCountry: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+        guideCity: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+      },
+    });
+
+    // Localize guides data with safe JSON parsing
+    const localizedGuides = guides.map((guide: any) => {
+      try {
+        // ✅ Нормализация пути к фото
+        const photoPath = normalizePhotoPath(guide.photo);
+
+        // Process country and city for multilingual support - include both languages
+        const processedGuideCountry = guide.guideCountry ? {
+          id: guide.guideCountry.id,
+          name: guide.guideCountry.name,
+          nameRu: guide.guideCountry.nameRu,
+          nameEn: guide.guideCountry.nameEn,
+        } : null;
+
+        const processedGuideCity = guide.guideCity ? {
+          id: guide.guideCity.id,
+          name: guide.guideCity.name,
+          nameRu: guide.guideCity.nameRu,
+          nameEn: guide.guideCity.nameEn,
+        } : null;
+
+        if (includeRaw) {
+          // ДЛЯ АДМИНКИ: возвращаем ТОЛЬКО БЕЗОПАСНЫЕ поля + raw JSON + локализованные поля
+          return {
+            id: guide.id,
+            photo: photoPath,
+            languages: guide.languages,
+            experience: guide.experience,
+            rating: guide.rating,
+            pricePerDay: guide.pricePerDay,
+            currency: guide.currency,
+            isHireable: guide.isHireable,
+            isActive: guide.isActive,
+            createdAt: guide.createdAt,
+            updatedAt: guide.updatedAt,
+            countryId: guide.countryId,
+            cityId: guide.cityId,
+            contact: guide.contact,
+            _localized: {
+              name: parseMultilingualField(guide.name, language),
+              description: parseMultilingualField(guide.description, language),
+            },
+            // Добавляем raw JSON для админки
+            _raw: {
+              name: safeJsonParse(guide.name),
+              description: safeJsonParse(guide.description),
+            },
+            guideCountry: processedGuideCountry,
+            guideCity: processedGuideCity,
+            hasPassword: !!guide.password && guide.password.trim() !== '',
+            // 🔐 АДМИН ПОЛЯ: для includeRaw=true возвращаем безопасные админ данные
+            login: guide.login,
+            passportSeries: guide.passportSeries,
+            registration: guide.registration,
+            residenceAddress: guide.residenceAddress,
+          };
+        } else {
+          // ДЛЯ ПУБЛИЧНОГО ИСПОЛЬЗОВАНИЯ: включаем оба языка для фронтенда
+          const parsedName = safeJsonParse(guide.name);
+          const parsedDescription = safeJsonParse(guide.description);
+          
+          return {
+            id: guide.id,
+            name: parseMultilingualField(guide.name, language), // Текущий язык для обратной совместимости
+            nameRu: typeof parsedName === 'object' ? parsedName.ru : parsedName,
+            nameEn: typeof parsedName === 'object' ? parsedName.en : parsedName,
+            description: parseMultilingualField(guide.description, language),
+            descriptionRu: typeof parsedDescription === 'object' ? parsedDescription.ru : parsedDescription,
+            descriptionEn: typeof parsedDescription === 'object' ? parsedDescription.en : parsedDescription,
+            photo: photoPath,
+            languages: guide.languages,
+            experience: guide.experience,
+            rating: guide.rating,
+            pricePerDay: guide.pricePerDay,
+            currency: guide.currency,
+            isHireable: guide.isHireable,
+            isActive: guide.isActive,
+            createdAt: guide.createdAt,
+            updatedAt: guide.updatedAt,
+            tourGuides: guide.tourGuides.map((tg: any) => ({
+              ...tg,
+              tour: tg.tour ? {
+                ...tg.tour,
+                title: parseMultilingualField(tg.tour.title, language)
+              } : null
+            })),
+            guideCountry: processedGuideCountry,
+            guideCity: processedGuideCity,
+            hasPassword: !!guide.password && guide.password.trim() !== '',
+          };
+        }
+      } catch (jsonError) {
+        console.error('Error parsing guide JSON fields:', jsonError, 'Guide ID:', guide.id);
+        return {
+          id: guide.id,
+          name: guide.name || '',
+          description: guide.description || '',
+          photo: normalizePhotoPath(guide.photo),
+          languages: guide.languages,
+          experience: guide.experience,
+          rating: guide.rating,
+          currency: guide.currency,
+          isHireable: guide.isHireable,
+          isActive: guide.isActive,
+          createdAt: guide.createdAt,
+          updatedAt: guide.updatedAt,
+          tourGuides: guide.tourGuides || [],
+          guideCountry: guide.guideCountry,
+          guideCity: guide.guideCity,
+          hasPassword: !!guide.password && guide.password.trim() !== '',
+          // 🔒 ИСКЛЮЧЕНЫ: password, login, passportSeries, registration, residenceAddress
+        };
+      }
+    });
+
+    const response = createLocalizedResponse(
+      localizedGuides,
+      [], // Поля уже обработаны выше
+      language,
+      'Guides retrieved successfully'
+    );
+
+    return res.json(response);
+  } catch (error) {
+    console.error('Error fetching guides:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch guides',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getGuideById = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const includeRaw = req.query.includeRaw === 'true';
+    
+    const guide = await prisma.guide.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        tourGuides: {
+          include: {
+            tour: {
+              select: {
+                id: true,
+                title: true,
+              },
+            },
+          },
+        },
+        guideCountry: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+        guideCity: {
+          select: {
+            id: true,
+            name: true,
+            nameRu: true,
+            nameEn: true,
+          },
+        },
+      },
+    });
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Guide not found',
+      });
+    }
+
+    // ✅ Нормализация пути к фото
+    const photoPath = normalizePhotoPath(guide.photo);
+
+    // ✅ Обработка связанной страны с безопасным парсингом
+    const processedGuideCountry = guide.guideCountry ? {
+      id: guide.guideCountry.id,
+      name: safeJsonParse(guide.guideCountry.name)
+    } : null;
+
+    // ✅ Обработка связанного города с безопасным парсингом  
+    const processedGuideCity = guide.guideCity ? {
+      id: guide.guideCity.id,
+      name: safeJsonParse(guide.guideCity.name)
+    } : null;
+
+    // 🔒 БЕЗОПАСНОСТЬ: Условно возвращаем поля в зависимости от includeRaw
+    const baseGuide = {
+      id: guide.id,
+      name: safeJsonParse(guide.name),
+      description: safeJsonParse(guide.description),
+      photo: photoPath,
+      languages: safeJsonParse(guide.languages),
+      experience: guide.experience,
+      rating: guide.rating,
+      currency: guide.currency,
+      isHireable: guide.isHireable,
+      isActive: guide.isActive,
+      createdAt: guide.createdAt,
+      updatedAt: guide.updatedAt,
+      tourGuides: guide.tourGuides,
+      guideCountry: processedGuideCountry,
+      guideCity: processedGuideCity,
+      hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
+    };
+
+    // 🔐 АДМИН РЕЖИМ: при includeRaw=true добавляем sensitive data
+    const formattedGuide = includeRaw ? {
+      ...baseGuide,
+      login: guide.login,
+      // 🔒 БЕЗОПАСНОСТЬ: Никогда не возвращаем пароль, даже хешированный
+      passportSeries: guide.passportSeries,
+      registration: guide.registration,
+      residenceAddress: guide.residenceAddress,
+      contact: guide.contact, // ✅ Добавляем contact для админ режима
+    } : baseGuide;
+
+    return res.json({
+      success: true,
+      data: formattedGuide,
+    });
+  } catch (error) {
+    console.error('Error fetching guide:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch guide',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getGuidesByTour = async (req: Request, res: Response) => {
+  try {
+    const { tourId } = req.params;
+
+    const tourGuides = await prisma.tourGuide.findMany({
+      where: {
+        tourId: parseInt(tourId),
+        guide: {
+          isActive: true,
+        },
+      },
+      include: {
+        guide: {
+          include: {
+            guideCountry: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+            guideCity: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        isDefault: 'desc',
+      },
+    });
+
+    // 🔒 БЕЗОПАСНОСТЬ: Возвращаем только публичные поля, исключаем PII
+    const formattedGuides = tourGuides.map((tg: any) => {
+      // ✅ Нормализация пути к фото
+      const photoPath = normalizePhotoPath(tg.guide.photo);
+
+      // ✅ Обработка связанной страны с безопасным парсингом
+      const processedGuideCountry = tg.guide.guideCountry ? {
+        id: tg.guide.guideCountry.id,
+        name: safeJsonParse(tg.guide.guideCountry.name)
+      } : null;
+
+      // ✅ Обработка связанного города с безопасным парсингом  
+      const processedGuideCity = tg.guide.guideCity ? {
+        id: tg.guide.guideCity.id,
+        name: safeJsonParse(tg.guide.guideCity.name)
+      } : null;
+
+      return {
+        id: tg.guide.id,
+        name: safeJsonParse(tg.guide.name),
+        description: safeJsonParse(tg.guide.description),
+        photo: photoPath,
+        languages: safeJsonParse(tg.guide.languages),
+        experience: tg.guide.experience,
+        rating: tg.guide.rating,
+        currency: tg.guide.currency,
+        isHireable: tg.guide.isHireable,
+        isActive: tg.guide.isActive,
+        createdAt: tg.guide.createdAt,
+        updatedAt: tg.guide.updatedAt,
+        guideCountry: processedGuideCountry,
+        guideCity: processedGuideCity,
+        isDefault: tg.isDefault,
+        hasPassword: !!tg.guide.password && tg.guide.password.trim() !== '', // ✅ Показываем наличие пароля
+      };
+    });
+
+    return res.json({
+      success: true,
+      data: formattedGuides,
+    });
+  } catch (error) {
+    console.error('Error fetching guides for tour:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch guides for tour',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const updateGuide = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const guideData: Partial<GuideData> = req.body;
+    const { login, password, isActive } = req.body;
+
+    const updateData: any = {};
+    
+    // Handle JSON fields properly - parse incoming JSON strings
+    if (guideData.name) {
+      updateData.name = safeJsonParse(guideData.name);
+    }
+    if (guideData.description) {
+      updateData.description = safeJsonParse(guideData.description);
+    }
+    if (guideData.photo !== undefined) updateData.photo = guideData.photo;
+    if (guideData.languages) {
+      updateData.languages = typeof guideData.languages === 'string' ? guideData.languages : JSON.stringify(guideData.languages);
+    }
+    if (guideData.contact) {
+      updateData.contact = typeof guideData.contact === 'string' ? guideData.contact : JSON.stringify(guideData.contact);
+    }
+    if (guideData.experience !== undefined) updateData.experience = guideData.experience;
+    if (guideData.rating !== undefined) updateData.rating = guideData.rating;
+    if (guideData.countryId !== undefined) updateData.countryId = guideData.countryId;
+    if (guideData.cityId !== undefined) updateData.cityId = guideData.cityId;
+    if (guideData.passportSeries !== undefined) updateData.passportSeries = guideData.passportSeries;
+    if (guideData.registration !== undefined) updateData.registration = guideData.registration;
+    if (guideData.residenceAddress !== undefined) updateData.residenceAddress = guideData.residenceAddress;
+    
+    // 🔒 Обработка полей авторизации с проверками
+    if (login !== undefined) {
+      // Проверка уникальности логина
+      if (login.trim()) {
+        const existingGuide = await prisma.guide.findFirst({ 
+          where: { login: login.trim(), id: { not: parseInt(id) } } 
+        });
+        if (existingGuide) {
+          res.status(400).json({
+            success: false,
+            message: 'Логин уже используется другим гидом'
+          });
+          return;
+        }
+        updateData.login = login.trim();
+      }
+    }
+    
+    if (isActive !== undefined) {
+      // Безопасная обработка boolean
+      updateData.isActive = typeof isActive === 'boolean' ? isActive : String(isActive).toLowerCase() === 'true';
+    }
+    
+    // 🔒 Хешируем новый пароль если он передан
+    if (password && password.trim()) {
+      const saltRounds = 10;
+      updateData.password = await bcrypt.hash(password.trim(), saltRounds);
+    }
+
+    const guide = await prisma.guide.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+    });
+
+    const formattedGuide = {
+      ...guide,
+      name: safeJsonParse(guide.name),
+      description: safeJsonParse(guide.description),
+      languages: safeJsonParse(guide.languages),
+      contact: safeJsonParse(guide.contact),
+      password: undefined, // 🔒 БЕЗОПАСНОСТЬ: Исключаем пароль из ответа
+    };
+
+    return res.json({
+      success: true,
+      message: 'Guide updated successfully',
+      data: formattedGuide,
+    });
+  } catch (error) {
+    console.error('Error updating guide:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update guide',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const deleteGuide = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    await prisma.guide.update({
+      where: { id: parseInt(id) },
+      data: { isActive: false },
+    });
+
+    return res.json({
+      success: true,
+      message: 'Guide deactivated successfully',
+    });
+  } catch (error) {
+    console.error('Error deactivating guide:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to deactivate guide',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const linkGuideToTour = async (req: Request, res: Response) => {
+  try {
+    const { tourId, guideId, isDefault } = req.body;
+
+    // If this is set as default, remove default from other guides for this tour
+    if (isDefault) {
+      await prisma.tourGuide.updateMany({
+        where: { tourId },
+        data: { isDefault: false },
+      });
+    }
+
+    const tourGuide = await prisma.tourGuide.upsert({
+      where: {
+        tourId_guideId: {
+          tourId,
+          guideId,
+        },
+      },
+      update: {
+        isDefault,
+      },
+      create: {
+        tourId,
+        guideId,
+        isDefault,
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: 'Guide linked to tour successfully',
+      data: tourGuide,
+    });
+  } catch (error) {
+    console.error('Error linking guide to tour:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to link guide to tour',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+// Создаём alias для совместимости
+export const createTourGuideProfile = createGuide;

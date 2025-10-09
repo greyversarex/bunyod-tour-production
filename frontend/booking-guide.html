@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Как бронировать туры - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="replit-cache-buster" content="BOOKING-GUIDE-1754862000">
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* ✅ ALL DROPDOWN STYLES MOVED TO /public/css/layout.css - DUPLICATES REMOVED! */
+        
+        /* ===== PAGE-SPECIFIC STYLES FOR BOOKING-GUIDE.HTML =====
+        /* Language and dropdown styles moved to /public/css/layout.css */
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .lang-option.active {
+            background: rgba(107, 114, 128, 0.3);
+            color: #fff;
+        }
+        
+        .lang-name {
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Динамический контейнер для header -->
+    <div id="header-container"></div>
+
+    <!-- Заголовок страницы -->
+    <section class="py-8 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-4xl font-bold mb-4 text-gray-900">
+                Как бронировать туры?
+            </h1>
+            <p class="text-lg text-gray-700">
+                Подробное руководство по бронированию туров на нашем сайте
+            </p>
+        </div>
+    </section>
+
+    <!-- Основной контент -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-6">Руководство по бронированию туров</h2>
+                    
+                    <div class="mb-6 p-4 bg-gray-50 border-l-4 border-gray-500 rounded">
+                        <p class="text-lg text-gray-700">
+                            <span class="font-semibold text-gray-800">Это наш виртуальный офис и онлайн-портал для продажи туров.</span> 
+                            Этот веб-портал предлагает краткую информацию о наших услугах, включая подробности туристических пакетов в Таджикистан и Центральную Азию, а также другие туристические услуги. Он включает систему онлайн-бронирования и различные варианты оплаты туров.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Пошаговое руководство -->
+                <div class="space-y-8">
+                    <!-- Этап 1 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">1-й этап – Выбор туристического пакета:</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Посмотрите на страницу "Туры" и нажмите на понравившийся пакет. Затем ознакомьтесь с информацией об этом пакете. Помните, что все пакеты разделены на две группы: "Индивидуальные (Частные)" и "Групповые".
+                        </p>
+                    </div>
+
+                    <!-- Этап 2 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">2-й этап – Проверка:</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            После выбора туристического пакета заполните дату вашего визита и количество людей во второй колонке формы бронирования. Затем нажмите кнопку "Проверить".
+                        </p>
+                    </div>
+
+                    <!-- Этап 3 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">3-й этап – Бронирование:</h3>
+                        <p class="text-gray-700 leading-relaxed mb-4">
+                            Обратите внимание, что наши туристические пакеты разделены на две группы: индивидуальные (частные) и групповые.
+                        </p>
+                        <div class="ml-4 space-y-3">
+                            <p class="text-gray-700">
+                                <span class="font-semibold">(1) Частные (Индивидуальные) туры</span> предназначены для пар – два, четыре человека. Это означает, что наши туристические пакеты будут выгодны парам. Тем не менее, мы рады предложить пакет для одиноких путешественников. Обратите внимание, что стоимость туристического пакета увеличится.
+                            </p>
+                            <p class="text-gray-700">
+                                <span class="font-semibold">(2) Групповые туры</span> предназначены для групп от 5 и более человек. В нижней части формы бронирования проверьте дату вашего визита. Во второй колонке укажите количество людей в вашей группе. Затем в таблице опций выберите подходящий вариант (отметьте соответствующий флажок) и нажмите на кнопку "Забронировать".
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Этап 4 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">4-й этап – Отправка (Соглашение):</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            На этом этапе вы должны заполнить форму заявки и указать правдивую и правильную информацию. В первой и второй колонках укажите имя и фамилию лица, ответственного за группу, который отвечает за права группы. Если группы нет, индивидуал отвечает за себя. В колонке "Список туристов" пожалуйста, напишите имя и фамилию всех участников тура.
+                        </p>
+                    </div>
+
+                    <!-- Этап 5 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">5-й этап – Способ оплаты:</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            На данном этапе необходимо выбрать подходящий способ оплаты и нажать на соответствующую кнопку.
+                        </p>
+                    </div>
+
+                    <!-- Этап 6 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">6-й этап – Платеж:</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            На этом заключительном этапе, например, при использовании способа оплаты Visa, необходимо ввести данные карты держателя карты. Это включает номер карты, срок действия, имя держателя карты, CVC-код и адрес электронной почты. Затем необходимо нажать кнопку "ОПЛАТИТЬ". На данном этапе, пожалуйста, дождитесь ответа системы безопасности вашего банка и следуйте процедуре требований вашего банка.
+                        </p>
+                    </div>
+
+                    <!-- Этап 7 -->
+                    <div class="border-l-4 border-gray-500 pl-6">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">7-й этап – Подтверждение бронирования:</h3>
+                        <p class="text-gray-700 leading-relaxed">
+                            Если все процедуры выполнены, в течение 24 часов вы получите подтверждение бронирования. Однако, если есть задержка, пожалуйста, свяжитесь с нами по телефону/WhatsApp: +992 915-123-344
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Дополнительная информация -->
+                <div class="mt-12 space-y-6">
+                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
+                        <h4 class="font-bold text-gray-800 mb-3">Внимание:</h4>
+                        <p class="text-gray-700">
+                            Если у вас возникли трудности с процессом оплаты или вам требуется альтернативный способ оплаты, пожалуйста, обратитесь к дополнительному списку способов оплаты 
+                            <a href="payment-rules-ru.pdf" target="_blank" class="underline font-semibold" style="color: #6B7280;">
+                                Список способов оплаты.
+                            </a>
+                        </p>
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-300 rounded-lg p-6">
+                        <h4 class="font-bold text-gray-800 mb-3">Для получения туристической визы:</h4>
+                        <p class="text-gray-700">
+                            Для посещения Таджикистана доступны три типа виз: (1) безвизовый режим (для 110 стран); (2) электронная/упрощенная виза; (3) стандартная виза. 
+                            Для получения подробной информации посетите специальную страницу 
+                            <a href="visa-support.html" class="underline font-semibold" style="color: #6B7280;">
+                                ВИЗОВЫЙ РЕЖИМ
+                            </a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Динамический контейнер для footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Функции для языкового селектора
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectLanguage(lang, flagClass, name) {
+            // Обновляем флаг и текст в кнопке селектора
+            document.querySelector('.selected-flag').className = `selected-flag ${flagClass}`;
+            document.querySelector('.selected-lang').textContent = name;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#langDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('langDropdown').classList.remove('show');
+            
+            console.log(`Переключен язык: ${lang}`);
+            
+            // Закрываем dropdown  
+            toggleLanguageDropdown();
+        }
+
+        // Функции для валютного селектора
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectCurrency(currencyCode, symbol) {
+            // Обновляем кнопку селектора
+            document.querySelector('.selected-currency').textContent = currencyCode;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-currency="${currencyCode.toLowerCase()}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('currencyDropdown').classList.remove('show');
+            
+            console.log(`Переключена валюта: ${currencyCode}`);
+            
+            // Предотвращаем переход по ссылке
+            event.preventDefault();
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="news.page_title">Новости - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script defer src="/public/js/i18n.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .news-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .news-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .news-image {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        .read-time {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+        
+        /* ===== PAGE-SPECIFIC STYLES FOR NEWS.HTML =====
+        /* Dropdown styles are now in /public/css/layout.css */
+        /* Language and dropdown styles moved to /public/css/layout.css */
+        
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #6B7280;
+            color: white;
+            border-color: #6B7280;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #6B7280;
+            color: white;
+            border-color: #6B7280;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Динамический контейнер для header -->
+    <div id="header-container"></div>
+
+
+
+    <!-- Рекомендуемая новость -->
+    <section id="featuredSection" class="py-16 bg-gray-50" style="display: none;">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center" data-translate="news.featured_news">Рекомендуемая новость</h2>
+            <div id="featuredNews" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- Динамически заполняется через JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Основные новости -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-gray-900" data-translate="news.all_news">Все новости</h2>
+                <div id="loadingIndicator" class="loading-spinner" style="display: none;"></div>
+            </div>
+            
+            <!-- Сетка новостей -->
+            <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                <!-- Динамически заполняется через JavaScript -->
+            </div>
+            
+            <!-- Пагинация -->
+            <div id="pagination" class="flex justify-center items-center space-x-2">
+                <!-- Динамически заполняется через JavaScript -->
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Динамический контейнер для footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Глобальные переменные
+        let currentPage = 1;
+        let isLoading = false;
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews();
+            setupEventListeners();
+        });
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Обработчики событий для новостей (фильтры убраны)
+        }
+
+        // Загрузка новостей
+        async function loadNews() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            showLoading(true);
+
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: 9
+                });
+
+                const response = await fetch(`/api/news?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderNews(data.data.news);
+                    renderFeaturedNews(data.data.featured);
+                    renderPagination(data.data.pagination);
+                } else {
+                    showError(window.getTranslation ? window.getTranslation('news.loading_error') : 'Ошибка при загрузке новостей');
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError(window.getTranslation ? window.getTranslation('news.connection_error') : 'Ошибка подключения к серверу');
+            } finally {
+                isLoading = false;
+                showLoading(false);
+            }
+        }
+
+        // Отображение новостей
+        function renderNews(news) {
+            const newsGrid = document.getElementById('newsGrid');
+            
+            if (!news || news.length === 0) {
+                newsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">${window.getTranslation ? window.getTranslation('news.no_news_found') : 'Новостей не найдено'}</h3>
+                        <p class="text-gray-500">Новости появятся совсем скоро. Заходите позже!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            newsGrid.innerHTML = news.map(article => {
+                const title = parseMultilingualContent(article.title, 'ru');
+                const excerpt = parseMultilingualContent(article.excerpt, 'ru');
+                const publishDate = new Date(article.publishedAt).toLocaleDateString('ru-RU');
+                const readTime = article.readTime || 5;
+
+                return `
+                    <article class="news-card bg-white shadow-lg overflow-hidden cursor-pointer" onclick="openNewsDetail('${article.slug}')">
+                        <div class="relative">
+                            <img src="${article.image || '/api/placeholder/400/225'}" alt="${title}" class="news-image w-full">
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">${title}</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">${excerpt}</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500">
+                                <span><i class="far fa-calendar-alt mr-1"></i>${publishDate}</span>
+                                <span class="read-time"><i class="far fa-clock mr-1"></i>${readTime} мин</span>
+                            </div>
+                            <div class="flex items-center justify-between mt-4">
+                                <span class="text-xs text-gray-400"><i class="far fa-eye mr-1"></i>${article.views || 0} просмотров</span>
+                                <span class="text-sm font-medium text-gray-700">${window.getTranslation ? window.getTranslation('news.read_more') : 'Читать далее'} →</span>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // Отображение рекомендуемой новости
+        function renderFeaturedNews(featured) {
+            const featuredSection = document.getElementById('featuredSection');
+            const featuredNews = document.getElementById('featuredNews');
+
+            if (!featured) {
+                featuredSection.style.display = 'none';
+                return;
+            }
+
+            featuredSection.style.display = 'block';
+            const title = parseMultilingualContent(featured.title, 'ru');
+            const excerpt = parseMultilingualContent(featured.excerpt, 'ru');
+            const publishDate = new Date(featured.publishedAt).toLocaleDateString('ru-RU');
+
+            featuredNews.innerHTML = `
+                <div class="relative">
+                    <img src="${featured.image || '/api/placeholder/600/400'}" alt="${title}" class="w-full h-80 object-cover rounded-lg">
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span><i class="far fa-calendar-alt mr-1"></i>${publishDate}</span>
+                        <span><i class="far fa-eye mr-1"></i>${featured.views || 0} просмотров</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                            <i class="fas fa-star mr-1"></i>Рекомендуемое
+                        </span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900">${title}</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed">${excerpt}</p>
+                    <button 
+                        onclick="openNewsDetail('${featured.slug}')"
+                        class="inline-flex items-center px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                        style="background-color: #6B7280;"
+                        onmouseover="this.style.backgroundColor='#4B5563'" 
+                        onmouseout="this.style.backgroundColor='#6B7280'"
+                    >
+                        Читать полностью
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        // Отображение пагинации
+        function renderPagination(pagination) {
+            const paginationContainer = document.getElementById('pagination');
+            
+            if (!pagination || pagination.totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+
+            // Предыдущая страница
+            paginationHTML += `
+                <button class="pagination-btn ${!pagination.hasPrev ? 'opacity-50 cursor-not-allowed' : ''}" 
+                        onclick="changePage(${pagination.currentPage - 1})" 
+                        ${!pagination.hasPrev ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            // Номера страниц
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHTML += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+                if (startPage > 2) {
+                    paginationHTML += `<span class="px-2">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === pagination.currentPage ? 'active' : ''}" 
+                            onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            if (endPage < pagination.totalPages) {
+                if (endPage < pagination.totalPages - 1) {
+                    paginationHTML += `<span class="px-2">...</span>`;
+                }
+                paginationHTML += `<button class="pagination-btn" onclick="changePage(${pagination.totalPages})">${pagination.totalPages}</button>`;
+            }
+
+            // Следующая страница
+            paginationHTML += `
+                <button class="pagination-btn ${!pagination.hasNext ? 'opacity-50 cursor-not-allowed' : ''}" 
+                        onclick="changePage(${pagination.currentPage + 1})" 
+                        ${!pagination.hasNext ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        // Смена страницы
+        function changePage(page) {
+            if (isLoading || page < 1) return;
+            currentPage = page;
+            loadNews();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Открытие детальной страницы новости
+        function openNewsDetail(slug) {
+            // В реальном приложении здесь бы был переход на страницу новости
+            // Пока просто показываем уведомление
+            alert(`Переход к новости: ${slug}\n\nВ реальном приложении здесь будет открыта детальная страница новости.`);
+        }
+
+
+        // Вспомогательные функции
+        function parseMultilingualContent(content, lang = 'ru') {
+            if (!content) return '';
+            
+            try {
+                const parsed = JSON.parse(content);
+                return parsed[lang] || parsed.ru || parsed.en || content;
+            } catch {
+                return content;
+            }
+        }
+
+        function showLoading(show) {
+            const indicator = document.getElementById('loadingIndicator');
+            indicator.style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const newsGrid = document.getElementById('newsGrid');
+            newsGrid.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-red-700 mb-2">Ошибка</h3>
+                    <p class="text-red-500">${message}</p>
+                </div>
+            `;
+        }
+
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Функции для языкового селектора
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectLanguage(lang, flagClass, name) {
+            document.querySelector('.selected-flag').className = `selected-flag ${flagClass}`;
+            document.querySelector('.selected-lang').textContent = name;
+            
+            document.querySelectorAll('#langDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            document.getElementById('langDropdown').classList.remove('show');
+            console.log(`Переключен язык: ${lang}`);
+        }
+
+        // Функции для валютного селектора
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectCurrency(currencyCode, symbol) {
+            document.querySelector('.selected-currency').textContent = currencyCode;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-currency="${currencyCode.toLowerCase()}"]`).classList.add('active');
+            
+            document.getElementById('currencyDropdown').classList.remove('show');
+            console.log(`Переключена валюта: ${currencyCode}`);
+            
+            event.preventDefault();
+            return false;
+        }
+    </script>
+</body>
+</html>

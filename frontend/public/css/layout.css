@@ -1,0 +1,247 @@
+/**
+ * Centralized Layout Styles for Bunyod-Tour
+ * Contains all header, footer, dropdown, language/currency selector styles
+ * Single source of truth to eliminate duplication across pages
+ */
+
+/* ===== DROPDOWN NAVIGATION STYLES ===== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #2F2F2F;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    z-index: 1000;
+    border-radius: 8px;
+    top: 100%;
+    left: 0;
+    padding: 8px 0;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: white !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #4A4A4A;
+}
+
+/* ===== DROPDOWN SUBMENU STYLES ===== */
+.dropdown-content .dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-content .dropdown-submenu .dropdown-subcontent {
+    display: none !important;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: #2F2F2F;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 8px 0;
+    z-index: 1001;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu:hover .dropdown-subcontent {
+    display: block !important;
+}
+
+.dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+    display: block !important;
+}
+
+/* ===== LANGUAGE SELECTOR STYLES ===== */
+.language-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.lang-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 0.375rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.lang-selector-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.lang-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(47, 47, 47, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem 0;
+    min-width: 200px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.lang-dropdown-content.show {
+    display: block;
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.lang-option:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.lang-option.active {
+    background: rgba(255,255,255,0.15);
+    font-weight: 500;
+}
+
+/* ===== CURRENCY SELECTOR STYLES ===== */
+.currency-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.currency-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 0.375rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    min-width: 100px;
+}
+
+.currency-selector-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.3);
+}
+
+.currency-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(47, 47, 47, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 0.5rem 0;
+    min-width: 120px;
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.currency-dropdown-content.show {
+    display: block;
+}
+
+.currency-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.currency-option:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.currency-option.active {
+    background: rgba(255,255,255,0.15);
+    font-weight: 500;
+}
+
+/* ===== DROPDOWN ARROWS ===== */
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+    margin-left: 0.25rem;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+    .dropdown-content,
+    .dropdown-subcontent {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90vw;
+        max-width: 300px;
+    }
+    
+    .lang-dropdown-content,
+    .currency-dropdown-content {
+        right: 0;
+        left: auto;
+        transform: none;
+        width: auto;
+        min-width: 140px;
+    }
+}
+
+/* ===== ACCESSIBILITY STYLES ===== */
+.dropdown-content a:focus,
+.lang-option:focus,
+.currency-option:focus {
+    outline: 2px solid rgba(255,255,255,0.5);
+    outline-offset: 2px;
+    background: rgba(255,255,255,0.1);
+}
+
+/* Ensure keyboard navigation */
+.dropdown:focus-within .dropdown-content {
+    display: block;
+}

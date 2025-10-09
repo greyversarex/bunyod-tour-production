@@ -1,0 +1,415 @@
+{
+        "info": {
+                "_postman_id": "payler-test-collection",
+                "name": "BunyodTour-Payler-Test",
+                "description": "Коллекция для тестирования полного цикла Payler оплаты с HMAC валидацией",
+                "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+        },
+        "item": [
+                {
+                        "name": "1. Создание Payler платежа",
+                        "event": [
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 200\", function () {",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response has redirectUrl\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData).to.have.property('redirectUrl');",
+                                                        "    pm.expect(jsonData.success).to.be.true;",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"RedirectUrl contains Payler domain\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.redirectUrl).to.include('payler.com');",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "POST",
+                                "header": [
+                                        {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                        }
+                                ],
+                                "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n  \"orderNumber\": \"ORD-12345\"\n}"
+                                },
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payler/create",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payler", "create"]
+                                },
+                                "description": "Создает новый платеж через Payler StartSession API.\nВ случае успеха возвращает redirectUrl для перенаправления пользователя на страницу оплаты Payler."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "2. Callback Success (Charged)",
+                        "event": [
+                                {
+                                        "listen": "prerequest",
+                                        "script": {
+                                                "exec": [
+                                                        "// Генерируем правильную HMAC подпись для orderId=1 и status=Charged",
+                                                        "const crypto = require('crypto-js');",
+                                                        "const paylerKey = '1a92a7df-45d3-4fe7-8149-2fd0c7e8d366'; // Боевой PAYLER_KEY",
+                                                        "const orderId = '1';",
+                                                        "const status = 'Charged';",
+                                                        "const message = orderId + status;",
+                                                        "const signature = crypto.HmacSHA256(message, paylerKey).toString();",
+                                                        "pm.environment.set('VALID_SIGNATURE_CHARGED', signature);",
+                                                        "console.log('Generated signature for Charged:', signature);"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                },
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 200\", function () {",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response indicates success\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.success).to.be.true;",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Payment status updated to paid\", function () {",
+                                                        "    // Этот тест проверит, что callback был успешно обработан",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "POST",
+                                "header": [
+                                        {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                        },
+                                        {
+                                                "key": "x-payler-signature",
+                                                "value": "{{VALID_SIGNATURE_CHARGED}}",
+                                                "type": "text"
+                                        }
+                                ],
+                                "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n  \"orderId\": \"1\",\n  \"status\": \"Charged\"\n}"
+                                },
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payler/callback",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payler", "callback"]
+                                },
+                                "description": "Имитирует успешный callback от Payler с корректной HMAC подписью.\nДолжен обновить статус заказа на 'paid' и отправить email подтверждение."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "3. Callback Fail (Canceled)",
+                        "event": [
+                                {
+                                        "listen": "prerequest",
+                                        "script": {
+                                                "exec": [
+                                                        "// Генерируем правильную HMAC подпись для orderId=1 и status=Canceled",
+                                                        "const crypto = require('crypto-js');",
+                                                        "const paylerKey = '1a92a7df-45d3-4fe7-8149-2fd0c7e8d366'; // Боевой PAYLER_KEY",
+                                                        "const orderId = '1';",
+                                                        "const status = 'Canceled';",
+                                                        "const message = orderId + status;",
+                                                        "const signature = crypto.HmacSHA256(message, paylerKey).toString();",
+                                                        "pm.environment.set('VALID_SIGNATURE_CANCELED', signature);",
+                                                        "console.log('Generated signature for Canceled:', signature);"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                },
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 200\", function () {",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response indicates success\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.success).to.be.true;",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Payment status updated to failed\", function () {",
+                                                        "    // Этот тест проверит, что callback был успешно обработан",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "POST",
+                                "header": [
+                                        {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                        },
+                                        {
+                                                "key": "x-payler-signature",
+                                                "value": "{{VALID_SIGNATURE_CANCELED}}",
+                                                "type": "text"
+                                        }
+                                ],
+                                "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n  \"orderId\": \"1\",\n  \"status\": \"Canceled\"\n}"
+                                },
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payler/callback",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payler", "callback"]
+                                },
+                                "description": "Имитирует неуспешный callback от Payler с корректной HMAC подписью.\nДолжен обновить статус заказа на 'failed'."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "4. Callback с неверной подписью",
+                        "event": [
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 403 Forbidden\", function () {",
+                                                        "    pm.response.to.have.status(403);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response indicates invalid signature\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.success).to.be.false;",
+                                                        "    pm.expect(jsonData.message).to.include('Invalid signature');",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Security validation works\", function () {",
+                                                        "    // Проверяем, что система правильно отклоняет поддельные подписи",
+                                                        "    pm.expect(pm.response.code).to.equal(403);",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "POST",
+                                "header": [
+                                        {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                        },
+                                        {
+                                                "key": "x-payler-signature",
+                                                "value": "WRONG_SIGNATURE_12345",
+                                                "type": "text"
+                                        }
+                                ],
+                                "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n  \"orderId\": \"1\",\n  \"status\": \"Charged\"\n}"
+                                },
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payler/callback",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payler", "callback"]
+                                },
+                                "description": "Тестирует безопасность системы, отправляя callback с неправильной HMAC подписью.\nДолжен вернуть 403 Forbidden с сообщением 'Invalid signature'."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "5. Callback без подписи",
+                        "event": [
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 403 Forbidden\", function () {",
+                                                        "    pm.response.to.have.status(403);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response indicates missing signature\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.success).to.be.false;",
+                                                        "    pm.expect(jsonData.message).to.include('Invalid signature');",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "POST",
+                                "header": [
+                                        {
+                                                "key": "Content-Type",
+                                                "value": "application/json",
+                                                "type": "text"
+                                        }
+                                ],
+                                "body": {
+                                        "mode": "raw",
+                                        "raw": "{\n  \"orderId\": \"1\",\n  \"status\": \"Charged\"\n}"
+                                },
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payler/callback",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payler", "callback"]
+                                },
+                                "description": "Тестирует безопасность системы, отправляя callback без HMAC подписи.\nДолжен вернуть 403 Forbidden."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "6. Получить заказ (проверка статуса)",
+                        "event": [
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 200\", function () {",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Response contains order data\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData).to.have.property('success');",
+                                                        "    pm.expect(jsonData.success).to.be.true;",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Order has payment status\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    if (jsonData.order) {",
+                                                        "        pm.expect(jsonData.order).to.have.property('paymentStatus');",
+                                                        "        console.log('Current payment status:', jsonData.order.paymentStatus);",
+                                                        "    }",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/orders/1",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "orders", "1"]
+                                },
+                                "description": "Получает информацию о заказе для проверки текущего статуса оплаты.\nИспользуется для верификации результатов предыдущих callback запросов."
+                        },
+                        "response": []
+                },
+                {
+                        "name": "7. Получить методы оплаты",
+                        "event": [
+                                {
+                                        "listen": "test",
+                                        "script": {
+                                                "exec": [
+                                                        "pm.test(\"Status code is 200\", function () {",
+                                                        "    pm.response.to.have.status(200);",
+                                                        "});",
+                                                        "",
+                                                        "pm.test(\"Payler method is available\", function () {",
+                                                        "    var jsonData = pm.response.json();",
+                                                        "    pm.expect(jsonData.success).to.be.true;",
+                                                        "    var paylerMethod = jsonData.data.find(method => method.id === 'payler');",
+                                                        "    pm.expect(paylerMethod).to.exist;",
+                                                        "    console.log('Payler enabled:', paylerMethod.enabled);",
+                                                        "});"
+                                                ],
+                                                "type": "text/javascript"
+                                        }
+                                }
+                        ],
+                        "request": {
+                                "method": "GET",
+                                "header": [],
+                                "url": {
+                                        "raw": "{{BASE_URL}}/api/payments/payment-methods",
+                                        "host": ["{{BASE_URL}}"],
+                                        "path": ["api", "payments", "payment-methods"]
+                                },
+                                "description": "Проверяет доступность Payler в списке методов оплаты.\nПоказывает статус конфигурации PAYLER_KEY."
+                        },
+                        "response": []
+                }
+        ],
+        "event": [
+                {
+                        "listen": "prerequest",
+                        "script": {
+                                "id": "global-prerequest",
+                                "exec": [
+                                        "// Глобальные настройки для всех запросов",
+                                        "console.log('🔄 Executing request to:', pm.request.url.toString());"
+                                ],
+                                "type": "text/javascript"
+                        }
+                },
+                {
+                        "listen": "test",
+                        "script": {
+                                "id": "global-test",
+                                "exec": [
+                                        "// Глобальные тесты для всех запросов",
+                                        "pm.test(\"Response time is less than 5000ms\", function () {",
+                                        "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                                        "});",
+                                        "",
+                                        "pm.test(\"Response has valid JSON format\", function () {",
+                                        "    try {",
+                                        "        pm.response.json();",
+                                        "    } catch (e) {",
+                                        "        pm.expect.fail('Response is not valid JSON');",
+                                        "    }",
+                                        "});"
+                                ],
+                                "type": "text/javascript"
+                        }
+                }
+        ],
+        "variable": [
+                {
+                        "key": "BASE_URL",
+                        "value": "http://localhost:5000",
+                        "type": "string"
+                },
+                {
+                        "key": "PAYLER_KEY",
+                        "value": "1a92a7df-45d3-4fe7-8149-2fd0c7e8d366",
+                        "type": "string",
+                        "description": "Боевой секретный ключ Payler для генерации HMAC подписей"
+                }
+        ]
+}

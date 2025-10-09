@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="page.title">Bunyod-Tour - Туры по Таджикистану</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Flatpickr Calendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="replit-cache-buster" content="DARK-FILTER-1754862000">
+    
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script defer src="/public/js/i18n.js"></script>
+    <script defer src="/public/js/multilingual-utils.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+    <script defer src="/public/js/utils.js"></script>
+    
+    <script src="/public/js/replit-cache.js"></script>
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .filter-gradient {
+            background: linear-gradient(135deg, #4A4A4A 0%, #3E3E3E 50%, #2F2F2F 100%);
+            box-shadow: 0 10px 30px rgba(47, 47, 47, 0.4);
+        }
+        .modern-select {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .modern-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+        .modern-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+        .service-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .service-card:hover::before {
+            left: 100%;
+        }
+        .service-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .service-icon {
+            background: linear-gradient(135deg, var(--icon-color-1), var(--icon-color-2));
+            box-shadow: 0 8px 20px var(--icon-shadow);
+            transition: all 0.3s ease;
+        }
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* Tour Block Carousel Styles */
+        .tour-block-container {
+            position: relative;
+        }
+        
+        .tour-carousel {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            gap: 1.5rem;
+            padding: 0 60px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .tour-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hero Slider Styles */
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+        }
+        
+        .slider-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .slider-dot.active {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        .slider-dot:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .tour-card {
+            min-width: 280px;
+            max-width: 280px;
+            flex-shrink: 0;
+        }
+        
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .carousel-button:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .carousel-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .carousel-button.prev {
+            left: 10px;
+        }
+        
+        .carousel-button.next {
+            right: 10px;
+        }
+        
+        .carousel-button svg {
+            width: 24px;
+            height: 24px;
+            color: #3e3e3e;
+        }
+        
+        .carousel-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: translateY(-50%) scale(0.9);
+        }
+        
+        @media (max-width: 768px) {
+            .tour-carousel {
+                padding: 0 20px;
+            }
+            
+            .carousel-button {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .carousel-button svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+        
+        /* Анимированные иконки услуг */
+        .car-icon, .guide-icon, .agency-icon, .class-icon {
+            font-size: 3rem;
+            transition: all 0.4s ease;
+            display: inline-block;
+            color: #3E3E3E;
+        }
+        
+        .service-card:hover .car-icon {
+            animation: drive 1.5s ease-in-out infinite alternate;
+            color: #2563EB;
+            filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.4));
+        }
+        
+        .service-card:hover .car-icon {
+            color: #2563EB;
+            transform: scale(1.1);
+        }
+        @keyframes drive {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(15px); }
+        }
+        
+        .service-card:hover .guide-icon {
+            animation: wave 1.2s ease-in-out infinite;
+            color: #059669;
+            filter: drop-shadow(0 4px 12px rgba(5, 150, 105, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+        
+        .service-card:hover .agency-icon {
+            animation: bounce 1s ease-in-out infinite;
+            color: #DC2626;
+            filter: drop-shadow(0 4px 12px rgba(220, 38, 38, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.1); }
+        }
+        
+        .service-card:hover .class-icon {
+            animation: rotate 2s linear infinite;
+            color: #7C3AED;
+            filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        /* Стили для выпадающих меню навигации */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2F2F2F;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border-radius: 8px;
+            top: 100%;
+            left: 0;
+            padding: 8px 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+        }
+        .dropdown-content .dropdown-submenu {
+            position: relative;
+        }
+        .dropdown-content .dropdown-submenu .dropdown-subcontent {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #2F2F2F;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1001;
+        }
+        .dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+            display: block !important;
+        }
+        
+        /* Стили для языкового селектора */
+        .language-selector {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+        .language-selector:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Стили для поисковика */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+
+        .search-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        .filter-icon-btn {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-icon-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Стили для языкового селектора с флагами */
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            min-width: 80px;
+        }
+        
+        .lang-selector-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .selected-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .flag {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        /* HOTFIX: Принудительное отображение эмодзи флагов (отключаем псевдоэлементы) */
+        .flag, .selected-flag {
+            width: 24px;
+            height: 16px;
+            display: inline-block !important;
+            text-align: center;
+            line-height: 16px;
+            font-size: 16px !important;
+            border-radius: 2px;
+            margin-right: 8px;
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            /* Критично: отключаем любые псевдоэлементы которые могут добавлять текстовые коды */
+            text-indent: 0 !important;
+            color: inherit !important;
+        }
+
+        /* 🚨 ГЛОБАЛЬНАЯ ЗАЩИТА: Отключение ВСЕХ псевдоэлементов флагов */
+        [class^="flag-"]::before, [class*=" flag-"]::before,
+        [class^="flag-"]::after,  [class*=" flag-"]::after {
+            content: none !important;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            font-size: 0 !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+        }
+
+        /* 🎌 ГЛОБАЛЬНАЯ ЗАЩИТА: Принудительные эмодзи для ВСЕХ флагов */
+        [class^="flag-"], [class*=" flag-"] {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            font-size: 16px !important;
+            color: inherit !important;
+            text-indent: 0 !important;
+            letter-spacing: 0 !important;
+            word-spacing: 0 !important;
+            text-transform: none !important;
+            text-decoration: none !important;
+            background: none !important;
+            background-image: none !important;
+            text-shadow: none !important;
+        }
+
+        /* 🔧 СПЕЦИФИЧЕСКИЕ ФЛАГИ: Дополнительная защита для языкового селектора */
+        .flag, .selected-flag,
+        .flag-ru, .flag-us, .flag-tj, .flag-ir, .flag-de, .flag-cn {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            font-size: 16px !important;
+            color: inherit !important;
+            text-indent: 0 !important;
+            background: none !important;
+            background-image: none !important;
+        }
+
+        /* 💀 УБИЙЦА псевдоэлементов: Дублирующая защита для всех возможных комбинаций */
+        .flag::before, .flag::after, .selected-flag::before, .selected-flag::after,
+        .flag-ru::before, .flag-ru::after, .flag-us::before, .flag-us::after,
+        .flag-tj::before, .flag-tj::after, .flag-ir::before, .flag-ir::after,
+        .flag-de::before, .flag-de::after, .flag-cn::before, .flag-cn::after {
+            content: none !important;
+            display: none !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+            font-size: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            margin-left: auto;
+        }
+        
+        .dropdown-arrow.open {
+            transform: rotate(180deg);
+        }
+        
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(47, 47, 47, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 160px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .lang-dropdown-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .lang-option.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        
+        .lang-option .flag {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .lang-option .lang-name {
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        /* Система поиска с выдвижными фильтрами */
+        .search-filter-container {
+            margin-bottom: 2rem;
+        }
+        
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            background: #3E3E3E;
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(62, 62, 62, 0.3);
+        }
+        
+        .search-input-compact {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-input-compact::placeholder {
+            color: #9CA3AF;
+        }
+        
+        .search-input-compact:focus {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .filter-toggle-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-toggle-btn:hover {
+            background: #F8F9FA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .search-btn-compact {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: #6B7280;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+        
+        .search-btn-compact:hover {
+            background: #4B5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+        }
+        
+        /* Панель фильтров */
+        .filter-panel {
+            background: #3E3E3E;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: none;
+            box-shadow: 0 8px 25px rgba(62, 62, 62, 0.3);
+            transition: all 0.4s ease;
+            animation: slideDown 0.4s ease;
+            margin-top: 1rem;
+        }
+        
+        .filter-panel.hidden {
+            display: none;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-select, .filter-date {
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .filter-select option {
+            background: white;
+            color: #374151;
+        }
+        
+        .filter-select:focus, .filter-date:focus {
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .filter-select:hover, .filter-date:hover {
+            background: #F8F9FA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Стрелка для select */
+        .filter-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+        
+        /* Стили для автодополнения */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 0.875rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-icon {
+            width: 20px;
+            height: 20px;
+            color: #6b7280;
+        }
+        
+        .suggestion-text {
+            flex: 1;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+        
+        .suggestion-type {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .search-section {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1.25rem;
+            }
+            
+            .search-input-compact, .filter-toggle-btn, .search-btn-compact {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .filter-panel {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+        }
+    </style>
+    
+    <!-- ✅ АРХИТЕКТУРНАЯ ЧИСТОТА: Leaflet подключается только в footer! -->
+</head>
+<body>
+    <!-- Header будет загружен динамически через layout-loader.js -->
+    <div id="header-container"></div>
+
+    <!-- Главный баннер/слайдер -->
+    <section id="heroSlider" class="banner-height relative overflow-hidden">
+        <!-- Слайды будут загружены динамически -->
+        <div id="slidesContainer" class="h-full w-full">
+            <!-- Загрузочный плейсхолдер -->
+            <div class="hero-bg banner-height relative flex items-center justify-center text-white">
+                <div class="gradient-overlay absolute inset-0"></div>
+                <div class="relative z-10 text-center max-w-4xl mx-auto px-6">
+                    <h1 class="text-6xl font-bold mb-6">
+                        Откройте красоту Таджикистана
+                    </h1>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto">
+                        Исследуйте захватывающие горы Памира, древние города Шёлкового пути и богатую культуру этой удивительной страны
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Навигация слайдера -->
+        <div id="sliderNavigation" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <!-- Точки будут добавлены динамически -->
+        </div>
+        
+        <!-- Стрелки навигации -->
+        <button id="prevSlide" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl opacity-70 hover:opacity-100 transition-opacity duration-300 z-10" style="display: none;">
+            &#8249;
+        </button>
+        <button id="nextSlide" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl opacity-70 hover:opacity-100 transition-opacity duration-300 z-10" style="display: none;">
+            &#8250;
+        </button>
+        
+        <!-- Брендинг -->
+        <div class="absolute bottom-8 right-8">
+            <div class="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg text-sm">
+                <span data-translate="hero.more_with_bunyod">Больше с Bunyod-Tour</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Система фильтров туров -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.find_perfect_tour">
+                Найдите идеальный тур
+            </h2>
+            
+            <!-- Компактный поисковик с фильтрами -->
+                <div class="search-filter-container">
+                    <!-- Поисковая строка с кнопкой фильтра -->
+                    <div class="search-section">
+                        <div class="search-autocomplete-container" style="position: relative; flex: 1; width: 100%;">
+                            <input type="text" id="searchInput" class="search-input-compact" data-translate-placeholder="placeholder.search_perfect_tour" placeholder="Найдите идеальный тур: Памир, Искандеркуль, треккинг..." 
+                                   onkeypress="if(event.key==='Enter') performSearch()" 
+                                   oninput="handleSearchInput(this.value)" 
+                                   onfocus="showSuggestions()" 
+                                   onblur="hideSuggestions()"
+                                   style="width: 100%;">
+                            <div id="searchSuggestions" class="search-suggestions hidden"></div>
+                        </div>
+                        
+                        <button onclick="toggleFilterPanel()" class="filter-toggle-btn">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            <span data-translate="btn.filter">Фильтры</span>
+                        </button>
+                        
+                        <button onclick="performSearch()" class="search-btn-compact">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <span data-translate="btn.search">Найти</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Панель фильтров (скрыта по умолчанию) -->
+                    <div id="filterPanel" class="filter-panel hidden">
+                        <div class="filter-grid">
+                            <select id="countryFilter" class="filter-select" onchange="updateCities(); updateHotels()">
+                                <option value="" data-translate="filter.country">Страна</option>
+                                <option value="Таджикистан" data-translate="country.tajikistan">Таджикистан</option>
+                                <option value="Узбекистан" data-translate="country.uzbekistan">Узбекистан</option>
+                                <option value="Кыргызстан" data-translate="country.kyrgyzstan">Кыргызстан</option>
+                                <option value="Казахстан" data-translate="country.kazakhstan">Казахстан</option>
+                                <option value="Туркменистан" data-translate="country.turkmenistan">Туркменистан</option>
+                            </select>
+                            
+                            <select id="cityFilter" class="filter-select">
+                                <option value="" data-translate="filter.city">Город</option>
+                            </select>
+                            
+                            <select id="formatFilter" class="filter-select">
+                                <option value="" data-translate="filter.tour_type">Вид тура</option>
+                                <option value="Персональный" data-translate="tour_type.personal">Персональный</option>
+                                <option value="Групповой персональный" data-translate="tour_type.group_personal">Групповой персональный</option>
+                                <option value="Групповой общий" data-translate="tour_type.group_general">Групповой общий</option>
+                                <option value="VIP" data-translate="tour.vip">VIP</option>
+                            </select>
+                            
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="" data-translate="filter.category">Категория</option>
+                                <option value="Однодневные" data-translate="tour.single_day">Однодневные</option>
+                                <option value="Многодневные" data-translate="tour.multi_day">Многодневные</option>
+                                <option value="Экскурсии" data-translate="tour.excursions">Экскурсии</option>
+                                <option value="Городские туры" data-translate="tour.city_tours">Городские туры</option>
+                                <option value="Природа, экологические туры" data-translate="tour.nature_eco">Природа, экологические туры</option>
+                                <option value="Культурно познавательные туры" data-translate="tour.cultural">Культурно познавательные туры</option>
+                                <option value="Исторические туры" data-translate="tour.historical">Исторические туры</option>
+                                <option value="Походы, трекинги" data-translate="tour.trekking">Походы, трекинги</option>
+                                <option value="Горные ландшафты" data-translate="tour.mountain_landscapes">Горные ландшафты</option>
+                                <option value="Озерные ландшафты" data-translate="tour.lake_landscapes">Озерные ландшафты</option>
+                                <option value="Приключенческие туры" data-translate="tour.adventure">Приключенческие туры</option>
+                                <option value="Гастрономические туры" data-translate="tour.gastronomy">Гастрономические туры</option>
+                                <option value="Автотуры, сафари, джип-туры" data-translate="tour.auto_safari">Автотуры, сафари, джип-туры</option>
+                                <option value="Агротуры" data-translate="tour.agro">Агротуры</option>
+                                <option value="VIP туры" data-translate="tour.vip">VIP туры</option>
+                            </select>
+                            
+                            <!-- Hotel Brand Filter -->
+                            <select id="hotelBrandFilter" class="filter-select" onchange="updateHotelFilters()">
+                                <option value="" data-translate="filter.hotel_brand">Бренд отеля</option>
+                                <optgroup data-translate-label="hotel_segment.luxury" label="Люкс сегмент">
+                                    <option value="Four Seasons">Four Seasons</option>
+                                    <option value="Ritz-Carlton">Ritz-Carlton</option>
+                                    <option value="W Hotels">W Hotels</option>
+                                    <option value="St. Regis">St. Regis</option>
+                                    <option value="Waldorf Astoria">Waldorf Astoria</option>
+                                    <option value="Conrad">Conrad</option>
+                                    <option value="Peninsula">Peninsula</option>
+                                    <option value="Aman">Aman</option>
+                                    <option value="Rosewood">Rosewood</option>
+                                </optgroup>
+                                <optgroup data-translate-label="hotel_segment.premium" label="Премиум сегмент">
+                                    <option value="Hilton">Hilton Hotels & Resorts</option>
+                                    <option value="Marriott">Marriott Hotels</option>
+                                    <option value="Sheraton">Sheraton</option>
+                                    <option value="Westin">Westin</option>
+                                    <option value="Hyatt">Hyatt</option>
+                                    <option value="InterContinental">InterContinental</option>
+                                    <option value="Crowne Plaza">Crowne Plaza</option>
+                                    <option value="DoubleTree">DoubleTree</option>
+                                    <option value="Renaissance">Renaissance Hotels</option>
+                                    <option value="Fairmont">Fairmont</option>
+                                    <option value="Sofitel">Sofitel</option>
+                                    <option value="Pullman">Pullman</option>
+                                </optgroup>
+                                <optgroup data-translate-label="hotel_segment.middle" label="Средний сегмент">
+                                    <option value="Holiday Inn">Holiday Inn</option>
+                                    <option value="Courtyard">Courtyard by Marriott</option>
+                                    <option value="Hampton Inn">Hampton Inn</option>
+                                    <option value="Residence Inn">Residence Inn</option>
+                                    <option value="Hotel Indigo">Hotel Indigo</option>
+                                    <option value="Cambria">Cambria Hotels</option>
+                                    <option value="Radisson">Radisson</option>
+                                    <option value="Novotel">Novotel</option>
+                                    <option value="Ibis">Ibis</option>
+                                </optgroup>
+                                <optgroup data-translate-label="hotel_segment.budget" label="Бюджетный сегмент">
+                                    <option value="Holiday Inn Express">Holiday Inn Express</option>
+                                    <option value="Days Inn">Days Inn</option>
+                                    <option value="Super 8">Super 8</option>
+                                    <option value="Ramada">Ramada</option>
+                                    <option value="Comfort Inn">Comfort Inn</option>
+                                    <option value="Best Western">Best Western</option>
+                                </optgroup>
+                                <optgroup data-translate-label="hotel_segment.local" label="Местные и региональные">
+                                    <option value="Serena Hotels">Serena Hotels</option>
+                                    <option value="Golden Tulip">Golden Tulip</option>
+                                    <option value="Maritim">Maritim</option>
+                                    <option value="Crystal Hotels">Crystal Hotels</option>
+                                    <option value="Barcelo">Barcelo</option>
+                                </optgroup>
+                            </select>
+                            
+                            <!-- Hotel Stars Filter -->
+                            <select id="hotelStarsFilter" class="filter-select">
+                                <option value="" data-translate="filter.hotel_stars">Звезды отеля</option>
+                                <option value="5">★★★★★</option>
+                                <option value="4">★★★★</option>
+                                <option value="3">★★★</option>
+                                <option value="2">★★</option>
+                                <option value="1">★</option>
+                            </select>
+                            
+                            <input type="text" id="dateFilter" class="filter-date" placeholder="DD.MM.YYYY" readonly>
+                        </div>
+                    </div>
+                </div>
+
+
+
+            <!-- Результаты поиска -->
+            <div id="searchResults" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900" data-translate="title.search_results">Результаты поиска</h3>
+                    <button onclick="clearSearch()" class="text-gray-600 hover:text-gray-900 font-medium" data-translate="common.show_all_tours">Показать все туры</button>
+                </div>
+                <div id="toursGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Информационные блоки -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Бесплатная отмена -->
+                <div class="bg-gray-50 rounded-lg p-6 relative info-block flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 min-h-[2.5rem] flex items-center" data-translate="title.free_cancellation">Бесплатная отмена</h3>
+                    <p class="text-sm text-gray-600 mb-4 flex-grow min-h-[3rem] flex items-start" data-translate="info.free_cancellation_desc">Отмена бронирования до 30 дней до начала тура, возврат 100%</p>
+                    <div class="flex justify-end mt-auto">
+                        <button class="details-btn text-sm text-blue-600 hover:text-blue-800 font-medium" onclick="toggleDetails('cancel-details', this)">
+                            <span data-translate="btn.details">подробнее</span>
+                        </button>
+                    </div>
+                    <!-- Оверлей для деталей -->
+                    <div id="cancel-details" class="details-overlay hidden absolute inset-0 bg-gray-50 rounded-lg p-6 z-10">
+                        <div class="h-full flex flex-col">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2" data-translate="title.free_cancellation">Бесплатная отмена</h3>
+                            <div class="flex-grow overflow-y-auto pr-2">
+                                <p class="text-sm text-gray-700 leading-relaxed mb-3" data-translate="info.free_cancellation_detail1">
+                                    Бесплатная отмена – отмена тура со стороны клиента в срок до 30 дней до начала тура, возврат 100%. Однако данный возврат не распространяется на туры, забронированные менее чем за этот срок.
+                                </p>
+                                <p class="text-sm text-gray-700 leading-relaxed" data-translate="info.free_cancellation_detail2">
+                                    Система должна распознавать эти требования автоматически.
+                                </p>
+                            </div>
+                            <div class="flex justify-end mt-4">
+                                <button class="details-btn text-sm text-red-600 hover:text-red-800 font-medium" onclick="toggleDetails('cancel-details', this)">
+                                    <span data-translate="btn.hide">скрыть</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Бронируй сейчас - плати потом -->
+                <div class="bg-gray-50 rounded-lg p-6 relative info-block flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 min-h-[2.5rem] flex items-center" data-translate="title.book_now_pay_later">Бронируй сейчас - плати потом</h3>
+                    <p class="text-sm text-gray-600 mb-4 flex-grow min-h-[3rem] flex items-start" data-translate="info.book_pay_later_desc">Записывайтесь на групповые туры всего за 10% от стоимости тура</p>
+                    <div class="flex justify-end mt-auto">
+                        <button class="details-btn text-sm text-blue-600 hover:text-blue-800 font-medium" onclick="toggleDetails('book-details', this)">
+                            <span data-translate="btn.details">подробнее</span>
+                        </button>
+                    </div>
+                    <!-- Оверлей для деталей -->
+                    <div id="book-details" class="details-overlay hidden absolute inset-0 bg-gray-50 rounded-lg p-6 z-10">
+                        <div class="h-full flex flex-col">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2" data-translate="title.book_now_pay_later">Бронируй сейчас - плати потом</h3>
+                            <div class="flex-grow overflow-y-auto pr-2">
+                                <p class="text-sm text-gray-700 leading-relaxed mb-3" data-translate="info.book_pay_later_detail1">
+                                    Турист записывается на групповой общий тур; оплачивает 10% от стоимости тура, чтобы забронировать тур. Это раннее бронирование за 12 месяцев (минимум до 30 дней до начала тура).
+                                </p>
+                                <p class="text-sm text-gray-700 leading-relaxed" data-translate="info.book_pay_later_detail2">
+                                    В калькуляторе нужно установить ограничение: любая запись на тур доступна в срок бронирования до 30 дней; в 29-й день до срока доступ закрывается.
+                                </p>
+                            </div>
+                            <div class="flex justify-end mt-4">
+                                <button class="details-btn text-sm text-red-600 hover:text-red-800 font-medium" onclick="toggleDetails('book-details', this)">
+                                    <span data-translate="btn.hide">скрыть</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Горящие туры -->
+                <div class="bg-gray-50 rounded-lg p-6 relative info-block flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 min-h-[2.5rem] flex items-center" data-translate="title.hot_tours">Горящие туры</h3>
+                    <p class="text-sm text-gray-600 mb-4 flex-grow min-h-[3rem] flex items-start" data-translate="info.hot_tours_desc">Успейте забронировать туры и экскурсии за доступные цены!</p>
+                    <div class="flex justify-end mt-auto">
+                        <button class="details-btn text-sm text-blue-600 hover:text-blue-800 font-medium" onclick="toggleDetails('hot-details', this)">
+                            <span data-translate="btn.details">подробнее</span>
+                        </button>
+                    </div>
+                    <!-- Оверлей для деталей -->
+                    <div id="hot-details" class="details-overlay hidden absolute inset-0 bg-gray-50 rounded-lg p-6 z-10">
+                        <div class="h-full flex flex-col">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2" data-translate="title.hot_tours">Горящие туры</h3>
+                            <div class="flex-grow overflow-y-auto pr-2">
+                                <p class="text-sm text-gray-700 leading-relaxed mb-3" data-translate="info.hot_tours_detail1">
+                                    В системе бронирования необходимо установить лимит, когда необходимо, чтобы туры, особенно групповые общие экскурсии, были переключены в категорию "Горящие туры".
+                                </p>
+                                <p class="text-sm text-gray-700 leading-relaxed" data-translate="info.hot_tours_detail2">
+                                    Пока остается так, однако два предыдущих блока "Бронируй сейчас, плати потом" и "Горящие туры" входят в этот компонент.
+                                </p>
+                            </div>
+                            <div class="flex justify-end mt-4">
+                                <button class="details-btn text-sm text-red-600 hover:text-red-800 font-medium" onclick="toggleDetails('hot-details', this)">
+                                    <span data-translate="btn.hide">скрыть</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Акции -->
+                <div class="bg-gray-50 rounded-lg p-6 relative info-block flex flex-col h-full">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 min-h-[2.5rem] flex items-center" data-translate="title.promotions">Акции</h3>
+                    <p class="text-sm text-gray-600 mb-4 flex-grow min-h-[3rem] flex items-start" data-translate="info.promotions_desc">Бронируйте любой тур за 12 месяцев и экономьте 12%, это и другие привилегии у нас!</p>
+                    <div class="flex justify-end mt-auto">
+                        <button class="details-btn text-sm text-blue-600 hover:text-blue-800 font-medium" onclick="toggleDetails('promo-details', this)">
+                            <span data-translate="btn.details">подробнее</span>
+                        </button>
+                    </div>
+                    <!-- Оверлей для деталей -->
+                    <div id="promo-details" class="details-overlay hidden absolute inset-0 bg-gray-50 rounded-lg p-6 z-10">
+                        <div class="h-full flex flex-col">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2" data-translate="title.promotions">Акции</h3>
+                            <div class="flex-grow overflow-y-auto pr-2">
+                                <p class="text-sm text-gray-700 leading-relaxed" data-translate="info.promotions_detail">
+                                    Пока остается так, однако два предыдущих блока "Бронируй сейчас, плати потом" входят в этот компонент.
+                                </p>
+                            </div>
+                            <div class="flex justify-end mt-4">
+                                <button class="details-btn text-sm text-red-600 hover:text-red-800 font-medium" onclick="toggleDetails('promo-details', this)">
+                                    <span data-translate="btn.hide">скрыть</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Динамические туры загружаются сюда через JavaScript -->
+    <!-- Секции туров будут созданы автоматически функцией loadTourBlocks() -->
+
+
+
+    <!-- Виды туров -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-4xl font-bold text-center mb-12 text-gray-900" data-translate="title.tour_types">
+                Виды туров
+            </h2>
+            
+            <!-- Чистый блок с видами туров -->
+            <div class="bg-white rounded-xl shadow-lg p-10 border border-gray-200">
+                <div class="flex flex-col md:flex-row">
+                    <!-- Персональный -->
+                    <div class="text-center flex-1 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-translate="tour_type.personal">Персональный</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed" data-translate="tour_type.personal_desc">Только для вас с персональным подходом</p>
+                    </div>
+
+                    <!-- Разделитель 1 -->
+                    <div class="hidden md:block w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent self-stretch mx-2"></div>
+                    <div class="block md:hidden h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-4 mx-8"></div>
+
+                    <!-- Групповой персональный -->
+                    <div class="text-center flex-1 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-translate="tour_type.group_personal">Групповой персональный</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed" data-translate="tour_type.group_personal_desc">Комфортный тур для группы до 4 человек с персональным подходом</p>
+                    </div>
+
+                    <!-- Разделитель 2 -->
+                    <div class="hidden md:block w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent self-stretch mx-2"></div>
+                    <div class="block md:hidden h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-4 mx-8"></div>
+
+                    <!-- Групповой общий -->
+                    <div class="text-center flex-1 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-translate="tour_type.group_general">Групповой общий</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed" data-translate="tour_type.group_general_desc">Экономичный тур для группы до 20 человек, куда каждый может присоединиться</p>
+                    </div>
+
+                    <!-- Разделитель 3 -->
+                    <div class="hidden md:block w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent self-stretch mx-2"></div>
+                    <div class="block md:hidden h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent my-4 mx-8"></div>
+
+                    <!-- Специальный -->
+                    <div class="text-center flex-1 px-6 py-4">
+                        <h3 class="text-xl font-bold text-gray-900 mb-3" data-translate="tour_type.special">Специальный</h3>
+                        <p class="text-gray-600 text-sm leading-relaxed" data-translate="tour_type.special_desc">Тур, составленный по вашим личным пожеланиям с персональным подходом</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Динамические блоки туров загружаются здесь -->
+    <div id="tour-blocks-container">
+        <!-- Блоки туров будут загружены динамически через JavaScript -->
+    </div>
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="home.services.title">
+                Наши услуги
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Трансфер -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="mb-6 flex justify-center">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" class="car-icon">
+                                <!-- Bus body main -->
+                                <rect x="8" y="24" width="48" height="24" rx="4" fill="#3B82F6"/>
+                                <rect x="8" y="24" width="48" height="24" rx="4" stroke="#1D4ED8" stroke-width="1"/>
+                                
+                                <!-- Front and back -->
+                                <rect x="8" y="28" width="4" height="16" rx="2" fill="#1D4ED8"/>
+                                <rect x="52" y="28" width="4" height="16" rx="2" fill="#1D4ED8"/>
+                                
+                                <!-- Windows -->
+                                <rect x="12" y="28" width="8" height="8" rx="1" fill="#E5F3FF"/>
+                                <rect x="22" y="28" width="8" height="8" rx="1" fill="#E5F3FF"/>
+                                <rect x="32" y="28" width="8" height="8" rx="1" fill="#E5F3FF"/>
+                                <rect x="42" y="28" width="8" height="8" rx="1" fill="#E5F3FF"/>
+                                
+                                <!-- Door -->
+                                <rect x="26" y="38" width="12" height="10" rx="1" fill="#1D4ED8"/>
+                                <rect x="30" y="42" width="1" height="6" fill="#E5F3FF"/>
+                                
+                                <!-- Wheels -->
+                                <circle cx="18" cy="52" r="6" fill="#374151"/>
+                                <circle cx="46" cy="52" r="6" fill="#374151"/>
+                                <circle cx="18" cy="52" r="3" fill="#9CA3AF"/>
+                                <circle cx="46" cy="52" r="3" fill="#9CA3AF"/>
+                                
+                                <!-- Headlights -->
+                                <circle cx="6" cy="32" r="2" fill="#FEF3C7"/>
+                                <circle cx="6" cy="40" r="2" fill="#FEF3C7"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.transfer_title">ТРАНСФЕР</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature1">Поездки по территории всех 5-СТАН с опытными водителями</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature2">Встречи в аэропорту, ЖД и границах 5-СТАН</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature3">Межстрановые и межгородские поездки</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature4">Доступные и комфортные автомобили</span></li>
+                    </ul>
+                    <button class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;">
+                        <span data-translate="btn.order_transfer">Заказать трансфер</span>
+                    </button>
+                </div>
+
+                <!-- Тур-гиды -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="mb-6 flex justify-center">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" class="guide-icon">
+                                <!-- Map/document background -->
+                                <rect x="20" y="16" width="24" height="32" rx="2" fill="#FFFFFF" stroke="#D1D5DB"/>
+                                
+                                <!-- Person head -->
+                                <circle cx="32" cy="12" r="6" fill="#FBBF24"/>
+                                
+                                <!-- Person body -->
+                                <rect x="28" y="18" width="8" height="12" rx="2" fill="#3B82F6"/>
+                                
+                                <!-- Arms -->
+                                <rect x="24" y="22" width="4" height="8" rx="2" fill="#FBBF24"/>
+                                <rect x="36" y="22" width="4" height="8" rx="2" fill="#FBBF24"/>
+                                
+                                <!-- Map details -->
+                                <rect x="24" y="20" width="16" height="1" fill="#E5E7EB"/>
+                                <rect x="24" y="24" width="12" height="1" fill="#E5E7EB"/>
+                                <rect x="24" y="28" width="14" height="1" fill="#E5E7EB"/>
+                                <rect x="24" y="32" width="10" height="1" fill="#E5E7EB"/>
+                                
+                                <!-- Location pin on map -->
+                                <circle cx="34" cy="38" r="3" fill="#EF4444"/>
+                                <circle cx="34" cy="36" r="1" fill="#FFFFFF"/>
+                                
+                                <!-- Route lines on map -->
+                                <path d="M26 42 Q30 38 34 36 Q38 34 40 38" stroke="#10B981" stroke-width="2" fill="none"/>
+                                
+                                <!-- Person face -->
+                                <circle cx="30" cy="10" r="0.5" fill="#374151"/>
+                                <circle cx="34" cy="10" r="0.5" fill="#374151"/>
+                                <path d="M30 14h4" stroke="#374151" stroke-width="0.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.guides_title">ТУР-ГИДЫ</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature1">Опытные тур-гиды во всех 5-СТАН</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature2">Профессиональное сопровождение</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature3">Знание местности и владение разными языками</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature4">Друг в поездке, экономия и безопасность</span></li>
+                    </ul>
+                    <a href="/tour-guides.html" class="block w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto text-center" style="background-color: #3E3E3E;">
+                        <span data-translate="btn.order_guide">Заказать тур-гида</span>
+                    </a>
+                </div>
+
+                <!-- Агентский сервис -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="mb-6 flex justify-center">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" class="agency-icon">
+                                <!-- Office building -->
+                                <rect x="20" y="12" width="24" height="40" rx="2" fill="#6B7280"/>
+                                <rect x="20" y="12" width="24" height="40" rx="2" stroke="#374151" stroke-width="1"/>
+                                
+                                <!-- Building windows -->
+                                <rect x="24" y="16" width="3" height="3" fill="#FEF3C7"/>
+                                <rect x="29" y="16" width="3" height="3" fill="#FEF3C7"/>
+                                <rect x="35" y="16" width="3" height="3" fill="#FEF3C7"/>
+                                
+                                <rect x="24" y="22" width="3" height="3" fill="#FEF3C7"/>
+                                <rect x="29" y="22" width="3" height="3" fill="#E5E7EB"/>
+                                <rect x="35" y="22" width="3" height="3" fill="#FEF3C7"/>
+                                
+                                <rect x="24" y="28" width="3" height="3" fill="#E5E7EB"/>
+                                <rect x="29" y="28" width="3" height="3" fill="#FEF3C7"/>
+                                <rect x="35" y="28" width="3" height="3" fill="#E5E7EB"/>
+                                
+                                <rect x="24" y="34" width="3" height="3" fill="#FEF3C7"/>
+                                <rect x="29" y="34" width="3" height="3" fill="#E5E7EB"/>
+                                <rect x="35" y="34" width="3" height="3" fill="#FEF3C7"/>
+                                
+                                <!-- Entrance -->
+                                <rect x="28" y="42" width="8" height="10" rx="1" fill="#374151"/>
+                                <rect x="30" y="44" width="4" height="8" rx="0.5" fill="#D1D5DB"/>
+                                <circle cx="33" cy="48" r="0.5" fill="#374151"/>
+                                
+                                <!-- Service symbol -->
+                                <circle cx="32" cy="8" r="4" fill="#3B82F6"/>
+                                <path d="M30 8l2 2l4-4" stroke="#FFFFFF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                
+                                <!-- Side buildings -->
+                                <rect x="12" y="24" width="8" height="28" fill="#9CA3AF"/>
+                                <rect x="44" y="20" width="8" height="32" fill="#9CA3AF"/>
+                                
+                                <!-- Additional windows -->
+                                <rect x="14" y="28" width="2" height="2" fill="#E5E7EB"/>
+                                <rect x="14" y="32" width="2" height="2" fill="#E5E7EB"/>
+                                <rect x="46" y="24" width="2" height="2" fill="#E5E7EB"/>
+                                <rect x="46" y="28" width="2" height="2" fill="#E5E7EB"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.agency_title">АГЕНТСКИЙ СЕРВИС</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature1">Тур-агентские услуги во всех 5-СТАН</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature2">Готовые и доступные тур-пакеты для реализации</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature3">Вознаграждения за каждый реализованный пакет</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature4">Гибкие и взаимовыгодные условия партнерства</span></li>
+                    </ul>
+                    <button class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;" data-translate="home.services.become_agent_btn">
+                        Стать Турагентом
+                    </button>
+                </div>
+
+                <!-- Собственный тур -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="mb-6 flex justify-center">
+                            <svg width="64" height="64" viewBox="0 0 64 64" fill="none" class="class-icon">
+                                <!-- Suitcase main body -->
+                                <rect x="16" y="28" width="32" height="24" rx="4" fill="#F59E0B"/>
+                                <rect x="16" y="28" width="32" height="24" rx="4" stroke="#D97706" stroke-width="1"/>
+                                
+                                <!-- Suitcase handle -->
+                                <rect x="26" y="24" width="12" height="4" rx="2" fill="#92400E"/>
+                                <rect x="28" y="20" width="8" height="4" rx="1" fill="none" stroke="#92400E" stroke-width="2"/>
+                                
+                                <!-- Suitcase details -->
+                                <rect x="18" y="34" width="28" height="1" fill="#D97706"/>
+                                <rect x="18" y="42" width="28" height="1" fill="#D97706"/>
+                                
+                                <!-- Locks -->
+                                <rect x="20" y="38" width="3" height="2" rx="0.5" fill="#92400E"/>
+                                <rect x="41" y="38" width="3" height="2" rx="0.5" fill="#92400E"/>
+                                
+                                <!-- Corner reinforcements -->
+                                <circle cx="20" cy="32" r="1" fill="#92400E"/>
+                                <circle cx="44" cy="32" r="1" fill="#92400E"/>
+                                <circle cx="20" cy="48" r="1" fill="#92400E"/>
+                                <circle cx="44" cy="48" r="1" fill="#92400E"/>
+                                
+                                <!-- Travel stickers -->
+                                <circle cx="24" cy="36" r="2" fill="#3B82F6"/>
+                                <rect x="36" y="44" width="4" height="2" rx="1" fill="#EF4444"/>
+                                <polygon points="28,46 32,44 32,48" fill="#10B981"/>
+                                
+                                <!-- Wheels -->
+                                <circle cx="22" cy="54" r="3" fill="#374151"/>
+                                <circle cx="42" cy="54" r="3" fill="#374151"/>
+                                <circle cx="22" cy="54" r="1.5" fill="#9CA3AF"/>
+                                <circle cx="42" cy="54" r="1.5" fill="#9CA3AF"/>
+                                
+                                <!-- Pull handle extended -->
+                                <rect x="30" y="12" width="4" height="8" fill="#9CA3AF"/>
+                                <rect x="28" y="12" width="8" height="2" rx="1" fill="#6B7280"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.custom_tour_title">СОБСТВЕННЫЙ ТУР</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature1">Создайте свой тур по всем 5-СТАН</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature2">Выбор маршрута по своему усмотрению</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature3">Подбор отелей и класс проживания</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature4">Гибкая настройка времени визитов</span></li>
+                    </ul>
+                    <button class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;" data-translate="home.services.create_tour_btn">
+                        Создать Тур
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Направления -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.tours_by_cities">
+                Туры по городам
+            </h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <!-- Душанбе -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.dushanbe">Душанбе</h3>
+                    </div>
+                </div>
+
+                <!-- Хорог -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.khorog">Хорог</h3>
+                    </div>
+                </div>
+
+                <!-- Худжанд -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.khujand">Худжанд</h3>
+                    </div>
+                </div>
+
+                <!-- Ташкент -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.tashkent">Ташкент</h3>
+                    </div>
+                </div>
+
+                <!-- Самарканд -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.samarkand">Самарканд</h3>
+                    </div>
+                </div>
+
+                <!-- Бухара -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.bukhara">Бухара</h3>
+                    </div>
+                </div>
+
+                <!-- Бишкек -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.bishkek">Бишкек</h3>
+                    </div>
+                </div>
+
+                <!-- Астана -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.astana">Астана</h3>
+                    </div>
+                </div>
+
+                <!-- Алматы -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.almaty">Алматы</h3>
+                    </div>
+                </div>
+
+                <!-- Ашхабад -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32">
+                    <div class="absolute inset-0 bg-gray-200"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white">
+                        <h3 class="text-lg font-bold" data-translate="city.ashgabat">Ашхабад</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+
+    <!-- Footer будет загружен динамически через layout-loader.js -->
+    <div id="footer-container"></div>
+
+    <!-- HOME PAGE SCRIPTS -->
+    <script src="/public/js/home-page.js" defer></script>
+</body>
+</html>

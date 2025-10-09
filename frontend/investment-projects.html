@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Инвестиционные проекты - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="replit-cache-buster" content="INVESTMENT-PROJECTS-1754862000">
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* Стили для выпадающих меню навигации */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2F2F2F;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border-radius: 8px;
+            top: 100%;
+            left: 0;
+            padding: 8px 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+        }
+        .dropdown-content .dropdown-submenu {
+            position: relative;
+        }
+        .dropdown-content .dropdown-submenu .dropdown-subcontent {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #2F2F2F;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 0;
+        }
+        .dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+            display: block !important;
+        }
+        
+        /* Стили для языкового селектора */
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            min-width: 80px;
+        }
+        
+        .lang-selector-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .selected-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .flag {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            margin-right: 12px;
+        }
+        
+        /* Цвета флагов */
+        .flag-ru, .selected-flag.flag-ru {
+            background: linear-gradient(to bottom, 
+                #ffffff 0%, #ffffff 33.33%, 
+                #0039a6 33.33%, #0039a6 66.66%, 
+                #d52b1e 66.66%, #d52b1e 100%);
+        }
+        .flag-us, .selected-flag.flag-us {
+            background: linear-gradient(to bottom, 
+                #b22234 0%, #b22234 7.7%, #ffffff 7.7%, #ffffff 15.4%, 
+                #b22234 15.4%, #b22234 23.1%, #ffffff 23.1%, #ffffff 30.8%,
+                #b22234 30.8%, #b22234 38.5%, #ffffff 38.5%, #ffffff 46.2%,
+                #b22234 46.2%, #b22234 53.8%, #ffffff 53.8%, #ffffff 61.5%,
+                #b22234 61.5%, #b22234 69.2%, #ffffff 69.2%, #ffffff 76.9%,
+                #b22234 76.9%, #b22234 84.6%, #ffffff 84.6%, #ffffff 92.3%,
+                #b22234 92.3%, #b22234 100%);
+            position: relative;
+        }
+        .flag-us::before, .selected-flag.flag-us::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 35%;
+            height: 47%;
+            background: #3c3b6e;
+            border-radius: 1px;
+        }
+        .flag-tj, .selected-flag.flag-tj {
+            background: linear-gradient(to bottom, 
+                #ce1126 0%, #ce1126 33.33%, 
+                #ffffff 33.33%, #ffffff 66.66%, 
+                #00945a 66.66%, #00945a 100%);
+        }
+        .flag-ir, .selected-flag.flag-ir {
+            background: linear-gradient(to bottom, 
+                #239f40 0%, #239f40 33.33%, 
+                #ffffff 33.33%, #ffffff 66.66%, 
+                #da0000 66.66%, #da0000 100%);
+        }
+        .flag-de, .selected-flag.flag-de {
+            background: linear-gradient(to bottom, 
+                #000000 0%, #000000 33.33%, 
+                #dd0000 33.33%, #dd0000 66.66%, 
+                #ffce00 66.66%, #ffce00 100%);
+        }
+        .flag-cn, .selected-flag.flag-cn {
+            background: #de2910;
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+        
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(47, 47, 47, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 160px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 0.5rem 0;
+            z-index: 1000;
+            margin-top: 0.5rem;
+        }
+        
+        .lang-dropdown-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            margin: 0 0.25rem;
+            border-radius: 0.5rem;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .lang-option.active {
+            background: rgba(107, 114, 128, 0.3);
+            color: #fff;
+        }
+        
+        .lang-name {
+            font-weight: 500;
+        }
+
+        .project-card {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            min-height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .project-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: end;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Динамический контейнер для header -->
+    <div id="header-container"></div>
+
+    <!-- Заголовок страницы -->
+    <section class="py-8 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h1 class="text-4xl font-bold mb-4 text-gray-900">
+                Инвестиционные проекты
+            </h1>
+            <p class="text-lg text-gray-700">
+                Инновационные идеи для развития туризма и бизнеса в Центральной Азии
+            </p>
+        </div>
+    </section>
+
+    <!-- Основной контент -->
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <!-- Вводный текст -->
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-6">Проекты</h2>
+                <p class="text-lg text-gray-700 max-w-4xl mx-auto leading-relaxed">
+                    Представлены следующие проекты - инновационные идеи, разработанные в контексте развития компании, рынка услуг и общества в целом (для инвестирования/финансирования) для рассмотрения инвесторами и другими лицами, заинтересованными в развитии прибыльного и устойчивого бизнеса.
+                </p>
+            </div>
+
+            <!-- Проекты -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+                <!-- Проект 1: Приключенческий туризм -->
+                <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6" style="background-color: #3E3E3E;">
+                        <div class="text-white">
+                            <h3 class="text-2xl font-bold mb-2">ПРИКЛЮЧЕНЧЕСКИЙ ТУРИЗМ</h3>
+                            <p class="text-sm opacity-90">Adventure Tourism</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Описание проекта:</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Развитие экстремального и приключенческого туризма в горных регионах Таджикистана
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Создание инфраструктуры для активного отдыха: треккинг, скалолазание, рафтинг
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Обучение местных гидов международным стандартам безопасности
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Привлечение международных туристов, ищущих уникальные приключения
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Проект 2: E-Portal TAJHOTELS.TJ -->
+                <div class="card-hover bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-6" style="background-color: #6B7280;">
+                        <div class="text-white">
+                            <h3 class="text-2xl font-bold mb-2">E-ПОРТАЛ TAJHOTELS.TJ</h3>
+                            <p class="text-sm opacity-90">Digital Hospitality Platform</p>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Описание проекта:</h4>
+                            <ul class="text-gray-700 space-y-2">
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Создание единой цифровой платформы для всех отелей Таджикистана
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Онлайн-бронирование и управление номерным фондом
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Интеграция с международными системами бронирования
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="mr-2" style="color: #6B7280;">•</span>
+                                    Продвижение отечественного гостиничного бизнеса на мировом рынке
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Дополнительные возможности для инвесторов -->
+            <div class="bg-gray-100 rounded-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6 text-center">Возможности для инвесторов</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #6B7280;">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Высокий потенциал роста</h4>
+                        <p class="text-gray-700 text-sm">Туристический рынок Центральной Азии показывает стабильный рост</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #6B7280;">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Опытная команда</h4>
+                        <p class="text-gray-700 text-sm">Более 8 лет успешной работы в сфере туризма</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background-color: #6B7280;">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h4 class="font-semibold text-gray-900 mb-2">Государственная поддержка</h4>
+                        <p class="text-gray-700 text-sm">Туризм - приоритетное направление развития экономики страны</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Контактная информация -->
+            <div class="mt-16 text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Заинтересованы в инвестировании?</h3>
+                <p class="text-gray-700 mb-6">Свяжитесь с нами для получения подробной информации о проектах</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="tel:+992915123344" class="text-white px-6 py-3 rounded-lg transition-colors" style="background-color: #6B7280;" onmouseover="this.style.backgroundColor='#4B5563'" onmouseout="this.style.backgroundColor='#6B7280'">
+                        Позвонить: +992 915-123-344
+                    </a>
+                    <a href="mailto:info@bunyodtour.tj" class="text-white px-6 py-3 rounded-lg transition-colors" style="background-color: #6B7280;" onmouseover="this.style.backgroundColor='#4B5563'" onmouseout="this.style.backgroundColor='#6B7280'">
+                        Написать: info@bunyodtour.tj
+                    </a>
+                </div>
+            </div>
+
+            <!-- Уведомление об авторских правах -->
+            <div class="mt-12 p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                <p class="text-center text-gray-800 font-semibold">
+                    ПРЕДСТАВЛЕННЫЕ ПРОЕКТЫ ЯВЛЯЮТСЯ СОБСТВЕННОСТЬЮ КОМПАНИИ И ЗАЩИЩЕНЫ АВТОРСКИМ ПРАВОМ.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Динамический контейнер для footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Функции для языкового селектора
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectLanguage(lang, flagClass, name) {
+            // Обновляем флаг и текст в кнопке селектора
+            document.querySelector('.selected-flag').className = `selected-flag ${flagClass}`;
+            document.querySelector('.selected-lang').textContent = name;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#langDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('langDropdown').classList.remove('show');
+            
+            console.log(`Переключен язык: ${lang}`);
+            
+            // Закрываем dropdown  
+            toggleLanguageDropdown();
+        }
+
+        // Функции для валютного селектора
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectCurrency(currencyCode, symbol) {
+            // Обновляем кнопку селектора
+            document.querySelector('.selected-currency').textContent = currencyCode;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-currency="${currencyCode.toLowerCase()}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('currencyDropdown').classList.remove('show');
+            
+            console.log(`Переключена валюта: ${currencyCode}`);
+            
+            // Предотвращаем переход по ссылке
+            event.preventDefault();
+            return false;
+        }
+    </script>
+</body>
+</html>

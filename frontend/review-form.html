@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review - Bunyod Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .star-rating, .guide-star-rating {
+            font-size: 2rem;
+            color: #d1d5db;
+            cursor: pointer;
+        }
+        .star-rating.active, .guide-star-rating.active {
+            color: #fbbf24;
+        }
+        .star-rating:hover, .guide-star-rating:hover {
+            color: #fbbf24;
+        }
+        .preview-image {
+            max-width: 150px;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="flex items-center space-x-3">
+                    <img src="/attached_assets/Logo-Ru_1754635713718.png" alt="Bunyod Tour" class="h-10">
+                    <span class="text-xl font-bold text-gray-800">Bunyod Tour</span>
+                </a>
+                <a href="/" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <!-- Tour Info -->
+            <div id="tour-info" class="bg-white rounded-lg shadow-md p-6 mb-8">
+                <h1 class="text-2xl font-bold text-gray-800 mb-4">Leave a Review</h1>
+                <div id="tour-details" class="text-gray-600">
+                    <span>Loading tour information...</span>
+                </div>
+            </div>
+
+            <!-- Review Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <form id="review-form" class="space-y-6">
+                    <!-- Name -->
+                    <div>
+                        <label for="reviewerName" class="block text-sm font-medium text-gray-700 mb-2">
+                            Your Name *
+                        </label>
+                        <input type="text" id="reviewerName" name="reviewerName" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               placeholder="Enter your name">
+                    </div>
+
+                    <!-- Tour Rating -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Tour Rating *
+                        </label>
+                        <div class="flex space-x-1" id="tour-rating-stars">
+                            <span class="star-rating" data-rating="1">★</span>
+                            <span class="star-rating" data-rating="2">★</span>
+                            <span class="star-rating" data-rating="3">★</span>
+                            <span class="star-rating" data-rating="4">★</span>
+                            <span class="star-rating" data-rating="5">★</span>
+                        </div>
+                        <input type="hidden" id="rating" name="rating" required>
+                        <p class="text-sm text-gray-500 mt-1">Click stars to rate the tour</p>
+                    </div>
+
+                    <!-- Guide Rating -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Guide Rating *
+                        </label>
+                        <div class="flex space-x-1" id="guide-rating-stars">
+                            <span class="guide-star-rating" data-rating="1">★</span>
+                            <span class="guide-star-rating" data-rating="2">★</span>
+                            <span class="guide-star-rating" data-rating="3">★</span>
+                            <span class="guide-star-rating" data-rating="4">★</span>
+                            <span class="guide-star-rating" data-rating="5">★</span>
+                        </div>
+                        <input type="hidden" id="guideRating" name="guideRating" required>
+                        <p class="text-sm text-gray-500 mt-1">Click stars to rate your guide</p>
+                    </div>
+
+                    <!-- Review Text -->
+                    <div>
+                        <label for="text" class="block text-sm font-medium text-gray-700 mb-2">
+                            Your Review *
+                        </label>
+                        <textarea id="text" name="text" rows="6" required
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Share your impressions about the tour..."></textarea>
+                    </div>
+
+                    <!-- Photo Upload -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            Photos (optional)
+                        </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <input type="file" id="photos" multiple accept="image/*" class="hidden">
+                            <button type="button" id="upload-btn" 
+                                    class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                                <i class="fas fa-camera mr-2"></i>
+                                <span>Choose Photos</span>
+                            </button>
+                            <p class="text-sm text-gray-500 mt-2">Maximum 5 photos, up to 5MB each</p>
+                        </div>
+                        
+                        <!-- Photo Preview -->
+                        <div id="photo-preview" class="mt-4 grid grid-cols-3 gap-4 hidden">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" id="submit-btn"
+                                class="w-full bg-green-600 text-white py-3 px-4 rounded-md hover:bg-green-700 font-medium">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            <span>Submit Review</span>
+                        </button>
+                        <p class="text-sm text-gray-500 text-center mt-2">
+                            Your review will be published after moderation
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 max-w-md mx-4">
+            <div class="text-center">
+                <div class="text-green-500 text-5xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Thank You for Your Review!</h3>
+                <p class="text-gray-600 mb-6">
+                    Your review has been successfully submitted and will be published after moderation.
+                </p>
+                <button onclick="window.location.href='/'" 
+                        class="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600">
+                    <span>Back to Home</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRating = 0;
+        let selectedGuideRating = 0;
+        let uploadedPhotos = [];
+        let tourId = null;
+
+        // Получаем ID тура из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        tourId = urlParams.get('tourId');
+
+        if (!tourId) {
+            document.getElementById('tour-details').innerHTML = 
+                '<p class="text-red-600">Error: Tour ID not specified</p>';
+        } else {
+            loadTourInfo();
+        }
+
+        // Загрузка информации о туре
+        async function loadTourInfo() {
+            try {
+                const response = await fetch(`/api/tours/${tourId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const tour = data.data;
+                    document.getElementById('tour-details').innerHTML = `
+                        <h2 class="text-xl font-semibold">${tour.title.ru}</h2>
+                        <p class="text-gray-600 mt-2">${tour.description.ru.substring(0, 200)}...</p>
+                        <div class="mt-3 text-sm">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                ${tour.duration}
+                            </span>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded ml-2">
+                                ${tour.price} ${tour.priceType}
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('tour-details').innerHTML = 
+                        '<p class="text-red-600">Error loading tour information</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('tour-details').innerHTML = 
+                    '<p class="text-red-600">Error loading tour information</p>';
+            }
+        }
+
+        // Tour Rating
+        document.querySelectorAll('.star-rating').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                document.getElementById('rating').value = selectedRating;
+                
+                document.querySelectorAll('.star-rating').forEach((s, index) => {
+                    if (index < selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Guide Rating
+        document.querySelectorAll('.guide-star-rating').forEach(star => {
+            star.addEventListener('click', function() {
+                selectedGuideRating = parseInt(this.dataset.rating);
+                document.getElementById('guideRating').value = selectedGuideRating;
+                
+                document.querySelectorAll('.guide-star-rating').forEach((s, index) => {
+                    if (index < selectedGuideRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Обработка загрузки фотографий
+        document.getElementById('upload-btn').addEventListener('click', function() {
+            document.getElementById('photos').click();
+        });
+
+        document.getElementById('photos').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+
+            if (files.length > 5) {
+                alert('Maximum 5 photos');
+                return;
+            }
+
+            // Show upload indicator
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading...';
+            uploadBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                files.forEach(file => {
+                    formData.append('photos', file);
+                });
+
+                const response = await fetch('/api/reviews/upload-photos', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    uploadedPhotos = data.data.photos;
+                    showPhotoPreview(files, uploadedPhotos);
+                } else {
+                    alert('Upload error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error uploading photos');
+            } finally {
+                uploadBtn.innerHTML = '<i class="fas fa-camera mr-2"></i>Choose Photos';
+                uploadBtn.disabled = false;
+            }
+        });
+
+        // Показ превью фотографий
+        function showPhotoPreview(files, urls) {
+            const preview = document.getElementById('photo-preview');
+            preview.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'preview-image w-full h-32 object-cover rounded-lg';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600';
+                removeBtn.innerHTML = '×';
+                removeBtn.onclick = () => removePhoto(index);
+                
+                div.appendChild(img);
+                div.appendChild(removeBtn);
+                preview.appendChild(div);
+            });
+            
+            preview.classList.remove('hidden');
+        }
+
+        // Удаление фотографии
+        function removePhoto(index) {
+            uploadedPhotos.splice(index, 1);
+            
+            if (uploadedPhotos.length === 0) {
+                document.getElementById('photo-preview').classList.add('hidden');
+                document.getElementById('photos').value = '';
+            } else {
+                // Обновляем превью
+                const files = Array.from(document.getElementById('photos').files);
+                files.splice(index, 1);
+                showPhotoPreview(files, uploadedPhotos);
+            }
+        }
+
+        // Отправка формы
+        document.getElementById('review-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!tourId) {
+                alert('Error: Tour ID not specified');
+                return;
+            }
+
+            if (selectedRating === 0) {
+                alert('Please rate the tour');
+                return;
+            }
+
+            if (selectedGuideRating === 0) {
+                alert('Please rate your guide');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+            submitBtn.disabled = true;
+
+            try {
+                const formData = {
+                    tourId: parseInt(tourId),
+                    reviewerName: document.getElementById('reviewerName').value,
+                    rating: selectedRating,
+                    guideRating: selectedGuideRating,
+                    text: document.getElementById('text').value,
+                    photos: uploadedPhotos
+                };
+
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('success-modal').classList.remove('hidden');
+                    document.getElementById('success-modal').classList.add('flex');
+                } else {
+                    alert('Error: ' + data.message);
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Review';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting review');
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Review';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</body>
+</html>

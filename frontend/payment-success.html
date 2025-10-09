@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="payment.success_page_title">Оплата прошла успешно - Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .success-animation {
+            animation: successPulse 2s infinite;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900" data-translate="common.company_name">Bunyod-Tour</h1>
+                </div>
+                <button onclick="goHome()" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-home mr-2"></i><span data-translate="payment.to_home">На главную</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Success Content -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full">
+            <!-- Success Card -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 text-center card-shadow">
+                <!-- Success Icon -->
+                <div class="success-animation mb-6">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-check text-3xl text-green-500"></i>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <h2 class="text-2xl font-bold text-gray-900 mb-4" data-translate="payment.success_title">
+                    Оплата прошла успешно!
+                </h2>
+                
+                <p class="text-gray-600 mb-6" data-translate="payment.booking_confirmed">
+                    Ваше бронирование подтверждено. На указанный email отправлено подтверждение с деталями заказа.
+                </p>
+
+                <!-- Order Details -->
+                <div id="orderDetails" class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.order_number">Номер заказа:</span>
+                            <span id="orderNumber" class="font-medium">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.tour">Тур:</span>
+                            <span id="tourName" class="font-medium">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.amount">Сумма:</span>
+                            <span id="totalAmount" class="font-medium text-green-600">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.payment_method">Способ оплаты:</span>
+                            <span id="paymentMethod" class="font-medium">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button onclick="downloadReceipt()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-download mr-2"></i><span data-translate="payment.download_receipt">Скачать чек</span>
+                    </button>
+                    
+                    <button onclick="goHome()" class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                        <i class="fas fa-home mr-2"></i><span data-translate="payment.return_home">Вернуться на главную</span>
+                    </button>
+                    
+                    <button onclick="viewMyOrders()" class="w-full text-blue-600 hover:text-blue-800 py-2 font-medium">
+                        <i class="fas fa-list mr-2"></i><span data-translate="payment.my_orders">Мои заказы</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>
+                    <i class="fas fa-envelope mr-1"></i>
+                    Детали бронирования отправлены на ваш email
+                </p>
+                <p class="mt-2">
+                    <i class="fas fa-phone mr-1"></i>
+                    Вопросы? Звоните: +992 123 456 789
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <i class="fas fa-spinner fa-spin text-2xl text-blue-600 mb-4"></i>
+            <p>Загрузка данных заказа...</p>
+        </div>
+    </div>
+
+    <script>
+        // Get order details from URL parameters or sessionStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrderDetails();
+        });
+
+        function loadOrderDetails() {
+            // Show loading
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Get order information from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order') || urlParams.get('orderNumber');
+            const orderData = sessionStorage.getItem('completedOrder');
+            
+            if (orderNumber) {
+                // Fetch order details from API
+                fetchOrderDetails(orderNumber);
+            } else if (orderData) {
+                // Use data from localStorage
+                displayOrderDetails(JSON.parse(orderData));
+                document.getElementById('loadingModal').classList.add('hidden');
+            } else {
+                // Default message if no order data
+                displayDefaultSuccess();
+                document.getElementById('loadingModal').classList.add('hidden');
+            }
+        }
+
+        async function fetchOrderDetails(orderNumber) {
+            try {
+                const response = await fetch(`/api/orders/number/${orderNumber}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayOrderDetails(data.data);
+                } else {
+                    displayDefaultSuccess();
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                displayDefaultSuccess();
+            } finally {
+                document.getElementById('loadingModal').classList.add('hidden');
+            }
+        }
+
+        function displayOrderDetails(order) {
+            if (order) {
+                document.getElementById('orderNumber').textContent = order.orderNumber || '№' + order.id;
+                document.getElementById('tourName').textContent = order.tour?.title?.ru || order.tour?.title || 'Тур';
+                document.getElementById('totalAmount').textContent = `${Math.round(order.totalAmount)} TJS`;
+                
+                // Format payment method
+                const paymentMethodNames = {
+                    'alif': 'AlifPay',
+                    'payler': 'Payler',
+                    'stripe': 'Stripe',
+                    'card': 'Банковская карта'
+                };
+                document.getElementById('paymentMethod').textContent = 
+                    paymentMethodNames[order.paymentMethod] || order.paymentMethod || 'Банковская карта';
+            }
+        }
+
+        function displayDefaultSuccess() {
+            document.getElementById('orderNumber').textContent = 'Успешно оплачен';
+            document.getElementById('tourName').textContent = 'Тур по Таджикистану';
+            document.getElementById('totalAmount').textContent = '...';
+            document.getElementById('paymentMethod').textContent = '...';
+        }
+
+        function downloadReceipt() {
+            // Get order number for receipt download
+            const orderNumber = document.getElementById('orderNumber').textContent;
+            
+            if (orderNumber && orderNumber !== '...' && orderNumber !== 'Успешно оплачен') {
+                // Create download link for receipt
+                const link = document.createElement('a');
+                link.href = `/api/orders/${orderNumber}/receipt`;
+                link.download = `receipt-${orderNumber}.pdf`;
+                link.click();
+            } else {
+                alert('Информация о заказе недоступна');
+            }
+        }
+
+        function goHome() {
+            // Clear any stored booking data
+            sessionStorage.removeItem('bookingState');
+            sessionStorage.removeItem('completedOrder');
+            
+            // Redirect to home
+            window.location.href = '/frontend/index.html';
+        }
+
+        function viewMyOrders() {
+            // Redirect to orders page (if exists) or admin dashboard
+            window.location.href = '/frontend/admin-dashboard.html#orders';
+        }
+
+        // Auto-clear sessionStorage after 5 minutes to prevent clutter
+        setTimeout(() => {
+            sessionStorage.removeItem('completedOrder');
+        }, 5 * 60 * 1000);
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</body>
+</html>

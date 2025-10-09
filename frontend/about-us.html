@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ru" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="about.page_title">О нас - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌐 ПОДКЛЮЧЕНИЕ ЦЕНТРАЛЬНОЙ СИСТЕМЫ i18n -->
+    <script defer src="/public/js/i18n.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="replit-cache-buster" content="ABOUT-US-1754862000">
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        /* ✅ ALL DROPDOWN STYLES MOVED TO /public/css/layout.css - DUPLICATES REMOVED! */
+        
+        /* ===== PAGE-SPECIFIC STYLES FOR ABOUT-US.HTML =====
+        /* Language and dropdown styles moved to /public/css/layout.css */
+
+        /* Keyframes для анимаций */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        /* Базовые стили */
+        .animate-fadeInUp {
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .animate-slideInLeft {
+            animation: slideInLeft 0.8s ease-out;
+        }
+        
+        .animate-slideInRight {
+            animation: slideInRight 0.8s ease-out;
+        }
+        
+        /* Стили для якорной навигации */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #6b7280, #4b5563);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+            color: #6b7280;
+        }
+        
+        .nav-link:hover::before {
+            width: 100%;
+        }
+        
+        .nav-link.active {
+            color: #6b7280;
+            font-weight: 600;
+        }
+        
+        .nav-link.active::before {
+            width: 100%;
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 6px;
+            background: #6b7280;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card-hover::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.6s;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-hover:hover::before {
+            left: 100%;
+        }
+        
+        /* Improved section styles */
+        .section-container {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            position: relative;
+        }
+        
+        .section-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(107, 114, 128, 0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .enhanced-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+            box-shadow: 
+                0 10px 25px rgba(0, 0, 0, 0.08),
+                0 4px 10px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        .enhanced-title {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+        }
+        
+        .enhanced-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #6b7280, #4b5563);
+            border-radius: 2px;
+        }
+        
+        .team-avatar {
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .team-avatar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .modern-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .modern-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 8px;
+            height: 8px;
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .modern-list li:hover {
+            transform: translateX(5px);
+            color: #374151;
+        }
+        
+        .modern-list li:hover::before {
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(107, 114, 128, 0.4);
+        }
+        
+        /* Scroll animations */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .scroll-animate.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ХЕДЕР -->
+    <div id="header-container"></div>
+
+    <!-- Якорная навигация -->
+    <nav class="sticky-nav py-4">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex justify-center space-x-8 flex-wrap">
+                <a href="#about" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.about">О нас</a>
+                <a href="#mission" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.mission">Миссия</a>
+                <a href="#potential" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.potential">Потенциал</a>
+                <a href="#pata" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.associations">Ассоциации</a>
+                <a href="#services" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.services">Услуги</a>
+                <a href="#partners" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.partners">Партнёры</a>
+                <a href="#achievements" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.achievements">Достижения</a>
+                <a href="#team" class="nav-link text-gray-700 hover:text-orange-500 px-3 py-2" data-translate="about.nav.team">Команда</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="min-h-screen bg-gray-50">
+        <!-- О нас -->
+        <section id="about" class="py-16 section-container">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="enhanced-card rounded-3xl p-8 mb-12 scroll-animate">
+                    <h1 class="text-6xl font-black enhanced-title text-center mb-8" data-translate="about.title">О НАС</h1>
+                    
+                    <div class="space-y-8">
+                        <!-- Основная информация -->
+                        <div class="text-center scroll-animate">
+                            <p class="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto font-medium" data-translate="about.company_description">
+                                Туристическая компания <span class="gradient-text font-bold">"Бунёд-Тур"</span> была создана в 2017 году и является одним из лидеров туристической индустрии в Республике Таджикистан. 
+                                Компания специализируется на организации туров по всему Таджикистану и странам Центральной Азии.
+                            </p>
+                        </div>
+                        
+                        <!-- Секция с изображением компании -->
+                        <div class="enhanced-card rounded-2xl p-8 scroll-animate">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                                <div class="animate-slideInLeft">
+                                    <h3 class="text-3xl font-bold gradient-text mb-6" data-translate="about.company_title">Наша компания</h3>
+                                    <p class="text-gray-700 leading-relaxed mb-6 text-lg" data-translate="about.company_services">
+                                        <span class="gradient-text font-semibold">"Бунёд-Тур"</span> предлагает широкий спектр туристических услуг, включая организацию индивидуальных и групповых туров, 
+                                        экскурсий, трансферов, бронирование отелей и визовую поддержку.
+                                    </p>
+                                    <p class="text-gray-700 leading-relaxed text-lg" data-translate="about.company_partner">
+                                        Мы гордимся тем, что являемся надежным партнером для туристов со всего мира, желающих познакомиться с 
+                                        уникальной культурой и природными красотами Таджикистана.
+                                    </p>
+                                </div>
+                                <div class="glass-effect rounded-2xl h-64 flex items-center justify-center animate-slideInRight">
+                                    <span class="text-gray-600 font-medium" data-translate="about.company_image">Изображение офиса компании</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Миссия -->
+        <section id="mission" class="py-16 bg-white section-container">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="enhanced-card rounded-3xl p-8 scroll-animate">
+                    <h2 class="text-5xl font-black enhanced-title text-center mb-8" data-translate="about.mission_title">МИССИЯ</h2>
+                    
+                    <div class="bg-gray-50 rounded-xl p-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                            <div class="bg-gray-200 rounded-lg h-64 flex items-center justify-center">
+                                <span class="text-gray-500" data-translate="about.mission_image">Изображение миссии компании</span>
+                            </div>
+                            <div>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-4" data-translate="about.mission_founded">
+                                    ООО «Бунёд-Тур» - туристическая компания, учреждена в 2017 году в Таджикистане.
+                                </p>
+                                <p class="text-lg text-gray-700 leading-relaxed" data-translate="about.mission_description">
+                                    Основная миссия компании, это формирование и устойчивое развитие организационно-практических 
+                                    и перспективных основ сферы туризма в Таджикистане, в том числе внутреннего рынка 
+                                    туристических услуг — экологического и приключенческого туризма.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Потенциал -->
+        <section id="potential" class="py-16 section-container">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="enhanced-card rounded-3xl p-8 scroll-animate">
+                    <h2 class="text-5xl font-black enhanced-title text-center mb-8" data-translate="about.potential_title">ПОТЕНЦИАЛ</h2>
+                    
+                    <div class="bg-gray-50 rounded-xl p-8">
+                        <p class="text-lg text-gray-700 leading-relaxed mb-6" data-translate="about.potential_license">
+                            Бунёд-Тур, лицензированная компания (№0000253, от 25.10.2022) располагает более чем 500 турпродуктами, 
+                            имеет партнерства с более чем 50 отечественными и зарубежными организациями, является партнером Комитета 
+                            по развитию туризма при Правительстве Республики Таджикистан по внутреннему туризму;
+                        </p>
+                        <p class="text-lg text-gray-700 leading-relaxed" data-translate="about.potential_services">
+                            Сегодня наши основные услуги — это туры и экскурсии, бронирование отелей, трансфер, авиабилеты, 
+                            визовая поддержка, подарочные сертификаты и т.п.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PATA -->
+        <section id="pata" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 class="text-4xl font-bold text-gray-900 text-center mb-8" data-translate="about.associations_title">ЧЛЕНСТВО В АССОЦИАЦИЯХ</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mb-8"></div>
+                    
+                    <div class="bg-gray-50 rounded-xl p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                            <div>
+                                <p class="text-lg text-gray-700 leading-relaxed mb-4" data-translate="about.pata_member">
+                                    Бунёд-Тур является членом PATA - Азиатской Тихоокеанской ассоциации туристических компаний.
+                                </p>
+                                <p class="text-lg text-gray-700 leading-relaxed" data-translate="about.pata_description">
+                                    PATA — это некоммерческая ассоциация, которая была создана в 1951 году и получила международное 
+                                    признание как ответственный катализатор в развитии путешествий и туризма в Азиатско-Тихоокеанском 
+                                    регионе и за его пределами.
+                                </p>
+                            </div>
+                            <div class="text-center">
+                                <div class="bg-white rounded-lg p-6 shadow-lg">
+                                    <div class="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                        <span class="text-gray-600 font-bold">PATA</span>
+                                    </div>
+                                    <p class="text-gray-600 text-sm" data-translate="about.pata_certificate">Сертификат PATA</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Услуги -->
+        <section id="services" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 class="text-4xl font-bold text-gray-900 text-center mb-8" data-translate="about.services_title">НАШИ УСЛУГИ / ПРОДУКТЫ</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Туры -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="about.tours_title">ТУРЫ</h3>
+                            <ul class="space-y-2 text-gray-700">
+                                <li data-translate="about.tours_individual_group">• Индивидуальные и групповые туры по Таджикистану</li>
+                                <li data-translate="about.tours_cultural">• Экскурсии: Культурно-исторические</li>
+                                <li data-translate="about.tours_school">• Школьные</li>
+                                <li data-translate="about.tours_wellness">• Оздоровительные</li>
+                                <li data-translate="about.tours_adventure">• Приключенческие</li>
+                                <li data-translate="about.tours_hunting">• Охота</li>
+                                <li data-translate="about.tours_custom">• Туры на заказ</li>
+                                <li data-translate="about.tours_cis">• Туры по странам СНГ</li>
+                                <li data-translate="about.tours_international">• Международные туры</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Туры в кредит -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="about.credit_tours_title">ТУРЫ В КРЕДИТ</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3" data-translate="about.credit_tours_description">
+                                Это вид сервиса, который представляется для клиентов, желающих путешествовать в качестве возможности или шанса реализации своих туристических целей и планов.
+                            </p>
+                            <p class="text-gray-700 text-sm leading-relaxed" data-translate="about.credit_tours_partner">
+                                Данная программа реализуется в партнерстве с кредитной организацией Алиф-Капитал.
+                            </p>
+                        </div>
+                        
+                        <!-- Подарочный сертификат -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="about.gift_certificate_title">ПОДАРОЧНЫЙ СЕРТИФИКАТ</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed" data-translate="about.gift_certificate_description">
+                                Туристический подарочный сертификат имеет номинал в определённой сумме, и обладатель получает право приобрести тур стоимостью, равной указанному номиналу.
+                            </p>
+                        </div>
+                        
+                        <!-- Агентский сервис -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="about.agency_service">АГЕНТСКИЙ СЕРВИС</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                                С "Бунёд-Тур" каждый может заработать! Как физическое так и юридическое лицо может стать партнером нашей компании.
+                            </p>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• Юридическим лицам, резидентам – до 6%</li>
+                                <li>• Юридическим лицам, нерезидентам – до 5%</li>
+                                <li>• Физическим лицам (гражданам Таджикистана) – до 3%</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Авиабилеты -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">АВИАБИЛЕТЫ</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                                Авиабилеты в любую точку мира можно приобрести:
+                            </p>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• посетив офис компании</li>
+                                <li>• через наш сайт, самостоятельно, онлайн</li>
+                                <li>• через мобильное приложение alif-mobi</li>
+                                <li>• через наш Бот на телеграмм</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Отели -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">ОТЕЛИ</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                                Отели в любой точке мира можно забронировать:
+                            </p>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• Посетив офис компании</li>
+                                <li>• Через сайт, самостоятельно, онлайн</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Трансфер -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">ТРАНСФЕР</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                                Предоставляем транспортные услуги, как:
+                            </p>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>• Трансфер гостей от аэропорта в гостиницу и обратно</li>
+                                <li>• Транспортные услуги, включая водителя по Таджикистану</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- Виза поддержка -->
+                        <div class="bg-gray-50 rounded-xl p-6">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">ВИЗА ПОДДЕРЖКА</h3>
+                            <p class="text-gray-700 text-sm leading-relaxed mb-3">
+                                В качестве визовой поддержки (только своим клиентам/туристам) предоставляем три вида услуг:
+                            </p>
+                            <ul class="space-y-1 text-gray-700 text-sm">
+                                <li>1. Содействие в получении электронной визы (гражданам 116 стран)</li>
+                                <li>2. Содействие в получении стандартной визы (гражданам остальных стран)</li>
+                                <li>3. Официальное приглашение</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Наши партнёры -->
+        <section id="partners" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 class="text-4xl font-bold text-gray-900 text-center mb-8">НАШИ ПАРТНЁРЫ</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-orange-400 to-orange-600 mx-auto mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-50 rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-gray-600 font-bold">AC</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Алиф-Капитал</h3>
+                            <p class="text-gray-600 text-sm">Кредитная организация для туров в кредит</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-gray-600 font-bold">TA</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">TripAdvisor</h3>
+                            <p class="text-gray-600 text-sm">Международная туристическая платформа</p>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-xl p-6 text-center">
+                            <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-gray-600 font-bold">ET</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-800 mb-2">Elite Travel</h3>
+                            <p class="text-gray-600 text-sm">Платформа для элитных туров</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Наши достижения -->
+        <section id="achievements" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 class="text-4xl font-bold text-gray-900 text-center mb-8">НАШИ ДОСТИЖЕНИЯ</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <div class="bg-orange-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-orange-600">8</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Лет опыта</h3>
+                            <p class="text-gray-600 text-sm">С 2017 года в туристической сфере</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="bg-blue-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-blue-600">1000+</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Довольных клиентов</h3>
+                            <p class="text-gray-600 text-sm">Успешно организованных туров</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="bg-green-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-green-600">50+</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Туристических программ</h3>
+                            <p class="text-gray-600 text-sm">По Центральной Азии</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="bg-purple-100 rounded-full w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                                <span class="text-2xl font-bold text-purple-600">5</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Стран покрытия</h3>
+                            <p class="text-gray-600 text-sm">Таджикистан, Узбекистан, Кыргызстан, Казахстан, Туркменистан</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Команда -->
+        <section id="team" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-xl p-8">
+                    <h2 class="text-4xl font-bold text-gray-900 text-center mb-8">КОМАНДА</h2>
+                    <div class="w-20 h-1 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto mb-8"></div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Миралиева Ситорамо -->
+                        <div class="enhanced-card rounded-xl p-6 card-hover">
+                            <div class="flex items-start gap-4">
+                                <div class="team-avatar w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-gray-600 font-bold text-sm">МС</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold gradient-text mb-2">МИРАЛИЕВА СИТОРАМО</h3>
+                                    <p class="text-gray-600 text-sm font-semibold mb-2">Руководитель проекта</p>
+                                    <p class="text-gray-700 text-sm leading-relaxed">
+                                        Опыт работы в сфере туризма и деловых отношений более 15 лет. Владеет персидским, таджикским и русским языками. Является руководителем туристической компании «Бунёд-Тур» с 2017 года.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Курбонов Сухроб -->
+                        <div class="enhanced-card rounded-xl p-6 card-hover">
+                            <div class="flex items-start gap-4">
+                                <div class="team-avatar w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-gray-600 font-bold text-sm">КС</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold gradient-text mb-2">КУРБОНОВ СУХРОБ</h3>
+                                    <p class="text-gray-600 text-sm font-semibold mb-2">Технический директор</p>
+                                    <p class="text-gray-700 text-sm leading-relaxed">
+                                        Образование высшее профессиональное, экономист. Опыт работы в сфере туризма, логистики и управления большими объемами более 12 лет. Владеет персидским, английским и русским языками. Опытный организатор, аналитик.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Ходжиев Сиршо -->
+                        <div class="enhanced-card rounded-xl p-6 card-hover">
+                            <div class="flex items-start gap-4">
+                                <div class="team-avatar w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-gray-600 font-bold text-sm">ХС</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold gradient-text mb-2">ХОДЖИЕВ СИРШО</h3>
+                                    <p class="text-gray-600 text-sm font-semibold mb-2">SMS-специалист</p>
+                                    <p class="text-gray-700 text-sm leading-relaxed">
+                                        Образование высшее профессиональное, лингвист. Опыт работы с персидским, английским, арабским, персидским и русским языками более 5 лет. Автор нескольких программ.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Таиров Сиджшо -->
+                        <div class="enhanced-card rounded-xl p-6 card-hover">
+                            <div class="flex items-start gap-4">
+                                <div class="team-avatar w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <span class="text-gray-600 font-bold text-sm">ТС</span>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-bold gradient-text mb-2">ТАИРОВ СИДЖШО</h3>
+                                    <p class="text-gray-600 text-sm font-semibold mb-2">Менеджер по информационным технологиям</p>
+                                    <p class="text-gray-700 text-sm leading-relaxed">
+                                        Образование высшее профессиональное, техник. Опыт работы в сфере информационных технологий и сервиса более 5 лет. Владеет персидским и русским языками. Автор нескольких программ.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ФУТЕР -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Функции для языкового селектора
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectLanguage(langCode, langName) {
+            // Обновляем кнопку селектора
+            document.querySelector('.selected-flag').className = `selected-flag flag-${langCode}`;
+            document.querySelector('.selected-lang').textContent = langName;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#languageDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            event.target.classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('languageDropdown').classList.remove('show');
+            
+            console.log(`Переключен язык: ${langName}`);
+            
+            // Предотвращаем переход по ссылке
+            event.preventDefault();
+            return false;
+        }
+
+        // Функции для валютного селектора
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectCurrency(currencyCode, symbol) {
+            // Обновляем кнопку селектора
+            document.querySelector('.selected-currency').textContent = currencyCode;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-currency="${currencyCode.toLowerCase()}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            document.getElementById('currencyDropdown').classList.remove('show');
+            
+            console.log(`Переключена валюта: ${currencyCode}`);
+            
+            // Предотвращаем переход по ссылке
+            event.preventDefault();
+            return false;
+        }
+
+        // Плавная прокрутка к якорям
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll animations
+        function handleScrollAnimations() {
+            const animatedElements = document.querySelectorAll('.scroll-animate');
+            
+            animatedElements.forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < window.innerHeight - elementVisible) {
+                    el.classList.add('in-view');
+                }
+            });
+        }
+
+        // Активация пунктов навигации при прокрутке
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Обновляем анимации при прокрутке
+            handleScrollAnimations();
+        });
+
+        // Initialize animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            handleScrollAnimations();
+            
+            // Add staggered animation to team cards
+            const teamCards = document.querySelectorAll('.card-hover');
+            teamCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>

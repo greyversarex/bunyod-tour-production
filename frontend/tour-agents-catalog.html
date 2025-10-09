@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наши турагенты | Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <style>
+        .agent-card {
+            transition: all 0.3s ease;
+        }
+        .agent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .search-bar {
+            transition: all 0.3s ease;
+        }
+        .search-bar:focus-within {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="gradient-bg text-white py-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold mb-4">Наши турагенты</h1>
+                <p class="text-xl opacity-90 max-w-2xl mx-auto">
+                    Надежные партнеры для организации ваших незабываемых путешествий по Центральной Азии
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <a href="index.html" class="flex items-center text-gray-700 hover:text-blue-600 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    На главную
+                </a>
+                
+                <!-- Search and Filter -->
+                <div class="flex items-center gap-4">
+                    <div class="search-bar relative">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Поиск турагентов..." 
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+                            onkeyup="searchTourAgents()"
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    
+                    <select id="countryFilter" onchange="filterByCountry()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+                        <option value="">Все страны</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Loading state -->
+        <div id="loadingState" class="text-center py-16">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-600">Загрузка турагентов...</p>
+        </div>
+
+        <!-- Agents Grid -->
+        <div id="agentsGrid" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="agentsList">
+                <!-- Agents will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="emptyState" class="hidden text-center py-16">
+            <i class="fas fa-handshake text-6xl text-gray-300 mb-6"></i>
+            <h3 class="text-2xl font-bold text-gray-600 mb-4">Турагенты не найдены</h3>
+            <p class="text-gray-500">Попробуйте изменить параметры поиска</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12 mt-16">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Bunyod-Tour</h3>
+                    <p class="text-gray-300 text-sm">
+                        Ваш надежный спутник в мире путешествий по Центральной Азии
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Контакты</h4>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <div><i class="fas fa-phone mr-2"></i> +992 XX XXX XXXX</div>
+                        <div><i class="fas fa-envelope mr-2"></i> info@bunyod-tour.com</div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Услуги</h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="index.html" class="hover:text-white transition-colors">Туры</a></li>
+                        <li><a href="hotels-catalog.html" class="hover:text-white transition-colors">Отели</a></li>
+                        <li><a href="tour-guides.html" class="hover:text-white transition-colors">Гиды</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Социальные сети</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-300 hover:text-white transition-colors">
+                            <i class="fab fa-telegram-plane text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-300">
+                <p>&copy; 2025 Bunyod-Tour. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Безопасные функции для XSS защиты
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        function validateImageUrl(url) {
+            if (!url) return '';
+            const urlStr = String(url).trim();
+            // Только https и root-relative URLs для production безопасности
+            if (urlStr.startsWith('https://') || urlStr.startsWith('/')) {
+                return urlStr;
+            }
+            return '';
+        }
+        
+        function validateHttpUrl(url) {
+            if (!url) return '';
+            const urlStr = String(url).trim();
+            // Только https URLs для website links
+            if (urlStr.startsWith('https://')) {
+                return urlStr;
+            }
+            return '';
+        }
+
+        // Global variables
+        let allTourAgents = [];
+        let filteredTourAgents = [];
+        let countries = [];
+
+        // API configuration
+        const API_BASE_URL = `${window.location.protocol}//${window.location.host}/api`;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Tour Agents Catalog page loaded');
+            loadTourAgents();
+            loadCountries();
+        });
+
+        // Load countries for filter
+        async function loadCountries() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/countries`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    countries = data.data;
+                    populateCountryFilter();
+                }
+            } catch (error) {
+                console.error('Error loading countries:', error);
+            }
+        }
+
+        // Populate country filter dropdown
+        function populateCountryFilter() {
+            const select = document.getElementById('countryFilter');
+            select.innerHTML = '<option value="">Все страны</option>';
+            
+            countries.forEach(country => {
+                select.innerHTML += `<option value="${country.id}">${escapeHtml(country.nameRu)}</option>`;
+            });
+        }
+
+        // Load tour agents
+        async function loadTourAgents() {
+            try {
+                console.log('Loading tour agents...');
+                
+                const response = await fetch(`${API_BASE_URL}/tour-agents/public`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    allTourAgents = data.data;
+                    filteredTourAgents = [...allTourAgents];
+                    
+                    console.log(`Loaded ${allTourAgents.length} tour agents`);
+                    displayTourAgents();
+                } else {
+                    throw new Error(data.message || 'Failed to load tour agents');
+                }
+            } catch (error) {
+                console.error('Error loading tour agents:', error);
+                showError('Ошибка загрузки турагентов. Пожалуйста, попробуйте позже.');
+            }
+        }
+
+        // Display tour agents
+        function displayTourAgents() {
+            const loadingState = document.getElementById('loadingState');
+            const agentsGrid = document.getElementById('agentsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const agentsList = document.getElementById('agentsList');
+
+            // Hide loading state
+            loadingState.classList.add('hidden');
+
+            if (filteredTourAgents.length === 0) {
+                agentsGrid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            agentsGrid.classList.remove('hidden');
+
+            // Generate HTML for each agent
+            agentsList.innerHTML = filteredTourAgents.map(agent => `
+                <div class="agent-card bg-white rounded-xl shadow-lg overflow-hidden">
+                    <div class="p-6">
+                        <!-- Agent Header -->
+                        <div class="flex items-center mb-6">
+                            <div class="w-16 h-16 rounded-full overflow-hidden mr-4 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                                ${validateImageUrl(agent.photo) ? 
+                                    `<img src="${validateImageUrl(agent.photo)}" alt="${escapeHtml(agent.name || 'Agent')}" class="w-full h-full object-cover">` :
+                                    `<i class="fas fa-handshake text-white text-2xl"></i>`
+                                }
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-900 mb-1">${escapeHtml(agent.name)}</h3>
+                                <p class="text-gray-600 font-medium">${escapeHtml(agent.organization)}</p>
+                                ${agent.stateRegistration ? `
+                                    <p class="text-sm text-gray-500">Рег. №${escapeHtml(agent.stateRegistration)}</p>
+                                ` : ''}
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        ${agent.description ? `
+                            <div class="mb-6">
+                                <p class="text-gray-700 leading-relaxed">${escapeHtml(agent.description)}</p>
+                            </div>
+                        ` : ''}
+
+                        <!-- Contact Information -->
+                        <div class="space-y-3 mb-6">
+                            ${agent.website ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-globe w-5 mr-3 text-blue-500"></i>
+                                    <a href="${validateHttpUrl(agent.website) || '#'}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline">${escapeHtml(agent.website)}</a>
+                                </div>
+                            ` : ''}
+                            
+                            ${agent.contactPhone ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-phone w-5 mr-3 text-green-500"></i>
+                                    <a href="tel:${escapeHtml(agent.contactPhone)}" class="text-gray-700 hover:text-green-600">${escapeHtml(agent.contactPhone)}</a>
+                                </div>
+                            ` : ''}
+                            
+                            ${agent.contactEmail ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-envelope w-5 mr-3 text-red-500"></i>
+                                    <a href="mailto:${escapeHtml(agent.contactEmail)}" class="text-gray-700 hover:text-red-600">${escapeHtml(agent.contactEmail)}</a>
+                                </div>
+                            ` : ''}
+                            
+                            ${agent.address ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-map-marker-alt w-5 mr-3 text-purple-500"></i>
+                                    <span class="text-gray-700">${escapeHtml(agent.address)}</span>
+                                </div>
+                            ` : ''}
+                            
+                            ${agent.country?.nameRu || agent.city?.nameRu ? `
+                                <div class="flex items-center text-sm">
+                                    <i class="fas fa-flag w-5 mr-3 text-orange-500"></i>
+                                    <span class="text-gray-700">
+                                        ${agent.country?.nameRu || ''}${agent.city?.nameRu ? (agent.country?.nameRu ? ', ' : '') + agent.city.nameRu : ''}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Contact Buttons -->
+                        <div class="flex gap-3">
+                            ${agent.contactPhone ? `
+                                <a href="tel:${escapeHtml(agent.contactPhone)}" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-3 px-4 rounded-lg font-medium transition-colors">
+                                    <i class="fas fa-phone mr-2"></i>Позвонить
+                                </a>
+                            ` : ''}
+                            
+                            ${agent.contactEmail ? `
+                                <a href="mailto:${escapeHtml(agent.contactEmail)}" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg font-medium transition-colors">
+                                    <i class="fas fa-envelope mr-2"></i>Написать
+                                </a>
+                            ` : ''}
+                            
+                            ${agent.website ? `
+                                <a href="${validateHttpUrl(agent.website) || '#'}" target="_blank" rel="noopener noreferrer" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white text-center py-3 px-4 rounded-lg font-medium transition-colors">
+                                    <i class="fas fa-external-link-alt mr-2"></i>Сайт
+                                </a>
+                            ` : ''}
+                        </div>
+
+                        <!-- Contact Person -->
+                        ${agent.contactName ? `
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <p class="text-sm text-gray-600">
+                                    <strong>Контактное лицо:</strong> ${escapeHtml(agent.contactName)}
+                                </p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Search tour agents
+        function searchTourAgents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredTourAgents = allTourAgents.filter(agent => {
+                return (
+                    agent.name.toLowerCase().includes(searchTerm) ||
+                    agent.organization.toLowerCase().includes(searchTerm) ||
+                    (agent.contactName && agent.contactName.toLowerCase().includes(searchTerm)) ||
+                    (agent.description && agent.description.toLowerCase().includes(searchTerm)) ||
+                    (agent.address && agent.address.toLowerCase().includes(searchTerm))
+                );
+            });
+
+            applyCountryFilter();
+            displayTourAgents();
+        }
+
+        // Filter by country
+        function filterByCountry() {
+            applyCountryFilter();
+            displayTourAgents();
+        }
+
+        // Apply country filter
+        function applyCountryFilter() {
+            const countryId = document.getElementById('countryFilter').value;
+            
+            if (!countryId) return;
+
+            filteredTourAgents = filteredTourAgents.filter(agent => {
+                return agent.countryId && agent.countryId.toString() === countryId;
+            });
+        }
+
+        // Show error message
+        function showError(message) {
+            const loadingState = document.getElementById('loadingState');
+            const agentsGrid = document.getElementById('agentsGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            loadingState.classList.add('hidden');
+            agentsGrid.classList.add('hidden');
+            
+            emptyState.classList.remove('hidden');
+            emptyState.innerHTML = `
+                <i class="fas fa-exclamation-triangle text-6xl text-red-400 mb-6"></i>
+                <h3 class="text-2xl font-bold text-gray-600 mb-4">Ошибка загрузки</h3>
+                <p class="text-gray-500">${message}</p>
+                <button onclick="loadTourAgents()" class="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-redo mr-2"></i>Попробовать снова
+                </button>
+            `;
+        }
+
+        // Smooth scrolling for internal links
+        document.addEventListener('click', function(e) {
+            if (e.target.matches('a[href^="#"]')) {
+                e.preventDefault();
+                const href = e.target.getAttribute('href');
+                // Защита от пустых якорей
+                if (href && href !== '#' && href.length > 1) {
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

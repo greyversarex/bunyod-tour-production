@@ -1,0 +1,212 @@
+The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+30The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+30The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+_app-76512666ac2c2be1.js:38 
+      /////////////////////
+   ///////////////////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////        Curious and driven?
+  ///////////////@@@@@@@///////        Work with us!
+  ///////////////@@@@@@@///////
+  ///////////////@@@@@@@///////        https://join.replit.com/hack.with.us
+  ////////@@@@@@@//////////////
+  ////////@@@@@@@//////////////
+  ////////@@@@@@#//////////////
+   ///////////////////////////
+      /////////////////////
+      
+Bunyod-Tour:1 The source list for the Content Security Policy directive 'default-src' contains an invalid source: ''unsafe-dynamic''. It will be ignored.
+Bunyod-Tour:1 The Content-Security-Policy directive 'default-src' contains 'report-uri' as a source expression. Did you want to add it as a directive and forget a semicolon?
+Bunyod-Tour:1 The source list for Content Security Policy directive 'default-src' contains a source with an invalid path: '/api/4509669501698048/security/?sentry_key=7eb3d90eb4660416caf507087367e67e'. The query component, including the '?', will be ignored.
+googleads.g.doubleclick.net/pagead/viewthroughconversion/11411994397/?random=1756542050127&cv=11&fst=1756542050127&bg=ffffff&guid=ON&async=1&en=gtag.config&gtm=45be58r1v9171242957za200zd9171242957xec&gcd=13l3l3l3l1l1&dma=0&tag_exp=101509157~103103155~103103157~103116026~103200004~103233427~104527907~104528500~104684208~104684211~104948813~105427542~105427544&u_w=1920&u_h=1080&url=https%3A%2F%2Freplit.com%2F%40repoum%2FBunyod-Tour&ref=https%3A%2F%2Freplit.com%2F%40repoum%2FBunyod-Tour&hn=www.googleadservices.com&frm=0&tiba=Loading...%20-%20Replit&npa=0&pscdl=noapi&auid=1931836285.1753083633&data=event%3Dgtag.config&rfmt=3&fmt=4:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=336156610&gjid=407826279&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=680992085:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://www.googletagmanager.com" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+_app-76512666ac2c2be1.js:38 [LaunchDarkly] LaunchDarkly client initialized
+ Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://js.stripe.com" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://js.stripe.com" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+16Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'battery'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+framework-3ad632cd1bd0ce09.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-3ad632cd1bd0ce09.js:1
+ Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://m.stripe.network" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1567178952&gjid=255660945&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1489247586:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/g/collect?v=2&tid=G-MPJY3F1YEL&cid=41792146.1753083632&gtm=45je58r1h1v9135634466za200&aip=1&dma=0&gcd=13l3l3l3l2l1&npa=0&frm=0&tag_exp=101509157~103116026~103200004~103233427~104527907~104528500~104684208~104684211~104948813~105427542~105427544~115497441:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1475973820&gjid=431951841&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1209844253:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1240303052&gjid=970469889&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=2118127796:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=945054073&gjid=753597583&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=311627426:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1318095997&gjid=267142208&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1098290975:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1844160523&gjid=889682594&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=2140752919:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1308133794&gjid=504484627&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=740834185:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1073427245&gjid=1993913738&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1271742270:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1018674299&gjid=1449010608&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=326682528:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1138388815&gjid=61508295&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=267621690:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=212189081&gjid=1362324703&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1101695344:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1682673455&gjid=576664568&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=794458408:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1725317947&gjid=1531812480&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1271858086:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1286495102&gjid=414415628&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1562641049:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1765109662&gjid=1703450993&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=600227326:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+_app-76512666ac2c2be1.js:38 Invalid href 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/https://yandex.ru/search/%3Ftext=%2Fadmin-dashboard.html&clid=2261451&banerid=6400000000%3A6878559228d5ef3c2fce0ac8&win=699&lr=10318' passed to next/router in page: '/replEnvironmentDesktop'. Repeated forward-slashes (//) or backslashes \ are not valid in the href.
+(anonymous) @ _app-76512666ac2c2be1.js:38
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=207378967&gjid=380160045&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=317278678:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=2049755323&gjid=797641770&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=773628438:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=2138566922&gjid=145971031&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=2119660086:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=551183237&gjid=197550747&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1350176188:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1536261691&gjid=1927019247&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1854171225:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=336074466&gjid=1293297839&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1454159863:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=77069856&gjid=29548619&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=870052121:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=61639946&gjid=2142719412&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1306489177:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1166300462&gjid=754827268&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=201638182:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1917366895&gjid=1239695660&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1738114497:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=289743932&gjid=326313146&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1466260268:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=967869066&gjid=22998618&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=411037117:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1904881594&gjid=1461147890&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=652057012:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+Bunyod-Tour:1 Access to fetch at 'https://sp.replit.com/v1/t' from origin 'https://replit.com' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+sp.replit.com/v1/t:1  Failed to load resource: net::ERR_FAILED
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1642968870&gjid=759691347&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=188216465:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=492972472&gjid=1034372781&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1834734949:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=20908661&gjid=632842204&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=141290381:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1467414815&gjid=1132971259&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=990346527:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1913340165&gjid=793555300&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1179586222:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=533844094&gjid=1236842558&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=745234979:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=782234141&gjid=1554964176&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1191430305:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1420658908&gjid=2104604245&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1826725518:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1110361747&gjid=649972813&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=417234931:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+ Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://www.google.com" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1805760197&gjid=134011115&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1239879294:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=1339983302&gjid=1906327972&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=1286608371:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+stats.g.doubleclick.net/j/collect?t=dc&aip=1&_r=3&v=1&_v=j102&tid=UA-25629695-1&cid=41792146.1753083632&jid=146394071&gjid=1865124171&_gid=1475914047.1755460027&_u=SCCAgEAjQAAAAGgCIAD~&z=622058899:1  Failed to load resource: net::ERR_BLOCKED_BY_CLIENT
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7Be.target.result%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7BimageUrl%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7Bimages[0]%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7BimageData.dataURL%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7Bguide.photo%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/$%7Bslide.image%7D:1  Failed to load resource: the server responded with a status of 404 (Not Found)
+Console.js:61 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+Mt.forEach.n.<computed> @ Console.js:61
+Console.js:61 Current location: Object
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: Object
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 🎯 editTour called with ID: 11
+Console.js:61 🔵 Opening tour modal with tourId: 11
+Console.js:61 🔵 Set currentTourId to: 11
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 Current location: {hostname: '653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev', protocol: 'https:', port: '5000', href: 'https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1h…pv6sj.picard.replit.dev:5000/admin-dashboard.html'}
+Console.js:61 Using API_BASE: https://653d6ff0-2858-44bb-8cf9-17dc92a97fe1-00-1hns0fcypv6sj.picard.replit.dev:5000/api
+Console.js:61 API response status: 200
+Console.js:61 API response data: {success: true, data: {…}, message: 'Tour retrieved successfully'}
+Console.js:61 Tour object: {id: 11, title: {…}, description: {…}, shortDesc: null, duration: '2', …}
+Console.js:61 🔍 Tour type data from server: {format: null, tourType: null, final: ''}
+Console.js:61 ✅ Loaded edit tour type: 
+Console.js:61 📋 Available edit tour type options: (4) ['', 'Персональный', 'Групповой персональный', 'Групповой общий']
+Console.js:61 📝 Checking form fields existence:
+Console.js:61 eTourTitleRu exists: true
+Console.js:61 eTourType exists: true
+Console.js:61 eTourPrice exists: true
+Console.js:61 eTourFullDesc exists: true
+Console.js:61 ✅ Loaded edit title RU: Сердце Таджикистана -> field value: Сердце Таджикистана
+Console.js:61 ✅ Loaded edit title EN: Heart of Tajikistan -> field value: Heart of Tajikistan
+Console.js:61 ✅ Loaded edit description RU
+Console.js:61 ✅ Loaded edit category: 1
+Console.js:61 ✅ Loaded edit country: null -> field value: 
+Console.js:61 ✅ Loaded edit city: Душанбе -> field value: Душанбе
+Console.js:61 ✅ Loaded edit duration days: 2 -> field value: 2
+Console.js:61 ✅ Loaded edit price: 222 -> field value: 222
+Console.js:61 ✅ Loaded edit price type: за человека
+Console.js:61 ✅ Loaded edit pickup info: Приёма нет -> field value: Приёма нет
+Console.js:61 ✅ Loaded edit full description: 4545 -> field value: 4545
+Console.js:61 ✅ Set eTourLanguages hidden field: Китайский
+Console.js:61 ✅ Updated edit selected languages display with: ['Китайский']
+Console.js:61 ✅ Loaded start times: ['12:12']
+Console.js:61 ✅ Updated start times list with times: ['12:12']
+Console.js:61 ✅ Start times container HTML: Has content
+Console.js:61 ✅ Loaded edit original price: null
+Console.js:61 ✅ Loaded edit difficulty: null
+Console.js:61 ✅ Loaded edit max people: 44
+Console.js:61 ✅ Loaded edit min people: 4
+Console.js:61 ✅ Loaded edit main image: data:image/png;base64,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AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+Console.js:61 ✅ Loaded edit tour block: 3
+Console.js:61 ✅ Loaded edit is featured: false
+Console.js:61 ✅ Loading includes data: (3) ['Трансфер', 'Питание', 'Входные билеты']
+Console.js:61 ✅ Found 6 includes checkboxes
+Console.js:61 ✅ Checked include: Трансфер
+Console.js:61 ✅ Checked include: Питание
+Console.js:61 ✅ Checked include: Входные билеты
+Console.js:61 ✅ Updated highlights list
+Console.js:61 ✅ Loaded itinerary: (2) [{…}, {…}]
+Console.js:61 ✅ Updated itinerary list
+Console.js:61 ✅ Loading available months: (3) ['8', '10', '12']
+Console.js:61 ✅ Checked month: 8
+Console.js:61 ✅ Checked month: 10
+Console.js:61 ✅ Checked month: 12
+Console.js:61 ✅ Loading available days: (3) ['1', '3', '4']
+Console.js:61 ✅ Checked day: 1
+Console.js:61 ✅ Checked day: 3
+Console.js:61 ✅ Checked day: 4
+Console.js:61 ✅ Loaded tour block: 3
+Console.js:61 ✅ Loaded gallery images: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAEHMA…AAAAAAAAAAAAAAAAAAAAwCZLUVoBhiHBnAAAAAElFTkSuQmCC']
+Console.js:61 ✅ Updated edit gallery images list with images: ['data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAEHMA…AAAAAAAAAAAAAAAAAAAAwCZLUVoBhiHBnAAAAAElFTkSuQmCC']
+Console.js:61 ✅ Edit gallery container has 1 images
+Console.js:61 ✅ Tour data loaded successfully for editing: 11

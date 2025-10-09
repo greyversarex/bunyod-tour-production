@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bunyod-Tour - Туры по Таджикистану</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- СПЕЦИАЛЬНЫЕ ЗАГОЛОВКИ ДЛЯ REPLIT PREVIEW -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="-1">
+    <meta name="robots" content="noindex, nofollow, noarchive">
+    <style>
+        .banner-height {
+            height: 70vh;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .filter-gradient {
+            background: linear-gradient(135deg, #4A4A4A 0%, #3E3E3E 50%, #2F2F2F 100%);
+            box-shadow: 0 10px 30px rgba(47, 47, 47, 0.4);
+        }
+        .modern-select {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+    </style>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <!-- Layout loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</head>
+<body>
+    <!-- ЗАГОЛОВОК С ПОДТВЕРЖДЕНИЕМ ЗАГРУЗКИ -->
+    <div style="background: #4A4A4A; color: white; padding: 10px; text-align: center; font-weight: bold;">
+        🎉 НОВАЯ ВЕРСИЯ ЗАГРУЖЕНА - ТЁМНО-СЕРЫЙ ФИЛЬТР АКТИВЕН!
+    </div>
+
+    <!-- Dynamic header will be loaded here -->
+    <div id="header-container"></div>
+
+    <!-- Главный баннер -->
+    <section class="hero-bg banner-height relative flex items-center justify-center text-white">
+        <div class="gradient-overlay absolute inset-0"></div>
+        <div class="relative z-10 text-center max-w-4xl mx-auto px-6">
+            <h1 class="text-6xl font-bold mb-6">
+                Откройте красоту Таджикистана
+            </h1>
+            <p class="text-xl mb-8 max-w-2xl mx-auto">
+                Исследуйте захватывающие горы Памира, древние города Шёлкового пути и богатую культуру этой удивительной страны
+            </p>
+        </div>
+    </section>
+
+    <!-- Система фильтров туров -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
+                Найдите идеальный тур
+            </h2>
+            
+            <!-- ДЕМОНСТРАЦИОННЫЙ ТЁМНО-СЕРЫЙ ФИЛЬТР -->
+            <div class="filter-gradient rounded-xl p-8 mb-12 text-center">
+                <div class="text-white">
+                    <h3 class="text-2xl font-bold mb-4">✅ ТЁМНО-СЕРЫЙ ФИЛЬТР РАБОТАЕТ!</h3>
+                    <p class="text-lg mb-2">Градиент: #4A4A4A → #3E3E3E → #2F2F2F</p>
+                    <p class="text-sm opacity-80">Если вы видите этот блок тёмно-серым, значит preview обновился!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ОЧЕНЬ ЗАМЕТНОЕ СООБЩЕНИЕ В КОНСОЛИ
+        
+        // Показать alert для подтверждения
+        setTimeout(() => {
+            alert('🎉 REPLIT PREVIEW ОБНОВЛЕН!\n\nФильтр теперь тёмно-серый!');
+        }, 1000);
+    </script>
+    
+    <!-- Dynamic footer will be loaded here -->
+    <div id="footer-container"></div>
+</body>
+</html>

@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="booking.step3.page_title">Бронирование - Оплата | Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/booking-state.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+        .progress-step.active {
+            background: #6B7280;
+            color: white;
+        }
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+        .payment-method {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-method:hover {
+            border-color: #6B7280;
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+        }
+        .payment-method.selected {
+            border-color: #6B7280;
+            background: #f8fafc;
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+        }
+        .payment-icon {
+            width: 60px;
+            height: 40px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Progress Indicator -->
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step1.title">Выбор отеля</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step2.title">Данные туриста</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">3</div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step3.title">Оплата</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.select_payment">Выберите способ оплаты</h2>
+                
+                <div class="space-y-4">
+                    <!-- Payler -->
+                    <div class="payment-method" data-method="payler" onclick="selectPaymentMethod('payler')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.payler_title">VISA / MasterCard — Payler</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.payler_desc">Безопасная оплата банковской картой</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                                <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AlifPay -->
+                    <div class="payment-method" data-method="alifpay" onclick="selectPaymentMethod('alifpay')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-green-100 rounded-lg mr-4">
+                                <i class="fab fa-cc-visa text-2xl text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.alifpay_title">VISA / MasterCard — AlifPay</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.alifpay_desc">Локальная платежная система Таджикистана</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                                <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Binance - Temporarily disabled (not integrated) -->
+                    <!-- 
+                    <div class="payment-method" data-method="binance" onclick="selectPaymentMethod('binance')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-yellow-100 rounded-lg mr-4">
+                                <i class="fab fa-bitcoin text-2xl text-yellow-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.binance_title">Binance (Криптовалюта)</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.binance_desc">Оплата криптовалютой через Binance</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-bitcoin text-2xl text-yellow-600"></i>
+                                <i class="fab fa-ethereum text-2xl text-gray-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+
+                    <!-- Корти Милли - Temporarily disabled (not integrated) -->
+                    <!--
+                    <div class="payment-method" data-method="korti-milli" onclick="selectPaymentMethod('korti-milli')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-red-100 rounded-lg mr-4">
+                                <i class="fas fa-credit-card text-2xl text-red-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.korti_milli_title">Корти Милли</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.korti_milli_desc">Национальная платежная система Таджикистана</p>
+                            </div>
+                            <div class="flex">
+                                <i class="fas fa-flag text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between mt-8">
+                    <button id="back-btn" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i><span data-translate="booking.back">Назад</span>
+                    </button>
+                    <button id="pay-btn" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span data-translate="booking.pay">Оплатить</span>
+                        <i class="fas fa-credit-card ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+        <!-- Booking Voucher -->
+        <div class="bg-white rounded-lg shadow-lg mt-8">
+            <div id="booking-summary">
+                <!-- Voucher will be loaded here -->
+                <div class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                    <p class="text-gray-600 mt-2" data-translate="booking.loading_data">Загрузка данных бронирования...</p>
+                </div>
+            </div>
+            
+            <!-- Security Info -->
+            <div class="border-t px-6 py-4 bg-gray-50">
+                <div class="flex items-center justify-center text-sm text-gray-600">
+                    <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                    <span data-translate="booking.ssl_protected">Ваши данные защищены SSL-шифрованием</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div id="payment-processing" class="hidden">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.processing_payment">Обработка платежа</h3>
+                    <p class="text-gray-600" data-translate="booking.please_wait">Пожалуйста, подождите...</p>
+                </div>
+                
+                <div id="payment-success" class="hidden">
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.payment_success">Оплата успешна!</h3>
+                    <p class="text-gray-600 mb-4" data-translate="booking.booking_confirmed">Ваше бронирование подтверждено</p>
+                    <button onclick="goToConfirmation()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                        <span data-translate="booking.view_details">Посмотреть детали</span>
+                    </button>
+                </div>
+                
+                <div id="payment-error" class="hidden">
+                    <i class="fas fa-times-circle text-4xl text-red-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.payment_error">Ошибка оплаты</h3>
+                    <p class="text-gray-600 mb-4" data-translate="booking.try_again_message">Попробуйте еще раз или выберите другой способ оплаты</p>
+                    <button onclick="closePaymentModal()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors">
+                        <span data-translate="booking.try_again">Попробовать снова</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let bookingState = {};
+        let selectedPaymentMethod = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            setupEventListeners();
+        });
+
+        function initializePage() {
+            // Initialize language
+            window.currentLanguage = window.currentLanguage || localStorage.getItem('selectedLanguage') || 'ru';
+            console.log('🌍 Step 3 initialized with language:', window.currentLanguage);
+            
+            // Initialize bookingStateManager
+            if (!window.bookingStateManager) {
+                console.error('❌ bookingStateManager not loaded!');
+                alert('Ошибка: система бронирования не инициализирована');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+            
+            window.bookingStateManager.init();
+
+            // Get booking ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+            
+            if (!bookingId || !window.bookingStateManager.state.bookingId) {
+                console.error('❌ No booking ID found. URL:', bookingId, 'State:', window.bookingStateManager.state.bookingId);
+                alert('Ошибка: данные бронирования не найдены');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+
+            // Use state from bookingStateManager
+            bookingState = window.bookingStateManager.state;
+            console.log('📦 Step 3 loaded booking state:', bookingState);
+
+            // Load booking summary
+            loadBookingSummary(bookingId);
+        }
+
+        // Helper function to get localized name from multilingual object or string
+        function getLocalizedName(nameValue) {
+            const lang = window.currentLanguage || 'ru';
+            
+            // If it's already a string, return it
+            if (typeof nameValue === 'string') {
+                return nameValue;
+            }
+            
+            // If it's an object with language keys
+            if (typeof nameValue === 'object' && nameValue !== null) {
+                // Try current language first, then fallback to ru, then en, then any available value
+                return nameValue[lang] || nameValue.ru || nameValue.en || Object.values(nameValue)[0] || 'N/A';
+            }
+            
+            return 'N/A';
+        }
+
+        function setupEventListeners() {
+            document.getElementById('back-btn').addEventListener('click', goBack);
+            document.getElementById('pay-btn').addEventListener('click', processPayment);
+            
+            // Listen for language changes
+            window.addEventListener('languageChanged', (e) => {
+                window.currentLanguage = e.detail.language;
+                console.log('🌍 Step 3 language changed to:', window.currentLanguage);
+                // Reload booking summary with new language
+                if (bookingState && bookingState.id) {
+                    loadBookingSummary(bookingState.id);
+                }
+            });
+        }
+
+        async function loadBookingSummary(bookingId) {
+            try {
+                const lang = window.currentLanguage || 'ru';
+                console.log('Loading booking summary for ID:', bookingId, 'with language:', lang);
+                const response = await fetch(`/api/booking/${bookingId}?lang=${lang}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success && data.data) {
+                    // Sync with server to get canonical pricing
+                    await window.bookingStateManager.syncWithServer();
+                    console.log('✅ State synced with server, pricing:', window.bookingStateManager.getPricing());
+                    
+                    displayBookingSummary(data.data);
+                } else {
+                    console.error('API returned error:', data.message);
+                    document.getElementById('booking-summary').innerHTML = `
+                        <div class="text-center py-4">
+                            <p class="text-red-600">Ошибка загрузки данных бронирования: ${data.message || 'Неизвестная ошибка'}</p>
+                            <button onclick="loadBookingSummary(${bookingId})" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                Попробовать снова
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading booking summary:', error);
+                document.getElementById('booking-summary').innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-red-600">Ошибка загрузки данных: ${error.message}</p>
+                        <button onclick="loadBookingSummary(${bookingId})" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            Попробовать снова
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayBookingSummary(booking) {
+            const summaryContainer = document.getElementById('booking-summary');
+            
+            // Parse room and meal selections
+            let roomSelection = {};
+            let mealSelection = {};
+            
+            try {
+                if (booking.roomSelection) {
+                    roomSelection = typeof booking.roomSelection === 'string' ? 
+                        JSON.parse(booking.roomSelection) : booking.roomSelection;
+                }
+                if (booking.mealSelection) {
+                    mealSelection = typeof booking.mealSelection === 'string' ? 
+                        JSON.parse(booking.mealSelection) : booking.mealSelection;
+                }
+            } catch (e) {
+                console.warn('Error parsing room/meal selections:', e);
+            }
+
+            // Parse tourists
+            let tourists = [];
+            try {
+                if (booking.tourists) {
+                    tourists = typeof booking.tourists === 'string' ? 
+                        JSON.parse(booking.tourists) : booking.tourists;
+                }
+            } catch (e) {
+                console.warn('Error parsing tourists:', e);
+            }
+
+            // Parse hotel room and meal types
+            let hotelRoomTypes = {};
+            let hotelMealTypes = {};
+            
+            if (booking.hotel) {
+                try {
+                    if (booking.hotel.roomTypes) {
+                        hotelRoomTypes = typeof booking.hotel.roomTypes === 'string' ? 
+                            JSON.parse(booking.hotel.roomTypes) : booking.hotel.roomTypes;
+                    }
+                    if (booking.hotel.mealTypes) {
+                        hotelMealTypes = typeof booking.hotel.mealTypes === 'string' ? 
+                            JSON.parse(booking.hotel.mealTypes) : booking.hotel.mealTypes;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing hotel types:', e);
+                }
+            }
+
+            // Calculate breakdown
+            let tourBasePrice = parseFloat(booking.tour.price);
+            if (booking.tour.priceType === 'за человека') {
+                tourBasePrice *= booking.numberOfTourists;
+            }
+
+            let roomCost = 0;
+            let mealCost = 0;
+            const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
+
+            // Calculate room costs
+            Object.entries(roomSelection).forEach(([roomType, quantity]) => {
+                if (quantity > 0 && hotelRoomTypes[roomType]) {
+                    roomCost += hotelRoomTypes[roomType].price * quantity * tourDuration;
+                }
+            });
+
+            // Calculate meal costs  
+            Object.entries(mealSelection).forEach(([mealType, price]) => {
+                if (price > 0) {
+                    mealCost += price * booking.numberOfTourists * tourDuration;
+                }
+            });
+
+            // Generate booking reference number
+            const bookingRef = `BT-${booking.id || 'XXXX'}${new Date().getFullYear()}`;
+            const submissionTime = new Date(booking.createdAt || Date.now());
+            
+            // Count actual tourists if tourist list is available  
+            let actualTouristCount = booking.numberOfTourists;
+            if (tourists.length > 0) {
+                actualTouristCount = tourists.length;
+            }
+
+            // Get current language for localization
+            const lang = window.currentLanguage || 'ru';
+            const dateLocale = lang === 'en' ? 'en-US' : 'ru-RU';
+            
+            // Localized tour title
+            const tourTitle = typeof booking.tour.title === 'object' ? 
+                (booking.tour.title[lang] || booking.tour.title.ru || booking.tour.title.en) : booking.tour.title;
+            
+            // Localized tour type
+            let tourType = booking.tour.tourType || booking.tour.format;
+            if (tourType === 'Персональный') tourType = getTranslation('booking.voucher.personal');
+            else if (tourType === 'Групповой') tourType = getTranslation('booking.voucher.group');
+            
+            const daysText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
+            
+            // Create voucher in professional format
+            let summaryHtml = `
+                <!-- Company Header -->
+                <div class="text-white p-6 text-center" style="background-color: #3E3E3E; border-radius: 8px 8px 0 0;">
+                    <div class="flex items-center justify-center mb-3">
+                        <img src="Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="w-14 h-14 rounded-full mr-3 shadow-lg">
+                        <div>
+                            <h1 class="text-2xl font-bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">BUNYOD-TOUR</h1>
+                            <p class="text-sm opacity-90" data-translate="booking.voucher.tagline">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-8">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-6 border-b pb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-calendar-alt text-gray-500"></i>
+                            <span class="text-gray-600">${new Date(booking.tourDate).toLocaleDateString(dateLocale)}</span>
+                        </div>
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium" data-translate="booking.confirmed">
+                            ПОДТВЕРЖДЕН
+                        </div>
+                    </div>
+
+                    <!-- Tour Title -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">${tourTitle}</h2>
+                        <p class="text-gray-600">${tourType} - ${tourDuration} ${daysText}</p>
+                    </div>
+
+                    <!-- Main Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            <!-- Lead Traveler -->
+                            ${booking.contactName ? `
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.contact_person">Контактное лицо:</h4>
+                                    <p class="text-gray-700">${booking.contactName}</p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Travelers -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.participants">Участники тура:</h4>
+                                <div class="space-y-2">
+                                    ${actualTouristCount} <span data-translate="booking.voucher.adults">взрослый(ых)</span>, ${booking.numberOfTourists} <span data-translate="booking.voucher.children">детей</span>
+                                    ${tourists.length > 0 ? `
+                                        <div class="mt-3">
+                                            ${tourists.map((tourist, index) => `
+                                                <div class="flex items-center text-sm text-gray-600 mb-1">
+                                                    <span class="w-5 h-5 bg-gray-500 text-white rounded-full text-xs flex items-center justify-center mr-2">${index + 1}</span>
+                                                    ${tourist.fullName} ${tourist.dateOfBirth ? `(${new Date(tourist.dateOfBirth).toLocaleDateString(dateLocale)})` : ''}
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Tour Language -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.tour_language">Язык тура:</h4>
+                                <p class="text-gray-700">Russian</p>
+                            </div>
+
+                            <!-- Inclusions -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.included">Включено:</h4>
+                                <div class="text-gray-700 space-y-1 text-sm">
+                                    ${(() => {
+                                        let services = [];
+                                        try {
+                                            if (booking.tour.services) {
+                                                services = typeof booking.tour.services === 'string' ? 
+                                                    JSON.parse(booking.tour.services) : booking.tour.services;
+                                            }
+                                        } catch (e) {
+                                            console.warn('Error parsing tour services:', e);
+                                        }
+                                        const serviceName = (service) => lang === 'en' && service.nameEn ? service.nameEn : service.name;
+                                        return services.map ? services.map(service => 
+                                            `<div class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> ${serviceName(service)}</div>`
+                                        ).join('') : '';
+                                    })()}
+                                    ${booking.hotel ? '<div class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> <span data-translate="booking.accommodation">Проживание в отеле</span></div>' : ''}
+                                </div>
+                            </div>
+
+                            <!-- Special Requirements -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.special_requests">Особые требования:</h4>
+                                <p class="text-gray-700 text-sm">${booking.specialRequests || ''}</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <!-- Booking Reference -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-1">${bookingRef}</h4>
+                                <p class="text-sm text-gray-600"><span data-translate="booking.voucher.confirmed_at">Подтверждено</span> ${submissionTime.toLocaleDateString(dateLocale)} ${submissionTime.toLocaleTimeString(dateLocale, {hour: '2-digit', minute:'2-digit'})} GMT+5</p>
+                            </div>
+
+                            <!-- Customer Info -->
+                            ${booking.contactPhone ? `
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.client_phone">Номер телефона клиента:</h4>
+                                    <p class="text-gray-700">${booking.contactPhone}</p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Pickup Point -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.pickup_location">Место сбора:</h4>
+                                <p class="text-gray-700">${(lang === 'en' && booking.tour.pickupInfoEn) ? booking.tour.pickupInfoEn : (booking.tour.pickupInfo || 'Центр города Душанбе')}</p>
+                            </div>
+
+                            <!-- Booking Source -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.booking_source">Источник бронирования:</h4>
+                                <p class="text-gray-700">Bunyod-Tour</p>
+                            </div>
+
+                            <!-- Product Code -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.product_code">Код продукта:</h4>
+                                <p class="text-gray-700">TOUR${booking.tour.id}TJ${tourDuration}D</p>
+                            </div>
+
+                            <!-- Tour Guide -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.tour_guide">Гид тура:</h4>
+                                <p class="text-gray-700">${booking.tour.guide || '<span data-translate="booking.voucher.assigned_at_start">Назначается при начале тура</span>'}</p>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.total_amount">Сумма к оплате:</h4>
+                                <p class="text-2xl font-bold text-gray-700">${window.bookingStateManager.state.pricing.grandTotal.toLocaleString()} TJS</p>
+                                <p class="text-sm text-gray-600">≈ ${Math.round(window.bookingStateManager.state.pricing.grandTotal * 0.091)} USD</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hotel Details (if selected) -->
+                    ${booking.hotel ? `
+                        <div class="border-t pt-6 mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="booking.accommodation_details">Детали проживания</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.hotel">Отель:</h5>
+                                        <p class="text-gray-800">${typeof booking.hotel.name === 'object' ? (booking.hotel.name[lang] || booking.hotel.name.ru || booking.hotel.name.en) : booking.hotel.name}</p>
+                                        <p class="text-sm text-gray-600">${booking.hotel.address}</p>
+                                        ${booking.hotel.stars ? `<div class="text-yellow-500 mt-1">${'★'.repeat(booking.hotel.stars)}</div>` : ''}
+                                        ${booking.hotel.category ? `<p class="text-sm text-purple-600 font-medium mt-1"><span data-translate="booking.category">Категория</span>: ${booking.hotel.category}</p>` : ''}
+                                        ${booking.hotel.amenities && booking.hotel.amenities.length > 0 ? `
+                                            <div class="mt-2">
+                                                <p class="text-sm text-gray-700 font-medium mb-1" data-translate="booking.amenities">Удобства:</p>
+                                                <div class="flex flex-wrap gap-1">
+                                                    ${booking.hotel.amenities.map(amenity => `
+                                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">${getTranslation('amenity.' + amenity) || amenity}</span>
+                                                    `).join('')}
+                                                </div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <div>
+                                        <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.rooms">Номера:</h5>
+                                        ${Object.entries(roomSelection).map(([roomType, quantity]) => {
+                                            if (quantity > 0 && hotelRoomTypes[roomType]) {
+                                                const roomName = getLocalizedName(hotelRoomTypes[roomType].name);
+                                                return `<p class="text-sm text-gray-600">${roomName} × ${quantity}</p>`;
+                                            }
+                                            return '';
+                                        }).join('')}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                </div>
+            `;
+            
+            summaryContainer.innerHTML = summaryHtml;
+
+            // Store total price for payment - use bookingStateManager
+            bookingState.finalTotalPrice = window.bookingStateManager.state.pricing.grandTotal;
+            console.log('💰 Final total price set:', bookingState.finalTotalPrice);
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+            
+            // Enable pay button
+            document.getElementById('pay-btn').disabled = false;
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        async function processPayment() {
+            if (!selectedPaymentMethod) {
+                alert('Пожалуйста, выберите способ оплаты');
+                return;
+            }
+
+            // Get booking ID from URL (это основная информация)
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+
+            if (!bookingId) {
+                alert('Ошибка: ID бронирования не найден');
+                return;
+            }
+
+            // Show payment modal
+            showPaymentProcessing();
+
+            try {
+                // ШАГАН 1: Сначала создать Order из Booking
+                console.log('🔄 Создаем заказ из бронирования...');
+                const createOrderResponse = await fetch(`/api/booking/${bookingId}/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const orderData = await createOrderResponse.json();
+                
+                if (!orderData.success) {
+                    console.error('❌ Не удалось создать заказ:', orderData.message);
+                    alert('Ошибка при создании заказа: ' + orderData.message);
+                    closePaymentModal();
+                    return;
+                }
+
+                const orderNumber = orderData.data.orderNumber;
+
+                // ШАГАН 2: Теперь инициировать оплату с orderNumber
+                let paymentResponse;
+                
+                // Route to appropriate payment system
+                if (selectedPaymentMethod === 'alif' || selectedPaymentMethod === 'alifpay') {
+                    paymentResponse = await fetch('/api/payments/alif/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else if (selectedPaymentMethod === 'payler') {
+                    paymentResponse = await fetch('/api/payments/payler/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else if (selectedPaymentMethod === 'stripe') {
+                    // Use existing Stripe integration
+                    paymentResponse = await fetch('/api/payments/create-payment-intent', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else {
+                    alert('Метод оплаты временно недоступен');
+                    closePaymentModal();
+                    return;
+                }
+
+                const paymentData = await paymentResponse.json();
+                
+                if (paymentData.success) {
+                    
+                    // Store order info for success page in sessionStorage (including bookingId for retry)
+                    sessionStorage.setItem('completedOrder', JSON.stringify({
+                        orderNumber: orderNumber,
+                        paymentMethod: selectedPaymentMethod,
+                        bookingId: bookingId
+                    }));
+                    
+                    // Redirect to payment gateway or show success
+                    if (paymentData.paymentUrl || paymentData.redirectUrl) {
+                        const redirectUrl = paymentData.paymentUrl || paymentData.redirectUrl;
+                        if (paymentData.method === 'POST' && paymentData.formData) {
+                            // Create form for AlifPay redirect
+                            redirectToAlifPay(redirectUrl, paymentData.formData);
+                        } else {
+                            // Direct redirect for Payler and other gateways
+                            console.log('🔄 Redirecting to payment gateway:', redirectUrl);
+                            window.location.href = redirectUrl;
+                        }
+                    } else if (paymentData.clientSecret) {
+                        // Handle Stripe payment
+                        showPaymentSuccess();
+                    }
+                } else {
+                    console.error('❌ Payment failed:', paymentData.message);
+                    showPaymentError();
+                }
+            } catch (error) {
+                console.error('❌ Error processing payment:', error);
+                showPaymentError();
+            }
+        }
+
+        function redirectToAlifPay(url, formData) {
+            // Create and submit form for AlifPay
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            
+            Object.entries(formData).forEach(([key, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function showPaymentProcessing() {
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('payment-processing').classList.remove('hidden');
+            document.getElementById('payment-success').classList.add('hidden');
+            document.getElementById('payment-error').classList.add('hidden');
+        }
+
+        function showPaymentSuccess() {
+            document.getElementById('payment-processing').classList.add('hidden');
+            document.getElementById('payment-success').classList.remove('hidden');
+            document.getElementById('payment-error').classList.add('hidden');
+        }
+
+        function showPaymentError() {
+            document.getElementById('payment-processing').classList.add('hidden');
+            document.getElementById('payment-success').classList.add('hidden');
+            document.getElementById('payment-error').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function goToConfirmation() {
+            // Clear booking state
+            localStorage.removeItem('bookingState');
+            
+            // Redirect to success page
+            const orderNumber = bookingState.orderNumber || 'unknown';
+            window.location.href = `/frontend/payment-success.html?order=${orderNumber}`;
+        }
+
+        // Глобальная система валют (копия из booking-step1.html)
+        let globalCurrency = 'TJS';
+        let exchangeRates = {
+            TJS: { rate: 1, symbol: 'с.' }
+            // Остальные курсы загружаются с сервера
+        };
+
+        // Функция конвертации цен
+        function convertPrice(priceInTJS, targetCurrency) {
+            if (!exchangeRates[targetCurrency]) return priceInTJS;
+            // Новая логика: курс показывает сколько TJS за 1 единицу валюты
+            // Для конвертации из TJS в другую валюту: priceInTJS / rate
+            return Math.round(priceInTJS / exchangeRates[targetCurrency].rate);
+        }
+
+        function convertAllPrices() {
+            document.querySelectorAll('.price-display').forEach(element => {
+                if (element.dataset.originalPrice) {
+                    const originalPrice = parseInt(element.dataset.originalPrice);
+                    const convertedPrice = convertPrice(originalPrice, globalCurrency);
+                    element.textContent = `${exchangeRates[globalCurrency].symbol}${convertedPrice}`;
+                }
+            });
+        }
+
+        // Загрузка курсов валют с сервера
+        async function loadExchangeRates() {
+            try {
+                const response = await fetch('/api/exchange-rates');
+                const data = await response.json();
+                
+                if (data.success) {
+                    data.data.forEach(rate => {
+                        exchangeRates[rate.currency] = {
+                            rate: parseFloat(rate.rate),
+                            symbol: rate.symbol
+                        };
+                    });
+                    
+                    // Применяем конвертацию после загрузки курсов
+                    convertAllPrices();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки курсов валют:', error);
+            }
+        }
+
+        // Инициализация валютной системы
+        function initializeCurrency() {
+            // Восстанавливаем выбранную валюту из localStorage
+            const savedCurrency = localStorage.getItem('selectedCurrency');
+            if (savedCurrency && exchangeRates[savedCurrency]) {
+                globalCurrency = savedCurrency;
+            }
+            
+            // Загружаем актуальные курсы валют
+            loadExchangeRates();
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCurrency(); // Добавляем инициализацию валютной системы
+        });
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Акции - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script defer src="/public/js/i18n.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        /* Баннер стили */
+        .hero-bg {
+            background-image: url('bg-hero.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        .banner-height {
+            height: 70vh;
+            min-height: 600px;
+        }
+        
+        .gradient-overlay {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.4) 100%);
+        }
+        
+        /* ===== PAGE-SPECIFIC STYLES FOR AKTSII.HTML ===== */
+
+        /* Стили для информационных блоков */
+        .info-block {
+            transition: all 0.3s ease;
+        }
+        
+        .info-block:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .details-overlay {
+            transition: all 0.3s ease;
+        }
+        
+        .details-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .promo-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .promo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .promo-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(220, 38, 38, 0.95);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .discount-badge {
+            background: rgba(16, 185, 129, 0.95);
+        }
+    </style>
+    
+    <!-- ✅ АРХИТЕКТУРНАЯ ЧИСТОТА: Leaflet подключается только в footer! -->
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ХЕДЕР -->
+    <div id="header-container"></div>
+
+
+    <!-- Основной контент -->
+    <main class="py-16">
+        <div class="max-w-7xl mx-auto px-6">
+
+            <!-- Горящие туры -->
+            <section class="mb-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                        🔥 Горящие туры
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        Успейте забронировать туры и экскурсии за доступные цены!
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Горящий тур 1 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -30%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Панорамная дорога Памира</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.8
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Захватывающее путешествие по одной из самых высокогорных дорог мира
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$599</span>
+                                    <span class="text-2xl font-bold text-red-600 ml-2">$420</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Горящий тур 2 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -25%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Озеро Искандеркуль</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.9
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Живописное горное озеро в окружении заснеженных пиков
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$199</span>
+                                    <span class="text-2xl font-bold text-red-600 ml-2">$149</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Горящий тур 3 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -40%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Фанские горы</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.7
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Треккинг по одним из красивейших гор Таджикистана
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$480</span>
+                                    <span class="text-2xl font-bold text-red-600 ml-2">$289</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Туры со скидками -->
+            <section class="mb-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">
+                        💰 Туры со скидками
+                    </h2>
+                    <p class="text-xl text-gray-600">
+                        Специальные предложения для постоянных клиентов и раннего бронирования
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Скидочный тур 1 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -15%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Древний Пенджикент</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.7
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Исследуйте руины древнего согдийского города и музей Рудаки
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$105</span>
+                                    <span class="text-2xl font-bold text-green-600 ml-2">$89</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Скидочный тур 2 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -20%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Душанбе - столица Таджикистана</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.6
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Обзорная экскурсия по столице с посещением музеев и парков
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$75</span>
+                                    <span class="text-2xl font-bold text-green-600 ml-2">$60</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Скидочный тур 3 -->
+                    <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
+                        <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
+                            -12%
+                        </div>
+                        <div class="h-64 bg-gray-200"></div>
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-bold text-gray-900">Худжанд - северная жемчужина</h3>
+                                <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">
+                                    ★ 4.5
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-4 flex-grow">
+                                Исторический город на Великом Шёлковом пути
+                            </p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <div>
+                                    <span class="text-lg line-through text-gray-400">$125</span>
+                                    <span class="text-2xl font-bold text-green-600 ml-2">$110</span>
+                                </div>
+                                <button class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors" style="background-color: #6B7280;">
+                                    Бронировать
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Дополнительная информация -->
+            <div class="mt-16 bg-white rounded-xl p-8 shadow-lg">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Как получить максимальную выгоду?</h2>
+                    <p class="text-gray-600 text-lg">Комбинируйте акции и получайте дополнительные скидки</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-calendar-check text-2xl text-blue-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Планируйте заранее</h3>
+                        <p class="text-gray-600 text-sm">Бронируйте туры за 3-6 месяцев и получите до 15% скидки</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-users text-2xl text-green-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Собирайте группу</h3>
+                        <p class="text-gray-600 text-sm">Чем больше группа, тем больше скидка - до 20% при группе от 6 человек</p>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-star text-2xl text-purple-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2">Станьте постоянным клиентом</h3>
+                        <p class="text-gray-600 text-sm">Накапливайте бонусы и получайте эксклюзивные предложения</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA секция -->
+            <div class="mt-16 text-center">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-12 text-white">
+                    <h2 class="text-3xl font-bold mb-4">Готовы сэкономить на путешествии?</h2>
+                    <p class="text-xl mb-8 opacity-90">Свяжитесь с нами и узнайте о всех актуальных акциях и скидках</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <button class="bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                            Связаться с нами
+                        </button>
+                        <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-gray-800 transition-colors">
+                            Посмотреть все туры
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ФУТЕР -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Языковой селектор
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function selectLanguage(langCode, flagClass, langName) {
+            const selectedFlag = document.querySelector('.selected-flag');
+            const selectedLang = document.querySelector('.selected-lang');
+            const dropdown = document.getElementById('langDropdown');
+            
+            // Обновляем выбранный язык
+            selectedFlag.className = `selected-flag ${flagClass}`;
+            selectedLang.textContent = langName;
+            
+            // Обновляем активный пункт
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${langCode}"]`).classList.add('active');
+            
+            // Закрываем dropdown
+            dropdown.classList.remove('show');
+        }
+
+        // Закрываем dropdown при клике вне его
+        document.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.language-dropdown');
+            if (!dropdown.contains(event.target)) {
+                document.getElementById('langDropdown').classList.remove('show');
+            }
+        });
+
+        // Функция для переключения деталей блоков
+        function toggleDetails(detailsId, button) {
+            const details = document.getElementById(detailsId);
+            const isHidden = details.classList.contains('hidden');
+            
+            if (isHidden) {
+                details.classList.remove('hidden');
+                details.classList.add('show');
+                button.textContent = 'скрыть';
+                button.classList.remove('text-blue-600', 'hover:text-blue-800');
+                button.classList.add('text-red-600', 'hover:text-red-800');
+            } else {
+                details.classList.add('hidden');
+                details.classList.remove('show');
+                button.textContent = 'подробнее';
+                button.classList.remove('text-red-600', 'hover:text-red-800');
+                button.classList.add('text-blue-600', 'hover:text-blue-800');
+            }
+        }
+
+        // ✅ АРХИТЕКТУРНАЯ ЧИСТОТА: Карта инициализируется footer'ом, не страницей!
+    </script>
+
+</body>
+</html>

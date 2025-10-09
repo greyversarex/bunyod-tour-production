@@ -1,0 +1,60 @@
+workspace_iframe.html:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html:32 Unrecognized feature: 'battery'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+(anonymous) @ content.js:527
+await in (anonymous)
+(anonymous) @ content.js:603
+(anonymous) @ content.js:605
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+(anonymous) @ content.js:527
+await in (anonymous)
+(anonymous) @ content.js:603
+(anonymous) @ content.js:605
+Console.js:61 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+Mt.forEach.n.<computed> @ Console.js:61
+(anonymous) @ (index):64
+(anonymous) @ (index):64
+Console.js:61 URL параметры: {tourId: '6', tourDate: '2025-11-07', numberOfTourists: '1'}
+Console.js:61 URL: https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000/booking/step1?tourId=6&date=2025-11-07&tourists=1
+Console.js:61 Отправляем запрос на бронирование: {tourId: 6, tourDate: '2025-11-07', numberOfTourists: 1}
+Console.js:61 Response status: 201
+Console.js:61 Response data: {success: true, data: {…}, message: 'Booking draft created successfully'}
+Console.js:61 🏨 Loading hotels for tour ID: 6
+Console.js:61 🔗 API URL: /api/booking/tour/6/hotels
+Console.js:61 📡 Response status: 200
+Console.js:61 📦 Response data: {success: true, data: Array(1)}
+Console.js:61 ✅ Hotels loaded successfully: 1
+Console.js:61 ❌ Error loading hotels: TypeError: Cannot convert undefined or null to object
+    at Object.keys (<anonymous>)
+    at step1?tourId=6&date=2025-11-07&tourists=1:371:38
+    at Array.map (<anonymous>)
+    at displayHotels (step1?tourId=6&date=2025-11-07&tourists=1:311:42)
+    at loadTourHotels (step1?tourId=6&date=2025-11-07&tourists=1:283:21)
+Mt.forEach.n.<computed> @ Console.js:61
+loadTourHotels @ step1?tourId=6&date=2025-11-07&tourists=1:289
+await in loadTourHotels
+startBooking @ step1?tourId=6&date=2025-11-07&tourists=1:211
+await in startBooking
+initializePage @ step1?tourId=6&date=2025-11-07&tourists=1:178
+(anonymous) @ step1?tourId=6&date=2025-11-07&tourists=1:157
+Console.js:61 ❌ Error details: Cannot convert undefined or null to object TypeError: Cannot convert undefined or null to object
+    at Object.keys (<anonymous>)
+    at https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000/booking/step1?tourId=6&date=2025-11-07&tourists=1:371:38
+    at Array.map (<anonymous>)
+    at displayHotels (https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000/booking/step1?tourId=6&date=2025-11-07&tourists=1:311:42)
+    at loadTourHotels (https://0eeb8026-9f4a-468b-bfca-a042f72ceb22-00-10zy39adnzkuq.kirk.replit.dev:5000/booking/step1?tourId=6&date=2025-11-07&tourists=1:283:21)

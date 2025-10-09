@@ -1,0 +1,33 @@
+**Твоя задача — реализовать безопасное и унифицированное отображение изображений по всему сайту.**
+
+1.  **Создай "Золотую" Функцию.** В общем JS-файле (например, `frontend/public/js/utils.js`, создай его, если не существует и подключи ко всем страницам) создай следующую функцию:
+
+    ```javascript
+    function getAbsoluteImageUrl(relativePath) {
+      const placeholder = '/путь/к/твоей/картинке-заглушке.jpg'; // УКАЖИ ЗДЕСЬ РЕАЛЬНЫЙ ПУТЬ К ЗАГЛУШКЕ
+      if (!relativePath || typeof relativePath !== 'string') {
+        return placeholder;
+      }
+      if (relativePath.startsWith('http')) {
+        return relativePath; // Уже абсолютный путь
+      }
+      if (relativePath.startsWith('/')) {
+         // Безопасно создаем URL из корня сайта
+        return new URL(relativePath, window.location.origin).href;
+      }
+      // Если путь пришел без слеша в начале, например "uploads/...", добавляем его
+      return new URL('/' + relativePath, window.location.origin).href;
+    }
+    ```
+
+2.  **Исправь Критические Ошибки.**
+    *   **`frontend/admin-dashboard.html` (строка ~6832):** Найди `<img>` внутри функции `loadHotelData()` (превью при редактировании), у которого отсутствует `src`. Добавь ему `src` и оберни его в нашу новую функцию. Должно получиться что-то вроде `<img src="${getAbsoluteImageUrl(url)}" ...>`.
+    *   **`frontend/admin-dashboard.html` (строка ~6490):** В функции `loadHotels()`, где рендерятся карточки отелей, измени формирование `src`. Было: `<img src="${mainImageUrl}" ...>`, станет: `<img src="${getAbsoluteImageUrl(mainImageUrl)}" ...>`.
+
+3.  **Примени Функцию Везде.** Пройдись по **всем** остальным местам, которые ты нашел в своем анализе, и замени прямое присваивание `src` на вызов `getAbsoluteImageUrl()`.
+    *   `frontend/tour-template.html` (mainImage.src и thumbnail.src)
+    *   `frontend/hotels-catalog.html`
+    *   `frontend/hotel-template.html`
+    *   `frontend/booking.html`
+    *   `frontend/booking-step1.html`
+    *   И другие места, если они есть.

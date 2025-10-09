@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="search.page_title">Поиск туров и отелей - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Централизованная система интернационализации -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/multilingual-utils.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <script src="/public/js/utils.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .search-hero {
+            background: #f8f9fa;
+            padding: 40px 0;
+            margin-top: -1px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .search-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .filter-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .filter-section {
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-header:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            margin: 0;
+            color: #111827;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-arrow {
+            transition: transform 0.3s;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .filter-section.open .filter-arrow {
+            transform: rotate(180deg);
+        }
+
+        .filter-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .filter-section.open .filter-content {
+            max-height: 500px;
+        }
+
+        .filter-options-wrapper {
+            padding: 12px 16px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.15s;
+        }
+        
+        .filter-option:hover {
+            background-color: #f9fafb;
+        }
+
+        .filter-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3E3E3E;
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 13px;
+            color: #374151;
+        }
+
+        .price-range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .price-range-inputs input {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .results-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f3f4f6;
+            color: #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active,
+        .tab-btn.active-tab {
+            background: #3E3E3E;
+            color: white;
+        }
+
+        .results-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .no-results i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .filter-sidebar {
+                display: none;
+            }
+            
+            .mobile-filter-btn {
+                display: block !important;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #667eea;
+                color: white;
+                padding: 12px 24px;
+                border-radius: 24px;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 100;
+                cursor: pointer;
+            }
+        }
+
+        .mobile-filter-btn {
+            display: none;
+        }
+
+        .reset-filters-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .reset-filters-btn:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Динамический хедер -->
+    <div id="header-container"></div>
+
+    <!-- Поисковый блок -->
+    <div class="search-hero">
+        <div class="search-container">
+            
+            <div class="bg-white rounded-lg p-6 shadow-lg">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" 
+                               id="search-query" 
+                               class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500" 
+                               placeholder="Поиск по названию..."
+                               data-translate-placeholder="search.input_placeholder">
+                    </div>
+                    
+                    <select id="search-country" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                        <option value="" data-translate="search.all_countries">Все страны</option>
+                    </select>
+                    
+                    <select id="search-city" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-indigo-500">
+                        <option value="" data-translate="search.all_cities">Все города</option>
+                    </select>
+                    
+                    <button id="search-btn"
+                            class="px-6 py-3 text-white font-medium rounded-lg transition-colors"
+                            style="background-color: #6B7280;"
+                            onmouseover="this.style.backgroundColor='#4B5563'" 
+                            onmouseout="this.style.backgroundColor='#6B7280'"
+                            data-translate="search.search_btn">
+                        Поиск
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="search-container py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Боковая панель фильтров -->
+            <div class="lg:col-span-1">
+                <div class="filter-sidebar">
+                    <h3 class="text-lg font-bold mb-4" data-translate="search.filters">Фильтры</h3>
+                    
+                    <!-- Категории туров -->
+                    <div class="filter-section open" id="filter-section-categories">
+                        <div class="filter-header" onclick="toggleFilter('categories')">
+                            <div class="filter-title" data-translate="search.categories">КАТЕГОРИИ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="categories-content">
+                            <div class="filter-options-wrapper" id="category-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Ценовой диапазон -->
+                    <div class="filter-section open" id="filter-section-price">
+                        <div class="filter-header" onclick="toggleFilter('price')">
+                            <div class="filter-title" data-translate="search.price_range">ЦЕНОВОЙ ДИАПАЗОН</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="price-content">
+                            <div class="filter-options-wrapper">
+                                <div class="price-range-inputs">
+                                    <input type="number" id="price-min" placeholder="От" data-translate-placeholder="search.price_from" value="0">
+                                    <input type="number" id="price-max" placeholder="До" data-translate-placeholder="search.price_to" value="100000">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Формат тура -->
+                    <div class="filter-section" id="filter-section-format">
+                        <div class="filter-header" onclick="toggleFilter('format')">
+                            <div class="filter-title" data-translate="search.tour_format">ФОРМАТ ТУРА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="format-content">
+                            <div class="filter-options-wrapper" id="format-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Длительность тура -->
+                    <div class="filter-section" id="filter-section-duration">
+                        <div class="filter-header" onclick="toggleFilter('duration')">
+                            <div class="filter-title" data-translate="search.duration">ДЛИТЕЛЬНОСТЬ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="duration-content">
+                            <div class="filter-options-wrapper" id="duration-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Языки тура -->
+                    <div class="filter-section" id="filter-section-languages">
+                        <div class="filter-header" onclick="toggleFilter('languages')">
+                            <div class="filter-title" data-translate="search.tour_languages">ЯЗЫКИ ТУРА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="languages-content">
+                            <div class="filter-options-wrapper" id="languages-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Звезды отелей (только для отелей) -->
+                    <div class="filter-section" style="display:none;" id="filter-section-stars">
+                        <div class="filter-header" onclick="toggleFilter('stars')">
+                            <div class="filter-title" data-translate="search.hotel_stars">ЗВЕЗДЫ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="stars-content">
+                            <div class="filter-options-wrapper" id="stars-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Удобства отелей (только для отелей) -->
+                    <div class="filter-section" style="display:none;" id="filter-section-amenities">
+                        <div class="filter-header" onclick="toggleFilter('amenities')">
+                            <div class="filter-title" data-translate="search.hotel_amenities">УДОБСТВА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="amenities-content">
+                            <div class="filter-options-wrapper" id="amenities-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <button class="reset-filters-btn" onclick="location.reload()" data-translate="search.reset_filters">Сбросить фильтры</button>
+                </div>
+            </div>
+            
+            <!-- Результаты поиска -->
+            <div class="lg:col-span-3">
+                <!-- Заголовок результатов -->
+                <div class="results-header">
+                    <div>
+                        <div class="tab-buttons">
+                            <button class="tab-btn active-tab" data-tab="tours" data-tab-button="tours" data-translate="search.tours">Туры</button>
+                            <button class="tab-btn" data-tab="hotels" data-tab-button="hotels" data-translate="search.hotels">Отели</button>
+                        </div>
+                        <p class="results-count mt-2">Найдено: 0</p>
+                    </div>
+                    
+                    <select id="sort-select" class="sort-select" onchange="handleSortChange()">
+                        <option value="relevance" data-translate="search.sort_relevance">По релевантности</option>
+                        <option value="price_asc" data-translate="search.sort_price_asc">Цена: по возрастанию</option>
+                        <option value="price_desc" data-translate="search.sort_price_desc">Цена: по убыванию</option>
+                        <option value="rating" data-translate="search.sort_rating">По рейтингу</option>
+                    </select>
+                </div>
+                
+                <!-- Контейнер для результатов туров -->
+                <div id="tours-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                
+                <!-- Контейнер для результатов отелей -->
+                <div id="hotels-results" class="hidden space-y-4"></div>
+                
+                <!-- Загрузка -->
+                <div class="loading-spinner" id="loading-spinner">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-600"></i>
+                    <p class="mt-4 text-gray-600" data-translate="search.loading">Загрузка...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Кнопка мобильных фильтров -->
+    <button class="mobile-filter-btn" onclick="toggleMobileFilters()">
+        <i class="fas fa-filter mr-2"></i>
+        <span data-translate="search.filters">Фильтры</span>
+    </button>
+
+    <!-- Динамический футер -->
+    <div id="footer-container"></div>
+
+    <script src="/public/js/search-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title id="page-title">Тур - Bunyod-Tour v4.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .thumbnail-active {
+            border: 2px solid #3b82f6;
+            opacity: 1;
+        }
+        .thumbnail-inactive {
+            opacity: 0.7;
+        }
+        
+        /* Additional styles for share button hover effect */
+        #share-btn:hover {
+            background-color: #4B5563 !important;
+        }
+        
+        /* Language and currency dropdown styles */
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .lang-selector-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .flag {
+            width: 16px;
+            height: 12px;
+            display: inline-block;
+            border-radius: 2px;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .flag-ru { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTAgMEgxNlY0SDBWMFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTAgNEgxNlY4SDBWNFoiIGZpbGw9IiMwMDUyQjQiLz48cGF0aCBkPSJNMCA4SDE2VjEySDBWOFoiIGZpbGw9IiNEOTI5MjkiLz48L3N2Zz4='); }
+        .flag-us { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IiNGRkZGRkYiLz48cGF0aCBkPSJNMCAwSDE2VjAuOTIzSDBWMFoiIGZpbGw9IiNCMjIyMzQiLz48cGF0aCBkPSJNMCAxLjg0NkgxNlYyLjc2OUgwVjEuODQ2WiIgZmlsbD0iI0IyMjIzNCIvPjxwYXRoIGQ9Ik0wIDMuNjkySDEwVjQuNjE1SDBWMy42OTJaIiBmaWxsPSIjRkZGRkZGIi8+PC9zdmc+'); }
+        .flag-tj { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTAgMEgxNlY0SDBWMFoiIGZpbGw9IiNEOTI5MjkiLz48cGF0aCBkPSJNMCA4SDE2VjEySDBWOFoiIGZpbGw9IiMwMDk2MzkiLz48L3N2Zz4='); }
+        .flag-ir { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTAgMEgxNlY0SDBWMFoiIGZpbGw9IiMwMDk2MzkiLz48cGF0aCBkPSJNMCA0SDE2VjhIMFY0WiIgZmlsbD0iI0ZGRkZGRiIvPjxwYXRoIGQ9Ik0wIDhIMTZWMTJIMFY4WiIgZmlsbD0iI0Q5MjkyOSIvPjwvc3ZnPg=='); }
+        .flag-de { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IndoaXRlIi8+PHBhdGggZD0iTTAgMEgxNlY0SDBWMFoiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJNMCA0SDE2VjhIMFY0WiIgZmlsbD0iI0Q5MjkyOSIvPjxwYXRoIGQ9Ik0wIDhIMTZWMTJIMFY4WiIgZmlsbD0iI0ZGRDcwMCIvPjwvc3ZnPg=='); }
+        .flag-cn { background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTIiIHZpZXdCb3g9IjAgMCAxNiAxMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMCAwSDE2VjEySDBWMFoiIGZpbGw9IiNEOTI5MjkiLz48L3N2Zz4='); }
+        
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background: #2F2F2F;
+            min-width: 160px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1000;
+            margin-top: 4px;
+        }
+        
+        .language-dropdown.active .lang-dropdown-content {
+            display: block;
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            font-size: 14px;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .lang-option.active {
+            background: rgba(255,255,255,0.15);
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+        
+        .language-dropdown.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        
+        /* Dropdown navigation styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2F2F2F;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border-radius: 8px;
+            top: 100%;
+            left: 0;
+            padding: 8px 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+        }
+        .dropdown-content .dropdown-submenu {
+            position: relative;
+        }
+        .dropdown-content .dropdown-submenu .dropdown-subcontent {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #2F2F2F;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1001;
+        }
+        .dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+            display: block !important;
+        }
+
+    </style>
+    
+    <!-- Leaflet Map API -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- Header -->
+    <header class="shadow-md sticky top-0 z-50" style="background-color: #3E3E3E;">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center justify-between h-16 px-6">
+                <!-- Логотип -->
+                <div class="flex items-center">
+                    <img src="Logo-Ru_1754635713718.png" alt="Bunyod-Tour Logo" class="w-12 h-12 mr-3 rounded-full">
+                    <span class="text-xl font-bold text-white">Bunyod-Tour</span>
+                </div>
+                
+                <!-- Навигационное меню -->
+                <nav class="hidden md:flex space-x-6">
+                    <a href="about-us.html" class="text-white hover:text-gray-300 transition-colors">О нас</a>
+                    
+                    <!-- Услуги (с выпадающим меню) -->
+                    <div class="dropdown">
+                        <a href="#" class="text-white hover:text-gray-300 transition-colors">Услуги</a>
+                        <div class="dropdown-content">
+                            <div class="dropdown-submenu">
+                                <a href="#">Туры</a>
+                                <div class="dropdown-subcontent" style="width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px;">
+                                    <a href="#" style="padding: 8px;">Однодневные</a>
+                                    <a href="#" style="padding: 8px;">Многодневные</a>
+                                    <a href="#" style="padding: 8px;">Экскурсии</a>
+                                    <a href="#" style="padding: 8px;">Городские туры</a>
+                                    <a href="#" style="padding: 8px;">Природа/экологические туры</a>
+                                    <a href="#" style="padding: 8px;">Культурно познавательные туры</a>
+                                    <a href="#" style="padding: 8px;">Исторические туры</a>
+                                    <a href="#" style="padding: 8px;">Походы/трекинги</a>
+                                    <a href="#" style="padding: 8px;">Горные ландшафты</a>
+                                    <a href="#" style="padding: 8px;">Озерные ландшафты</a>
+                                    <a href="#" style="padding: 8px;">Приключенческие туры</a>
+                                    <a href="#" style="padding: 8px;">Гастрономические туры</a>
+                                    <a href="#" style="padding: 8px;">Автотуры/сафари/джип-туры</a>
+                                    <a href="#" style="padding: 8px;">Агротуры</a>
+                                    <a href="#" style="padding: 8px;">VIP туры</a>
+                                    <a href="#" style="padding: 8px;"></a>
+                                </div>
+                            </div>
+                            <a href="#">Тургиды</a>
+                            <a href="#" >Трансфер</a>
+                            <a href="#">Заказ тура</a>
+                            <a href="visa-support.html">Визовая поддержка</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Туристам (с выпадающим меню) -->
+                    <div class="dropdown">
+                        <a href="#" class="text-white hover:text-gray-300 transition-colors">Туристам</a>
+                        <div class="dropdown-content">
+                            <a href="#">Инструкция сайта</a>
+                            <a href="#">Специальные заметки</a>
+                            <a href="#">Договор оферта</a>
+                            <a href="#">Правила оплаты и возврата средств</a>
+                        </div>
+                    </div>
+                    
+                    <!-- Акции (БЕЗ выпадающего меню) -->
+                    <a href="aktsii.html" class="text-white hover:text-gray-300 transition-colors">Акции</a>
+                    <a href="news.html" class="text-white hover:text-gray-300 transition-colors">Новости</a>
+                    
+                    <!-- Тур-агенты (с выпадающим меню) -->
+                    <div class="dropdown">
+                        <a href="#" class="text-white hover:text-gray-300 transition-colors">Тур-агенты</a>
+                        <div class="dropdown-content">
+                            <a href="#">Наши турагенты</a>
+                            <a href="tour-agents.html">Для турагентов</a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- Языковой и валютный селекторы -->
+                <div class="flex items-center space-x-4">
+                    <!-- Языковой селектор -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleLanguageDropdown()">
+                            <span class="selected-flag flag-ru"></span>
+                            <span class="selected-lang">Русский</span>
+                            <svg class="dropdown-arrow" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="langDropdown">
+                            <a href="#" class="lang-option active" data-lang="ru" onclick="selectLanguage('ru', 'flag-ru', 'Русский')">
+                                <span class="flag flag-ru"></span>
+                                <span class="lang-name">Русский</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="en" onclick="selectLanguage('en', 'flag-us', 'English')">
+                                <span class="flag flag-us"></span>
+                                <span class="lang-name">English</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="tj" onclick="selectLanguage('tj', 'flag-tj', 'Тоҷикӣ')">
+                                <span class="flag flag-tj"></span>
+                                <span class="lang-name">Тоҷикӣ</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="fa" onclick="selectLanguage('fa', 'flag-ir', 'فارسی')">
+                                <span class="flag flag-ir"></span>
+                                <span class="lang-name">فارسی</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="de" onclick="selectLanguage('de', 'flag-de', 'Deutsch')">
+                                <span class="flag flag-de"></span>
+                                <span class="lang-name">Deutsch</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="zh" onclick="selectLanguage('zh', 'flag-cn', '中文')">
+                                <span class="flag flag-cn"></span>
+                                <span class="lang-name">中文</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Валютный селектор -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleCurrencyDropdown()">
+                            <span class="selected-currency">USD</span>
+                            <span class="currency-symbol">$</span>
+                            <svg class="dropdown-arrow" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="currencyDropdown">
+                            <a href="#" class="lang-option active" data-currency="usd" onclick="selectCurrency('USD', '$')">
+                                <span class="currency-name">USD</span>
+                                <span class="currency-symbol">$</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="tjs" onclick="selectCurrency('TJS', 'с.')">
+                                <span class="currency-name">TJS</span>
+                                <span class="currency-symbol">с.</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="eur" onclick="selectCurrency('EUR', '€')">
+                                <span class="currency-name">EUR</span>
+                                <span class="currency-symbol">€</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="gbp" onclick="selectCurrency('GBP', '£')">
+                                <span class="currency-name">GBP</span>
+                                <span class="currency-symbol">£</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="rub" onclick="selectCurrency('RUB', '₽')">
+                                <span class="currency-name">RUB</span>
+                                <span class="currency-symbol">₽</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="bg-white border-b px-6 py-3">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex items-center text-sm text-gray-600 space-x-2">
+                <a href="index.html" class="hover:text-blue-600">Главная</a>
+                <span>›</span>
+                <a href="#" class="hover:text-blue-600">Туры по Центральной Азии</a>
+                <span>›</span>
+                <a href="#" class="hover:text-blue-600">Туры по Таджикистану</a>
+                <span>›</span>
+                <a href="#" class="hover:text-blue-600">Горные туры</a>
+                <span>›</span>
+                <span class="text-gray-900" id="breadcrumb-final">Памирское шоссе</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-6 py-6">
+        <!-- Tour Title -->
+        <div class="mb-4">
+            <h1 class="text-3xl font-bold text-gray-900 mb-3" id="tour-title">
+                Полный день: Памирское шоссе, горы и озёра
+            </h1>
+            
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <div class="flex text-yellow-400 text-lg" id="tour-rating">★★★★★</div>
+                    <span class="ml-2 text-sm text-gray-600" id="tour-reviews">(234 отзыва)</span>
+                </div>
+                <span class="text-gray-400">|</span>
+                <span class="text-sm text-gray-600" id="tour-location">Памирские горы, Таджикистан</span>
+            </div>
+        </div>
+
+        <!-- Main Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column: Content -->
+            <div class="lg:col-span-2 space-y-0">
+                
+                <!-- Photo Gallery -->
+                <div class="bg-white rounded-lg overflow-hidden mb-0">
+                    <div class="flex gap-4 p-0">
+                        <!-- Thumbnails -->
+                        <div class="flex flex-col space-y-2 w-32 p-4">
+                            <div id="thumbnail-column" class="space-y-2">
+                                <!-- Thumbnails will be generated by JS -->
+                            </div>
+                            <button id="see-more-btn" class="w-full h-20 bg-gray-100 rounded-lg flex items-center justify-center text-sm font-medium text-gray-600 hover:bg-gray-200 transition-colors">
+                                Ещё фото
+                            </button>
+                        </div>
+                        
+                        <!-- Main Image -->
+                        <div class="flex-1 relative p-4 pl-0">
+                            <div class="relative">
+                                <div class="relative overflow-hidden rounded-lg cursor-pointer" id="main-image-container">
+                                    <img id="main-image" src="" alt="Main tour image" class="w-full h-96 object-cover">
+                                    
+                                    <!-- Navigation arrows -->
+                                    <button id="prev-btn" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                        </svg>
+                                    </button>
+                                    <button id="next-btn" class="absolute right-4 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-white bg-opacity-80 rounded-full flex items-center justify-center hover:bg-opacity-100 transition-all">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Wishlist button only -->
+                                    <div class="absolute top-4 right-4 flex space-x-2">
+                                        <button id="wishlist-btn" class="bg-white bg-opacity-90 hover:bg-opacity-100 p-2 rounded-lg">
+                                            ♡
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- View all photos -->
+                            <div class="text-center mt-3">
+                                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Посмотреть все фотографии
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tour Info Strip - Directly under gallery -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 -mt-4">
+                    <div class="flex flex-wrap items-center justify-between gap-6 text-sm" id="tour-info-strip">
+                        <!-- Left side - Tour details -->
+                        <div class="flex flex-wrap items-center gap-6">
+                            <!-- Длительность тура -->
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <span class="text-gray-900 font-medium" id="tour-duration">Длительность: 6-7 часов</span>
+                            </div>
+                            
+                            <!-- Приём включен/не включен -->
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 3H4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"/>
+                                </svg>
+                                <span class="text-gray-900 font-medium" id="meals-included">Приём не включен</span>
+                            </div>
+                            
+                            <!-- Языки тура -->
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+                                </svg>
+                                <span class="text-gray-900 font-medium" id="tour-languages">Языки: Русский, Английский, Таджикский</span>
+                            </div>
+                            
+                            <!-- Share function moved to same row -->
+                            <div class="flex items-center space-x-2">
+                                <div class="relative">
+                                    <button id="share-btn" onclick="toggleShareMenu()" class="flex items-center space-x-2 px-3 py-2 text-white rounded-lg transition-colors" style="background-color: #6B7280; hover:background-color: #4B5563;">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"/>
+                                        </svg>
+                                        <span>Поделиться</span>
+                                    </button>
+                                    
+                                    <!-- Share menu -->
+                                    <div id="share-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                                        <div class="p-2">
+                                            <button onclick="shareLink()" class="w-full flex items-center space-x-2 px-3 py-2 text-left hover:bg-gray-100 rounded">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                                </svg>
+                                                <span>Скопировать ссылку</span>
+                                            </button>
+                                            <button onclick="downloadPDF()" class="w-full flex items-center space-x-2 px-3 py-2 text-left hover:bg-gray-100 rounded">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                                <span>Скачать PDF</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- Tour Details Tabs -->
+                <div class="bg-white border border-gray-200 rounded-lg mt-6" id="tour-details">
+                    <!-- Tab Navigation -->
+                    <div class="border-b border-gray-200">
+                        <nav class="flex space-x-8 px-6 pt-4" aria-label="Tabs">
+                            <button id="tab-description" class="whitespace-nowrap py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600" onclick="switchTab('description')">
+                                Описание тура
+                            </button>
+                            <button id="tab-program" class="whitespace-nowrap py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" onclick="switchTab('program')">
+                                Программа тура
+                            </button>
+
+                        </nav>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="p-6">
+                        <!-- Description Tab -->
+                        <div id="content-description" class="tab-content">
+                            <div class="text-gray-700 space-y-4" id="tour-description-content">
+                                <p>Откройте для себя величественную красоту Памирских гор в этом незабываемом однодневном туре. Путешествуйте по знаменитому Памирскому шоссе, одной из самых высоких автомобильных дорог в мире, и наслаждайтесь потрясающими видами высокогорных озёр, ледников и традиционных памирских деревень.</p>
+                                
+                                <p>Этот тур предлагает уникальную возможность испытать дух приключений и насладиться одними из самых впечатляющих пейзажей в мире.</p>
+                            </div>
+
+                            <h3 class="text-lg font-semibold text-gray-900 mt-6 mb-4">Что включено:</h3>
+                            <ul class="space-y-2" id="tour-includes">
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-3 mt-1">✓</span>
+                                    <span class="text-gray-700">Проезд по легендарному Памирскому шоссе</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-3 mt-1">✓</span>
+                                    <span class="text-gray-700">Посещение высокогорных озёр с кристально чистой водой</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-3 mt-1">✓</span>
+                                    <span class="text-gray-700">Знакомство с культурой и традициями памирских народов</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-3 mt-1">✓</span>
+                                    <span class="text-gray-700">Профессиональный гид-переводчик</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Program Tab -->
+                        <div id="content-program" class="tab-content hidden">
+                            <div class="space-y-6">
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">08:00</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Встреча с гидом и отправление</h4>
+                                        <p class="text-gray-600 mt-1">Сбор группы у отеля. Краткий инструктаж и начало путешествия по Памирскому шоссе.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">10:30</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Первая смотровая площадка</h4>
+                                        <p class="text-gray-600 mt-1">Остановка для фотографий на высоте 3500 метров с видом на долину Вахш.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">12:00</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Озеро Яшилькуль</h4>
+                                        <p class="text-gray-600 mt-1">Посещение высокогорного озера. Время для прогулки и фотосессии (1 час).</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">13:30</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Обед в местном кафе</h4>
+                                        <p class="text-gray-600 mt-1">Традиционная памирская кухня с видом на горы.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">15:00</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Посещение памирской деревни</h4>
+                                        <p class="text-gray-600 mt-1">Знакомство с бытом и культурой местных жителей. Чайная церемония.</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-start space-x-4">
+                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">17:00</div>
+                                    <div>
+                                        <h4 class="font-semibold text-gray-900">Возвращение</h4>
+                                        <p class="text-gray-600 mt-1">Дорога обратно с остановками для фотографий на закате.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <!-- Reviews -->
+                <div class="bg-white border border-gray-200 rounded-lg p-6 mt-6" id="tour-reviews-section">
+                    <h2 class="text-xl font-semibold text-gray-900 mb-6">Отзывы</h2>
+                    
+                    <div class="space-y-6" id="reviews-container">
+                        <!-- Reviews will be loaded by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Booking Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white border border-gray-200 rounded-lg p-6 shadow-lg sticky top-6">
+                    <div class="mb-4">
+                        <div class="mb-2">
+                            <span class="text-2xl font-bold text-gray-900" id="tour-price">От 3 500₽</span>
+                        </div>
+                        <span class="text-sm text-gray-600" id="price-type-text">за человека</span>
+                    </div>
+                    
+                    <!-- Date Selector -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Выберите дату</label>
+                        <input 
+                            type="date" 
+                            id="tour-date" 
+                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            value="2025-08-10"
+                            min="2025-08-09">
+                    </div>
+                    
+                    <!-- Travelers Selector -->
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Количество туристов</label>
+                        <div class="border border-gray-300 rounded-lg p-3 cursor-pointer" onclick="toggleTravelersDropdown()">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-2">
+                                    <svg class="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 12a5 5 0 100-10 5 5 0 000 10zm0-2a3 3 0 100-6 3 3 0 000 6zm6 10a1 1 0 01-1 1H5a1 1 0 01-1-1v-1a6 6 0 1112 0v1z"/>
+                                    </svg>
+                                    <span id="traveler-summary">1 взрослый</span>
+                                </div>
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <!-- Travelers Dropdown -->
+                        <div id="travelers-dropdown" class="hidden mt-2 border border-gray-300 rounded-lg p-4 bg-white shadow-lg">
+                            <div class="text-xs text-gray-500 mb-3">Вы можете выбрать до 15 туристов всего</div>
+                            
+                            <!-- Adults -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="font-medium text-sm">Взрослые (11-99 лет)</div>
+                                    <div class="text-xs text-gray-500">Минимум: 1, Максимум: 15</div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="changeTravelerCount('adults', -1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">−</span>
+                                    </button>
+                                    <span id="adults-count" class="font-bold text-lg w-6 text-center">1</span>
+                                    <button onclick="changeTravelerCount('adults', 1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">+</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Children -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="font-medium text-sm">Дети (3-10 лет)</div>
+                                    <div class="text-xs text-gray-500">Минимум: 0, Максимум: 15</div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="changeTravelerCount('children', -1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">−</span>
+                                    </button>
+                                    <span id="children-count" class="font-bold text-lg w-6 text-center">0</span>
+                                    <button onclick="changeTravelerCount('children', 1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">+</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Infants -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="font-medium text-sm">Младенцы (0-2 лет)</div>
+                                    <div class="text-xs text-gray-500">Минимум: 0, Максимум: 15</div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <button onclick="changeTravelerCount('infants', -1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">−</span>
+                                    </button>
+                                    <span id="infants-count" class="font-bold text-lg w-6 text-center">0</span>
+                                    <button onclick="changeTravelerCount('infants', 1)" class="w-8 h-8 rounded-full border-2 border-teal-600 text-teal-600 flex items-center justify-center hover:bg-teal-50">
+                                        <span class="text-lg font-bold">+</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button onclick="applyTravelerSelection()" class="w-full bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-lg font-medium transition-colors">
+                                Применить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Check Availability Button -->
+                    <button onclick="checkAvailability()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-medium mb-4 transition-colors">
+                        Проверить наличие
+                    </button>
+                    
+                    <!-- Features -->
+                    <div class="space-y-3 text-sm">
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-4 h-4 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <span class="font-medium">Бесплатная отмена</span>
+                                <p class="text-gray-600">до 24 часов до начала тура (местное время)</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-4 h-4 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            <div>
+                                <span class="font-medium">Забронировать сейчас, оплатить позже</span>
+                                <p class="text-gray-600">Забронируйте место и сохраните гибкость</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Book ahead notice -->
+                    <div class="mt-6 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex items-center">
+                            <svg class="w-4 h-4 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-medium text-yellow-800">Бронируйте заранее!</p>
+                                <p class="text-xs text-yellow-700">В среднем этот тур бронируют за 20 дней.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden flex items-center justify-center p-4">
+        <div class="relative max-w-4xl max-h-full">
+            <img id="modalImage" src="" alt="Tour image" class="max-w-full max-h-full object-contain">
+            <button id="closeModal" class="absolute top-4 right-4 text-white hover:text-gray-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <button id="modalPrev" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </button>
+            <button id="modalNext" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white hover:text-gray-300">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <footer class="py-12 text-white" style="background-color: #3E3E3E;">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Компания -->
+                <div>
+                    <h4 class="font-semibold mb-4">Компания:</h4>
+                    <ul class="space-y-2 text-sm text-gray-300">
+                        <li><a href="about-us.html" class="hover:text-white">О нас</a></li>
+                        <li><a href="tour-agents.html" class="hover:text-white">Тур-агентам</a></li>
+                        <li><a href="#" class="hover:text-white">Партнеры</a></li>
+                        <li><a href="investment-projects.html" class="hover:text-white">Инвестиционные Проекты</a></li>
+                        <li><a href="booking-guide.html" class="hover:text-white">Как бронировать туры?</a></li>
+                        <li><a href="tours-search.html" class="hover:text-white">Каталог туров</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Социальные страницы -->
+                <div>
+                    <h4 class="font-semibold mb-4">Социальные страницы:</h4>
+                    <div class="flex space-x-4 mb-4">
+                        <!-- Facebook -->
+                        <a href="https://www.facebook.com/Tajikistanservice" target="_blank" class="text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <!-- Instagram -->
+                        <a href="https://www.instagram.com/bunyodtour.tj/" target="_blank" class="text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                            </svg>
+                        </a>
+                        <!-- YouTube -->
+                        <a href="https://www.youtube.com/channel/UCdnjmRbMVO2R7HtXAxERBjw" target="_blank" class="text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                        </a>
+                        <!-- WhatsApp -->
+                        <a href="https://api.whatsapp.com/send/?phone=992915123344&text&type=phone_number&app_absent=0" target="_blank" class="text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.893 3.386"/>
+                            </svg>
+                        </a>
+                        <!-- Telegram -->
+                        <a href="https://telegram.org/" target="_blank" class="text-gray-300 hover:text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <p class="text-sm text-gray-300">
+                        Лицензия на туристическую деятельность ФС№ 0000253, от 25.10.2022 г.
+                    </p>
+                </div>
+                
+                <!-- Контакты -->
+                <div>
+                    <h4 class="font-semibold mb-4">Контакты:</h4>
+                    <div class="space-y-2 text-sm text-gray-300">
+                        <p>+992 44 625 7575; +992 93-126-1134</p>
+                        <p>+992 00-110-0087; +992 88-235-3434</p>
+                        <p>info@bunyodtour.tj</p>
+                        <p><a href="oferta-ru.pdf" target="_blank" class="hover:text-white text-blue-300">Публичная Оферта-Договор</a></p>
+                        <p><a href="payment-rules-ru.pdf" target="_blank" class="hover:text-white text-blue-300">Правила оплаты и возврата средств</a></p>
+                        <p><a href="privacy-policy-ru.pdf" target="_blank" class="hover:text-white text-blue-300">Политика конфиденциальности</a></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Google Map Section -->
+            <div class="border-t border-gray-600 mt-8 pt-8">
+                <h4 class="font-semibold mb-4 text-white text-center">Наше местоположение:</h4>
+                <div class="w-full h-64 rounded-lg overflow-hidden shadow-lg">
+                    <div id="map" class="w-full h-full"></div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-600 mt-8 pt-8 text-center text-sm text-gray-300">
+                <p>Все права защищены | ООО "Бунёд-Тур" (2017-2025) | ИНН: 010098739; ОГРН: 0110023137</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Tour Availability Modal -->
+    <div id="tourAvailabilityModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg max-w-2xl w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold">Выберите время и подтвердите бронирование</h3>
+                <button onclick="closeTourAvailabilityModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Selected Date and Travelers Info -->
+            <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                <div class="text-sm text-gray-600 mb-1">Выбранная дата</div>
+                <div class="font-semibold text-lg" id="selected-date-info">Понедельник, 10 августа 2025</div>
+                <div class="text-sm text-gray-600 mt-2" id="selected-travelers-info">2 взрослых, 1 ребенок</div>
+            </div>
+            
+            <!-- Available Times -->
+            <div class="mb-6">
+                <h4 class="font-semibold mb-4">Доступное время</h4>
+                <div class="space-y-3" id="available-times">
+                    <!-- Time options will be populated here -->
+                </div>
+            </div>
+            
+            <!-- Tour Includes -->
+            <div class="mb-6">
+                <h4 class="font-semibold mb-3">Что включено в тур</h4>
+                <div class="space-y-2" id="modal-tour-includes">
+                    <!-- Will be populated from tour data -->
+                </div>
+            </div>
+            
+            <!-- Pricing Info -->
+            <div class="bg-blue-50 rounded-lg p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-sm text-gray-600">Общая стоимость</div>
+                        <div class="text-xl font-bold text-blue-900" id="total-price">10 500₽</div>
+                        <div class="text-sm text-gray-600" id="price-breakdown">2 взрослых — 7 000₽, 1 ребенок — 3 500₽</div>
+                    </div>
+                </div>
+                <div class="mt-3 text-xs text-green-600 flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Бесплатная отмена до 7:30 утра 14 октября (по местному времени)
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button onclick="closeTourAvailabilityModal()" class="flex-1 py-3 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors">
+                    Отмена
+                </button>
+                <button onclick="proceedToBooking()" class="flex-1 py-3 px-4 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium transition-colors">
+                    Бронировать прямо сейчас
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hotel Availability Modal -->
+    <div id="hotelAvailabilityModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+        <div class="bg-white rounded-lg max-w-4xl w-full mx-4 p-6 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold">Проверить наличие отелей</h3>
+                <button onclick="closeHotelModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Search Form -->
+            <div id="hotelSearchForm">
+                <form onsubmit="event.preventDefault(); performHotelSearch();">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="checkInDate" class="block text-sm font-medium text-gray-700 mb-1">Заезд</label>
+                                <input type="date" id="checkInDate" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                            <div>
+                                <label for="checkOutDate" class="block text-sm font-medium text-gray-700 mb-1">Выезд</label>
+                                <input type="date" id="checkOutDate" class="w-full border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="flex gap-3 mt-6">
+                        <button type="button" onclick="closeHotelModal()" class="flex-1 py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                            Отмена
+                        </button>
+                        <button type="submit" class="flex-1 py-2 px-4 bg-green-600 text-white rounded-md hover:bg-green-700">
+                            Проверить наличие
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Hotel Results -->
+            <div id="hotelResults" style="display: none;">
+                <div class="flex justify-between items-center mb-4">
+                    <div id="searchParams"></div>
+                    <button onclick="backToSearch()" class="text-blue-600 hover:text-blue-800 text-sm">
+                        ← Изменить поиск
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="hotelCards">
+                    <!-- Hotel cards will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentImageIndex = 0;
+        let tourData = {};
+        let currentPriceType = 'person'; // 'person' or 'group'
+        let basePricePerPerson = 3500; // Base price per person
+        let groupSize = 2; // Default group size
+        
+        // Embedded tour data for reliability
+        const embeddedTourData = {
+            pamir_highway: {
+                "title": "Полный день: Памирское шоссе, горы и озёра",
+                "location": "Памирские горы, Таджикистан",
+                "rating": 4.8,
+                "reviews_count": 234,
+                "duration": "6-7 часов",
+                "price": "От 3 500₽",
+                "images": [
+                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1464822759844-d150b377fc24?w=400&h=300&fit=crop", 
+                    "https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=400&h=300&fit=crop"
+                ],
+                "reviews": [
+                    {
+                        "name": "Анна Петрова",
+                        "rating": 5,
+                        "date": "Январь 2025",
+                        "comment": "Невероятный тур! Виды просто захватывают дух. Гид очень знающий и дружелюбный. Обязательно вернусь ещё раз!"
+                    },
+                    {
+                        "name": "Дмитрий Иванов",
+                        "rating": 5,
+                        "date": "Декабрь 2024",
+                        "comment": "Потрясающие пейзажи и отлично организованный тур. Памирское шоссе действительно уникальное место на земле."
+                    }
+                ]
+            },
+            samarkand: {
+                "title": "Древний Самарканд и мавзолей Гур-Эмир",
+                "location": "Самарканд, Узбекистан", 
+                "rating": 4.9,
+                "reviews_count": 189,
+                "duration": "8 часов",
+                "price": "От 2 500₽",
+                "images": [
+                    "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=800&h=600&fit=crop",
+                    "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=400&h=300&fit=crop",
+                    "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop"
+                ],
+                "reviews": [
+                    {
+                        "name": "Елена Козлова",
+                        "rating": 5,
+                        "date": "Март 2025",
+                        "comment": "Восхитительный тур по историческому Самарканду. Архитектура поражает воображение!"
+                    }
+                ]
+            }
+        };
+
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active styles from all tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.classList.remove('border-blue-500', 'text-blue-600');
+                tab.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Show selected tab content
+            const contentElement = document.getElementById(`content-${tabName}`);
+            if (contentElement) {
+                contentElement.classList.remove('hidden');
+            }
+            
+            // Add active styles to selected tab
+            const tabElement = document.getElementById(`tab-${tabName}`);
+            if (tabElement) {
+                tabElement.classList.remove('border-transparent', 'text-gray-500');
+                tabElement.classList.add('border-blue-500', 'text-blue-600');
+            }
+        }
+
+        // Load tour data from URL parameter or use default
+        function loadTourData() {
+            if (isLoaded) {
+                console.log('Tour data already loaded from API, skipping static fallback');
+                return;
+            }
+            console.log("Loading tour data...");
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourId = urlParams.get('id') || urlParams.get('tour') || 'pamir_highway';
+            
+            // Use embedded data first, then try external
+            if (embeddedTourData[tourId]) {
+                tourData = embeddedTourData[tourId];
+                console.log("Using embedded tour data for:", tourId);
+                updatePageContent();
+            } else {
+                console.log("Tour data not found for:", tourId);
+                // Fallback to default tour
+                console.log("Falling back to static tour data");
+                tourData = embeddedTourData.pamir_highway;
+                updatePageContent();
+            }
+        }
+
+        function updatePageContent() {
+            console.log("Updating page content with tour data:", tourData);
+            
+            try {
+            
+            // Update title and meta - с проверкой существования элементов
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle) pageTitle.textContent = `${tourData.title} - Bunyod-Tour`;
+            
+            const tourTitle = document.getElementById('tour-title');
+            if (tourTitle) tourTitle.textContent = tourData.title;
+            
+            const tourLocation = document.getElementById('tour-location');
+            if (tourLocation) tourLocation.textContent = tourData.location;
+            
+            const tourReviews = document.getElementById('tour-reviews');
+            if (tourReviews) tourReviews.textContent = `(${tourData.reviews_count || tourData.reviewCount || 0} отзыва)`;
+            
+            // ✅ ДЛИТЕЛЬНОСТЬ ТУРА (объединенная логика)
+            const durationElement = document.getElementById('tour-duration');
+            if (durationElement) {
+                let durationText = '';
+                if (tourData.durationDays && tourData.durationDays > 1) {
+                    durationText = `${tourData.durationDays} дней`;
+                } else if (tourData.duration) {
+                    if (tourData.duration.includes('час') || tourData.duration.includes('дн')) {
+                        durationText = tourData.duration;
+                    } else {
+                        durationText = `${tourData.duration} дней`;
+                    }
+                } else {
+                    durationText = 'Длительность уточняется';
+                }
+                durationElement.textContent = durationText;
+            }
+
+            // ✅ ИНФОРМАЦИЯ О ПИТАНИИ/ПРИЁМЕ
+            const mealsElement = document.getElementById('meals-included');
+            if (mealsElement) {
+                if (tourData.pickupInfo && tourData.pickupInfo.trim()) {
+                    mealsElement.textContent = tourData.pickupInfo;
+                } else if (tourData.included && tourData.included.includes('питание')) {
+                    mealsElement.textContent = 'Питание включено';
+                } else if (tourData.excluded && tourData.excluded.includes('питание')) {
+                    mealsElement.textContent = 'Питание не включено';
+                } else {
+                    mealsElement.textContent = 'Уточняется при бронировании';
+                }
+            }
+            
+            // ✅ ПОЛНОЕ ОПИСАНИЕ из формы (eTourFullDesc -> tour-description-content)
+            const descriptionElement = document.getElementById('tour-description-content');
+            if (descriptionElement && tourData.description) {
+                descriptionElement.innerHTML = `<p>${tourData.description.replace(/\n/g, '</p><p>')}</p>`;
+            }
+            
+            // ✅ ЦЕНА из формы (eTourPrice -> tour-price)
+            if (tourData.price) {
+                const tourPrice = document.getElementById('tour-price');
+                if (tourPrice) tourPrice.textContent = `От ${tourData.price}₽`;
+                
+                const priceTypeText = document.getElementById('price-type-text');
+                if (priceTypeText) priceTypeText.textContent = tourData.priceType || 'за человека';
+            }
+            
+            // ✅ ДЛИТЕЛЬНОСТЬ из формы (eTourDurationDays -> tour-duration) - уже обработано выше
+            
+            // ✅ СЛОЖНОСТЬ из формы (eTourDifficulty)
+            if (tourData.difficulty) {
+                const difficultyElement = document.getElementById('tour-difficulty');
+                if (difficultyElement) difficultyElement.textContent = tourData.difficulty;
+            }
+            
+            // ✅ МАКС/МИН ЛЮДЕЙ из формы (eTourMaxPeople, eTourMinPeople)
+            if (tourData.maxPeople || tourData.minPeople) {
+                const peopleElement = document.getElementById('tour-max-people');
+                if (peopleElement) {
+                    let peopleText = '';
+                    if (tourData.minPeople) peopleText += `От ${tourData.minPeople}`;
+                    if (tourData.maxPeople) {
+                        if (peopleText) peopleText += ` до ${tourData.maxPeople}`;
+                        else peopleText = `До ${tourData.maxPeople}`;
+                    }
+                    peopleText += ' человек';
+                    peopleElement.textContent = peopleText;
+                }
+            }
+            
+            // ✅ ИСПРАВЛЯЕМ: Обновляем "Что включено" - парсим JSON данные
+            if (tourData.highlights) {
+                try {
+                    let highlightsList = [];
+                    
+                    // Парсим JSON если это строка
+                    if (typeof tourData.highlights === 'string') {
+                        const parsedHighlights = JSON.parse(tourData.highlights);
+                        highlightsList = parsedHighlights.ru || parsedHighlights.en || [];
+                    } else if (Array.isArray(tourData.highlights)) {
+                        highlightsList = tourData.highlights;
+                    }
+                    
+                    if (highlightsList.length > 0) {
+                        const includesElement = document.getElementById('tour-includes');
+                        if (includesElement) {
+                            includesElement.innerHTML = highlightsList.map(highlight => `
+                                <li class="flex items-start">
+                                    <span class="text-green-600 mr-3 mt-1">✓</span>
+                                    <span class="text-gray-700">${highlight}</span>
+                                </li>
+                            `).join('');
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse highlights:', e);
+                }
+            }
+            
+            // ✅ ИСПРАВЛЯЕМ: Обновляем программу тура - парсим JSON данные
+            if (tourData.itinerary) {
+                try {
+                    let itineraryList = [];
+                    
+                    // Парсим JSON если это строка
+                    if (typeof tourData.itinerary === 'string') {
+                        const parsedItinerary = JSON.parse(tourData.itinerary);
+                        itineraryList = parsedItinerary.ru || parsedItinerary.en || [];
+                    } else if (Array.isArray(tourData.itinerary)) {
+                        itineraryList = tourData.itinerary;
+                    }
+                    
+                    if (itineraryList.length > 0) {
+                        const programElement = document.getElementById('content-program');
+                        if (programElement) {
+                            programElement.innerHTML = `
+                                <div class="space-y-6">
+                                    ${itineraryList.map(item => `
+                                        <div class="flex items-start space-x-4">
+                                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${item.time}</div>
+                                            <div>
+                                                <h4 class="font-semibold text-gray-900">${item.title}</h4>
+                                                <p class="text-gray-600 mt-1">${item.description}</p>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            `;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse itinerary:', e);
+                }
+            }
+            
+            // Обновляем языки тура
+            const languagesElement = document.getElementById('tour-languages');
+            if (languagesElement && tourData.languages) {
+                try {
+                    const languagesArray = JSON.parse(tourData.languages);
+                    languagesElement.textContent = 'Языки: ' + languagesArray.join(', ');
+                } catch (e) {
+                    languagesElement.textContent = 'Языки: ' + tourData.languages;
+                }
+            } else if (languagesElement) {
+                languagesElement.textContent = 'Языки: Русский, Английский';
+            }
+            
+            // Set price display from database
+            updatePriceDisplay();
+            
+            // Update rating
+            const ratingElement = document.getElementById('tour-rating');
+            if (ratingElement) {
+                ratingElement.innerHTML = '★'.repeat(Math.floor(tourData.rating || 4.8)) + ((tourData.rating || 4.8) % 1 ? '☆' : '');
+            }
+            
+            // Update breadcrumb
+            const breadcrumbElement = document.getElementById('breadcrumb-final');
+            if (breadcrumbElement) {
+                breadcrumbElement.textContent = tourData.title.split(':')[1]?.trim() || tourData.title;
+            }
+            
+            // ✅ ИЗОБРАЖЕНИЯ - используем mainImage из формы
+            if (tourData.mainImage) {
+                const heroImage = document.querySelector('.hero-image img, [id*="hero"] img');
+                if (heroImage) heroImage.src = tourData.mainImage;
+                
+                // Обновляем все изображения в галерее
+                if (!tourData.images || tourData.images.length === 0) {
+                    tourData.images = [tourData.mainImage];
+                }
+            }
+            
+            // Load images
+            loadImages();
+            
+            // Load reviews
+            loadReviews();
+            
+            // Update start time options
+            updateStartTimeOptions();
+            
+            } catch (error) {
+                console.error('Error in updatePageContent:', error);
+                console.error('Error stack:', error.stack);
+                throw error;
+            }
+        }
+        
+        // Update price display (static from database)
+        function updatePriceDisplay() {
+            const priceElement = document.getElementById('tour-price');
+            const priceTypeElement = document.getElementById('price-type-text');
+            
+            // Set price from tour data (static, no toggle)
+            if (priceElement) priceElement.textContent = `От ${tourData.price}`;
+            if (priceTypeElement) priceTypeElement.textContent = tourData.priceType || 'за человека';
+        }
+        
+        // Update start time options
+        function updateStartTimeOptions() {
+            const startTimeSection = document.getElementById('start-time-section');
+            const startTimeSelect = document.getElementById('start-time-select');
+            
+            // Check if elements exist to prevent null errors
+            if (!startTimeSection || !startTimeSelect) {
+                console.warn('Start time elements not found');
+                return;
+            }
+            
+            if (tourData.startTimeOptions) {
+                try {
+                    let timeOptions;
+                    if (typeof tourData.startTimeOptions === 'string') {
+                        timeOptions = JSON.parse(tourData.startTimeOptions);
+                    } else {
+                        timeOptions = tourData.startTimeOptions;
+                    }
+                    
+                    if (timeOptions && timeOptions.length > 0) {
+                        // Clear existing options except the first one
+                        startTimeSelect.innerHTML = '<option value="">Выберите время</option>';
+                        
+                        // Add time options
+                        timeOptions.forEach(time => {
+                            const option = document.createElement('option');
+                            option.value = time.trim();
+                            option.textContent = time.trim();
+                            startTimeSelect.appendChild(option);
+                        });
+                        
+                        // Show the section
+                        startTimeSection.style.display = 'block';
+                    } else {
+                        startTimeSection.style.display = 'none';
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse start time options:', e);
+                    startTimeSection.style.display = 'none';
+                }
+            } else {
+                startTimeSection.style.display = 'none';
+            }
+        }
+
+        function loadImages() {
+            const mainImage = document.getElementById('main-image');
+            const thumbnailColumn = document.getElementById('thumbnail-column');
+            
+            if (!tourData.images || tourData.images.length === 0) {
+                console.log("No images found in tour data");
+                return;
+            }
+            
+            // Set main image
+            mainImage.src = tourData.images[0];
+            currentImageIndex = 0;
+            
+            // Generate thumbnails
+            thumbnailColumn.innerHTML = '';
+            tourData.images.slice(0, 4).forEach((imageUrl, index) => {
+                const thumbnail = document.createElement('img');
+                thumbnail.src = imageUrl;
+                thumbnail.alt = `Tour image ${index + 1}`;
+                thumbnail.className = `w-full h-20 object-cover rounded-lg cursor-pointer thumbnail ${index === 0 ? 'thumbnail-active' : 'thumbnail-inactive'}`;
+                thumbnail.addEventListener('click', () => switchMainImage(index));
+                thumbnailColumn.appendChild(thumbnail);
+            });
+        }
+
+        function loadReviews() {
+            const reviewsContainer = document.getElementById('reviews-container');
+            
+            if (!tourData.reviews || tourData.reviews.length === 0) {
+                reviewsContainer.innerHTML = '<p class="text-gray-500">Отзывы пока не добавлены.</p>';
+                return;
+            }
+            
+            reviewsContainer.innerHTML = '';
+            tourData.reviews.forEach((review, index) => {
+                const reviewDiv = document.createElement('div');
+                reviewDiv.className = 'border-b border-gray-100 pb-4 last:border-b-0';
+                reviewDiv.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                            ${review.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <h4 class="font-medium text-gray-900 text-sm">${review.name}</h4>
+                                <div class="flex text-yellow-400 text-xs">${'★'.repeat(review.rating)}</div>
+                            </div>
+                            <p class="text-xs text-gray-500 mb-2">${review.date}</p>
+                            <p class="text-gray-700 text-sm">${review.comment}</p>
+                        </div>
+                    </div>
+                `;
+                reviewsContainer.appendChild(reviewDiv);
+            });
+        }
+
+        function switchMainImage(index) {
+            if (!tourData.images || index >= tourData.images.length) return;
+            
+            currentImageIndex = index;
+            document.getElementById('main-image').src = tourData.images[index];
+            
+            // Update thumbnail states
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.remove('thumbnail-active', 'thumbnail-inactive');
+                if (i === index) {
+                    thumb.classList.add('thumbnail-active');
+                } else {
+                    thumb.classList.add('thumbnail-inactive');
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Navigation arrows
+            document.getElementById('prev-btn').addEventListener('click', () => {
+                const newIndex = currentImageIndex > 0 ? currentImageIndex - 1 : tourData.images.length - 1;
+                switchMainImage(newIndex);
+            });
+            
+            document.getElementById('next-btn').addEventListener('click', () => {
+                const newIndex = currentImageIndex < tourData.images.length - 1 ? currentImageIndex + 1 : 0;
+                switchMainImage(newIndex);
+            });
+            
+            // Main image click for modal
+            document.getElementById('main-image-container').addEventListener('click', () => {
+                openImageModal(currentImageIndex);
+            });
+            
+            // See more button
+            document.getElementById('see-more-btn').addEventListener('click', () => {
+                openImageModal(0);
+            });
+            
+            // Wishlist button
+            document.getElementById('wishlist-btn').addEventListener('click', () => {
+                const button = document.getElementById('wishlist-btn');
+                if (button.textContent.includes('♡')) {
+                    button.innerHTML = '♥';
+                    button.classList.add('text-red-500');
+                } else {
+                    button.innerHTML = '♡';
+                    button.classList.remove('text-red-500');
+                }
+            });
+
+            // Date picker functionality
+            const dateInput = document.getElementById('tour-date');
+            if (dateInput) {
+                // Set minimum date to today
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                dateInput.min = tomorrow.toISOString().split('T')[0];
+                
+                // Handle date change
+                dateInput.addEventListener('change', function() {
+                    const selectedDate = new Date(this.value);
+                    const options = { 
+                        weekday: 'long', 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric' 
+                    };
+                    const formattedDate = selectedDate.toLocaleDateString('ru-RU', options);
+                    console.log('Выбрана дата:', formattedDate);
+                });
+            }
+        }
+
+        function openImageModal(startIndex) {
+            currentImageIndex = startIndex;
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            
+            modalImage.src = tourData.images[currentImageIndex];
+            modal.classList.remove('hidden');
+            
+            // Modal event listeners
+            document.getElementById('closeModal').onclick = () => modal.classList.add('hidden');
+            document.getElementById('modalPrev').onclick = () => {
+                currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : tourData.images.length - 1;
+                modalImage.src = tourData.images[currentImageIndex];
+            };
+            document.getElementById('modalNext').onclick = () => {
+                currentImageIndex = currentImageIndex < tourData.images.length - 1 ? currentImageIndex + 1 : 0;
+                modalImage.src = tourData.images[currentImageIndex];
+            };
+            
+            // Close on background click
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.classList.add('hidden');
+            };
+            
+            // Keyboard navigation
+            document.onkeydown = (e) => {
+                if (modal.classList.contains('hidden')) return;
+                if (e.key === 'Escape') modal.classList.add('hidden');
+                if (e.key === 'ArrowLeft') document.getElementById('modalPrev').click();
+                if (e.key === 'ArrowRight') document.getElementById('modalNext').click();
+            };
+        }
+
+        // Note: DOM initialization moved to API loading section below
+
+        // Direct booking page navigation
+        function goToBookingPage() {
+            const selectedDate = document.getElementById('tour-date').value;
+            const tourTitle = document.querySelector('#tour-title')?.textContent || 'Неизвестный тур';
+            
+            // Navigate to booking page with simple parameters
+            window.location.href = `booking.html?tour=${encodeURIComponent(tourTitle)}&date=${selectedDate}&step=1`;
+        }
+
+        function closeHotelModal() {
+            const modal = document.getElementById('hotelAvailabilityModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        function performHotelSearch() {
+            const checkIn = document.getElementById('checkInDate').value;
+            const checkOut = document.getElementById('checkOutDate').value;
+            const guests = document.getElementById('guestCount').value;
+            
+            if (!checkIn || !checkOut) {
+                alert('Пожалуйста, выберите даты заезда и выезда');
+                return;
+            }
+            
+            if (new Date(checkIn) >= new Date(checkOut)) {
+                alert('Дата выезда должна быть позже даты заезда');
+                return;
+            }
+            
+            // Hide search form and show results
+            document.getElementById('hotelSearchForm').style.display = 'none';
+            document.getElementById('hotelResults').style.display = 'block';
+            
+            // Show search parameters
+            document.getElementById('searchParams').innerHTML = `
+                <div class="text-sm text-gray-600 mb-4">
+                    <strong>Поиск:</strong> ${checkIn} - ${checkOut}, ${guests} ${getGuestWord(guests)}
+                </div>
+            `;
+            
+            // Display hotel cards (async)
+            displayHotelCards();
+        }
+
+        function getGuestWord(count) {
+            const num = parseInt(count);
+            if (num === 1) return 'гость';
+            if (num >= 2 && num <= 4) return 'гостя';
+            return 'гостей';
+        }
+
+        async function displayHotelCards() {
+            let hotelData = [];
+            
+            // Try to load hotels from API
+            try {
+                const response = await fetch(`${API_BASE_URL}/hotels`);
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    hotelData = result.data.map(hotel => {
+                        const name = JSON.parse(hotel.name || '{}');
+                        const description = JSON.parse(hotel.description || '{}');
+                        const images = JSON.parse(hotel.images || '[]');
+                        
+                        return {
+                            id: hotel.id,
+                            name: name.ru || name.en || 'Отель',
+                            stars: Math.round(hotel.rating || 4),
+                            price: Math.round(Math.random() * 100 + 50), // Temporary random pricing
+                            description: description.ru || description.en || 'Описание недоступно',
+                            image: images[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop"
+                        };
+                    });
+                }
+            } catch (error) {
+                console.log('Failed to load hotels from API, using fallback data');
+            }
+            
+            // Fallback data if API fails or no hotels found
+            if (hotelData.length === 0) {
+                hotelData = [
+                    {
+                        id: 1,
+                        name: "Гранд Отель Душанбе",
+                        stars: 5,
+                        price: 120,
+                        description: "Роскошный отель в центре столицы с видом на горы и современными удобствами",
+                        image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=300&h=200&fit=crop"
+                    },
+                    {
+                        id: 2,
+                        name: "Гостиница Таджикистан",
+                        stars: 4,
+                        price: 85,
+                        description: "Комфортабельный отель с традиционным дизайном и отличным сервисом",
+                        image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=300&h=200&fit=crop"
+                    },
+                    {
+                        id: 3,
+                        name: "Памир Палас",
+                        stars: 4,
+                        price: 95,
+                        description: "Современный отель с spa-центром и ресторанами национальной кухни",
+                        image: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=300&h=200&fit=crop"
+                    }
+                ];
+            }
+
+            const hotelContainer = document.getElementById('hotelCards');
+            hotelContainer.innerHTML = hotelData.map(hotel => `
+                <div class="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                    <img src="${hotel.image}" alt="${hotel.name}" class="w-full h-48 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <h4 class="font-semibold text-lg">${hotel.name}</h4>
+                            <div class="flex items-center">
+                                ${generateStars(hotel.stars)}
+                            </div>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-3">${hotel.description}</p>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold text-black">$${hotel.price}</span>
+                                <div class="text-xs text-gray-500">за ночь</div>
+                            </div>
+                            <button onclick="selectHotel(${hotel.id}, '${hotel.name}', ${hotel.price})" 
+                                    class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity" style="background-color: #3E3E3E;">
+                                Выбрать
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function generateStars(count) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                if (i < count) {
+                    stars += '<svg class="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>';
+                } else {
+                    stars += '<svg class="w-4 h-4 text-gray-300 fill-current" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>';
+                }
+            }
+            return stars;
+        }
+
+        function selectHotel(hotelId, hotelName, price) {
+            const tourTitle = document.querySelector('#tour-title')?.textContent || 'Неизвестный тур';
+            
+            // Get search parameters
+            const checkIn = document.getElementById('checkInDate').value;
+            const checkOut = document.getElementById('checkOutDate').value;
+            const guests = document.getElementById('guestCount').value;
+            
+            // Calculate number of days
+            const checkInDate = new Date(checkIn);
+            const checkOutDate = new Date(checkOut);
+            const diffTime = Math.abs(checkOutDate - checkInDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // Navigate to booking page with hotel selection and calculated days
+            window.location.href = `booking.html?tour=${encodeURIComponent(tourTitle)}&date=${checkIn}&hotel=${encodeURIComponent(hotelName)}&hotelId=${hotelId}&price=${price}&guests=${guests}&days=${diffDays}&step=1`;
+        }
+
+        function backToSearch() {
+            document.getElementById('hotelSearchForm').style.display = 'block';
+            document.getElementById('hotelResults').style.display = 'none';
+        }
+    </script>
+    
+    <script src="sample-tour-data.js"></script>
+    <script>
+        // API Tour Loading
+        const API_BASE_URL = window.location.protocol + '//' + window.location.host + '/api';
+        
+        async function loadTourFromAPI() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourId = urlParams.get('tour') || urlParams.get('id');
+            
+            if (!tourId) {
+                console.log('No tour ID provided, falling back to static data');
+                loadTourData();
+                setupEventListeners();
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/tours/${tourId}`);
+                const result = await response.json();
+                
+                console.log('API Response:', result);
+                if (result.success && result.data) {
+                    const apiTourData = result.data;
+                    console.log('Processing API data:', apiTourData);
+                    
+                    // Parse multilingual content (handle both string and object formats)
+                    let title, description;
+                    try {
+                        title = typeof apiTourData.title === 'string' 
+                            ? JSON.parse(apiTourData.title) 
+                            : apiTourData.title;
+                    } catch (e) {
+                        console.warn('Failed to parse title:', e);
+                        title = { ru: apiTourData.title };
+                    }
+                    
+                    try {
+                        description = typeof apiTourData.description === 'string' 
+                            ? JSON.parse(apiTourData.description) 
+                            : apiTourData.description;
+                    } catch (e) {
+                        console.warn('Failed to parse description:', e);
+                        description = { ru: apiTourData.description };
+                    }
+                    
+                    // ✅ ПОЛНЫЙ МАППИНГ всех полей из API
+                    tourData = {
+                        ...tourData,
+                        id: apiTourData.id,
+                        title: title.ru,
+                        description: description.ru,
+                        shortDesc: apiTourData.shortDesc,
+                        
+                        // Ценовые поля  
+                        price: apiTourData.price,
+                        priceType: apiTourData.priceType,
+                        originalPrice: apiTourData.originalPrice,
+                        
+                        // Временные поля
+                        duration: apiTourData.duration,
+                        durationDays: apiTourData.durationDays,
+                        
+                        // Локация
+                        country: apiTourData.country,
+                        city: apiTourData.city,
+                        location: `${apiTourData.city || 'Неизвестно'}, ${apiTourData.country || 'Центральная Азия'}`,
+                        
+                        // Детали тура
+                        format: apiTourData.format,
+                        difficulty: apiTourData.difficulty,
+                        maxPeople: apiTourData.maxPeople,
+                        minPeople: apiTourData.minPeople,
+                        
+                        // Изображения
+                        mainImage: apiTourData.mainImage,
+                        
+                        // Опции
+                        rating: apiTourData.rating || 4.8,
+                        reviewCount: apiTourData.reviewsCount || 0,
+                        pickupInfo: apiTourData.pickupInfo,
+                        startTimeOptions: apiTourData.startTimeOptions,
+                        languages: apiTourData.languages,
+                        
+                        // Статусы
+                        isActive: apiTourData.isActive,
+                        isFeatured: apiTourData.isFeatured
+                    };
+                    
+                    // Parse optional JSON fields and set default images
+                    if (apiTourData.images) {
+                        try {
+                            tourData.images = JSON.parse(apiTourData.images);
+                        } catch (e) {
+                            console.warn('Failed to parse images:', e);
+                            tourData.images = [];
+                        }
+                    }
+                    
+                    // Add default images if none provided
+                    if (!tourData.images || tourData.images.length === 0) {
+                        tourData.images = [
+                            'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+                            'https://images.unsplash.com/photo-1464822759844-d150b377fc24?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&h=300&fit=crop',
+                            'https://images.unsplash.com/photo-1483728642387-6c3bdd6c93e5?w=400&h=300&fit=crop'
+                        ];
+                    }
+                    
+                    if (apiTourData.highlights) {
+                        try {
+                            const highlights = JSON.parse(apiTourData.highlights);
+                            tourData.highlights = highlights.ru || highlights;
+                        } catch (e) {
+                            console.warn('Failed to parse highlights:', e);
+                        }
+                    }
+                    
+                    if (apiTourData.itinerary) {
+                        try {
+                            const itinerary = JSON.parse(apiTourData.itinerary);
+                            tourData.itinerary = itinerary.ru || itinerary;
+                        } catch (e) {
+                            console.warn('Failed to parse itinerary:', e);
+                        }
+                    }
+                    
+                    if (apiTourData.included) {
+                        try {
+                            const included = JSON.parse(apiTourData.included);
+                            tourData.included = included.ru || included;
+                        } catch (e) {
+                            console.warn('Failed to parse included:', e);
+                        }
+                    }
+                    
+                    if (apiTourData.excluded) {
+                        try {
+                            const excluded = JSON.parse(apiTourData.excluded);
+                            tourData.excluded = excluded.ru || excluded;
+                        } catch (e) {
+                            console.warn('Failed to parse excluded:', e);
+                        }
+                    }
+                    
+                    console.log('Tour loaded from API:', tourData);
+                    isLoaded = true; // Mark as loaded
+                    
+                    try {
+                        console.log('Starting to update page content...');
+                        updatePageContent();
+                        console.log('Page content updated successfully');
+                        setupEventListeners();
+                        console.log('Successfully updated page with API data');
+                    } catch (updateError) {
+                        console.error('Error updating page content:', updateError);
+                        console.error('Error stack:', updateError.stack);
+                    }
+                    return; // Successfully loaded from API, no need to load static data
+                } else {
+                    console.error('Failed to load tour from API. Success:', result.success, 'Data:', result.data);
+                    // Fallback to static data if API response not successful
+                    console.log('Falling back to static tour data');
+                    loadTourData();
+                    setupEventListeners();
+                }
+            } catch (error) {
+                console.error('Error loading tour from API:', error);
+                // Fallback to static data if API failed
+                console.log('Falling back to static tour data');
+                loadTourData();
+                setupEventListeners();
+            }
+        }
+
+        // Initialize page - API first, then fallback if needed
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM loaded, initializing page...");
+            loadTourFromAPI();
+        });
+        
+        // Prevent duplicate loadTourData calls
+        let isLoaded = false;
+        // Share functionality
+        function toggleShareMenu() {
+            const shareMenu = document.getElementById('share-menu');
+            shareMenu.classList.toggle('hidden');
+        }
+        
+        function shareLink() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Ссылка скопирована в буфер обмена!');
+            });
+            toggleShareMenu();
+        }
+        
+        function downloadPDF() {
+            // PDF generation functionality would go here
+            alert('Функция скачивания PDF в разработке');
+            toggleShareMenu();
+        }
+        
+        // Language dropdown functions
+        function toggleLanguageDropdown() {
+            const dropdown = document.querySelector('.language-dropdown');
+            dropdown.classList.toggle('active');
+            
+            // Close currency dropdown if open
+            document.querySelector('.language-dropdown:nth-child(2)').classList.remove('active');
+        }
+        
+        function toggleCurrencyDropdown() {
+            const currencyDropdown = document.querySelector('.language-dropdown:nth-child(2)');
+            currencyDropdown.classList.toggle('active');
+            
+            // Close language dropdown if open  
+            document.querySelector('.language-dropdown:nth-child(1)').classList.remove('active');
+        }
+        
+        function selectLanguage(lang, flagClass, langName) {
+            document.querySelector('.selected-flag').className = `selected-flag ${flagClass}`;
+            document.querySelector('.selected-lang').textContent = langName;
+            document.querySelector('.language-dropdown').classList.remove('active');
+        }
+        
+        function selectCurrency(currency, symbol) {
+            document.querySelector('.selected-currency').textContent = currency;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            document.querySelector('.language-dropdown:nth-child(2)').classList.remove('active');
+        }
+        
+        // Close share menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const shareBtn = document.getElementById('share-btn');
+            const shareMenu = document.getElementById('share-menu');
+            if (shareBtn && shareMenu && !shareBtn.contains(event.target) && !shareMenu.contains(event.target)) {
+                shareMenu.classList.add('hidden');
+            }
+            
+            // Close language/currency dropdowns when clicking outside
+            if (!event.target.closest('.language-dropdown')) {
+                document.querySelectorAll('.language-dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+        
+        // Leaflet Maps initialization  
+        function initMap() {
+            // Координаты офиса Бунёд-Тур: ул. Садриддина Айни, 104, Душанбе, Таджикистан
+            const bunyodTourLocation = [38.559772, 68.787038];
+            
+            // Создание карты
+            const map = L.map('map').setView(bunyodTourLocation, 15);
+            
+            // Добавление карты OSM
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Создание кастомной иконки маркера
+            const customIcon = L.divIcon({
+                html: `<div style="
+                    width: 40px; 
+                    height: 40px; 
+                    border-radius: 50%; 
+                    background-color: #3E3E3E; 
+                    border: 3px solid #fff; 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    color: white; 
+                    font-weight: bold; 
+                    font-size: 12px;
+                    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                    transform: translate(-50%, -100%);
+                ">BT</div>`,
+                className: 'custom-div-icon',
+                iconSize: [40, 40],
+                iconAnchor: [20, 40]
+            });
+            
+            // Создание маркера
+            const marker = L.marker(bunyodTourLocation, {
+                icon: customIcon,
+                title: "Бунёд-Тур - Туристическое агентство"
+            }).addTo(map);
+            
+            // Создание popup окна
+            const popupContent = `
+                <div style="font-family: Arial, sans-serif; min-width: 200px;">
+                    <h3 style="margin: 0 0 8px 0; color: #3E3E3E; font-size: 16px;">🏢 Бунёд-Тур</h3>
+                    <p style="margin: 0 0 5px 0; color: #666; font-size: 14px;">
+                        <strong>📍 Адрес:</strong> ул. Садриддина Айни, 104, Душанбе
+                    </p>
+                    <p style="margin: 0 0 5px 0; color: #666; font-size: 14px;">
+                        <strong>📞 Телефон:</strong> +992 44 625 7575
+                    </p>
+                    <p style="margin: 0; color: #666; font-size: 14px;">
+                        <strong>✉️ Email:</strong> info@bunyodtour.tj
+                    </p>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent).openPopup();
+        }
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait for page to fully load, then initialize map
+            setTimeout(initMap, 500);
+        });
+        
+        // ============ TRAVELERS SELECTOR FUNCTIONS ============
+        let travelers = {
+            adults: 1,
+            children: 0,
+            infants: 0
+        };
+        
+        function toggleTravelersDropdown() {
+            const dropdown = document.getElementById('travelers-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+        
+        function changeTravelerCount(type, delta) {
+            const newCount = travelers[type] + delta;
+            const totalTravelers = Object.values(travelers).reduce((sum, count) => sum + count, 0);
+            
+            // Validation rules
+            if (type === 'adults') {
+                if (newCount < 1 || newCount > 15) return;
+            } else {
+                if (newCount < 0 || newCount > 15) return;
+            }
+            
+            // Check total limit
+            if (totalTravelers + delta > 15) return;
+            
+            travelers[type] = newCount;
+            document.getElementById(`${type}-count`).textContent = newCount;
+        }
+        
+        function applyTravelerSelection() {
+            updateTravelerSummary();
+            toggleTravelersDropdown();
+        }
+        
+        function updateTravelerSummary() {
+            const { adults, children, infants } = travelers;
+            let summary = [];
+            
+            if (adults > 0) {
+                summary.push(`${adults} взрослых`);
+            }
+            if (children > 0) {
+                summary.push(`${children} ${children === 1 ? 'ребенок' : 'детей'}`);
+            }
+            if (infants > 0) {
+                summary.push(`${infants} младенцев`);
+            }
+            
+            document.getElementById('traveler-summary').textContent = summary.join(', ');
+        }
+        
+        // ============ AVAILABILITY MODAL FUNCTIONS ============
+        let selectedTime = null;
+        
+        function checkAvailability() {
+            const selectedDate = document.getElementById('tour-date').value;
+            
+            if (!selectedDate) {
+                alert('Пожалуйста, выберите дату');
+                return;
+            }
+            
+            // Update modal with selected data
+            updateAvailabilityModal(selectedDate);
+            
+            // Show modal
+            document.getElementById('tourAvailabilityModal').classList.remove('hidden');
+            document.getElementById('tourAvailabilityModal').classList.add('flex');
+        }
+        
+        function updateAvailabilityModal(dateStr) {
+            // Format date
+            const date = new Date(dateStr);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = date.toLocaleDateString('ru-RU', options);
+            
+            document.getElementById('selected-date-info').textContent = formattedDate;
+            
+            // Update travelers info
+            const { adults, children, infants } = travelers;
+            let travelersInfo = [];
+            
+            if (adults > 0) travelersInfo.push(`${adults} взрослых`);
+            if (children > 0) travelersInfo.push(`${children} детей`);
+            if (infants > 0) travelersInfo.push(`${infants} младенцев`);
+            
+            document.getElementById('selected-travelers-info').textContent = travelersInfo.join(', ');
+            
+            // Update available times (based on tour data)
+            populateAvailableTimes();
+            
+            // Update includes section
+            populateModalIncludes();
+            
+            // Calculate pricing
+            updateModalPricing();
+        }
+        
+        function populateAvailableTimes() {
+            const container = document.getElementById('available-times');
+            let availableTimes = [];
+            
+            // Use times from tour data if available
+            let timeOptions = null;
+            
+            if (tourData.startTimeOptions && Array.isArray(tourData.startTimeOptions)) {
+                timeOptions = tourData.startTimeOptions;
+            } else if (tourData.startTimeOptions && typeof tourData.startTimeOptions === 'string') {
+                try {
+                    timeOptions = JSON.parse(tourData.startTimeOptions);
+                } catch (e) {
+                    console.warn('Failed to parse startTimeOptions JSON:', e);
+                }
+            }
+            
+            if (timeOptions && Array.isArray(timeOptions) && timeOptions.length > 0) {
+                availableTimes = timeOptions.map(time => {
+                    // Convert 24-hour format to readable format
+                    const [hours, minutes] = time.split(':');
+                    const hour = parseInt(hours);
+                    const displayTime = hour < 12 ? `${time} утра` : `${time} дня`;
+                    return displayTime;
+                });
+            } else {
+                // Fallback to default times
+                availableTimes = ['7:30 утра', '9:00 утра', '13:30 дня', '12:00 дня'];
+            }
+            
+            if (availableTimes.length === 0) {
+                container.innerHTML = '<div class="text-gray-500 text-center py-4">Время начала не настроено</div>';
+                return;
+            }
+            
+            container.innerHTML = availableTimes.map((time, index) => `
+                <div class="border rounded-lg p-3 cursor-pointer hover:bg-blue-50 ${index === 0 ? 'border-teal-500 bg-teal-50' : 'border-gray-300'}" 
+                     onclick="selectTime('${time}', this)">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <div class="font-medium">${time}</div>
+                            <div class="text-sm text-gray-600">Доступно</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-teal-600 font-medium">${index === 0 ? 'Рекомендуется' : ''}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Select first time by default
+            selectedTime = availableTimes[0] || null;
+        }
+        
+        function selectTime(time, element) {
+            // Remove selection from all options
+            document.querySelectorAll('#available-times > div').forEach(div => {
+                div.classList.remove('border-teal-500', 'bg-teal-50');
+                div.classList.add('border-gray-300');
+            });
+            
+            // Add selection to clicked option
+            element.classList.remove('border-gray-300');
+            element.classList.add('border-teal-500', 'bg-teal-50');
+            
+            selectedTime = time;
+        }
+        
+        function populateModalIncludes() {
+            const container = document.getElementById('modal-tour-includes');
+            
+            // Try to use includes field first, then highlights as fallback
+            let includesData = null;
+            
+            if (tourData.includes && Array.isArray(tourData.includes)) {
+                includesData = tourData.includes;
+            } else if (tourData.includes && typeof tourData.includes === 'string') {
+                try {
+                    includesData = JSON.parse(tourData.includes);
+                } catch (e) {
+                    console.warn('Failed to parse includes JSON:', e);
+                }
+            }
+            
+            // Fallback to highlights if includes not available
+            if (!includesData && tourData.highlights && Array.isArray(tourData.highlights)) {
+                includesData = tourData.highlights;
+            } else if (!includesData && tourData.highlights && typeof tourData.highlights === 'string') {
+                try {
+                    includesData = JSON.parse(tourData.highlights);
+                } catch (e) {
+                    console.warn('Failed to parse highlights JSON:', e);
+                }
+            }
+            
+            if (includesData && Array.isArray(includesData) && includesData.length > 0) {
+                container.innerHTML = includesData.map(item => `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm">${item}</span>
+                    </div>
+                `).join('');
+            } else {
+                // Default includes
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm">Профессиональный гид</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm">Транспорт</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="text-sm">Входные билеты</span>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateModalPricing() {
+            const basePrice = parseInt(tourData.price) || 3500;
+            const { adults, children, infants } = travelers;
+            
+            // Pricing calculation (children 50% discount, infants free)
+            const adultPrice = basePrice;
+            const childPrice = Math.round(basePrice * 0.5);
+            const infantPrice = 0;
+            
+            const totalAdults = adults * adultPrice;
+            const totalChildren = children * childPrice;
+            const totalInfants = infants * infantPrice;
+            const totalPrice = totalAdults + totalChildren + totalInfants;
+            
+            document.getElementById('total-price').textContent = `${totalPrice.toLocaleString()}₽`;
+            
+            let breakdown = [];
+            if (adults > 0) breakdown.push(`${adults} взрослых — ${totalAdults.toLocaleString()}₽`);
+            if (children > 0) breakdown.push(`${children} детей — ${totalChildren.toLocaleString()}₽`);
+            if (infants > 0) breakdown.push(`${infants} младенцев — бесплатно`);
+            
+            document.getElementById('price-breakdown').textContent = breakdown.join(', ');
+        }
+        
+        function closeTourAvailabilityModal() {
+            document.getElementById('tourAvailabilityModal').classList.add('hidden');
+            document.getElementById('tourAvailabilityModal').classList.remove('flex');
+        }
+        
+        function proceedToBooking() {
+            if (!selectedTime) {
+                alert('Пожалуйста, выберите время');
+                return;
+            }
+            
+            // Prepare booking data
+            const bookingData = {
+                tourId: tourData.id,
+                date: document.getElementById('tour-date').value,
+                time: selectedTime,
+                travelers: travelers,
+                totalPrice: document.getElementById('total-price').textContent
+            };
+            
+            // Store in localStorage for booking flow
+            localStorage.setItem('bookingData', JSON.stringify(bookingData));
+            
+            // Navigate to booking flow
+            window.location.href = 'booking-flow.html';
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            // Close travelers dropdown when clicking outside
+            if (!event.target.closest('#travelers-dropdown') && !event.target.closest('.cursor-pointer')) {
+                const dropdown = document.getElementById('travelers-dropdown');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    dropdown.classList.add('hidden');
+                }
+            }
+        });
+        
+        
+    </script>
+</body>
+</html>

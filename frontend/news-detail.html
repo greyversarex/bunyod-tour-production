@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Новость - Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .content-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .article-content {
+            line-height: 1.8;
+        }
+        .article-content p {
+            margin-bottom: 1rem;
+        }
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1.5rem 0 1rem 0;
+            color: #2D3748;
+        }
+        .article-content h3 {
+            font-size: 1.25rem;
+            font-weight: semibold;
+            margin: 1rem 0 0.5rem 0;
+            color: #4A5568;
+        }
+        .article-content ul, .article-content ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+
+    <!-- Breadcrumb -->
+    <section class="bg-white py-4 border-b">
+        <div class="max-w-4xl mx-auto px-6">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="index.html" class="text-blue-600 hover:text-blue-800">Главная</a>
+                <span class="text-gray-400">/</span>
+                <a href="news.html" class="text-blue-600 hover:text-blue-800">Новости</a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-600" id="breadcrumbTitle">Загрузка...</span>
+            </nav>
+        </div>
+    </section>
+
+    <!-- Основной контент -->
+    <main class="py-8">
+        <div class="max-w-4xl mx-auto px-6">
+            <!-- Загрузка -->
+            <div id="loadingSpinner" class="text-center py-20">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
+                <p class="text-gray-600 mt-4">Загружаем новость...</p>
+            </div>
+
+            <!-- Контент новости -->
+            <article id="newsArticle" class="hidden">
+                <!-- Заголовок и мета информация -->
+                <header class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <span id="categoryBadge" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold mr-4">
+                            Категория
+                        </span>
+                        <span class="text-gray-500 text-sm" id="publishDate">
+                            <i class="fas fa-calendar mr-2"></i>Дата публикации
+                        </span>
+                    </div>
+                    
+                    <h1 id="newsTitle" class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                        Заголовок новости
+                    </h1>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-6">
+                        <div class="flex items-center space-x-6">
+                            <span id="newsAuthor" class="flex items-center">
+                                <i class="fas fa-user mr-2"></i>Автор
+                            </span>
+                            <span id="readingTime" class="flex items-center">
+                                <i class="fas fa-clock mr-2"></i>5 мин чтения
+                            </span>
+                            <span id="viewsCount" class="flex items-center">
+                                <i class="fas fa-eye mr-2"></i>123 просмотра
+                            </span>
+                        </div>
+                        
+                        <!-- Социальные кнопки -->
+                        <div class="flex items-center space-x-3">
+                            <button onclick="shareOnSocial('facebook')" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                <i class="fab fa-facebook-f text-lg"></i>
+                            </button>
+                            <button onclick="shareOnSocial('telegram')" class="text-blue-500 hover:text-blue-700 transition-colors">
+                                <i class="fab fa-telegram text-lg"></i>
+                            </button>
+                            <button onclick="shareOnSocial('whatsapp')" class="text-green-600 hover:text-green-800 transition-colors">
+                                <i class="fab fa-whatsapp text-lg"></i>
+                            </button>
+                            <button onclick="copyLink()" class="text-gray-600 hover:text-gray-800 transition-colors">
+                                <i class="fas fa-link text-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Изображение -->
+                    <div id="newsImageContainer" class="mb-8 hidden">
+                        <img id="newsImage" alt="Изображение новости" class="w-full h-96 object-cover rounded-xl shadow-lg">
+                    </div>
+                </header>
+
+                <!-- Превью -->
+                <div id="newsExcerpt" class="bg-gray-100 rounded-lg p-6 mb-8 text-lg text-gray-700 italic border-l-4 border-blue-500">
+                    Краткое описание новости
+                </div>
+
+                <!-- Содержимое -->
+                <div id="newsContent" class="article-content text-gray-800 prose max-w-none">
+                    Содержимое новости будет загружено здесь...
+                </div>
+
+                <!-- Теги -->
+                <div id="newsTags" class="mt-8 pt-8 border-t">
+                    <h3 class="text-lg font-semibold mb-4">Теги:</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <!-- Теги будут загружены динамически -->
+                    </div>
+                </div>
+            </article>
+
+            <!-- Ошибка -->
+            <div id="errorState" class="text-center py-20 hidden">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-6"></i>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Новость не найдена</h2>
+                <p class="text-gray-600 mb-6">Запрашиваемая новость не существует или была удалена</p>
+                <a href="news.html" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i>Вернуться к новостям
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Похожие новости -->
+    <section id="relatedNews" class="py-12 bg-white hidden">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Похожие новости</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="relatedNewsContainer">
+                <!-- Похожие новости будут загружены динамически -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Подписка на новости -->
+    <section class="py-16 bg-gray-100">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6">
+                Подпишитесь на наши новости
+            </h2>
+            <p class="text-gray-600 mb-8">
+                Получайте уведомления о новых турах, специальных предложениях и интересных событиях в мире туризма
+            </p>
+            <form class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto" id="newsletterForm">
+                <input 
+                    type="email" 
+                    placeholder="Введите ваш email" 
+                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"
+                    required
+                >
+                <button 
+                    type="submit" 
+                    class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                    <i class="fas fa-bell mr-2"></i>Подписаться
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 🌐 ДИНАМИЧЕСКИЙ ФУТЕР -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Глобальные переменные
+        let currentNews = null;
+
+        // API URL
+        const API_BASE = window.location.hostname === 'localhost' ? '/api' : '/api';
+
+        // Инициализация страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('id');
+            const newsSlug = urlParams.get('slug');
+            
+            if (newsId) {
+                loadNewsById(newsId);
+            } else if (newsSlug) {
+                loadNewsBySlug(newsSlug);
+            } else {
+                showError();
+            }
+
+            setupEventListeners();
+        });
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Подписка на новости
+            document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                subscribeToNewsletter(email);
+            });
+        }
+
+        // Загрузка новости по ID
+        async function loadNewsById(id) {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE}/news/${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentNews = data.data;
+                    renderNews(data.data);
+                    loadRelatedNews(data.data.category, data.data.id);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Загрузка новости по slug
+        async function loadNewsBySlug(slug) {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE}/news/slug/${slug}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentNews = data.data;
+                    renderNews(data.data);
+                    loadRelatedNews(data.data.category, data.data.id);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Отображение новости
+        function renderNews(news) {
+            const article = document.getElementById('newsArticle');
+            
+            // Заголовок страницы
+            document.title = `${news.title} - Bunyod-Tour`;
+            document.getElementById('pageTitle').textContent = `${news.title} - Bunyod-Tour`;
+            
+            // Breadcrumb
+            document.getElementById('breadcrumbTitle').textContent = news.title;
+            
+            // Основная информация
+            document.getElementById('newsTitle').textContent = news.title;
+            document.getElementById('categoryBadge').textContent = getCategoryName(news.category);
+            
+            const publishDate = new Date(news.publishDate).toLocaleDateString('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('publishDate').innerHTML = `<i class="fas fa-calendar mr-2"></i>${publishDate}`;
+            
+            if (news.author) {
+                document.getElementById('newsAuthor').innerHTML = `<i class="fas fa-user mr-2"></i>${news.author}`;
+            } else {
+                document.getElementById('newsAuthor').style.display = 'none';
+            }
+            
+            // Время чтения
+            const readingTime = Math.ceil((news.content || '').split(' ').length / 200);
+            document.getElementById('readingTime').innerHTML = `<i class="fas fa-clock mr-2"></i>${readingTime} мин чтения`;
+            
+            // Просмотры
+            document.getElementById('viewsCount').innerHTML = `<i class="fas fa-eye mr-2"></i>${news.views || 0} просмотров`;
+            
+            // Изображение
+            if (news.imageUrl) {
+                const imageContainer = document.getElementById('newsImageContainer');
+                const image = document.getElementById('newsImage');
+                image.src = news.imageUrl;
+                image.alt = news.title;
+                imageContainer.classList.remove('hidden');
+            }
+            
+            // Превью
+            if (news.excerpt) {
+                document.getElementById('newsExcerpt').textContent = news.excerpt;
+            } else {
+                document.getElementById('newsExcerpt').style.display = 'none';
+            }
+            
+            // Содержимое
+            document.getElementById('newsContent').innerHTML = news.content;
+            
+            // Теги
+            if (news.tags) {
+                const tags = typeof news.tags === 'string' ? JSON.parse(news.tags) : news.tags;
+                renderTags(tags);
+            } else {
+                document.getElementById('newsTags').style.display = 'none';
+            }
+            
+            article.classList.remove('hidden');
+        }
+
+        // Отображение тегов
+        function renderTags(tags) {
+            const container = document.getElementById('newsTags').querySelector('div');
+            
+            if (tags && tags.length > 0) {
+                container.innerHTML = tags.map(tag => 
+                    `<span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">${tag}</span>`
+                ).join('');
+            } else {
+                document.getElementById('newsTags').style.display = 'none';
+            }
+        }
+
+        // Загрузка похожих новостей
+        async function loadRelatedNews(category, currentId) {
+            try {
+                const response = await fetch(`${API_BASE}/news?category=${category}&limit=3`);
+                const data = await response.json();
+
+                if (data.success && data.data.news.length > 0) {
+                    const relatedNews = data.data.news.filter(n => n.id !== currentId);
+                    if (relatedNews.length > 0) {
+                        renderRelatedNews(relatedNews);
+                        document.getElementById('relatedNews').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading related news:', error);
+            }
+        }
+
+        // Отображение похожих новостей
+        function renderRelatedNews(news) {
+            const container = document.getElementById('relatedNewsContainer');
+            
+            container.innerHTML = news.slice(0, 3).map(item => {
+                const publishDate = new Date(item.publishDate).toLocaleDateString('ru-RU');
+                return `
+                    <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" 
+                             onclick="window.location.href='news-detail.html?id=${item.id}'">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/300x200'}" 
+                             alt="${item.title}" 
+                             class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <div class="text-sm text-gray-500 mb-2">${publishDate}</div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2">${item.title}</h3>
+                            <p class="text-gray-600 text-sm line-clamp-3">${item.excerpt || item.content?.substring(0, 100) + '...'}</p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // Получение названия категории
+        function getCategoryName(category) {
+            const categories = {
+                'tours': 'Новые туры',
+                'events': 'События',
+                'announcements': 'Объявления',  
+                'tips': 'Советы',
+                'general': 'Общие'
+            };
+            return categories[category] || 'Новости';
+        }
+
+        // Социальные функции
+        function shareOnSocial(platform) {
+            const url = window.location.href;
+            const title = currentNews ? currentNews.title : 'Новость';
+            
+            let shareUrl;
+            switch (platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert('Ссылка скопирована в буфер обмена!');
+            });
+        }
+
+        // Вспомогательные функции
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+        }
+
+        function showError() {
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        // Подписка на новости
+        async function subscribeToNewsletter(email) {
+            try {
+                const response = await fetch(`${API_BASE}/news/newsletter/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Спасибо за подписку! Мы будем уведомлять вас о новых новостях.');
+                    document.getElementById('newsletterForm').reset();
+                } else {
+                    alert('Ошибка подписки: ' + (data.message || 'Попробуйте позже'));
+                }
+            } catch (error) {
+                console.error('Newsletter subscription error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        // Мобильное меню
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</body>
+</html>

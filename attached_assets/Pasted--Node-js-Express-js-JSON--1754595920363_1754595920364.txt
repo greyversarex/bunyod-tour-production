@@ -1,0 +1,72 @@
+Создай Node.js-проект с использованием Express.js, состоящий из фронтенда, бэкенда и JSON-хранилища, функционально и визуально напоминающий сайт Viator. Всё должно быть собрано в одном проекте. Весь код раздели по папкам: views, data и корневые файлы. Используй только Express, fs, path, встроенные модули и Tailwind CDN.
+
+**1. Сервер:**
+Создай файл app.js:
+- Express-сервер на порту 3000.
+- Подключи middleware: express.json(), express.static('views').
+- GET "/" отдаёт index.html.
+- Все HTML-страницы находятся в папке "views".
+- Все JSON-данные — в папке "data".
+
+**2. Страницы (в views):**
+Создай 5 страниц:
+- index.html — главная: список туров (карточки с изображением, названием, ценой, кнопкой).
+- tour.html — отображает один тур по id из URL (?id=1), с описанием, отзывами, кнопкой «Забронировать».
+- booking.html — форма бронирования: имя, email, кол-во человек, дата, скрытое id тура.
+- admin.html — защищённая страница для добавления нового тура: форма с полями title, description, price, image, duration.
+- login.html — простая форма ввода пароля.
+
+Подключи Tailwind через CDN во все HTML-файлы. Все стили должны использовать Tailwind.
+
+**3. Данные (в data):**
+Создай два JSON-файла:
+- tours.json — массив объектов с полями id, title, description, price, duration, image, reviews (массив отзывов).
+- bookings.json — массив объектов с полями имя, email, кол-во человек, дата, id тура, timestamp.
+
+**4. API (в app.js):**
+- GET /api/tours — возвращает список всех туров из tours.json.
+- GET /api/tour/:id — возвращает тур по id.
+- POST /api/book — сохраняет бронирование в bookings.json.
+- POST /api/review — добавляет отзыв в нужный тур по id (ищи по id тура).
+- POST /api/admin/tours — добавляет новый тур в tours.json (id = max + 1).
+
+**5. Защита админки:**
+- Добавь middleware, который запрещает доступ к /admin.html, если нет query-параметра ?password=12345.
+
+**6. Фронтенд-логика (через JS):**
+- index.html: fetch('/api/tours') → отобрази карточки туров.
+- tour.html: получи id из URL, fetch('/api/tour/id'), отобрази детали и отзывы.
+- booking.html: отправь POST на /api/book.
+- admin.html: форма → POST на /api/admin/tours.
+- tour.html: форма отзывов → POST на /api/review.
+- Реализуй поиск по турам на index.html через JS: input → фильтрация.
+
+**7. Структура проекта:**
+
+/views  
+  ├── index.html  
+  ├── tour.html  
+  ├── booking.html  
+  ├── admin.html  
+  └── login.html  
+
+/data  
+  ├── tours.json  
+  └── bookings.json  
+
+app.js  
+.replit  
+package.json
+
+**8. Пакеты:**  
+Укажи в package.json зависимости: express, fs, path. Установи через npm, если нужно.
+
+**9. Финальный результат:**
+- Сайт визуально похож на Viator.
+- Все данные хранятся в JSON.
+- Форма бронирования и отзывы работают.
+- Есть админ-панель с защитой.
+- Никаких внешних баз данных.
+- Весь сайт запускается в Replit.
+
+Собери весь код и файлы. Стартовая точка: index.html. Бэкенд запускается через `node app.js`. HTML открываются как обычные маршруты.

@@ -1,0 +1,785 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum для стандартизированных категорий отелей
+enum HotelCategory {
+  STANDARD  // Стандарт
+  SEMI_LUX  // Полулюкс
+  LUX       // Люкс
+  DELUXE    // Делюкс
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  type  String @default("tour") // "tour" or "hotel"
+  tours Tour[]
+
+  @@map("categories")
+}
+
+model TourBlock {
+  id          Int                     @id @default(autoincrement())
+  title       String
+  description String?
+  slug        String                  @unique
+  isActive    Boolean                 @default(true)
+  sortOrder   Int                     @default(0)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  tourBlocks  TourBlockAssignment[]   // Many-to-many связь с турами
+
+  @@map("tour_blocks")
+}
+
+model Tour {
+  id                 Int                    @id @default(autoincrement())
+  title              Json
+  description        Json
+  shortDesc          Json?
+  duration           String
+  price              String
+  currency           String                 @default("TJS")
+  priceType          String                 @default("за человека")
+  originalPrice      String?
+  countryId          Int?                   @map("country_id")
+  cityId             Int?                   @map("city_id")
+  country            String?                // Временно для обратной совместимости
+  city               String?                // Временно для обратной совместимости
+  format             String?
+  tourType           String?
+  durationDays       Int?
+  theme              String?
+  startDate          String?
+  endDate            String?
+  startTime          String?
+  startTimeOptions   String?
+  pickupInfo         String?
+  pickupInfoEn       String?                @map("pickup_info_en")
+  languages          String?
+  availableMonths    String?
+  availableDays      String?
+  images             String?
+  mainImage          String?
+  services           String?
+  highlights         String?
+  itinerary          String?
+  itineraryEn        String?                @map("itinerary_en")
+  includes           String?
+  excluded           String?
+  requirements       String?
+  difficulty         String?
+  rating             Float?
+  reviewsCount       Int?
+  maxPeople          Int?
+  minPeople          Int?
+  location           String?
+  tags               String?
+  isActive           Boolean                @default(true)
+  isDraft            Boolean                @default(false)
+  isFeatured         Boolean                @default(false)
+  categoryId         Int
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  pricingData        String?
+  assignedGuideId    Int?                   @map("assigned_guide_id")
+  scheduledEndDate   DateTime?
+  scheduledStartDate DateTime?
+  status             String                 @default("pending")
+  uniqueCode         String?                @unique
+  bookingRequests    BookingRequest[]
+  bookings           Booking[]
+  orders             Order[]
+  reviews            Review[]
+  tourGuides         TourGuide[]
+  tourHotels         TourHotel[]
+  pricingComponents  TourPricingComponent[]
+  tourBlockAssignments TourBlockAssignment[] // Новая связь many-to-many
+  tourDrivers        TourDriver[]           // Связь с водителями
+  tourCountries      TourCountry[]         // Many-to-many связь со странами
+  tourCities         TourCity[]            // Many-to-many связь с городами
+  assignedGuide      Guide?                 @relation("AssignedGuide", fields: [assignedGuideId], references: [id])
+  category           Category               @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tourCountry        Country?               @relation(fields: [countryId], references: [id])
+  tourCity           City?                  @relation(fields: [cityId], references: [id])
+
+  @@map("tours")
+}
+
+model Hotel {
+  id          Int         @id @default(autoincrement())
+  name        Json
+  description Json?
+  images      String?
+  address     Json?
+  rating      Float?
+  stars       Int?
+  amenities   String?
+  brand       String?
+  category    HotelCategory?
+  countryId   Int?        @map("country_id")
+  cityId      Int?        @map("city_id")
+  country     String?     // Временно для обратной совместимости
+  city        String?     // Временно для обратной совместимости
+  pension     String?     @default("none")
+  roomTypes   String?
+  mealTypes   String?
+  isActive    Boolean     @default(true)
+  isDraft     Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  bookings    Booking[]
+  orders      Order[]
+  tourHotels  TourHotel[]
+  hotelCountry Country?   @relation(fields: [countryId], references: [id])
+  hotelCity    City?      @relation(fields: [cityId], references: [id])
+
+  @@map("hotels")
+}
+
+model TourHotel {
+  id            Int     @id @default(autoincrement())
+  tourId        Int     @map("tour_id")
+  hotelId       Int     @map("hotel_id")
+  pricePerNight Float?  @map("price_per_night")
+  isDefault     Boolean @default(false) @map("is_default")
+  hotel         Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  tour          Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, hotelId])
+  @@map("tour_hotels")
+}
+
+// Новая промежуточная таблица для many-to-many связи туров и блоков
+model TourBlockAssignment {
+  id           Int       @id @default(autoincrement())
+  tourId       Int       @map("tour_id")
+  tourBlockId  Int       @map("tour_block_id")
+  isPrimary    Boolean   @default(false) @map("is_primary") // Основной блок (для обратной совместимости)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  
+  tour         Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  tourBlock    TourBlock @relation(fields: [tourBlockId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, tourBlockId])
+  @@map("tour_block_assignments")
+}
+
+model Guide {
+  id               Int         @id @default(autoincrement())
+  name             Json
+  description      Json?
+  photo            String?
+  avatar           String?     // Новое поле для аватара
+  documents        String?     // JSON массив документов [{name: "", path: "", type: ""}]
+  languages        String
+  contact          String?
+  experience       Int?
+  rating           Float?
+  countryId        Int?        @map("country_id")
+  cityId           Int?        @map("city_id")
+  passportSeries   String?     @map("passport_series")     // Серия паспорта
+  registration     String?     // Гос. регистрация  
+  residenceAddress String?     @map("residence_address")   // Адрес проживания
+  login            String?
+  password         String?
+  // Поля для системы найма тургида
+  pricePerDay      Float?      @map("price_per_day")       // Цена за день найма
+  currency         String?     @default("TJS")             // Валюта оплаты
+  availableDates   String?     @map("available_dates")     // JSON массив доступных дат ["2025-01-15", "2025-01-16", ...]
+  isHireable       Boolean     @default(true) @map("is_hireable") // Доступен ли для найма
+  isActive         Boolean     @default(true)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  orders       Order[]
+  tourGuides   TourGuide[]
+  assignedTours Tour[] @relation("AssignedGuide")
+  guideCountry Country? @relation(fields: [countryId], references: [id])
+  guideCity    City?    @relation(fields: [cityId], references: [id])
+  guideHireRequests GuideHireRequest[] // Заявки на найм гида
+
+  @@map("guides")
+}
+
+model GuideHireRequest {
+  id              Int      @id @default(autoincrement())
+  guideId         Int      @map("guide_id")
+  touristName     String   @map("tourist_name")
+  touristEmail    String?  @map("tourist_email")
+  touristPhone    String?  @map("tourist_phone")
+  selectedDates   String   @map("selected_dates")    // JSON массив выбранных дат ["2025-01-15", "2025-01-16"]
+  numberOfDays    Int      @map("number_of_days")
+  comments        String?  // Пожелания туриста
+  totalPrice      Float    @map("total_price")       // Общая стоимость найма в пользовательской валюте
+  baseTotalPrice  Float?   @map("base_total_price")  // Базовая стоимость в валюте гида
+  currency        String   @default("TJS")           // Валюта расчета (пользовательская)
+  baseCurrency    String?  @map("base_currency")     // Валюта тургида (базовая)
+  exchangeRate    Float?   @map("exchange_rate")     // Курс обмена на момент создания заявки
+  status          String   @default("pending")       // pending, approved, rejected, completed
+  paymentStatus   String   @default("unpaid") @map("payment_status") // unpaid, paid, refunded
+  adminNotes      String?  @map("admin_notes")       // Заметки администратора
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  guide           Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_hire_requests")
+}
+
+model Driver {
+  id               Int         @id @default(autoincrement())
+  name             String
+  description      String?
+  photo            String?
+  avatar           String?     // Аватар водителя
+  documents        String?     // JSON массив документов [{name: "", path: "", type: ""}]
+  licenseNumber    String?     // Номер водительского удостоверения
+  licenseCategory  String?     // Категория прав (B, C, D, E и т.д.)
+  vehicleTypes     String?     // JSON массив типов транспорта ["sedan", "suv", "minibus", "bus", "truck"]
+  vehicleInfo      String?     // JSON информация о транспорте [{model: "", year: "", plate: "", capacity: ""}]
+  vehicleBrand     String?     // Марка автомобиля
+  vehicleYear      Int?        // Год выпуска автомобиля
+  vehiclePhotos    String?     // JSON массив фотографий транспорта
+  experience       Int?        // Стаж вождения в годах
+  contact          String?     // JSON контактная информация
+  login            String?     // Логин для входа в кабинет
+  password         String?     // Хешированный пароль
+  isActive         Boolean     @default(true)
+  languages        String?     // Знание языков
+  workingAreas     String?     // Рабочие зоны/города
+  countryId        Int?        @map("country_id")
+  cityId           Int?        @map("city_id")
+  pricePerDay      Float?      // Цена за день
+  pricePerHour     Float?      // Цена за час
+  currency         String?     @default("TJS")
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  // Связи с заказами будут добавлены позже
+  // orders           Order[]
+  tourDrivers      TourDriver[]
+  transferRequests TransferRequest[] // Связь с трансферными заявками
+  driverCountry    Country?    @relation(fields: [countryId], references: [id])
+  driverCity       City?       @relation(fields: [cityId], references: [id])
+
+  @@map("drivers")
+}
+
+model TourDriver {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  driverId  Int     @map("driver_id")
+  isDefault Boolean @default(false) @map("is_default")
+  driver    Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, driverId])
+  @@map("tour_drivers")
+}
+
+model TourGuide {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  guideId   Int     @map("guide_id")
+  isDefault Boolean @default(false) @map("is_default")
+  guide     Guide   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, guideId])
+  @@map("tour_guides")
+}
+
+// Промежуточная таблица для many-to-many связи туров со странами
+model TourCountry {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  countryId Int     @map("country_id")
+  isPrimary Boolean @default(false) @map("is_primary") // Основная страна для обратной совместимости
+  createdAt DateTime @default(now()) @map("created_at")
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  country   Country @relation("TourCountries", fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, countryId])
+  @@map("tour_countries")
+}
+
+// Промежуточная таблица для many-to-many связи туров с городами
+model TourCity {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  cityId    Int     @map("city_id")
+  isPrimary Boolean @default(false) @map("is_primary") // Основной город для обратной совместимости
+  createdAt DateTime @default(now()) @map("created_at")
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  city      City    @relation("TourCities", fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, cityId])
+  @@map("tour_cities")
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  fullName  String   @map("full_name")
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+  reviews   Review[]
+
+  @@map("customers")
+}
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  orderNumber     String   @unique @map("order_number")
+  customerId      Int      @map("customer_id")
+  tourId          Int      @map("tour_id")
+  hotelId         Int?     @map("hotel_id")
+  guideId         Int?     @map("guide_id")
+  tourDate        String   @map("tour_date")
+  tourists        String
+  wishes          String?
+  totalAmount     Float    @map("total_amount")
+  status          String   @default("pending")
+  paymentStatus   String   @default("unpaid") @map("payment_status")
+  paymentMethod   String?  @map("payment_method")
+  paymentIntentId String?  @map("payment_intent_id")
+  receiptData     String?  @map("receipt_data")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guide           Guide?   @relation(fields: [guideId], references: [id])
+  hotel           Hotel?   @relation(fields: [hotelId], references: [id])
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("orders")
+}
+
+model BookingRequest {
+  id             Int      @id @default(autoincrement())
+  customerName   String   @map("customer_name")
+  customerEmail  String   @map("customer_email")
+  preferredDate  String   @map("preferred_date")
+  numberOfPeople Int      @map("number_of_people")
+  tourId         Int      @map("tour_id")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tour           Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("booking_requests")
+}
+
+model Review {
+  id           Int       @id @default(autoincrement())
+  customerId   Int?      @map("customer_id")
+  tourId       Int       @map("tour_id")
+  reviewerName String    @map("reviewer_name")
+  rating       Int
+  guideRating  Int?      @map("guide_rating")
+  text         String
+  photos       String?
+  isModerated  Boolean   @default(false) @map("is_moderated")
+  isApproved   Boolean   @default(false) @map("is_approved")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tour         Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model Admin {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  email     String   @unique
+  password  String
+  fullName  String   @map("full_name")
+  role      String   @default("admin")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model News {
+  id              Int      @id @default(autoincrement())
+  title           String
+  content         String
+  excerpt         String?
+  image           String?
+  images          String?
+  tags            String?
+  isPublished     Boolean  @default(true) @map("is_published")
+  isFeatured      Boolean  @default(false) @map("is_featured")
+  publishedAt     DateTime @default(now()) @map("published_at")
+  slug            String   @unique
+  views           Int      @default(0)
+  readTime        Int?     @map("read_time")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("news")
+}
+
+model ContentBlock {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  title     String
+  content   String
+  type      String
+  section   String
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  metadata  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("content_blocks")
+}
+
+model SiteSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  type      String
+  group     String
+  label     String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+model Page {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  content     String
+  metaTitle   String?
+  metaDesc    String?
+  isPublished Boolean  @default(true)
+  template    String   @default("default")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("pages")
+}
+
+model MenuItem {
+  id        Int        @id @default(autoincrement())
+  parentId  Int?       @map("parent_id")
+  title     String
+  url       String
+  type      String
+  isActive  Boolean    @default(true)
+  sortOrder Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  parent    MenuItem?  @relation("MenuItemParent", fields: [parentId], references: [id])
+  children  MenuItem[] @relation("MenuItemParent")
+
+  @@map("menu_items")
+}
+
+model Country {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  nameRu      String   @map("name_ru")
+  nameEn      String   @map("name_en")
+  code        String   @unique // TJ, UZ, KG, KZ, TM
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  cities         City[]
+  tours          Tour[]         // Связь с турами (старая)
+  tourCountries  TourCountry[]  @relation("TourCountries") // Many-to-many связь с турами
+  hotels         Hotel[]        // Связь с отелями
+  drivers        Driver[]       // Связь с водителями
+  guides         Guide[]        // Связь с гидами
+  tourAgents     TourAgent[]    // Связь с турагентами
+
+  @@map("countries")
+}
+
+model City {
+  id         Int      @id @default(autoincrement())
+  name       String
+  nameRu     String   @map("name_ru")
+  nameEn     String   @map("name_en")
+  countryId  Int      @map("country_id")
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  country    Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  tours      Tour[]     // Связь с турами (старая)
+  tourCities TourCity[] @relation("TourCities") // Many-to-many связь с турами
+  hotels     Hotel[]    // Связь с отелями
+  drivers    Driver[]   // Связь с водителями
+  guides     Guide[]    // Связь с гидами
+  tourAgents TourAgent[] // Связь с турагентами
+
+  @@unique([name, countryId])
+  @@map("cities")
+}
+
+model NewsPost {
+  id          Int          @id @default(autoincrement())
+  title       String
+  slug        String       @unique
+  excerpt     String?
+  content     String
+  imageUrl    String?
+  category    NewsCategory
+  author      String?
+  publishDate DateTime     @default(now())
+  isFeatured  Boolean      @default(false)
+  isPublished Boolean      @default(true)
+  views       Int          @default(0)
+  metaTitle   String?
+  metaDesc    String?
+  tags        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("news_posts")
+}
+
+model NewsletterSubscriber {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique
+  isActive       Boolean   @default(true)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+model Slide {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  image       String?
+  link        String?
+  buttonText  String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("slides")
+}
+
+model Booking {
+  id                  Int      @id @default(autoincrement())
+  tourId              Int      @map("tour_id")
+  hotelId             Int?     @map("hotel_id")
+  tourists            String
+  contactName         String?  @map("contact_name")
+  contactPhone        String?  @map("contact_phone")
+  contactEmail        String?  @map("contact_email")
+  roomSelection       String?  @map("room_selection")
+  mealSelection       String?  @map("meal_selection")
+  totalPrice          Float    @map("total_price")
+  tourDate            String   @map("tour_date")
+  numberOfTourists    Int      @map("number_of_tourists")
+  specialRequests     String?  @map("special_requests")
+  status              String   @default("draft")
+  paymentMethod       String?  @map("payment_method")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  selectedCurrency    String   @default("TJS") @map("selected_currency")
+  totalPriceConverted Float?   @map("total_price_converted")
+  hotel               Hotel?   @relation(fields: [hotelId], references: [id])
+  tour                Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+model ExchangeRate {
+  id        Int      @id @default(autoincrement())
+  currency  String   @unique
+  rate      Float
+  symbol    String
+  name      String
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("exchange_rates")
+}
+
+model PriceCalculatorComponent {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  category    String
+  name        String
+  nameEn      String?  @map("name_en")
+  price       Float
+  unit        String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("price_calculator_components")
+}
+
+model TourPricingComponent {
+  id           Int      @id @default(autoincrement())
+  tourId       Int      @map("tour_id")
+  componentKey String   @map("component_key")
+  quantity     Float    @default(1)
+  customPrice  Float?   @map("custom_price")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tour         Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, componentKey])
+  @@map("tour_pricing_components")
+}
+
+model TourGuideProfile {
+  id            Int           @id @default(autoincrement())
+  name          String
+  login         String        @unique
+  password      String
+  email         String?
+  phone         String?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("tour_guide_profiles")
+}
+
+
+enum NewsCategory {
+  tours
+  events
+  announcements
+  tips
+  general
+}
+
+model TransferRequest {
+  id              Int      @id @default(autoincrement())
+  fullName        String   @map("full_name")
+  email           String?
+  phone           String?
+  pickupLocation  String   @map("pickup_location")
+  dropoffLocation String   @map("dropoff_location")
+  pickupTime      String   @map("pickup_time")  // Время в формате "HH:MM"
+  pickupDate      String   @map("pickup_date")  // Дата в формате "YYYY-MM-DD"
+  numberOfPeople  Int      @default(1) @map("number_of_people")
+  vehicleType     String?  @map("vehicle_type") // sedan, suv, minibus, bus
+  specialRequests String?  @map("special_requests")
+  status          String   @default("pending") // pending, approved, rejected, completed
+  adminNotes      String?  @map("admin_notes")
+  estimatedPrice  Float?   @map("estimated_price")
+  finalPrice      Float?   @map("final_price")
+  assignedDriverId Int?    @map("assigned_driver_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  assignedDriver  Driver?  @relation(fields: [assignedDriverId], references: [id])
+
+  @@map("transfer_requests")
+}
+
+model DriverProfile {
+  id                Int      @id @default(autoincrement())
+  name              String
+  phone             String
+  email             String?
+  dateOfBirth       DateTime?
+  experience        Int      // Опыт вождения (в годах)
+  licenseCategories String   // Категории прав (JSON массив)
+  licenseNumber     String   // Номер водительского удостоверения
+  vehicleTypes      String   // Типы транспорта (JSON массив)
+  vehicleBrand      String?  // Марка автомобиля
+  vehicleYear       Int?     // Год выпуска автомобиля
+  languages         String   // Языки (JSON массив)
+  workingAreas      String   // Зоны работы (JSON массив)
+  dailyRate         Float    // Дневная ставка (TJS)
+  hourlyRate        Float    // Почасовая ставка (TJS)
+  rating            Float?   // Рейтинг водителя
+  totalTrips        Int      @default(0) // Общее количество поездок
+  photo             String?  // Аватар водителя
+  vehiclePhotos     String?  // Фото транспорта (JSON массив)
+  documents         String?  // Документы (JSON массив)
+  isActive          Boolean  @default(true) // Активен ли водитель
+  password          String   // Пароль для авторизации
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Связь с поездками
+  trips             Trip[]
+
+  @@map("driver_profiles")
+}
+
+model TourAgent {
+  id               Int      @id @default(autoincrement())
+  name             String   // Название/имя турагента
+  organization     String   // Название организации
+  website          String?  // Веб-сайт
+  stateRegistration String? // Государственная регистрация
+  description      String?  // Описание деятельности
+  contactName      String?  @map("contact_name") // Контактное лицо
+  contactPhone     String?  @map("contact_phone") // Телефон
+  contactEmail     String?  @map("contact_email") // Email
+  address          String?  // Адрес офиса
+  photo            String?  // Фотография/логотип
+  countryId        Int?     @map("country_id")
+  cityId           Int?     @map("city_id")
+  isActive         Boolean  @default(true) @map("is_active")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  
+  // Связи
+  country          Country? @relation(fields: [countryId], references: [id])
+  city             City?    @relation(fields: [cityId], references: [id])
+
+  @@map("tour_agents")
+}
+
+model Trip {
+  id              Int      @id @default(autoincrement())
+  direction       String   // Направление (например, "Аэропорт - Город")
+  pickupTime      String   // Время приёма
+  pickupLocation  String   // Место приёма
+  routeFrom       String   // Откуда
+  routeTo         String   // Куда
+  dropoffLocation String   // Место высадки
+  dropoffTime     String   // Время высадки
+  driverId        Int      // ID водителя
+  status          String   @default("pending") // Статус: pending, in_progress, completed, cancelled
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Связь с водителем
+  driver          DriverProfile @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@map("trips")
+}
+
+model Migration {
+  id          Int      @id @default(autoincrement())
+  version     String   @unique
+  name        String
+  description String?
+  appliedAt   DateTime @default(now())
+  isSystem    Boolean  @default(false)  // Системные vs пользовательские миграции
+
+  @@map("migrations")
+}

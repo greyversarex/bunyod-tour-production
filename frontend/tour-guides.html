@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ru" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="guides.page_title">Тургиды - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/multilingual-utils.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        /* Dropdown стили */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #3E3E3E;
+            min-width: 220px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1000;
+            border-radius: 8px;
+            padding: 8px 0;
+            top: 100%;
+            left: 0;
+            margin-top: 4px;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            border-radius: 4px;
+            margin: 2px 8px;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content .dropdown-submenu {
+            position: relative;
+        }
+        .dropdown-content .dropdown-submenu .dropdown-subcontent {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #3E3E3E;
+            min-width: 400px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1001;
+        }
+        .dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+            display: block !important;
+        }
+
+        /* WOW карточки тургидов */
+        .agent-card {
+            position: relative;
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(102, 126, 234, 0.15);
+        }
+        
+        .agent-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid white;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .agent-card:hover .agent-avatar {
+            transform: scale(1.1);
+            border-color: #667eea;
+            box-shadow: 0 12px 32px rgba(102, 126, 234, 0.3);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .experience-badge {
+            background: #6B7280;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+        
+        .skill-tag {
+            background: #3E3E3E;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .skill-tag:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transform: translateY(-2px);
+        }
+        
+        .rating-stars {
+            color: #fbbf24;
+            font-size: 1.25rem;
+        }
+        
+        .contact-btn {
+            background: #6B7280;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+        
+        .contact-btn:hover {
+            background: #4B5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+        }
+        
+        .floating-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .floating-icon:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .stats-item {
+            text-align: center;
+            padding: 16px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .stats-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        .hero-section {
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Динамический контейнер для header -->
+    <div id="header-container"></div>
+
+    <!-- Hero секция -->
+    <section class="hero-section text-gray-900 py-20">
+        <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+            <h1 class="text-5xl font-bold mb-6" data-translate="guides.main_title">
+Наши профессиональные тургиды
+            </h1>
+            <p class="text-xl mb-8 max-w-3xl mx-auto text-gray-700" data-translate="guides.subtitle">
+                Знакомьтесь с нашей командой экспертов, которые сделают ваше путешествие по Центральной Азии незабываемым. 
+Каждый наш тургид — это профессионал с многолетним опытом и глубокими знаниями региона.
+            </p>
+            <div class="flex justify-center items-center space-x-8 text-sm text-gray-600">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span data-translate="guides.licensed_guides">Лицензированные гиды</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                    </svg>
+                    <span data-translate="guides.happy_clients">Более 1000 довольных клиентов</span>
+                </div>
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                    <span data-translate="guides.multilingual_support">Многоязычная поддержка</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Основной контент - Тургиды -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <!-- Загрузочное состояние -->
+            <div id="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="agent-card loading-shimmer h-96"></div>
+                <div class="agent-card loading-shimmer h-96"></div>
+                <div class="agent-card loading-shimmer h-96"></div>
+            </div>
+            
+            <!-- Контейнер для карточек тургидов -->
+            <div id="agentsContainer" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Карточки будут загружены динамически -->
+            </div>
+            
+            <!-- Пустое состояние -->
+            <div id="emptyState" class="hidden text-center py-20">
+                <div class="max-w-md mx-auto">
+                    <div class="w-24 h-24 mx-auto mb-6 bg-gray-200 rounded-full flex items-center justify-center">
+                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2" data-translate="guides.coming_soon">Скоро здесь появятся наши тургиды</h3>
+                    <p class="text-gray-600" data-translate="guides.forming_team">Мы формируем команду профессиональных гидов для создания незабываемых путешествий</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Модальное окно найма тургида -->
+    <div id="hireModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <!-- Заголовок модального окна -->
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800" id="modalTitle" data-translate="guides.hire_guide">Нанять тургида</h3>
+                    <button id="closeHireModal" class="text-gray-500 hover:text-gray-700">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Контент модального окна -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Левая колонка - Календарь выбора дат -->
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4" data-translate="guides.select_dates">Выберите даты</h4>
+                            
+                            <!-- Навигация календаря -->
+                            <div class="flex items-center justify-between mb-4">
+                                <button id="prevHireMonth" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                    </svg>
+                                </button>
+                                <h5 id="currentHireMonth" class="text-lg font-semibold text-gray-800"></h5>
+                                <button id="nextHireMonth" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <!-- Календарная сетка -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="grid grid-cols-7 gap-2 mb-4">
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.monday">Пн</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.tuesday">Вт</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.wednesday">Ср</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.thursday">Чт</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.friday">Пт</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.saturday">Сб</div>
+                                    <div class="text-center text-sm font-medium text-gray-500 py-2" data-translate="calendar.sunday">Вс</div>
+                                </div>
+                                
+                                <div id="hireDays" class="grid grid-cols-7 gap-2">
+                                    <!-- Дни календаря будут сгенерированы JavaScript -->
+                                </div>
+                                
+                                <div class="mt-4 flex items-center text-sm space-x-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+                                        <span data-translate="guides.selected">Выбрано</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                                        <span data-translate="guides.available">Доступно</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+                                        <span data-translate="guides.occupied">Занято</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-gray-300 rounded mr-2"></div>
+                                        <span data-translate="guides.unavailable">Недоступно</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка - Форма и расчет -->
+                    <div class="space-y-6">
+                        <!-- Информация о стоимости -->
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-3" data-translate="guides.cost_calculation">Расчет стоимости</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span data-translate="guides.price_per_day">Цена за день:</span>
+                                    <span id="pricePerDay">300 TJS</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span data-translate="guides.selected_days">Выбрано дней:</span>
+                                    <span id="selectedDaysCount">0</span>
+                                </div>
+                                <hr class="my-2">
+                                <div class="flex justify-between font-semibold text-lg">
+                                    <span data-translate="guides.total">Итого:</span>
+                                    <span id="totalPrice">0 TJS</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Форма контактных данных -->
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4" data-translate="guides.your_data">Ваши данные</h4>
+                            <form id="hireForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="form.your_name">Ваше имя *</label>
+                                    <input type="text" id="touristName" required 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+                                    <input type="email" id="touristEmail" required 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="form.phone">Телефон</label>
+                                    <input type="tel" id="touristPhone" 
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2" data-translate="form.comments">Комментарии</label>
+                                    <textarea id="hireComments" rows="3" 
+                                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                                </div>
+                                
+                                <button type="submit" id="submitHire" disabled
+                                        class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors">
+                                    <span data-translate="guides.submit_hire_request">Отправить заявку на найм</span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Динамический контейнер для footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // API функции
+        async function fetchTourAgents() {
+            try {
+                const response = await fetch('/api/guides');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.success ? data.data : [];
+            } catch (error) {
+                console.error('Ошибка загрузки тургидов:', error);
+                return [];
+            }
+        }
+
+        // Функция создания карточки тургида
+        function createAgentCard(agent) {
+            // 🌐 МНОГОЯЗЫЧНАЯ ОБРАБОТКА С ИСПОЛЬЗОВАНИЕМ ЦЕНТРАЛЬНОЙ СИСТЕМЫ
+            const currentLang = getCurrentLanguage(); // Получаем текущий язык
+            
+            // Используем новые поля nameRu/nameEn с fallback на старый формат
+            const name = currentLang === 'en' 
+                ? (agent.nameEn || agent.name || 'Guide')
+                : (agent.nameRu || agent.name || 'Гид');
+            
+            const description = currentLang === 'en'
+                ? (agent.descriptionEn || agent.description || 'Experienced guide with deep regional knowledge.')
+                : (agent.descriptionRu || agent.description || 'Опытный гид с глубокими знаниями региона.');
+            // Парсим языки (используем безопасный подход)
+            let languages = ['Русский', 'Английский']; // по умолчанию
+            if (agent.languages) {
+                if (Array.isArray(agent.languages)) {
+                    languages = agent.languages;
+                } else if (typeof agent.languages === 'string') {
+                    // Используем safeJsonParse для безопасности
+                    const parsed = safeJsonParse(agent.languages, null);
+                    if (Array.isArray(parsed)) {
+                        languages = parsed;
+                    } else if (parsed === null) {
+                        // Если не JSON, разбиваем как CSV
+                        languages = agent.languages.split(',').map(lang => lang.trim());
+                    }
+                }
+            }
+            
+            // Определяем аватар
+            const avatarUrl = agent.photo || agent.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=667eea&color=fff&size=240`;
+            
+            // Создаем карточку
+            return `
+                <div class="agent-card">
+                    <div class="p-6 text-center">
+                        <!-- Аватар -->
+                        <div class="mb-3">
+                            <img src="${avatarUrl}" alt="${name}" class="agent-avatar mx-auto">
+                        </div>
+                        
+                        <!-- Имя и должность -->
+                        <h3 class="text-xl font-bold text-gray-900 mb-1" 
+                            data-guide-id="${agent.id}"
+                            data-name-ru="${agent.nameRu || agent.name || ''}"
+                            data-name-en="${agent.nameEn || agent.name || ''}">${name}</h3>
+                        <div class="experience-badge mb-3">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <span data-translate="guide.professional_badge">${getTranslation('guide.professional_badge')}</span>
+                        </div>
+                        
+                        <!-- Локация -->
+                        <div class="mb-3">
+                            <div class="flex items-center justify-center text-sm text-gray-600">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>
+                                    ${(() => {
+                                        // Функция для получения названия с поддержкой многоязычности
+                                        const currentLang = getCurrentLanguage();
+                                        const getName = (obj) => {
+                                            if (!obj) return null;
+                                            // Приоритет: nameEn/nameRu для новых данных, name для старых
+                                            if (currentLang === 'en') {
+                                                return obj.nameEn || obj.name || obj.nameRu;
+                                            } else {
+                                                return obj.nameRu || obj.name || obj.nameEn;
+                                            }
+                                        };
+                                        
+                                        const countryName = getName(agent.guideCountry);
+                                        const cityName = getName(agent.guideCity);
+                                        
+                                        if (cityName && countryName) {
+                                            return `${cityName}, ${countryName}`;
+                                        } else if (countryName) {
+                                            return countryName;
+                                        } else if (cityName) {
+                                            return cityName;
+                                        } else {
+                                            return currentLang === 'en' ? 'Central Asia' : 'Центральная Азия';
+                                        }
+                                    })()}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Языки -->
+                        <div class="mb-4">
+                            <h4 class="text-xs font-semibold text-gray-700 mb-2" data-translate="guide.languages">${getTranslation('guide.languages')}</h4>
+                            <div class="flex flex-wrap gap-1 justify-center">
+                                ${languages.map(lang => {
+                                    // Маппинг русских названий языков на английские ключи
+                                    const langMapping = {
+                                        'русский': 'russian',
+                                        'английский': 'english',
+                                        'таджикский': 'tajik',
+                                        'узбекский': 'uzbek',
+                                        'киргизский': 'kyrgyz',
+                                        'персидский': 'persian',
+                                        'арабский': 'arabic',
+                                        'туркменский': 'turkmen'
+                                    };
+                                    
+                                    const langLower = lang.toLowerCase();
+                                    const mappedLang = langMapping[langLower] || langLower;
+                                    const langKey = 'language.' + mappedLang;
+                                    const translated = getTranslation(langKey);
+                                    
+                                    // Если getTranslation вернул ключ обратно, значит перевода нет - используем оригинальный текст
+                                    const translatedLang = (translated === langKey) ? lang : translated;
+                                    return `<span class="skill-tag text-xs px-2 py-1">${translatedLang}</span>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        <!-- Статистика и рейтинг -->
+                        <div class="grid grid-cols-2 gap-2 mb-4 text-center">
+                            <div class="stats-item">
+                                <div class="text-lg font-bold gradient-bg bg-clip-text text-transparent">
+                                    ${agent.experience || '2'}
+                                </div>
+                                <div class="text-xs text-gray-500" data-translate="guide.years">${getTranslation('guide.years')}</div>
+                            </div>
+                            <div class="stats-item">
+                                <div class="text-lg font-bold gradient-bg bg-clip-text text-transparent">
+                                    ${agent.rating || '5'}
+                                </div>
+                                <div class="text-xs text-gray-500" data-translate="guide.rating">${getTranslation('guide.rating')}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Кнопки действий -->
+                        <div class="space-y-3">
+                            <button class="contact-btn w-full" onclick="openHireModal(${agent.id}, '${name}')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l8 8 1-1-8-8-1 1z"/>
+                                </svg>
+${getTranslation('guide.hire')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Функция отображения тургидов
+        async function displayTourAgents() {
+            console.log('🔄 Starting to load tour agents...');
+            const loading = document.getElementById('loading');
+            const container = document.getElementById('agentsContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            try {
+                console.log('📡 Fetching tour agents from API...');
+                const agents = await fetchTourAgents();
+                
+                // Скрываем загрузку
+                loading.classList.add('hidden');
+                
+                if (agents.length === 0) {
+                    // Показываем пустое состояние
+                    emptyState.classList.remove('hidden');
+                } else {
+                    // Отображаем карточки тургидов
+                    container.innerHTML = agents.map(agent => createAgentCard(agent)).join('');
+                    container.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Ошибка отображения тургидов:', error);
+                loading.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+            }
+        }
+
+        // Функция связи с агентом
+        function contactAgent(agentId, agentName) {
+            // Здесь можно добавить логику связи с тургидом
+            alert(`Связаться с ${agentName}. ID: ${agentId}`);
+        }
+        
+        // 🌐 ФУНКЦИЯ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКОВ ДЛЯ ГИДОВ
+        function updateGuidesLanguage(language) {
+            console.log(`👨‍🦱 Переключение языка гидов на: ${language}`);
+            
+            // Перерисовываем список гидов с новым языком
+            displayTourAgents();
+            
+            // После перерисовки нужно обновить переводы для всех элементов на странице
+            // Это делается автоматически через MutationObserver, но мы можем форсировать обновление
+            if (typeof translatePageElements === 'function') {
+                translatePageElements(language);
+            }
+            
+            console.log(`✅ Язык гидов обновлен на: ${language}`);
+        }
+
+        // Модальное окно найма тургида
+        let currentHireDate = new Date();
+        let selectedGuideId = null;
+        let selectedGuideName = '';
+        let selectedHireDates = [];
+        let guideAvailableDates = [];
+        let guideUnavailableDates = [];
+        let guidePricePerDay = 300;
+        
+        const monthNames = {
+            ru: ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+            en: ['January', 'February', 'March', 'April', 'May', 'June',
+                 'July', 'August', 'September', 'October', 'November', 'December']
+        };
+
+        function formatDateToLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        async function openHireModal(guideId, guideName) {
+            selectedGuideId = guideId;
+            selectedGuideName = guideName;
+            selectedHireDates = [];
+            
+            const currentLang = getCurrentLanguage();
+            const hireText = currentLang === 'en' ? 'Hire a Tour Guide: ' : 'Нанять тургида: ';
+            document.getElementById('modalTitle').textContent = `${hireText}${guideName}`;
+            document.getElementById('hireModal').classList.remove('hidden');
+            
+            // Загружаем доступность тургида
+            await loadGuideAvailability(guideId);
+            renderHireCalendar();
+            updatePriceCalculation();
+        }
+
+        async function loadGuideAvailability(guideId) {
+            try {
+                const response = await fetch(`/api/guide-hire/${guideId}/availability`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        guideAvailableDates = result.data.availableDates || [];
+                        guidePricePerDay = result.data.pricePerDay || 300;
+                        document.getElementById('pricePerDay').textContent = `${guidePricePerDay} TJS`;
+                    }
+                }
+                
+                // Загружаем занятые даты
+                const bookingsResponse = await fetch(`/api/guide-hire/hire-requests?status=approved`);
+                if (bookingsResponse.ok) {
+                    const bookingsResult = await bookingsResponse.json();
+                    if (bookingsResult.success) {
+                        const unavailable = new Set();
+                        bookingsResult.data.forEach(request => {
+                            if (request.guideId === guideId && request.status === 'approved') {
+                                const dates = safeJsonParse(request.selectedDates, []);
+                                dates.forEach(date => {
+                                    try {
+                                        let normalizedDate;
+                                        if (typeof date === 'string' && date.includes('T')) {
+                                            normalizedDate = formatDateToLocal(new Date(date));
+                                        } else if (typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                                            normalizedDate = date;
+                                        } else {
+                                            normalizedDate = formatDateToLocal(new Date(date));
+                                        }
+                                        unavailable.add(normalizedDate);
+                                    } catch (error) {
+                                        console.error('Error normalizing date:', date, error);
+                                    }
+                                });
+                            }
+                        });
+                        guideUnavailableDates = Array.from(unavailable);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading guide availability:', error);
+            }
+        }
+
+        function renderHireCalendar() {
+            const year = currentHireDate.getFullYear();
+            const month = currentHireDate.getMonth();
+            
+            const currentLang = getCurrentLanguage();
+            const months = monthNames[currentLang] || monthNames.ru;
+            document.getElementById('currentHireMonth').textContent = `${months[month]} ${year}`;
+            
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+            const firstDayWeekday = (firstDayOfMonth.getDay() + 6) % 7; // Convert to Monday = 0
+            
+            const hireDays = document.getElementById('hireDays');
+            hireDays.innerHTML = '';
+            
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < firstDayWeekday; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'h-10';
+                hireDays.appendChild(emptyDay);
+            }
+            
+            // Add days of the month
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
+                const date = new Date(year, month, day);
+                const dateString = formatDateToLocal(date);
+                const dayElement = document.createElement('div');
+                
+                dayElement.className = 'h-10 flex items-center justify-center text-sm rounded-lg cursor-pointer transition-colors border';
+                dayElement.textContent = day;
+                
+                // Determine day status
+                if (date < today) {
+                    // Past date
+                    dayElement.className += ' bg-gray-200 text-gray-400 cursor-not-allowed border-gray-200';
+                } else if (guideUnavailableDates.includes(dateString)) {
+                    // Booked date
+                    dayElement.className += ' bg-red-500 text-white cursor-not-allowed border-red-500';
+                } else if (selectedHireDates.includes(dateString)) {
+                    // Selected date
+                    dayElement.className += ' bg-blue-500 text-white border-blue-500 hover:bg-blue-600';
+                } else if (guideAvailableDates.includes(dateString)) {
+                    // Available date
+                    dayElement.className += ' bg-green-500 text-white border-green-500 hover:bg-green-600';
+                } else {
+                    // Unavailable date
+                    dayElement.className += ' bg-gray-300 text-gray-500 cursor-not-allowed border-gray-300';
+                }
+                
+                // Add click handler for available dates
+                if (date >= today && guideAvailableDates.includes(dateString) && !guideUnavailableDates.includes(dateString)) {
+                    dayElement.addEventListener('click', () => toggleHireDate(dateString, dayElement));
+                }
+                
+                hireDays.appendChild(dayElement);
+            }
+        }
+
+        function toggleHireDate(dateString, dayElement) {
+            const dateIndex = selectedHireDates.indexOf(dateString);
+            
+            if (dateIndex > -1) {
+                // Remove from selected dates
+                selectedHireDates.splice(dateIndex, 1);
+                dayElement.className = dayElement.className.replace(/bg-blue-\d+|text-white|border-blue-\d+/, '');
+                dayElement.className += ' bg-green-500 text-white border-green-500 hover:bg-green-600';
+            } else {
+                // Add to selected dates
+                selectedHireDates.push(dateString);
+                selectedHireDates.sort();
+                dayElement.className = dayElement.className.replace(/bg-green-\d+|text-white|border-green-\d+/, '');
+                dayElement.className += ' bg-blue-500 text-white border-blue-500 hover:bg-blue-600';
+            }
+            
+            updatePriceCalculation();
+            updateSubmitButton();
+        }
+
+        function updatePriceCalculation() {
+            const daysCount = selectedHireDates.length;
+            const totalPrice = daysCount * guidePricePerDay;
+            
+            document.getElementById('selectedDaysCount').textContent = daysCount;
+            document.getElementById('totalPrice').textContent = `${totalPrice} TJS`;
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitHire');
+            const nameField = document.getElementById('touristName').value.trim();
+            const emailField = document.getElementById('touristEmail').value.trim();
+            
+            const isValid = selectedHireDates.length > 0 && nameField && emailField;
+            submitBtn.disabled = !isValid;
+        }
+
+        async function submitHireRequest() {
+            try {
+                const formData = {
+                    guideId: selectedGuideId,
+                    touristName: document.getElementById('touristName').value.trim(),
+                    touristEmail: document.getElementById('touristEmail').value.trim(),
+                    touristPhone: document.getElementById('touristPhone').value.trim(),
+                    selectedDates: selectedHireDates,
+                    comments: document.getElementById('hireComments').value.trim()
+                };
+                
+                const response = await fetch('/api/guide-hire/hire-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Заявка на найм тургида успешно отправлена! Мы свяжемся с вами в ближайшее время.');
+                    closeHireModal();
+                } else {
+                    alert('Ошибка: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error submitting hire request:', error);
+                alert('Произошла ошибка при отправке заявки. Попробуйте еще раз.');
+            }
+        }
+
+        function closeHireModal() {
+            document.getElementById('hireModal').classList.add('hidden');
+            selectedHireDates = [];
+            selectedGuideId = null;
+            document.getElementById('hireForm').reset();
+        }
+
+        function showGuideDetails(guideId) {
+            alert(`Подробная информация о тургиде будет добавлена позже. ID: ${guideId}`);
+        }
+
+        // Event listeners для модального окна
+        document.addEventListener('DOMContentLoaded', function() {
+            // Основная инициализация
+            displayTourAgents();
+            
+            // 🌐 СЛУШАЕМ СОБЫТИЯ ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА
+            document.addEventListener('languageChanged', function(event) {
+                updateGuidesLanguage(event.detail.language);
+                
+                // Обновляем календарь если модальное окно открыто
+                if (!document.getElementById('hireModal').classList.contains('hidden')) {
+                    renderHireCalendar();
+                }
+            });
+            
+            // 🌐 СЛУШАЕМ СОБЫТИЯ ПЕРЕКЛЮЧЕНИЯ ДИНАМИЧЕСКОГО КОНТЕНТА
+            document.addEventListener('dynamicContentTranslated', function(event) {
+                console.log('🔄 Получено событие переключения динамического контента для гидов');
+            });
+            
+            // Модальное окно найма
+            document.getElementById('closeHireModal').addEventListener('click', closeHireModal);
+            
+            document.getElementById('prevHireMonth').addEventListener('click', () => {
+                currentHireDate.setMonth(currentHireDate.getMonth() - 1);
+                renderHireCalendar();
+            });
+
+            document.getElementById('nextHireMonth').addEventListener('click', () => {
+                currentHireDate.setMonth(currentHireDate.getMonth() + 1);
+                renderHireCalendar();
+            });
+
+            document.getElementById('hireForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                submitHireRequest();
+            });
+
+            // Обновляем кнопку при изменении полей формы
+            document.getElementById('touristName').addEventListener('input', updateSubmitButton);
+            document.getElementById('touristEmail').addEventListener('input', updateSubmitButton);
+
+            // Закрытие модального окна при клике вне его
+            document.getElementById('hireModal').addEventListener('click', (e) => {
+                if (e.target.id === 'hireModal') {
+                    closeHireModal();
+                }
+            });
+        });
+
+        // Инициализация при загрузке страницы (deprecated - moved above)
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     displayTourAgents();
+        // });
+    </script>
+</body>
+</html>

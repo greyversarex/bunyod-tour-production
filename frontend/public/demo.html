@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tajik Trails - API Demo</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <div class="min-h-screen">
+        <header class="bg-white shadow-sm">
+            <div class="max-w-6xl mx-auto px-4 py-6">
+                <h1 class="text-4xl font-bold text-center text-blue-600">Tajik Trails</h1>
+                <p class="text-center text-gray-600 mt-2">Backend API Demo</p>
+            </div>
+        </header>
+        
+        <main class="max-w-6xl mx-auto px-4 py-8">
+            <div class="bg-white rounded-lg shadow-md p-8 mb-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Backend API Features</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-blue-600 mb-2">✅ Tours Management</h3>
+                        <p class="text-gray-600 mb-4">Complete CRUD operations with multilingual content (English/Russian)</p>
+                        
+                        <h3 class="text-lg font-semibold text-blue-600 mb-2">✅ Booking Requests</h3>
+                        <p class="text-gray-600 mb-4">Customer booking handling with validation</p>
+                        
+                        <h3 class="text-lg font-semibold text-blue-600 mb-2">✅ Review System</h3>
+                        <p class="text-gray-600 mb-4">Rating and moderation capabilities</p>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-green-600 mb-2">✅ Email Notifications</h3>
+                        <p class="text-gray-600 mb-4">Automated customer confirmations and admin alerts</p>
+                        
+                        <h3 class="text-lg font-semibold text-green-600 mb-2">✅ Database Integration</h3>
+                        <p class="text-gray-600 mb-4">SQLite with Prisma ORM</p>
+                        
+                        <h3 class="text-lg font-semibold text-green-600 mb-2">✅ Type Safety</h3>
+                        <p class="text-gray-600 mb-4">Full TypeScript implementation</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-8">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Test API Endpoints</h2>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">Available Tours</h3>
+                    <div id="tours-list" class="space-y-4"></div>
+                    <button onclick="loadTours()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Load Tours</button>
+                </div>
+                
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-3">Submit Booking Request</h3>
+                    <form onsubmit="submitBooking(event)" class="space-y-4">
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <input type="text" id="customerName" placeholder="Your Name" required class="border border-gray-300 rounded px-3 py-2">
+                            <input type="email" id="customerEmail" placeholder="Your Email" required class="border border-gray-300 rounded px-3 py-2">
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <input type="date" id="preferredDate" required class="border border-gray-300 rounded px-3 py-2">
+                            <input type="number" id="numberOfPeople" placeholder="Number of People" min="1" required class="border border-gray-300 rounded px-3 py-2">
+                        </div>
+                        <select id="tourId" required class="w-full border border-gray-300 rounded px-3 py-2">
+                            <option value="">Select a Tour</option>
+                        </select>
+                        <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Submit Booking</button>
+                    </form>
+                </div>
+                
+                <div id="result" class="mt-6"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        
+        async function loadTours() {
+            try {
+                const response = await fetch(`${API_BASE}/tours`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const toursContainer = document.getElementById('tours-list');
+                    const tourSelect = document.getElementById('tourId');
+                    
+                    toursContainer.innerHTML = '';
+                    tourSelect.innerHTML = '<option value="">Select a Tour</option>';
+                    
+                    data.data.forEach(tour => {
+                        // Display tour
+                        const tourDiv = document.createElement('div');
+                        tourDiv.className = 'border rounded-lg p-4';
+                        tourDiv.innerHTML = `
+                            <h4 class="font-bold text-blue-600">${tour.title.en}</h4>
+                            <p class="text-gray-600 text-sm">${tour.description.en.substring(0, 100)}...</p>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-sm text-gray-500">${tour.duration}</span>
+                                <span class="font-semibold text-green-600">${tour.price}</span>
+                            </div>
+                        `;
+                        toursContainer.appendChild(tourDiv);
+                        
+                        // Add to select
+                        const option = document.createElement('option');
+                        option.value = tour.id;
+                        option.textContent = `${tour.title.en} (${tour.price})`;
+                        tourSelect.appendChild(option);
+                    });
+                    
+                    showResult('Tours loaded successfully!', 'success');
+                }
+            } catch (error) {
+                showResult('Error loading tours: ' + error.message, 'error');
+            }
+        }
+        
+        async function submitBooking(event) {
+            event.preventDefault();
+            
+            const bookingData = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                preferredDate: document.getElementById('preferredDate').value,
+                numberOfPeople: parseInt(document.getElementById('numberOfPeople').value),
+                tourId: parseInt(document.getElementById('tourId').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/booking-requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bookingData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('Booking request submitted successfully! Email notifications have been sent.', 'success');
+                    event.target.reset();
+                } else {
+                    showResult('Error: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showResult('Error submitting booking: ' + error.message, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            const className = type === 'success' ? 'bg-green-100 text-green-800 border-green-200' : 'bg-red-100 text-red-800 border-red-200';
+            
+            resultDiv.innerHTML = `
+                <div class="border rounded-lg p-4 ${className}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                resultDiv.innerHTML = '';
+            }, 5000);
+        }
+        
+        // Load tours on page load
+        window.onload = loadTours;
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script src="/public/js/layout-loader.js"></script>
+</body>
+</html>
