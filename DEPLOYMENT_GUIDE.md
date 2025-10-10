@@ -110,8 +110,8 @@ pm2 -v
 ### Шаг 3.5: Клонирование репозитория
 ```bash
 # Создание директории для приложения
-mkdir -p /var/www
-cd /var/www
+mkdir -p /srv
+cd /srv
 
 # Клонирование репозитория
 git clone https://github.com/greyversarex/bunyod-tour-production.git bunyod-tour
@@ -120,8 +120,8 @@ cd bunyod-tour
 # Установка зависимостей
 npm install
 
-# Установка Prisma CLI (если нужно)
-npm install -g prisma
+# Сделать update.sh исполняемым
+chmod +x update.sh
 ```
 
 ---
@@ -149,28 +149,32 @@ nano .env
 Вставьте следующий контент (замените значения):
 
 ```env
-# Database
+# Обязательные
 DATABASE_URL="postgresql://bunyod_admin:ваш_пароль@localhost:5432/bunyod_tour?schema=public"
-
-# JWT
 JWT_SECRET="ваш_супер_секретный_ключ_минимум_32_символа"
+ADMIN_DEFAULT_USER=admin
+ADMIN_DEFAULT_PASSWORD=***strong-password***
 
-# Server
+# Опциональные (чтобы не было предупреждений)
+ALIF_MERCHANT_KEY=
+ALIF_MERCHANT_PASSWORD=
+PAYLER_MERCHANT_KEY=
+PAYLER_PASSWORD=
+STRIPE_SECRET_KEY=
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASSWORD=
+
+# Флаги (оставить false для production - миграции делает update.sh)
+RUN_MIGRATIONS_ON_BOOT=false
+RUN_SEED_ON_BOOT=false
+
+# CORS (белый список доменов через запятую)
+CORS_ORIGINS=https://ваш-домен.com,https://www.ваш-домен.com
+
+# Среда
 NODE_ENV=production
 PORT=5000
-
-# Payment Gateways (опционально, добавьте если есть)
-STRIPE_SECRET_KEY=sk_live_ваш_stripe_ключ
-PAYLER_MERCHANT_KEY=ваш_payler_ключ
-PAYLER_PASSWORD=ваш_payler_пароль
-ALIF_MERCHANT_KEY=ваш_alif_ключ
-ALIF_MERCHANT_PASSWORD=ваш_alif_пароль
-
-# Email (опционально)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=ваш_email@gmail.com
-SMTP_PASSWORD=ваш_app_пароль
 ```
 
 Сохраните: `Ctrl+O`, `Enter`, `Ctrl+X`
@@ -180,13 +184,13 @@ SMTP_PASSWORD=ваш_app_пароль
 # Генерация Prisma клиента
 npx prisma generate
 
-# Применение схемы
-npx prisma db push
+# Применение миграций
+npx prisma migrate deploy
 
-# Запуск seed (создание начальных данных)
-npx prisma db seed
+# Запуск seed (создание начальных данных: 15 категорий, 7 блоков, валюты)
+npm run seed
 
-# Проверка данных
+# Проверка данных (опционально)
 npx prisma studio --browser none
 # Откройте в браузере: http://ваш_IP:5555
 ```
@@ -214,9 +218,36 @@ npm run build
 
 ## 6. Настройка Nginx
 
-### Шаг 6.1: Создание конфигурации Nginx
+### Шаг 6.1: Проверка основного конфига Nginx
+
+**ВАЖНО:** В `/etc/nginx/nginx.conf` должна быть строка `include /etc/nginx/conf.d/*.conf;` внутри блока `http { ... }`. Без этого конфиг не будет работать.
+
 ```bash
-nano /etc/nginx/sites-available/bunyod-tour
+# Проверить наличие include
+grep -r "include.*conf.d" /etc/nginx/nginx.conf
+
+# Если строки нет, добавить в http блок
+sudo nano /etc/nginx/nginx.conf
+```
+
+Добавьте внутри `http { ... }`:
+```nginx
+http {
+    # ... другие настройки ...
+    include /etc/nginx/conf.d/*.conf;
+}
+```
+
+### Шаг 6.2: Создание конфигурации Nginx
+
+Используйте готовый конфиг из репозитория или создайте вручную:
+
+```bash
+# Вариант 1: Скопировать из репозитория
+cp /srv/bunyod-tour/nginx/bunyod-tour.conf /etc/nginx/conf.d/
+
+# Вариант 2: Создать вручную
+nano /etc/nginx/conf.d/bunyod-tour.conf
 ```
 
 Вставьте конфигурацию:
@@ -260,11 +291,8 @@ server {
 }
 ```
 
-### Шаг 6.2: Активация конфигурации
+### Шаг 6.3: Активация конфигурации
 ```bash
-# Создать символическую ссылку
-ln -s /etc/nginx/sites-available/bunyod-tour /etc/nginx/sites-enabled/
-
 # Проверить конфигурацию
 nginx -t
 
@@ -277,42 +305,15 @@ systemctl enable nginx
 
 ## 7. Настройка PM2
 
-### Шаг 7.1: Создание PM2 конфигурации
-```bash
-nano ecosystem.config.js
-```
+### Шаг 7.1: Запуск с PM2
 
-Вставьте:
+PM2 конфигурация уже включена в репозиторий (`ecosystem.config.js`):
 
-```javascript
-module.exports = {
-  apps: [{
-    name: 'bunyod-tour',
-    script: './index.js',
-    instances: 2,
-    exec_mode: 'cluster',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 5000
-    },
-    error_file: './logs/pm2-error.log',
-    out_file: './logs/pm2-out.log',
-    log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-    merge_logs: true,
-    autorestart: true,
-    max_restarts: 10,
-    min_uptime: '10s',
-    max_memory_restart: '500M'
-  }]
-};
-```
-
-### Шаг 7.2: Запуск с PM2
 ```bash
 # Создать папку для логов
-mkdir -p logs
+mkdir -p /srv/bunyod-tour/logs
 
-# Запуск приложения
+# Запуск приложения из ecosystem.config.js
 pm2 start ecosystem.config.js
 
 # Сохранить список процессов
@@ -385,35 +386,32 @@ pm2 status
 
 ## 10. Обновление сайта в будущем
 
-### Метод 1: Через Git (рекомендуется)
-```bash
-cd /var/www/bunyod-tour
-git pull origin main
-npm install                    # Обновление зависимостей
-npx prisma generate           # Регенерация Prisma
-npx prisma db push            # Применение изменений БД
-pm2 restart all               # Перезапуск приложения
-```
+### 🚀 Рекомендуемый метод: Используйте update.sh
 
-### Метод 2: Скрипт автообновления
-Создайте файл `update.sh`:
+Основная команда обновления на сервере теперь — просто:
 
 ```bash
-#!/bin/bash
-echo "🔄 Updating Bunyod-Tour..."
-cd /var/www/bunyod-tour
-git pull origin main
-npm install
-npx prisma generate
-npx prisma db push
-pm2 restart all
-echo "✅ Update completed!"
-```
-
-Сделайте исполняемым:
-```bash
-chmod +x update.sh
+cd /srv/bunyod-tour
 ./update.sh
+```
+
+**Что делает update.sh:**
+- ✅ Создаёт бэкап БД перед обновлением
+- ✅ Применяет миграции через `prisma migrate deploy`
+- ✅ Запускает идемпотентный сид (только справочники)
+- ✅ Проверяет порт 5000 и делает healthcheck
+- ✅ Показывает логи при ошибках
+
+### Ручное обновление (если нужно)
+
+```bash
+cd /srv/bunyod-tour
+git pull origin main
+npm ci || npm install          # npm ci предпочтительнее
+npx prisma generate
+npx prisma migrate deploy      # НЕ db push в production!
+npm run seed
+pm2 restart all
 ```
 
 ---
