@@ -15,7 +15,7 @@ System integration preference: User requires simplified and unified pricing syst
 The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed Script Update (Oct 10, 2025)**: Removed demo tour creation from seed.ts - now creates only essential data (admin user, currencies, countries, cities, categories) to prevent fake tours in production.
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed Script Critical Update (Oct 10, 2025)**: Fixed seed.ts to properly create ALL required data - admin user, 5 currencies, countries, cities, **15 tourism categories** (was only 4), and **6 tour blocks** (was missing completely). Seed is now idempotent and updates existing records on rerun. No demo tours created to prevent fake data in production.
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
