@@ -10,7 +10,13 @@ async function main() {
   const hashedPassword = await bcrypt.hash('admin12345', 10);
   const admin = await prisma.admin.upsert({
     where: { username: 'admin' },
-    update: {},
+    update: {
+      password: hashedPassword,
+      email: 'admin@bunyod-tour.tj',
+      fullName: 'System Administrator',
+      role: 'admin',
+      isActive: true
+    },
     create: {
       username: 'admin',
       email: 'admin@bunyod-tour.tj',
@@ -20,7 +26,7 @@ async function main() {
       isActive: true
     }
   });
-  console.log('✅ Default admin created:', admin.username);
+  console.log('✅ Default admin created/updated:', admin.username);
 
   // 2. Create exchange rates (currencies)
   const currencies = [
