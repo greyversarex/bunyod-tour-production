@@ -14,23 +14,23 @@ import { safeInitializeWithVersioning, completeInitialization } from './migratio
 async function migrateCategoriesToCorrectSet() {
     console.log('🔄 Миграция категорий к правильному набору...');
     
-    // 🎯 ИСТИННЫЕ КАТЕГОРИИ согласно навигационному меню сайта
+    // 🎯 ИСТИННЫЕ КАТЕГОРИИ согласно навигационному меню сайта (RU/EN ТОЛЬКО!)
     const correctCategories = [
-        { name: JSON.stringify({ en: "One-day", ru: "Однодневный", tj: "Якрӯза" }), legacyNames: ["однодневные", "однодневные туры", "day", "day tours"] },
-        { name: JSON.stringify({ en: "Multi-day", ru: "Многодневный", tj: "Чандрӯза" }), legacyNames: ["многодневные", "многодневные туры", "multi-day tours"] },
-        { name: JSON.stringify({ en: "Excursion", ru: "Экскурсия", tj: "Экскурсияҳо" }), legacyNames: ["экскурсии", "excursions"] },
-        { name: JSON.stringify({ en: "City", ru: "Городской", tj: "Шаҳрӣ" }), legacyNames: ["городские", "городские туры", "city tours"] },
-        { name: JSON.stringify({ en: "Nature/Eco", ru: "Природа/экологический", tj: "Табиат/экологӣ" }), legacyNames: ["природа/экологические", "природа/экологические туры", "nature/ecological", "nature/ecological tours", "nature/eco tours"] },
-        { name: JSON.stringify({ en: "Cultural & Educational", ru: "Культурно познавательный", tj: "Фарҳангӣ" }), legacyNames: ["культурно познавательные", "культурно познавательные туры", "cultural & educational tours", "cultural educational tours"] },
-        { name: JSON.stringify({ en: "Historical", ru: "Исторический", tj: "Таърихӣ" }), legacyNames: ["исторические", "исторические туры", "historical tours"] },
-        { name: JSON.stringify({ en: "Hiking/Trekking", ru: "Походы/трекинг", tj: "Треккинг" }), legacyNames: ["походы/треккинги", "hiking/trekking"] },
-        { name: JSON.stringify({ en: "Mountain Landscapes", ru: "Горные ландшафты", tj: "Кӯҳсорӣ" }), legacyNames: ["горные туры", "mountain tours", "mountain landscapes"] },
-        { name: JSON.stringify({ en: "Lake Landscapes", ru: "Озерные ландшафты", tj: "Кӯлҳо" }), legacyNames: ["озерные туры", "lake tours", "lake landscapes"] },
-        { name: JSON.stringify({ en: "Adventure", ru: "Приключенческий", tj: "Таҷрибавӣ" }), legacyNames: ["приключенческие", "приключенческие туры", "adventure tours"] },
-        { name: JSON.stringify({ en: "Gastronomic", ru: "Гастрономический", tj: "Гастрономӣ" }), legacyNames: ["гастрономические", "гастрономические туры", "gastronomic tours"] },
-        { name: JSON.stringify({ en: "Car/Safari/Jeep", ru: "Авто/сафари/джип", tj: "Автосафарӣ" }), legacyNames: ["автотуры/сафари/джип-туры", "auto/safari/jeep", "auto tours/safari/jeep tours"] },
-        { name: JSON.stringify({ en: "Agrotourism", ru: "Агротуризм", tj: "Агросайёҳат" }), legacyNames: ["агротуры", "agro tours", "agro"] },
-        { name: JSON.stringify({ en: "VIP", ru: "VIP", tj: "VIP" }), legacyNames: ["vip туры", "vip tours"] }
+        { name: JSON.stringify({ en: "One-day", ru: "Однодневный" }), legacyNames: ["однодневные", "однодневные туры", "day", "day tours"] },
+        { name: JSON.stringify({ en: "Multi-day", ru: "Многодневный" }), legacyNames: ["многодневные", "многодневные туры", "multi-day tours"] },
+        { name: JSON.stringify({ en: "Excursion", ru: "Экскурсия" }), legacyNames: ["экскурсии", "excursions"] },
+        { name: JSON.stringify({ en: "City", ru: "Городской" }), legacyNames: ["городские", "городские туры", "city tours"] },
+        { name: JSON.stringify({ en: "Nature/Eco", ru: "Природа/экологический" }), legacyNames: ["природа/экологические", "природа/экологические туры", "nature/ecological", "nature/ecological tours", "nature/eco tours"] },
+        { name: JSON.stringify({ en: "Cultural & Educational", ru: "Культурно познавательный" }), legacyNames: ["культурно познавательные", "культурно познавательные туры", "cultural & educational tours", "cultural educational tours"] },
+        { name: JSON.stringify({ en: "Historical", ru: "Исторический" }), legacyNames: ["исторические", "исторические туры", "historical tours"] },
+        { name: JSON.stringify({ en: "Hiking/Trekking", ru: "Походы/трекинг" }), legacyNames: ["походы/треккинги", "hiking/trekking"] },
+        { name: JSON.stringify({ en: "Mountain Landscapes", ru: "Горные ландшафты" }), legacyNames: ["горные туры", "mountain tours", "mountain landscapes"] },
+        { name: JSON.stringify({ en: "Lake Landscapes", ru: "Озерные ландшафты" }), legacyNames: ["озерные туры", "lake tours", "lake landscapes"] },
+        { name: JSON.stringify({ en: "Adventure", ru: "Приключенческий" }), legacyNames: ["приключенческие", "приключенческие туры", "adventure tours"] },
+        { name: JSON.stringify({ en: "Gastronomic", ru: "Гастрономический" }), legacyNames: ["гастрономические", "гастрономические туры", "gastronomic tours"] },
+        { name: JSON.stringify({ en: "Car/Safari/Jeep", ru: "Авто/сафари/джип" }), legacyNames: ["автотуры/сафари/джип-туры", "auto/safari/jeep", "auto tours/safari/jeep tours"] },
+        { name: JSON.stringify({ en: "Agrotourism", ru: "Агротуризм" }), legacyNames: ["агротуры", "agro tours", "agro"] },
+        { name: JSON.stringify({ en: "VIP", ru: "VIP" }), legacyNames: ["vip туры", "vip tours"] }
     ];
     
     try {

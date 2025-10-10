@@ -15,7 +15,7 @@ System integration preference: User requires simplified and unified pricing syst
 The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed Script Critical Update (Oct 10, 2025)**: Fixed seed.ts to properly create ALL required data - admin user, 5 currencies, countries, cities, **15 tourism categories** (was only 4), and **6 tour blocks** (was missing completely). Seed is now idempotent and updates existing records on rerun. No demo tours created to prevent fake data in production.
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed & Migration Updates (Oct 10, 2025)**: Fixed seed.ts to create exactly **7 IRON-CONCRETE tour blocks** (Popular, Combined, + 5 Central Asian countries) with RU/EN only - no Tajik language support; removed all 'tj' translations from categories and blocks; unified category migration to use only Russian/English; eliminated 4 legacy tour blocks to maintain clean 7-block structure matching frontend navigation.
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
@@ -35,8 +35,9 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
 -   **Responsive Design**: Mobile-first approach.
--   **Toggle Filter System**: Modern filter for tours by country, city, type, and category.
--   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (6 blocks).
+-   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and **tour blocks** (Oct 10, 2025). 
+-   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
+-   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments. Clickable breadcrumb navigation on tour pages directs to search with pre-selected filters.
 -   **Design**: Consistent color palette, Inter font family, unified component structures, and gray button theme.
 -   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format with accordions for multi-day tours, time indicators, and numbered events.
 
