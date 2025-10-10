@@ -127,17 +127,21 @@
         }
 
         .price-range-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            display: flex;
+            gap: 8px;
             margin-top: 12px;
+            align-items: center;
         }
 
         .price-range-inputs input {
-            padding: 8px 12px;
+            flex: 1;
+            min-width: 0;
+            max-width: 110px;
+            padding: 8px 10px;
             border: 1px solid #e5e7eb;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 13px;
+            box-sizing: border-box;
         }
 
         .results-header {
