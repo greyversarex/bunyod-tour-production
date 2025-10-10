@@ -40,3 +40,4 @@ coverage/
 .env.test
 prisma/dev.db
 prisma/dev.db-journal
+node_modules/
