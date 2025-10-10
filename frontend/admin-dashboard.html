@@ -13737,14 +13737,14 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showSuccessMessage('Валюта удалена');
+                    showNotification('Валюта удалена', 'success');
                     loadExchangeRates();
                 } else {
-                    showErrorMessage(data.message || 'Ошибка при удалении валюты');
+                    showNotification(data.message || 'Ошибка при удалении валюты', 'error');
                 }
             } catch (error) {
                 console.error('Error deleting exchange rate:', error);
-                showErrorMessage('Ошибка при удалении валюты');
+                showNotification('Ошибка при удалении валюты', 'error');
             }
         }
 
@@ -13753,7 +13753,7 @@
             const targetCurrency = document.getElementById('calcTargetCurrency').value;
             
             if (!amount || amount <= 0) {
-                showErrorMessage('Введите корректную сумму');
+                showNotification('Введите корректную сумму', 'error');
                 return;
             }
             
@@ -13765,11 +13765,11 @@
                     const result = document.getElementById('calcResult');
                     result.textContent = `${data.data.symbol}${data.data.convertedAmount}`;
                 } else {
-                    showErrorMessage('Ошибка при конвертации');
+                    showNotification('Ошибка при конвертации', 'error');
                 }
             } catch (error) {
                 console.error('Error calculating currency:', error);
-                showErrorMessage('Ошибка при конвертации валюты');
+                showNotification('Ошибка при конвертации валюты', 'error');
             }
         }
 
@@ -13792,13 +13792,13 @@
             // Валидация
             if (!currencyCode || !name || !symbol || !rate || isNaN(rate)) {
                 console.error('❌ Validation failed:', { currencyCode, name, symbol, rate, isNaN: isNaN(rate) });
-                showErrorMessage('Все поля обязательны для заполнения');
+                showNotification('Все поля обязательны для заполнения', 'error');
                 return;
             }
 
             if (currencyCode.length !== 3) {
                 console.error('❌ Currency code length invalid:', currencyCode.length);
-                showErrorMessage('Код валюты должен состоять из 3 символов');
+                showNotification('Код валюты должен состоять из 3 символов', 'error');
                 return;
             }
             
@@ -13807,7 +13807,7 @@
                 console.log('🔑 Auth token:', token ? 'EXISTS' : 'MISSING');
                 
                 if (!token) {
-                    showErrorMessage('Ошибка авторизации. Пожалуйста, войдите в систему заново.');
+                    showNotification('Ошибка авторизации. Пожалуйста, войдите в систему заново.', 'error');
                     return;
                 }
                 
@@ -13855,16 +13855,16 @@
                 
                 if (data.success) {
                     console.log('✅ Exchange rate saved successfully');
-                    showSuccessMessage(successMessage);
+                    showNotification(successMessage, 'success');
                     closeExchangeRateModal();
                     loadExchangeRates();
                 } else {
                     console.error('❌ Save failed:', data.message);
-                    showErrorMessage(data.message || 'Ошибка при сохранении валюты');
+                    showNotification(data.message || 'Ошибка при сохранении валюты', 'error');
                 }
             } catch (error) {
                 console.error('❌ Error saving exchange rate:', error);
-                showErrorMessage('Ошибка при сохранении валюты: ' + error.message);
+                showNotification('Ошибка при сохранении валюты: ' + error.message, 'error');
             }
         });
 
