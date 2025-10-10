@@ -15,7 +15,7 @@ System integration preference: User requires simplified and unified pricing syst
 The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed & Migration Updates (Oct 10, 2025)**: Fixed seed.ts to create exactly **7 IRON-CONCRETE tour blocks** (Popular, Combined, + 5 Central Asian countries) with RU/EN only - no Tajik language support; removed all 'tj' translations from categories and blocks; unified category migration to use only Russian/English; eliminated 4 legacy tour blocks to maintain clean 7-block structure matching frontend navigation.
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed & Migration Updates (Oct 10, 2025)**: Fixed seed.ts to create exactly **7 IRON-CONCRETE tour blocks** (Popular, Combined, + 5 Central Asian countries) with RU/EN only - no Tajik language support; removed all 'tj' translations from categories and blocks; unified category migration to use only Russian/English; eliminated 4 legacy tour blocks to maintain clean 7-block structure matching frontend navigation. **Seeding Policy (Oct 10, 2025)**: Seed script creates ONLY reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities) - NEVER creates demo tours, test bookings, or fake users. Seeding is idempotent and safe to run multiple times.
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
@@ -61,3 +61,31 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 
 ### Database
 -   **PostgreSQL**: Relational database.
+
+## Production Deployment Infrastructure (Oct 10, 2025)
+
+### Deployment System
+-   **Deployment Path**: `/srv/bunyod-tour` (standardized across all configs)
+-   **Update Script**: `./update.sh` - automated deployment with DB backup, migrations, seed, and healthcheck
+-   **Process Manager**: PM2 with `ecosystem.config.js` (2 instances, cluster mode, auto-restart)
+-   **Reverse Proxy**: Nginx with template config in `nginx/bunyod-tour.conf`
+-   **Healthcheck Endpoint**: `GET /healthz` for monitoring and automated checks
+
+### Optional Startup Controls
+-   **RUN_MIGRATIONS_ON_BOOT**: Controls auto-migrations on server boot (default: `false` in production)
+-   **RUN_SEED_ON_BOOT**: Controls auto-seeding on server boot (default: `false` in production)
+-   **CORS_ORIGINS**: Comma-separated whitelist for allowed origins
+
+### Deployment Files
+-   `update.sh`: Production update automation (git pull → backup → migrate → seed → restart → healthcheck)
+-   `ecosystem.config.js`: PM2 configuration for production
+-   `nginx/bunyod-tour.conf`: Nginx reverse proxy template
+-   `.env.example`: Complete environment variable template
+-   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions
+
+### Security & Monitoring
+-   Database backup before each update
+-   Health check verification after deployment
+-   PM2 automatic restart on failures
+-   CORS whitelist enforcement
+-   All deployment scripts use `/srv/bunyod-tour` path for consistency
