@@ -13,6 +13,7 @@ const state = {
     currentLang: window.currentLanguage || 'ru',
     
     // Dynamic filter data
+    tourBlocks: [],
     categories: [],
     countries: [],
     cities: [],
@@ -27,6 +28,7 @@ const state = {
         query: '',
         country: '',
         city: '',
+        tourBlocks: [],
         categories: [],
         format: '',
         duration: '',
@@ -58,6 +60,7 @@ function formatPrice(priceInTJS, currency = 'TJS') {
     const rate = exchangeRates[currency];
     
     if (currency === 'TJS') {
+        // Для TJS показываем ТОЛЬКО символ, без текста валюты
         return `${priceInTJS} ${rate.symbol}`;
     }
     
@@ -74,17 +77,19 @@ async function loadAllData() {
     
     try {
         // Load all data in parallel
-        const [toursRes, hotelsRes, categoriesRes, countriesRes, citiesRes] = await Promise.all([
+        const [toursRes, hotelsRes, blocksRes, categoriesRes, countriesRes, citiesRes] = await Promise.all([
             fetch(`/api/tours/search?lang=${lang}`),
             fetch(`/api/hotels?lang=${lang}`),
+            fetch(`/api/tour-blocks?lang=${lang}`),
             fetch(`/api/categories?type=tour&lang=${lang}`),
             fetch(`/api/countries`),
             fetch(`/api/cities`)
         ]);
         
-        const [toursData, hotelsData, categoriesData, countriesData, citiesData] = await Promise.all([
+        const [toursData, hotelsData, blocksData, categoriesData, countriesData, citiesData] = await Promise.all([
             toursRes.json(),
             hotelsRes.json(),
+            blocksRes.json(),
             categoriesRes.json(),
             countriesRes.json(),
             citiesRes.json()
@@ -100,6 +105,11 @@ async function loadAllData() {
             state.allHotels = hotelsData.data;
             console.log(`✅ Loaded ${state.allHotels.length} hotels`);
             extractHotelFilterData();
+        }
+        
+        if (blocksData.success) {
+            state.tourBlocks = blocksData.data;
+            console.log(`✅ Loaded ${state.tourBlocks.length} tour blocks`);
         }
         
         if (categoriesData.success) {
@@ -187,6 +197,7 @@ function extractHotelFilterData() {
 
 // ============= FILTER RENDERING =============
 function renderFilters() {
+    renderTourBlocksFilter();
     renderCategoryFilters();
     renderCountryFilter();
     renderCityFilter();
@@ -196,6 +207,37 @@ function renderFilters() {
     } else {
         renderHotelFilters();
     }
+}
+
+function renderTourBlocksFilter() {
+    const container = document.getElementById('block-checkboxes');
+    if (!container) return;
+    
+    const currentLang = state.currentLang;
+    
+    container.innerHTML = state.tourBlocks.map(block => {
+        let blockTitle = block.title;
+        try {
+            const titleObj = typeof blockTitle === 'string' ? JSON.parse(blockTitle) : blockTitle;
+            blockTitle = titleObj[currentLang] || titleObj.ru || block.title;
+        } catch (e) {
+            blockTitle = block.title;
+        }
+        
+        return `
+            <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
+                <input type="checkbox" 
+                       value="${block.id}" 
+                       data-block-id="${block.id}"
+                       ${state.filters.tourBlocks?.includes(block.id) ? 'checked' : ''}
+                       onchange="handleBlockChange(this)"
+                       class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
+                <span>${escapeHtml(blockTitle)}</span>
+            </label>
+        `;
+    }).join('');
+    
+    console.log('📦 Tour blocks filter updated with', state.tourBlocks.length, 'blocks');
 }
 
 function renderCategoryFilters() {
@@ -436,6 +478,20 @@ function initializeAccordions() {
 }
 
 // ============= FILTER HANDLERS =============
+function handleBlockChange(checkbox) {
+    const blockId = parseInt(checkbox.value);
+    if (!state.filters.tourBlocks) state.filters.tourBlocks = [];
+    
+    if (checkbox.checked) {
+        if (!state.filters.tourBlocks.includes(blockId)) {
+            state.filters.tourBlocks.push(blockId);
+        }
+    } else {
+        state.filters.tourBlocks = state.filters.tourBlocks.filter(id => id !== blockId);
+    }
+    performSearch();
+}
+
 function handleCategoryChange(checkbox) {
     const catId = parseInt(checkbox.value);
     if (checkbox.checked) {
@@ -513,6 +569,16 @@ function searchTours() {
             const title = typeof tour.title === 'object' ? (tour.title.ru || tour.title.en || '') : tour.title;
             const desc = typeof tour.description === 'object' ? (tour.description.ru || tour.description.en || '') : tour.description;
             return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
+        });
+    }
+    
+    // Apply tour blocks filter
+    if (state.filters.tourBlocks && state.filters.tourBlocks.length > 0) {
+        results = results.filter(tour => {
+            if (!tour.tourBlockAssignments || tour.tourBlockAssignments.length === 0) return false;
+            return tour.tourBlockAssignments.some(tba => 
+                state.filters.tourBlocks.includes(tba.tourBlockId)
+            );
         });
     }
     
@@ -996,9 +1062,35 @@ function handleSortChange() {
     applySort();
 }
 
+// ============= URL PARAMS HANDLING =============
+function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const blockId = urlParams.get('blockId');
+    const categoryId = urlParams.get('categoryId');
+
+    if (blockId) {
+        const blockIdNum = parseInt(blockId);
+        if (!state.filters.tourBlocks.includes(blockIdNum)) {
+            state.filters.tourBlocks.push(blockIdNum);
+        }
+    }
+
+    if (categoryId) {
+        const catIdNum = parseInt(categoryId);
+        if (!state.filters.categories.includes(catIdNum)) {
+            state.filters.categories.push(catIdNum);
+        }
+    }
+    
+    if (blockId || categoryId) {
+        renderFilters(); // Re-render to show checked boxes
+    }
+}
+
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', async () => {
     await loadAllData();
+    checkUrlParams(); // Check URL parameters
     renderFilters();
     initializeAccordions();
     setupEventListeners();

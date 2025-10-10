@@ -262,57 +262,10 @@
                             </div>
                         </div>
 
-                        <!-- Program Tab -->
+                        <!-- Program Tab - ТОЛЬКО динамический контент, БЕЗ fallback -->
                         <div id="content-program" class="tab-content hidden">
-                            <div class="space-y-6">
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">08:00</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Встреча с гидом и отправление</h4>
-                                        <p class="text-gray-600 mt-1">Сбор группы у отеля. Краткий инструктаж и начало путешествия по Памирскому шоссе.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">10:30</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Первая смотровая площадка</h4>
-                                        <p class="text-gray-600 mt-1">Остановка для фотографий на высоте 3500 метров с видом на долину Вахш.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">12:00</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Озеро Яшилькуль</h4>
-                                        <p class="text-gray-600 mt-1">Посещение высокогорного озера. Время для прогулки и фотосессии (1 час).</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">13:30</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Обед в местном кафе</h4>
-                                        <p class="text-gray-600 mt-1">Традиционная памирская кухня с видом на горы.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">15:00</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Посещение памирской деревни</h4>
-                                        <p class="text-gray-600 mt-1">Знакомство с бытом и культурой местных жителей. Чайная церемония.</p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex items-start space-x-4">
-                                    <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">17:00</div>
-                                    <div>
-                                        <h4 class="font-semibold text-gray-900">Возвращение</h4>
-                                        <p class="text-gray-600 mt-1">Дорога обратно с остановками для фотографий на закате.</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <!-- Программа загружается динамически через JavaScript -->
+                            <!-- Если программа не заполнена, этот блок останется пустым -->
                         </div>
 
 
@@ -719,7 +672,7 @@
                 breadcrumbTitle.textContent = getLocalizedText(tourData._titleData, currentLang) || tourData.title;
             }
             
-            // Блок тура (если есть)
+            // Блок тура (если есть) - с навигацией на страницу поиска
             if (tourData.tourBlockAssignments && tourData.tourBlockAssignments.length > 0) {
                 const primaryBlock = tourData.tourBlockAssignments.find(tba => tba.isPrimary) || tourData.tourBlockAssignments[0];
                 if (primaryBlock && primaryBlock.tourBlock) {
@@ -728,18 +681,26 @@
                     if (breadcrumbBlock && blockName) {
                         breadcrumbBlock.textContent = blockName;
                         breadcrumbBlock.classList.add('hover:text-blue-600', 'cursor-pointer');
+                        // Клик - переход на страницу поиска с фильтром блока
+                        breadcrumbBlock.onclick = () => {
+                            window.location.href = `tours-search.html?blockId=${primaryBlock.tourBlock.id}`;
+                        };
                         if (breadcrumbBlockSep) breadcrumbBlockSep.classList.remove('hidden');
                     }
                 }
             }
             
-            // Категория тура (если есть)
+            // Категория тура (если есть) - с навигацией на страницу поиска
             if (tourData.category) {
                 const categoryName = safeJsonParse(tourData.category.name, { ru: '', en: '' });
                 const catName = getLocalizedText(categoryName, currentLang);
                 if (breadcrumbCategory && catName) {
                     breadcrumbCategory.textContent = catName;
                     breadcrumbCategory.classList.add('hover:text-blue-600', 'cursor-pointer');
+                    // Клик - переход на страницу поиска с фильтром категории
+                    breadcrumbCategory.onclick = () => {
+                        window.location.href = `tours-search.html?categoryId=${tourData.category.id}`;
+                    };
                     if (breadcrumbCategorySep) breadcrumbCategorySep.classList.remove('hidden');
                 }
             }

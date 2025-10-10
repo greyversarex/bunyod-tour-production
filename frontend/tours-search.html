@@ -305,6 +305,17 @@
                 <div class="filter-sidebar">
                     <h3 class="text-lg font-bold mb-4" data-translate="search.filters">Фильтры</h3>
                     
+                    <!-- Блоки туров -->
+                    <div class="filter-section open" id="filter-section-blocks">
+                        <div class="filter-header" onclick="toggleFilter('blocks')">
+                            <div class="filter-title" data-translate="search.tour_blocks">БЛОКИ ТУРОВ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="blocks-content">
+                            <div class="filter-options-wrapper" id="block-checkboxes"></div>
+                        </div>
+                    </div>
+                    
                     <!-- Категории туров -->
                     <div class="filter-section open" id="filter-section-categories">
                         <div class="filter-header" onclick="toggleFilter('categories')">

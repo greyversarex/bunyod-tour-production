@@ -107,23 +107,23 @@ async function main() {
   }
   console.log('✅ Cities created');
 
-  // 5. Create categories (15 tourism categories)
+  // 5. Create categories (15 tourism categories - ONLY RU/EN, NO TJ)
   const categoriesData = [
-    { type: 'tour', name: JSON.stringify({ ru: 'Однодневные', en: 'Day', tj: 'Якрӯза' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Многодневные', en: 'Multi-day', tj: 'Чандрӯза' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Экскурсии', en: 'Excursions', tj: 'Экскурсияҳо' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Городские', en: 'City', tj: 'Шаҳрӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Природа/экологические', en: 'Nature/Ecological', tj: 'Табиат/экологӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Культурно познавательные', en: 'Cultural & Educational', tj: 'Фарҳангӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Исторические', en: 'Historical', tj: 'Таърихӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Походы/треккинги', en: 'Hiking/Trekking', tj: 'Треккинг' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Горные ландшафты', en: 'Mountain Landscapes', tj: 'Кӯҳсорӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Озерные ландшафты', en: 'Lake Landscapes', tj: 'Кӯлҳо' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Приключенческие', en: 'Adventure', tj: 'Таҷрибавӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Гастрономические', en: 'Gastronomic', tj: 'Гастрономӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Авто/сафари/джип', en: 'Auto/Safari/Jeep', tj: 'Автосафарӣ' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Агротуризм', en: 'Agrotourism', tj: 'Агросайёҳат' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'VIP', en: 'VIP', tj: 'VIP' }) }
+    { type: 'tour', name: JSON.stringify({ ru: 'Однодневные', en: 'Day Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Многодневные', en: 'Multi-day Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Экскурсии', en: 'Excursions' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Городские', en: 'City Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Природа/экологические', en: 'Nature/Ecological' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Культурно познавательные', en: 'Cultural & Educational' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Исторические', en: 'Historical' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Походы/треккинги', en: 'Hiking/Trekking' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Горные ландшафты', en: 'Mountain Landscapes' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Озерные ландшафты', en: 'Lake Landscapes' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Приключенческие', en: 'Adventure' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Гастрономические', en: 'Gastronomic' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Авто/сафари/джип', en: 'Auto/Safari/Jeep' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Агротуризм', en: 'Agrotourism' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'VIP', en: 'VIP' }) }
   ];
 
   const categories: any[] = [];
@@ -141,7 +141,7 @@ async function main() {
 
   console.log('✅ Categories created (15 types)');
 
-  // 6. Create tour blocks (6 main blocks for homepage)
+  // 6. Create tour blocks (ЖЕЛЕЗОБЕТОННО 7 БЛОКОВ - НЕ МЕНЯТЬ!)
   const tourBlocksData = [
     { 
       title: JSON.stringify({ ru: 'Популярные туры', en: 'Popular Tours' }),
@@ -151,51 +151,68 @@ async function main() {
       isActive: true
     },
     { 
-      title: JSON.stringify({ ru: 'Горные приключения', en: 'Mountain Adventures' }),
-      description: JSON.stringify({ ru: 'Захватывающие горные туры и треккинг', en: 'Exciting mountain tours and trekking' }),
-      slug: 'mountain-adventures',
+      title: JSON.stringify({ ru: 'Комбинированные туры', en: 'Combined Tours' }),
+      description: JSON.stringify({ ru: 'Комбинированные маршруты по нескольким странам', en: 'Combined routes across multiple countries' }),
+      slug: 'combined-tours',
       sortOrder: 2,
       isActive: true
     },
     { 
-      title: JSON.stringify({ ru: 'Культурное наследие', en: 'Cultural Heritage' }),
-      description: JSON.stringify({ ru: 'Исторические и культурные туры', en: 'Historical and cultural tours' }),
-      slug: 'cultural-heritage',
+      title: JSON.stringify({ ru: 'Туры по Таджикистану', en: 'Tours in Tajikistan' }),
+      description: JSON.stringify({ ru: 'Путешествия по Таджикистану', en: 'Travels in Tajikistan' }),
+      slug: 'tours-tajikistan',
       sortOrder: 3,
       isActive: true
     },
     { 
-      title: JSON.stringify({ ru: 'Экскурсии', en: 'Excursions' }),
-      description: JSON.stringify({ ru: 'Однодневные и многодневные экскурсии', en: 'Day and multi-day excursions' }),
-      slug: 'excursions',
+      title: JSON.stringify({ ru: 'Туры по Узбекистану', en: 'Tours in Uzbekistan' }),
+      description: JSON.stringify({ ru: 'Путешествия по Узбекистану', en: 'Travels in Uzbekistan' }),
+      slug: 'tours-uzbekistan',
       sortOrder: 4,
       isActive: true
     },
     { 
-      title: JSON.stringify({ ru: 'Семейный отдых', en: 'Family Tours' }),
-      description: JSON.stringify({ ru: 'Туры для всей семьи', en: 'Tours for the whole family' }),
-      slug: 'family-tours',
+      title: JSON.stringify({ ru: 'Туры по Казахстану', en: 'Tours in Kazakhstan' }),
+      description: JSON.stringify({ ru: 'Путешествия по Казахстану', en: 'Travels in Kazakhstan' }),
+      slug: 'tours-kazakhstan',
       sortOrder: 5,
       isActive: true
     },
     { 
-      title: JSON.stringify({ ru: 'VIP туры', en: 'VIP Tours' }),
-      description: JSON.stringify({ ru: 'Премиум туры с индивидуальным обслуживанием', en: 'Premium tours with personalized service' }),
-      slug: 'vip-tours',
+      title: JSON.stringify({ ru: 'Туры по Туркменистану', en: 'Tours in Turkmenistan' }),
+      description: JSON.stringify({ ru: 'Путешествия по Туркменистану', en: 'Travels in Turkmenistan' }),
+      slug: 'tours-turkmenistan',
       sortOrder: 6,
+      isActive: true
+    },
+    { 
+      title: JSON.stringify({ ru: 'Туры по Кыргызстану', en: 'Tours in Kyrgyzstan' }),
+      description: JSON.stringify({ ru: 'Путешествия по Кыргызстану', en: 'Travels in Kyrgyzstan' }),
+      slug: 'tours-kyrgyzstan',
+      sortOrder: 7,
       isActive: true
     }
   ];
 
-  for (const block of tourBlocksData) {
+  // Upsert with ID enforcement
+  for (let i = 0; i < tourBlocksData.length; i++) {
     await prisma.tourBlock.upsert({
-      where: { slug: block.slug },
-      update: {},
-      create: block
+      where: { id: i + 1 },
+      update: {
+        title: tourBlocksData[i].title,
+        description: tourBlocksData[i].description,
+        slug: tourBlocksData[i].slug,
+        sortOrder: tourBlocksData[i].sortOrder,
+        isActive: tourBlocksData[i].isActive
+      },
+      create: { 
+        id: i + 1, 
+        ...tourBlocksData[i] 
+      }
     });
   }
 
-  console.log('✅ Tour blocks created (6 blocks)');
+  console.log('✅ Tour blocks created (7 IRON-CONCRETE blocks - unchangeable!)');
 
   // 7. Sample tours removed - users will create their own tours
   console.log('✅ Seed completed - no demo tours created');
