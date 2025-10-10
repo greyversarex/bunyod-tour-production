@@ -6,8 +6,8 @@ APP_DIR="/srv/bunyod-tour"   # <- не /var/www, а именно /srv/bunyod-tou
 DB_NAME="bunyod_tour"
 BACKUP_DIR="/var/backups/bunyod-tour"
 
-HC_NODE="http://127.0.0.1:5000/api/tour-blocks"
-HC_NGINX="http://127.0.0.1/api/tour-blocks"
+HC_NODE="http://127.0.0.1:5000/healthz"
+HC_NGINX="http://127.0.0.1/healthz"
 
 wait_for_200 () {
   local url="$1"

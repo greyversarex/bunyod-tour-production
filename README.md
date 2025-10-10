@@ -57,7 +57,23 @@ Comprehensive tourism booking platform for Central Asia (Tajikistan, Uzbekistan,
 ├── index.js              # Main server file
 ├── ecosystem.config.js   # PM2 configuration
 ├── update.sh             # Auto-update script for production
+├── nginx/
+│   └── bunyod-tour.conf  # Nginx reverse proxy template
 └── DEPLOYMENT_GUIDE.md   # Full deployment instructions
+```
+
+## 📜 NPM Scripts
+
+```bash
+npm run seed              # Run database seed (reference data only)
+npm run db:migrate        # Apply Prisma migrations
+npm run db:push           # Push schema to DB (dev only)
+npm start                 # Start production server
+```
+
+**Production Update Script:**
+```bash
+./update.sh              # Complete update: backup → migrate → seed → restart
 ```
 
 ## 🔧 Quick Start
@@ -72,18 +88,28 @@ npm install
 # Generate Prisma Client
 npx prisma generate
 
-# Apply schema
+# Apply migrations (recommended)
+npx prisma migrate deploy
+
+# Or for development: push schema directly
 npx prisma db push
 
-# Seed initial data (7 blocks, 15 categories, currencies)
-npx prisma db seed
+# Seed initial data (only reference data: 7 blocks, 15 categories, currencies, countries, cities)
+npm run seed
 ```
 
 ### 3. Configure Environment
-Create `.env` file:
+Create `.env` file (see `.env.example` for full template):
 ```env
 DATABASE_URL="postgresql://user:password@localhost:5432/bunyod_tour"
 JWT_SECRET="your_secret_key_min_32_chars"
+ADMIN_DEFAULT_USER=admin
+ADMIN_DEFAULT_PASSWORD=***strong-password***
+
+# Startup controls (optional)
+RUN_MIGRATIONS_ON_BOOT=false
+RUN_SEED_ON_BOOT=false
+
 NODE_ENV=development
 PORT=5000
 ```
@@ -121,28 +147,81 @@ Visit: `http://localhost:5000`
 - `GET /api/guides` - Tour guides
 - `GET /api/drivers` - Drivers
 
+### System
+- `GET /healthz` - Health check endpoint for monitoring
+
 ## 🚀 Production Deployment
 
-### Quick Deploy to External Server
+### Quick Update on External Server
 
-1. **Update GitHub** (in Replit Shell):
-```bash
-rm -f .git/index.lock
-git add .
-git commit -m "Production ready"
-git push origin main
-```
+The simplest way to update production:
 
-2. **Update Production Server**:
 ```bash
-cd /var/www/bunyod-tour
+cd /srv/bunyod-tour
 ./update.sh
 ```
 
-See **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** for full instructions.
+**What `update.sh` does:**
+- ✅ Creates database backup before any changes
+- ✅ Pulls latest code from Git
+- ✅ Installs dependencies
+- ✅ Applies migrations via `prisma migrate deploy`
+- ✅ Runs idempotent seed (only reference data)
+- ✅ Restarts PM2 processes
+- ✅ Performs health check on port 5000
 
-### Quick Deploy Instructions
-See **[QUICK_DEPLOY_INSTRUCTIONS.md](QUICK_DEPLOY_INSTRUCTIONS.md)** for step-by-step guide.
+### Initial Deployment
+
+See **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** for complete server setup:
+- PostgreSQL installation & configuration
+- Nginx reverse proxy setup
+- PM2 process manager
+- SSL certificates (Let's Encrypt)
+- Environment variables
+
+### Quick Deploy from Replit
+
+```bash
+# In Replit Shell - push changes to Git
+git add .
+git commit -m "Production update"
+git push origin main
+
+# On production server - run update script
+cd /srv/bunyod-tour
+./update.sh
+```
+
+## 🌱 Database Seeding Policy
+
+**Important:** The seed script creates **ONLY reference data** - never demo tours or fake content.
+
+### What Gets Seeded (Idempotent)
+- ✅ 15 Tourism Categories (RU/EN)
+- ✅ 7 Tour Blocks (Popular, Combined, + 5 countries)
+- ✅ 5 Exchange Rates (TJS, USD, EUR, RUB, CNY)
+- ✅ 5 Central Asian Countries
+- ✅ 12 Major Cities
+
+### What NEVER Gets Seeded
+- ❌ Demo Tours
+- ❌ Test Bookings
+- ❌ Fake Users
+- ❌ Mock Orders
+
+**Seeding is idempotent** - running `npm run seed` multiple times won't create duplicates.
+
+### Startup Controls
+
+Use environment variables to control automatic migrations/seeding on server boot:
+
+```env
+# Set to false in production to prevent automatic changes
+RUN_MIGRATIONS_ON_BOOT=false
+RUN_SEED_ON_BOOT=false
+```
+
+Use `./update.sh` script for controlled updates in production.
 
 ## 📦 Database Schema
 
@@ -204,17 +283,28 @@ tail -f /var/log/nginx/bunyod-tour-error.log
 
 ## 🔐 Environment Variables
 
-Required:
+### Required
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret key for JWT (min 32 chars)
+- `ADMIN_DEFAULT_USER` - Default admin username
+- `ADMIN_DEFAULT_PASSWORD` - Default admin password
 
-Optional:
+### Startup Controls (Production)
+- `RUN_MIGRATIONS_ON_BOOT` - Auto-apply migrations on boot (default: `false`)
+- `RUN_SEED_ON_BOOT` - Auto-run seed on boot (default: `false`)
+- `CORS_ORIGINS` - Comma-separated whitelist of allowed origins
+
+### Payment Gateways (Optional)
 - `STRIPE_SECRET_KEY` - Stripe API key
 - `PAYLER_MERCHANT_KEY` - Payler merchant key
 - `PAYLER_PASSWORD` - Payler password
 - `ALIF_MERCHANT_KEY` - AlifPay merchant key
 - `ALIF_MERCHANT_PASSWORD` - AlifPay password
+
+### Email (Optional)
 - `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` - Email configuration
+
+See `.env.example` for complete template.
 
 ## 📝 License
 
