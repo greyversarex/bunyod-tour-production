@@ -1,209 +1,229 @@
-# Tajik Trails Backend API
+# 🏔️ Bunyod-Tour - Tourism Platform for Central Asia
 
-A TypeScript Express backend API for Tajik Trails tour agency with Prisma ORM, SQLite database, and multilingual tour/category management.
+Comprehensive tourism booking platform for Central Asia (Tajikistan, Uzbekistan, Kazakhstan, Turkmenistan, Kyrgyzstan) with tour, hotel, and guide booking, secure payments, and bilingual content (Russian/English only).
 
-## Features
+## ✨ Features
 
-- **Node.js/Express** server with TypeScript
-- **Prisma ORM** with SQLite database
-- **Multilingual support** for English and Russian content
-- **CORS middleware** for React frontend compatibility
-- **RESTful API** design with clean architecture
-- **Database migrations** and seeding
-- **Type-safe** development with TypeScript
-- **Error handling** and validation
+### Core Functionality
+- **Tour Management**: Full CRUD with component-based pricing and 15 specialized categories
+- **7 Tour Blocks**: Popular Tours, Combined Tours, + 5 Central Asian countries (iron-concrete structure)
+- **Hotel Booking**: Multi-step booking flow with room/meal selection
+- **Guide & Driver Management**: Comprehensive profiles, reviews, and assignments
+- **Multilingual Support**: Russian and English content (Tajik removed)
+- **Currency System**: TJS, USD, EUR, RUB, CNY with real-time conversion
+- **Advanced Search**: Dynamic filtering by blocks, categories, cities, countries
 
-## Technology Stack
+### Payment Integration
+- **Stripe**: Full Payment Intents API with webhooks
+- **Payler**: Russia/CIS market with HMAC-SHA256 validation
+- **AlifPay**: Tajikistan market with secure webhooks
 
-- **Backend**: Node.js with Express.js framework
-- **Language**: TypeScript for type safety
-- **Database**: SQLite with Prisma ORM
-- **Middleware**: CORS, JSON parsing, error handling
+### Security & Performance
+- Rate limiting (15 requests/15min for auth)
+- XSS protection middleware
+- JWT authentication with mandatory secret validation
+- Component-based dynamic pricing
+- Debounced price calculations to prevent rate limiting
 
-## Project Structure
+## 🚀 Tech Stack
+
+- **Backend**: Express.js + TypeScript
+- **Database**: PostgreSQL + Prisma ORM
+- **Frontend**: Vanilla JS with i18n support
+- **Process Manager**: PM2 for production
+- **Reverse Proxy**: Nginx
+- **SSL**: Let's Encrypt (Certbot)
+
+## 📁 Project Structure
 
 ```
+├── frontend/               # Frontend files
+│   ├── public/
+│   │   ├── js/            # JavaScript modules
+│   │   ├── css/           # Stylesheets
+│   │   └── images/        # Static images
+│   ├── *.html             # HTML pages
+│   └── admin-*.html       # Admin panels
 ├── prisma/
-│   ├── schema.prisma       # Database schema with Category and Tour models
-│   ├── seed.ts             # Database seeding script with sample data
-│   └── migrations/         # Database migration files (auto-generated)
+│   ├── schema.prisma      # Database schema
+│   ├── seed.ts            # Database seeding (7 blocks, 15 categories)
+│   └── migrations/        # Migration history
 ├── src/
-│   ├── config/
-│   │   └── database.ts     # Prisma client configuration
-│   ├── controllers/
-│   │   └── tourController.ts # Business logic for tours and categories
-│   ├── middleware/
-│   │   └── errorHandler.ts # Global error handling middleware
-│   ├── models/
-│   │   └── index.ts        # Database models with methods
-│   ├── routes/
-│   │   ├── index.ts        # Main router with health check
-│   │   └── tourRoutes.ts   # Tour and category route definitions
-│   ├── types/
-│   │   └── index.ts        # TypeScript interfaces and types
-│   ├── app.ts              # Express app configuration
-│   └── server.ts           # Server startup and configuration
-├── .env                    # Environment variables (DATABASE_URL)
-├── tsconfig.json           # TypeScript configuration
-└── README.md               # This file
+│   ├── controllers/       # Business logic
+│   ├── routes/           # API routes
+│   ├── middleware/       # Auth, rate limiting, error handling
+│   ├── utils/            # Utilities, validators
+│   └── types/            # TypeScript types
+├── index.js              # Main server file
+├── ecosystem.config.js   # PM2 configuration
+├── update.sh             # Auto-update script for production
+└── DEPLOYMENT_GUIDE.md   # Full deployment instructions
 ```
 
-## API Endpoints
+## 🔧 Quick Start
 
-### Health Check
-- **GET** `/api/health` - Check API status
+### 1. Install Dependencies
+```bash
+npm install
+```
+
+### 2. Setup Database
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Apply schema
+npx prisma db push
+
+# Seed initial data (7 blocks, 15 categories, currencies)
+npx prisma db seed
+```
+
+### 3. Configure Environment
+Create `.env` file:
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/bunyod_tour"
+JWT_SECRET="your_secret_key_min_32_chars"
+NODE_ENV=development
+PORT=5000
+```
+
+### 4. Run Development Server
+```bash
+node index.js
+```
+
+Visit: `http://localhost:5000`
+
+## 🌐 API Endpoints
 
 ### Tours
-- **GET** `/api/tours` - Get all tours with categories
-- **GET** `/api/tours/:id` - Get specific tour by ID
-- **POST** `/api/tours` - Create a new tour
+- `GET /api/tours` - Get all tours (with lang=ru/en)
+- `GET /api/tours/:id` - Get single tour
+- `POST /api/tours` - Create tour (Admin)
+- `PUT /api/tours/:id` - Update tour (Admin)
+- `DELETE /api/tours/:id` - Delete tour (Admin)
 
-### Categories  
-- **GET** `/api/categories` - Get all categories with tour count
+### Categories & Blocks
+- `GET /api/categories` - Get 15 tourism categories
+- `GET /api/tour-blocks` - Get 7 tour blocks
+- `GET /api/tour-blocks/:id/tours` - Get tours by block
 
-## Database Setup and Migration
+### Booking
+- `POST /api/bookings` - Create booking
+- `GET /api/orders/:id` - Get order details
+- `POST /api/payments/stripe` - Stripe checkout
+- `POST /api/payments/payler` - Payler payment
+- `POST /api/webhooks/stripe` - Stripe webhook
 
-1. **Initial Setup**: The database is automatically configured with SQLite
-2. **Run Migrations**: 
-   ```bash
-   npx prisma migrate dev --name init
-   ```
-3. **Generate Prisma Client**:
-   ```bash
-   npx prisma generate
-   ```
-4. **Seed Database**:
-   ```bash
-   npx ts-node prisma/seed.ts
-   ```
+### Admin
+- `POST /api/auth/login` - Admin login
+- `GET /api/guides` - Tour guides
+- `GET /api/drivers` - Drivers
 
-## Running the Application
+## 🚀 Production Deployment
 
-The application runs automatically with the Backend Server workflow. The server starts on port 5000 and includes:
+### Quick Deploy to External Server
 
-- Database connection verification
-- Automatic Prisma client generation
-- Database migration execution  
-- Sample data seeding
-- Express server startup
-
-**Server URL**: `http://localhost:5000`
-**Health Check**: `http://localhost:5000/api/health`
-
-## Sample API Responses
-
-### GET /api/tours
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "title": {
-        "en": "Pamir Mountains Trek",
-        "ru": "Треккинг в горах Памир"
-      },
-      "description": {
-        "en": "Experience the breathtaking beauty of the Pamir Mountains...",
-        "ru": "Испытайте захватывающую красоту Памирских гор..."
-      },
-      "duration": "7 days",
-      "price": "$1,200",
-      "categoryId": 1,
-      "category": {
-        "id": 1,
-        "name": {
-          "en": "Trekking",
-          "ru": "Треккинг"
-        }
-      }
-    }
-  ],
-  "message": "Tours retrieved successfully"
-}
+1. **Update GitHub** (in Replit Shell):
+```bash
+rm -f .git/index.lock
+git add .
+git commit -m "Production ready"
+git push origin main
 ```
 
-### POST /api/tours
-Send JSON data with the following structure:
-```json
-{
-  "title": {
-    "en": "Tour Title in English",
-    "ru": "Название тура на русском"
-  },
-  "description": {
-    "en": "Description in English",
-    "ru": "Описание на русском"
-  },
-  "duration": "5 days",
-  "price": "$500",
-  "categoryId": 1
-}
+2. **Update Production Server**:
+```bash
+cd /var/www/bunyod-tour
+./update.sh
 ```
 
-## Complete API Documentation
+See **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** for full instructions.
 
-### Tour Management
-- **GET** `/api/tours` - Get all tours with categories
-- **GET** `/api/tours/:id` - Get specific tour by ID
-- **POST** `/api/tours` - Create a new tour
-- **PUT** `/api/tours/:id` - Update tour details
-- **DELETE** `/api/tours/:id` - Delete a tour
+### Quick Deploy Instructions
+See **[QUICK_DEPLOY_INSTRUCTIONS.md](QUICK_DEPLOY_INSTRUCTIONS.md)** for step-by-step guide.
 
-### Category Management  
-- **GET** `/api/categories` - Get all categories with tour count
-- **GET** `/api/categories/:id` - Get specific category with tours
-- **POST** `/api/categories` - Create a new category
-- **PUT** `/api/categories/:id` - Update category details
-- **DELETE** `/api/categories/:id` - Delete a category
+## 📦 Database Schema
 
-### Booking Requests
-- **POST** `/api/booking-requests` - Create booking request (Public)
-- **GET** `/api/booking-requests` - Get all booking requests (Admin)
+### Key Models
+- **Tours**: Multilingual tours with component pricing
+- **TourBlocks**: 7 iron-concrete blocks (Popular, Combined, + 5 countries)
+- **Categories**: 15 specialized tourism categories (RU/EN only)
+- **TourGuideProfile**: Guide profiles and reviews
+- **DriverProfile**: Driver profiles and vehicles
+- **Countries**: 5 Central Asian countries
+- **Cities**: 12 cities across the region
+- **ExchangeRates**: 5 currencies (TJS, USD, EUR, RUB, CNY)
 
-### Reviews
-- **POST** `/api/reviews` - Submit a review (Public)
-- **GET** `/api/reviews` - Get all reviews (Admin)
-- **PUT** `/api/reviews/:id` - Update review moderation status (Admin)
+### Tour Blocks (Iron-Concrete Structure)
+1. Popular Tours (Популярные туры)
+2. Combined Tours (Комбинированные туры)
+3. Tajikistan Tours (Туры по Таджикистану)
+4. Uzbekistan Tours (Туры по Узбекистану)
+5. Kazakhstan Tours (Туры по Казахстану)
+6. Turkmenistan Tours (Туры по Туркменистану)
+7. Kyrgyzstan Tours (Туры по Кыргызстану)
 
-### Sample POST Requests
+### 15 Tourism Categories
+One-day, Multi-day, Excursion, City, Nature/Eco, Cultural & Educational, Historical, Hiking/Trekking, Mountain Landscapes, Lake Landscapes, Adventure, Gastronomic, Car/Safari/Jeep, Agrotourism, VIP
 
-#### Create Booking Request
-```json
-{
-  "customerName": "John Doe",
-  "customerEmail": "john.doe@example.com",
-  "preferredDate": "2025-09-15",
-  "numberOfPeople": 2,
-  "tourId": 1
-}
+## 🛡️ Security Features
+
+- **Rate Limiting**: 15 attempts per 15 minutes for authentication
+- **XSS Protection**: Sanitization middleware for all inputs
+- **JWT Authentication**: Secure token-based auth with mandatory secret
+- **HTTPS**: SSL/TLS encryption via Let's Encrypt
+- **HMAC Validation**: Payment webhook signature verification
+
+## 🔄 Recent Updates (Oct 10, 2025)
+
+- ✅ Exactly 7 tour blocks enforced (removed 4 legacy blocks)
+- ✅ Tajik language completely removed (RU/EN only)
+- ✅ Tour block filter fully functional on search page
+- ✅ Clickable breadcrumb navigation with filter presets
+- ✅ Tour program display without fallback content
+- ✅ TJS currency displays only "с." symbol
+- ✅ Database clean: 15 categories, 7 blocks, no demo tours
+
+## 📊 Monitoring & Logs
+
+### PM2 Commands
+```bash
+pm2 status              # Process status
+pm2 logs                # View logs
+pm2 monit              # Real-time monitoring
+pm2 restart all        # Restart application
 ```
 
-#### Create Review
-```json
-{
-  "authorName": "Alice Smith",
-  "rating": 5,
-  "text": "Amazing experience!",
-  "tourId": 1
-}
+### Nginx Logs
+```bash
+tail -f /var/log/nginx/bunyod-tour-access.log
+tail -f /var/log/nginx/bunyod-tour-error.log
 ```
 
-#### Update Review Moderation
-```json
-{
-  "isModerated": true
-}
-```
+## 🔐 Environment Variables
 
-## Database Schema
+Required:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret key for JWT (min 32 chars)
 
-The application now includes four main models:
+Optional:
+- `STRIPE_SECRET_KEY` - Stripe API key
+- `PAYLER_MERCHANT_KEY` - Payler merchant key
+- `PAYLER_PASSWORD` - Payler password
+- `ALIF_MERCHANT_KEY` - AlifPay merchant key
+- `ALIF_MERCHANT_PASSWORD` - AlifPay password
+- `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD` - Email configuration
 
-1. **Category**: Multilingual tour categories
-2. **Tour**: Detailed tour information with category relations
-3. **BookingRequest**: Customer booking inquiries
-4. **Review**: Tour reviews with moderation system
+## 📝 License
 
-All models include proper relationships and validation for data integrity.
+Proprietary - © 2025 Bunyod-Tour
 
+## 📞 Support
+
+For deployment issues, see troubleshooting section in [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+
+---
+
+**🎉 Platform is production-ready and deployed!**
