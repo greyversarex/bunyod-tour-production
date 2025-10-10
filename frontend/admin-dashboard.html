@@ -13777,69 +13777,94 @@
         document.getElementById('exchangeRateForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            console.log('💱 Exchange Rate Form Submit Handler');
+            
             const isEdit = window.isEditMode;
             const currencyCode = safeGetValue('editCurrencyCode', '').toUpperCase();
             const originalCurrency = safeGetValue('editCurrency', '');
-            const rate = parseFloat(safeGetValue('editCurrencyRate', 0, 'float'));
+            const rateValue = safeGetValue('editCurrencyRate', 0, 'float');
+            const rate = parseFloat(rateValue);
             const symbol = safeGetValue('editCurrencySymbol', '');
             const name = safeGetValue('editCurrencyName', '');
             
+            console.log('📋 Form values:', { isEdit, currencyCode, originalCurrency, rate, symbol, name });
+            
             // Валидация
             if (!currencyCode || !name || !symbol || !rate || isNaN(rate)) {
+                console.error('❌ Validation failed:', { currencyCode, name, symbol, rate, isNaN: isNaN(rate) });
                 showErrorMessage('Все поля обязательны для заполнения');
                 return;
             }
 
             if (currencyCode.length !== 3) {
+                console.error('❌ Currency code length invalid:', currencyCode.length);
                 showErrorMessage('Код валюты должен состоять из 3 символов');
                 return;
             }
             
             try {
                 const token = localStorage.getItem('authToken');
+                console.log('🔑 Auth token:', token ? 'EXISTS' : 'MISSING');
+                
+                if (!token) {
+                    showErrorMessage('Ошибка авторизации. Пожалуйста, войдите в систему заново.');
+                    return;
+                }
+                
                 const headers = {
                     'Content-Type': 'application/json',
-                    'Authorization': token ? `Bearer ${token}` : ''
+                    'Authorization': `Bearer ${token}`
                 };
                 
-                let response;
+                let url;
+                let method;
+                let body;
                 let successMessage;
                 
                 if (isEdit) {
                     // Редактирование существующей валюты
-                    response = await fetch(`${getApiUrl()}/exchange-rates/${originalCurrency}`, {
-                        method: 'PUT',
-                        headers: headers,
-                        body: JSON.stringify({ rate, symbol, name })
-                    });
+                    url = `${getApiUrl()}/exchange-rates/${originalCurrency}`;
+                    method = 'PUT';
+                    body = JSON.stringify({ rate, symbol, name });
                     successMessage = 'Курс валюты обновлен';
                 } else {
                     // Создание новой валюты
-                    response = await fetch(`${getApiUrl()}/exchange-rates`, {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify({ 
-                            currency: currencyCode, 
-                            rate, 
-                            symbol, 
-                            name 
-                        })
+                    url = `${getApiUrl()}/exchange-rates`;
+                    method = 'POST';
+                    body = JSON.stringify({ 
+                        currency: currencyCode, 
+                        rate, 
+                        symbol, 
+                        name 
                     });
                     successMessage = 'Новая валюта добавлена';
                 }
                 
+                console.log('📤 Request:', { url, method, body });
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: headers,
+                    body: body
+                });
+                
+                console.log('📥 Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('📦 Response data:', data);
                 
                 if (data.success) {
+                    console.log('✅ Exchange rate saved successfully');
                     showSuccessMessage(successMessage);
                     closeExchangeRateModal();
                     loadExchangeRates();
                 } else {
+                    console.error('❌ Save failed:', data.message);
                     showErrorMessage(data.message || 'Ошибка при сохранении валюты');
                 }
             } catch (error) {
-                console.error('Error saving exchange rate:', error);
-                showErrorMessage('Ошибка при сохранении валюты');
+                console.error('❌ Error saving exchange rate:', error);
+                showErrorMessage('Ошибка при сохранении валюты: ' + error.message);
             }
         });
 
