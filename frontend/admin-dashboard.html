@@ -13780,12 +13780,12 @@
             const isEdit = window.isEditMode;
             const currencyCode = safeGetValue('editCurrencyCode', '').toUpperCase();
             const originalCurrency = safeGetValue('editCurrency', '');
-            const rate = safeGetValue('editCurrencyRate', 0, 'float');
+            const rate = parseFloat(safeGetValue('editCurrencyRate', 0, 'float'));
             const symbol = safeGetValue('editCurrencySymbol', '');
             const name = safeGetValue('editCurrencyName', '');
             
             // Валидация
-            if (!currencyCode || !name || !symbol || !rate) {
+            if (!currencyCode || !name || !symbol || !rate || isNaN(rate)) {
                 showErrorMessage('Все поля обязательны для заполнения');
                 return;
             }
@@ -13796,6 +13796,12 @@
             }
             
             try {
+                const token = localStorage.getItem('authToken');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                };
+                
                 let response;
                 let successMessage;
                 
@@ -13803,10 +13809,7 @@
                     // Редактирование существующей валюты
                     response = await fetch(`${getApiUrl()}/exchange-rates/${originalCurrency}`, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...getAuthHeaders()
-                        },
+                        headers: headers,
                         body: JSON.stringify({ rate, symbol, name })
                     });
                     successMessage = 'Курс валюты обновлен';
@@ -13814,10 +13817,7 @@
                     // Создание новой валюты
                     response = await fetch(`${getApiUrl()}/exchange-rates`, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...getAuthHeaders()
-                        },
+                        headers: headers,
                         body: JSON.stringify({ 
                             currency: currencyCode, 
                             rate, 
