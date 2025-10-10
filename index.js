@@ -9,6 +9,7 @@ const { validateEnvironment } = require('./src/config/validateEnv.ts');
 validateEnvironment();
 
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const { exec } = require('child_process');
 // 🗄️ ДОБАВЛЕНО: Автоматическая инициализация базы данных для новых серверов
@@ -21,54 +22,34 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// CORS middleware - flexible configuration for development and production
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  
-  // For development (Replit), allow all origins since the user sees a proxy
-  if (process.env.NODE_ENV !== 'production') {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  } else {
-    // For production, use whitelist from environment variables
-    const allowedOrigins = [];
+// 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
+const allowlist = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    // Разрешить запросы без origin (curl, healthcheck, same-origin)
+    if (!origin) return callback(null, true);
     
-    // Add production domain
-    if (process.env.PRODUCTION_DOMAIN) {
-      allowedOrigins.push(`https://${process.env.PRODUCTION_DOMAIN}`);
-      allowedOrigins.push(`https://www.${process.env.PRODUCTION_DOMAIN}`);
-      allowedOrigins.push(`http://${process.env.PRODUCTION_DOMAIN}`); // Для редиректа на HTTPS
+    // Разрешить если в белом списке
+    if (allowlist.length === 0 || allowlist.includes(origin)) {
+      return callback(null, true);
     }
     
-    // Add custom allowed origins from env (comma-separated)
-    if (process.env.ALLOWED_ORIGINS) {
-      const customOrigins = process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim());
-      allowedOrigins.push(...customOrigins);
-    }
-    
-    // Add Replit domain if exists (для гибридного использования)
-    if (process.env.REPLIT_DEV_DOMAIN) {
-      allowedOrigins.push(`https://${process.env.REPLIT_DEV_DOMAIN}`);
-    }
-    
-    // Check if origin is allowed
-    if (origin && allowedOrigins.includes(origin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Vary', 'Origin'); // Важно для кэширования
-    } else {
-      // Для запросов без origin (например, curl, Postman) или с того же домена
-      res.setHeader('Access-Control-Allow-Origin', allowedOrigins[0] || '*');
-    }
-  }
-  
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Max-Age', '86400'); // 24 часа кэш для preflight
-  
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
-  }
-  next();
+    // Заблокировать если не в списке
+    callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  maxAge: 86400, // 24 часа
+}));
+
+// 🩺 Health check endpoint (для мониторинга и update.sh)
+app.get('/healthz', (req, res) => {
+  res.status(200).json({ ok: true, uptime: process.uptime() });
 });
 
 // NEW Booking system - 3-step process (moved higher for priority)
@@ -242,62 +223,68 @@ async function startServer() {
   try {
     console.log('🗄️ Подключение к PostgreSQL через Prisma...');
     
-    // 🏗️ БЕЗОПАСНОСТЬ: Применяем схему БД с проверкой окружения
+    // 🏗️ ОПЦИОНАЛЬНЫЕ МИГРАЦИИ И СИД НА СТАРТЕ (контроль через env переменные)
+    const runMigrationsOnBoot = process.env.RUN_MIGRATIONS_ON_BOOT === 'true';
+    const runSeedOnBoot = process.env.RUN_SEED_ON_BOOT === 'true';
+    
     console.log('🔧 Применение схемы базы данных...');
     
-    // 🔒 ПРОДАКШН: Используем только миграции, никаких автоматических изменений
-    if (process.env.NODE_ENV === 'production') {
-      console.log('🏭 PRODUCTION MODE: Используем безопасный prisma migrate deploy');
-      try {
-        await new Promise((resolve, reject) => {
-          // БЕЗОПАСНО: Применяет только готовые миграции без изменения данных
-          exec('npx prisma migrate deploy', (error, stdout, stderr) => {
-            if (error) {
-              console.error('❌ Migration deployment failed:', stderr);
-              console.log('⚠️ Убедитесь, что все миграции находятся в prisma/migrations/');
-              reject(error);
-            } else {
-              console.log('✅ Миграции применены успешно');
-              resolve(stdout);
-            }
+    // 🔒 МИГРАЦИИ: Опционально через RUN_MIGRATIONS_ON_BOOT=true
+    if (runMigrationsOnBoot) {
+      if (process.env.NODE_ENV === 'production') {
+        console.log('🏭 PRODUCTION: Запускаем prisma migrate deploy (RUN_MIGRATIONS_ON_BOOT=true)');
+        try {
+          await new Promise((resolve, reject) => {
+            exec('npx prisma migrate deploy', (error, stdout, stderr) => {
+              if (error) {
+                console.error('❌ Migration deployment failed:', stderr);
+                console.log('⚠️ Убедитесь, что все миграции находятся в prisma/migrations/');
+                reject(error);
+              } else {
+                console.log('✅ Миграции применены успешно');
+                resolve(stdout);
+              }
+            });
           });
-        });
-      } catch (error) {
-        console.error('❌ Не удалось применить миграции:', error);
-        console.log('⚠️ Продолжаем работу, но БД может быть не синхронизирована');
+        } catch (error) {
+          console.error('❌ Не удалось применить миграции:', error);
+          console.log('⚠️ Продолжаем работу, но БД может быть не синхронизирована');
+        }
+      } else {
+        console.log('🛠️ DEVELOPMENT: Запускаем prisma db push (RUN_MIGRATIONS_ON_BOOT=true)');
+        try {
+          await new Promise((resolve, reject) => {
+            exec('npx prisma db push', (error, stdout, stderr) => {
+              if (error) {
+                console.log('⚠️ Prisma push failed, trying with accept-data-loss...');
+                exec('npx prisma db push --accept-data-loss', (error2, stdout2, stderr2) => {
+                  if (error2) {
+                    console.error('❌ Prisma schema deployment failed:', stderr2);
+                    reject(error2);
+                  } else {
+                    console.log('✅ Схема БД применена с предупреждениями');
+                    resolve(stdout2);
+                  }
+                });
+              } else {
+                console.log('✅ Схема БД применена успешно');
+                resolve(stdout);
+              }
+            });
+          });
+        } catch (error) {
+          console.error('❌ Не удалось применить схему БД:', error);
+          console.log('⚠️ Продолжаем без обновления схемы...');
+        }
       }
     } else {
-      // 🛠️ DEVELOPMENT: Автоматическая синхронизация схемы (только для разработки)
-      console.log('🛠️ DEVELOPMENT MODE: Используем prisma db push');
-      try {
-        await new Promise((resolve, reject) => {
-          exec('npx prisma db push', (error, stdout, stderr) => {
-            if (error) {
-              console.log('⚠️ Prisma push failed, trying with accept-data-loss...');
-              exec('npx prisma db push --accept-data-loss', (error2, stdout2, stderr2) => {
-                if (error2) {
-                  console.error('❌ Prisma schema deployment failed:', stderr2);
-                  reject(error2);
-                } else {
-                  console.log('✅ Схема БД применена с предупреждениями');
-                  resolve(stdout2);
-                }
-              });
-            } else {
-              console.log('✅ Схема БД применена успешно');
-              resolve(stdout);
-            }
-          });
-        });
-      } catch (error) {
-        console.error('❌ Не удалось применить схему БД:', error);
-        console.log('⚠️ Продолжаем без обновления схемы...');
-      }
+      console.log('🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)');
+      console.log('💡 Миграции выполняются через ./update.sh при обновлении');
     }
     
-    // 🚀 Автоматическая инициализация базы данных (только для разработки)
-    if (process.env.NODE_ENV !== 'production') {
-      console.log('🔍 Проверка инициализации базы данных...');
+    // 🌱 СИД: Опционально через RUN_SEED_ON_BOOT=true
+    if (runSeedOnBoot) {
+      console.log('🔍 Проверка инициализации базы данных (RUN_SEED_ON_BOOT=true)...');
       try {
         await initializeDatabase();
         console.log('✅ База данных готова к работе!');
@@ -306,7 +293,8 @@ async function startServer() {
         console.log('⚠️ Сервер продолжит работу, но некоторые функции могут быть недоступны');
       }
     } else {
-      console.log('🏭 PRODUCTION MODE: Пропускаем автоматическую инициализацию БД');
+      console.log('🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)');
+      console.log('💡 Сид выполняется через ./update.sh при обновлении');
       console.log('✅ База данных готова к работе!');
     }
     

@@ -1,42 +1,80 @@
 #!/bin/bash
+set -euo pipefail
 
-# 🔄 Скрипт автоматического обновления Bunyod-Tour
-# Использование: ./update.sh
+APP_NAME="bunyod-tour"
+APP_DIR="/srv/bunyod-tour"   # <- не /var/www, а именно /srv/bunyod-tour
+DB_NAME="bunyod_tour"
+BACKUP_DIR="/var/backups/bunyod-tour"
 
-set -e  # Остановить при ошибке
+HC_NODE="http://127.0.0.1:5000/api/tour-blocks"
+HC_NGINX="http://127.0.0.1/api/tour-blocks"
 
-echo "🔄 Начинаем обновление Bunyod-Tour..."
+wait_for_200 () {
+  local url="$1"
+  local timeout="${2:-120}"
+  local i=0 code=000
+  echo "🩺 Жду 200 от $url (timeout ${timeout}s)..."
+  while [ $i -lt $timeout ]; do
+    code=$(curl -s -o /dev/null -w "%{http_code}" "$url" || true)
+    if [ "$code" = "200" ]; then
+      echo "✅ $url -> 200"
+      return 0
+    fi
+    sleep 1; i=$((i+1))
+  done
+  echo "❌ Не дождались 200 от $url (последний код: $code)"
+  return 1
+}
 
-# Переход в директорию проекта
-cd /var/www/bunyod-tour
+echo "🔄 Начинаю обновление ${APP_NAME}..."
+cd "$APP_DIR"
 
-# Остановка приложения
-echo "⏸️  Останавливаем приложение..."
-pm2 stop bunyod-tour || true
+echo "🧷 Бэкап БД перед обновлением..."
+mkdir -p "$BACKUP_DIR"
+ts=$(date +%F_%H-%M-%S)
+sudo -u postgres pg_dump -Fc -d "$DB_NAME" > "$BACKUP_DIR/${DB_NAME}_${ts}.dump"
+echo "✅ Бэкап: $BACKUP_DIR/${DB_NAME}_${ts}.dump"
 
-# Получение последних изменений
-echo "📥 Получаем последние изменения из GitHub..."
-git pull origin main
+echo "⏸️  Останавливаю приложение..."
+pm2 stop "$APP_NAME" || true
 
-# Обновление зависимостей
-echo "📦 Обновляем зависимости..."
-npm install
+echo "📥 Git pull..."
+git pull --ff-only origin main
 
-# Генерация Prisma клиента
-echo "🔧 Генерируем Prisma клиент..."
+echo "📦 Зависимости..."
+npm ci || npm install
+
+echo "🔧 Prisma generate..."
 npx prisma generate
 
-# Применение изменений БД
-echo "🗄️  Применяем изменения в базе данных..."
-npx prisma db push --accept-data-loss
+echo "🗄️  Применяю миграции (deploy)..."
+npx prisma migrate deploy
 
-# Перезапуск приложения
-echo "🚀 Перезапускаем приложение..."
-pm2 restart bunyod-tour
+echo "🌱 Сид (идемпотентный справочник)..."
+npx prisma db seed || npm run seed
 
-# Проверка статуса
-echo "✅ Проверяем статус..."
-pm2 status
+echo "🚀 Перезапуск приложения..."
+pm2 restart "$APP_NAME"
+pm2 save
 
-echo "🎉 Обновление завершено успешно!"
-echo "📊 Логи: pm2 logs bunyod-tour"
+echo "🔎 Проверяю порт 5000..."
+for i in {1..60}; do
+  if ss -lntp 2>/dev/null | grep -q ':5000\b'; then
+    echo "✅ Порт 5000 слушается."
+    break
+  fi
+  sleep 1
+done
+
+echo "🩺 Healthcheck..."
+if ! wait_for_200 "$HC_NODE" 120; then
+  echo "ℹ️  Пробую через Nginx..."
+  if ! wait_for_200 "$HC_NGINX" 120; then
+    echo "🔎 Логи для диагностики:"
+    pm2 logs "$APP_NAME" --lines 120 || true
+    systemctl status nginx --no-pager -n 0 || true
+    exit 1
+  fi
+fi
+
+echo "🎉 Готово."
