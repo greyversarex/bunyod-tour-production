@@ -4,10 +4,12 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build": "tsc",
     "postinstall": "prisma generate",
     "db:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
+    "db:seed": "ts-node prisma/seed.ts",
     "prod:setup": "npm install && npx prisma generate",
     "prod:migrate": "NODE_ENV=production npx prisma migrate deploy",
     "prod:start": "NODE_ENV=production pm2 start index.js --name bunyod-tour",
@@ -15,6 +17,9 @@
     "prod:stop": "pm2 stop bunyod-tour",
     "prod:logs": "pm2 logs bunyod-tour",
     "prod:status": "pm2 status"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.17.0",
