@@ -1,0 +1,71 @@
+[root@archlinux bonyor-prod]# pm2 save
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+[root@archlinux bonyor-prod]# pm2 delete all
+[PM2] Applying action deleteProcessId on app [all](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬───────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name      │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+└────┴───────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[root@archlinux bonyor-prod]# pm2 save
+[PM2] Saving current process list...
+[PM2][WARN] PM2 is not managing any process, skipping save...
+[PM2][WARN] To force saving use: pm2 save --force
+[root@archlinux bonyor-prod]# cd /root
+[root@archlinux ~]# rm -rf buno-prod
+[root@archlinux ~]# rm -rf bonyor-prod
+[root@archlinux ~]# psql -d postgres -U postgres
+psql (17.5)
+Type "help" for help.
+
+postgres=# DROP DATABASE IF EXISTS bunyod_tour;
+CREATE DATABASE bunyod_tour;
+ALTER DATABASE bunyod_tour OWNER TO bunyod_user;
+DROP DATABASE
+CREATE DATABASE
+ALTER DATABASE
+postgres=# \q
+[root@archlinux ~]# git clone https://github.com/greyversarex/Bonyor.git bunyod-tour-prod
+Cloning into 'bunyod-tour-prod'...
+remote: Enumerating objects: 814, done.
+remote: Counting objects: 100% (10/10), done.
+remote: Compressing objects: 100% (10/10), done.
+remote: Total 814 (delta 1), reused 0 (delta 0), pack-reused 804 (from 1)
+Receiving objects: 100% (814/814), 100.88 MiB | 31.61 MiB/s, done.
+Resolving deltas: 100% (30/30), done.
+[root@archlinux ~]# cd bunyod-tour-prod
+[root@archlinux bunyod-tour-prod]# npm install
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+> workspace@1.0.0 postinstall
+> prisma generate
+
+Prisma schema loaded from prisma/schema.prisma
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.15.0 -> 6.17.0                      │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 572ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+
+added 401 packages, and audited 402 packages in 25s
+
+45 packages are looking for funding
+  run `npm fund` for details
+
+2 vulnerabilities (1 moderate, 1 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+[root@archlinux bunyod-tour-prod]# cp .env.example .env
+cp: cannot stat '.env.example': No such file or directory
+[root@archlinux bunyod-tour-prod]#
