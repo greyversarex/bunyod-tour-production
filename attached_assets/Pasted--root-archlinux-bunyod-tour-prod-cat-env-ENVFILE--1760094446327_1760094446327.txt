@@ -1,0 +1,91 @@
+[root@archlinux bunyod-tour-prod]# cat > .env << 'ENVFILE'
+# ===========================================
+# БАЗА ДАННЫХ
+# ===========================================
+DATABASE_URL="postgresql://bunyod_user:ЗАМЕНИТЕ_НА_ПАРОЛЬ@localhost:5432/bunyod_tour"
+# ===========================================
+# БЕЗОПАСНОСТЬ (ОБЯЗАТЕЛЬНО!)
+# ===========================================
+JWT_SECRET="bunyod-tour-secret-key-2025-production-tajikistan"
+NODE_ENV="production"
+# ===========================================
+# СЕРВЕР
+# ===========================================
+PORT=5000
+PRODUCTION_DOMAIN="147.45.213.8"
+ALLOWED_ORIGINS="http://147.45.213.8"
+# ===========================================
+# EMAIL (опционально, для уведомлений)
+# ===========================================
+SMTP_HOST="smtp.gmail.com"
+SMTP_PORT=587
+SMTP_USER=""
+SMTP_PASSWORD=""
+SMTP_FROM="Bunyod Tour <noreply@bunyod-tour.tj>"
+# ===========================================
+# ПЛАТЕЖИ (заполните когда подключите)
+# ===========================================
+ALIF_MERCHANT_KEY=""
+ALIF_MERCHANT_PASSWORD=""
+PAYLER_MERCHANT_ID=""
+PAYLER_SECRET_KEY=""
+STRIPE_SECRET_KEY=""
+STRIPE_WEBHOOK_SECRET=""
+# ===========================================
+# НАСТРОЙКИ
+# ===========================================
+INIT_DATABASE=false
+ENABLE_DYNAMIC_PRICING=true
+LOG_LEVEL="info"
+ENVFILE
+[root@archlinux bunyod-tour-prod]# nano .env
+[root@archlinux bunyod-tour-prod]# npx prisma db push
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 705ms
+
+[root@archlinux bunyod-tour-prod]# npm run db:seed
+
+> workspace@1.0.0 db:seed
+> ts-node prisma/seed.ts
+
+🌱 Starting database seeding...
+✅ Categories created
+✅ Tours created
+🎉 Database seeding completed successfully!
+[root@archlinux bunyod-tour-prod]# pm2 start ecosystem.config.js
+[PM2] Applying action restartProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour    │ default     │ 1.0.0   │ cluster │ 1148604  │ 0s     │ 1    │ online    │ 0%       │ 58.6mb   │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[root@archlinux bunyod-tour-prod]# pm2 status
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour    │ default     │ 1.0.0   │ cluster │ 1148604  │ 9s     │ 1    │ online    │ 0%       │ 135.4mb  │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[root@archlinux bunyod-tour-prod]# pm2 logs bunyod-tour
+[TAILING] Tailing last 15 lines for [bunyod-tour] process (change the value with --lines option)
+/root/bunyod-tour-prod/logs/pm2-error.log last 15 lines:
+/root/bunyod-tour-prod/logs/pm2-out.log last 15 lines:
+0|bunyod-t | 2025-10-10T13:39:30: ✅ Database connected successfully
+0|bunyod-t | 2025-10-10T13:39:30: 🚀 Tajik Trails API server is running on http://0.0.0.0:5000
+0|bunyod-t | 2025-10-10T13:39:30: 📊 Environment: production
+0|bunyod-t | 2025-10-10T13:39:30: 🌐 CORS enabled for: http://localhost:5000
+0|bunyod-t | 2025-10-10T13:39:30: 🔗 Health check: http://0.0.0.0:5000/api/health
+0|bunyod-t | 2025-10-10T13:39:44: Fetching tour blocks...
+0|bunyod-t | 2025-10-10T13:39:44: Found tour blocks: 0
+0|bunyod-t | 2025-10-10T14:05:43: SIGINT signal received: closing HTTP server
+0|bunyod-t | 2025-10-10T14:05:43: HTTP server closed
+0|bunyod-t | 2025-10-10T14:05:44: ✅ Database connected successfully
+0|bunyod-t | 2025-10-10T14:05:44: 🚀 Tajik Trails API server is running on http://0.0.0.0:5000
+0|bunyod-t | 2025-10-10T14:05:44: 📊 Environment: production
+0|bunyod-t | 2025-10-10T14:05:44: 🌐 CORS enabled for: http://localhost:5000
+0|bunyod-t | 2025-10-10T14:05:44: 🔗 Health check: http://0.0.0.0:5000/api/health
