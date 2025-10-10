@@ -101,50 +101,33 @@ async function main() {
   }
   console.log('✅ Cities created');
 
-  // 5. Create categories
-  const categories = await Promise.all([
-    prisma.category.create({
-      data: {
-        name: JSON.stringify({
-          en: 'Mountain',
-          ru: 'Горные',
-          tj: 'Кӯҳсорӣ'
-        })
-      }
-    }),
-    prisma.category.create({
-      data: {
-        name: JSON.stringify({
-          en: 'Cultural',
-          ru: 'Культурные',
-          tj: 'Фарҳангӣ'
-        })
-      }
-    }),
-    prisma.category.create({
-      data: {
-        name: JSON.stringify({
-          en: 'Adventure',
-          ru: 'Приключенческие',
-          tj: 'Таҷрибавӣ'
-        })
-      }
-    }),
-    prisma.category.create({
-      data: {
-        name: JSON.stringify({
-          en: 'City',
-          ru: 'Городские',
-          tj: 'Шаҳрӣ'
-        })
-      }
-    })
-  ]);
+  // 5. Create categories (idempotent)
+  const categoriesData = [
+    { type: 'tour', name: JSON.stringify({ en: 'Mountain', ru: 'Горные', tj: 'Кӯҳсорӣ' }) },
+    { type: 'tour', name: JSON.stringify({ en: 'Cultural', ru: 'Культурные', tj: 'Фарҳангӣ' }) },
+    { type: 'tour', name: JSON.stringify({ en: 'Adventure', ru: 'Приключенческие', tj: 'Таҷрибавӣ' }) },
+    { type: 'tour', name: JSON.stringify({ en: 'City', ru: 'Городские', tj: 'Шаҳрӣ' }) }
+  ];
+
+  const categories: any[] = [];
+  for (let i = 0; i < categoriesData.length; i++) {
+    const cat = await prisma.category.upsert({
+      where: { id: i + 1 },
+      update: {},
+      create: { id: i + 1, ...categoriesData[i] }
+    });
+    categories.push(cat);
+  }
 
   console.log('✅ Categories created');
 
-  // Create tours with filter fields
-  const tours = [
+  // 6. Create sample tours (only if none exist)
+  const existingToursCount = await prisma.tour.count();
+  
+  if (existingToursCount > 0) {
+    console.log('✅ Tours already exist, skipping sample tours creation');
+  } else {
+    const tours = [
     {
       title: JSON.stringify({
         en: 'Pamir Highway Adventure',
@@ -347,12 +330,14 @@ async function main() {
     }
   ];
 
-  // Create tours
-  await Promise.all(
-    tours.map(tour => prisma.tour.create({ data: tour }))
-  );
+    // Create tours
+    await Promise.all(
+      tours.map(tour => prisma.tour.create({ data: tour }))
+    );
 
-  console.log('✅ Tours created');
+    console.log('✅ Tours created');
+  }
+  
   console.log('🎉 Database seeding completed successfully!');
 }
 
