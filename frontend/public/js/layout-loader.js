@@ -169,9 +169,12 @@ class LayoutLoader {
                 this.updateLanguageSelector(lang);
             }
             
-            // Закрываем dropdown через удаление класса
+            // Закрываем оба dropdown (десктоп и мобильный)
             const dropdown = document.getElementById('langDropdown');
             if (dropdown) dropdown.classList.remove('show');
+            
+            const mobileDropdown = document.getElementById('mobileLangDropdown');
+            if (mobileDropdown) mobileDropdown.classList.remove('show');
         };
     }
 
@@ -185,18 +188,21 @@ class LayoutLoader {
         };
 
         window.selectCurrency = (currency, symbol) => {
-            // Обновляем отображение выбранной валюты
-            const selectedCurrency = document.querySelector('.selected-currency');
-            if (selectedCurrency) {
-                selectedCurrency.textContent = currency;
-            }
+            // Обновляем отображение выбранной валюты (все элементы - десктоп и мобильные)
+            const selectedCurrencies = document.querySelectorAll('.selected-currency');
+            selectedCurrencies.forEach(element => {
+                element.textContent = currency;
+            });
             
             // Сохраняем в localStorage
             localStorage.setItem('selectedCurrency', currency);
             
-            // Закрываем dropdown через удаление класса
+            // Закрываем оба dropdown (десктоп и мобильный)
             const dropdown = document.getElementById('currencyDropdown');
             if (dropdown) dropdown.classList.remove('show');
+            
+            const mobileDropdown = document.getElementById('mobileCurrencyDropdown');
+            if (mobileDropdown) mobileDropdown.classList.remove('show');
             
             // Вызываем обработчик смены валюты если он существует
             if (typeof window.updateCurrency === 'function') {
@@ -216,11 +222,17 @@ class LayoutLoader {
             'ru': 'Русский'
         };
         
-        const selectedFlag = document.querySelector('.selected-flag');
-        const selectedLang = document.querySelector('.selected-lang');
+        // Обновляем все элементы флага (десктоп и мобильные)
+        const selectedFlags = document.querySelectorAll('.selected-flag');
+        selectedFlags.forEach(flag => {
+            flag.textContent = flags[lang] || flags['en'];
+        });
         
-        if (selectedFlag) selectedFlag.textContent = flags[lang] || flags['en'];
-        if (selectedLang) selectedLang.textContent = names[lang] || names['en'];
+        // Обновляем все элементы текста языка (десктоп и мобильные)
+        const selectedLangs = document.querySelectorAll('.selected-lang');
+        selectedLangs.forEach(langEl => {
+            langEl.textContent = names[lang] || names['en'];
+        });
     }
 
     setDefaultLanguage() {
@@ -346,6 +358,21 @@ window.toggleMobileDropdown = function(id) {
     const dropdown = document.getElementById('mobile-' + id);
     if (dropdown) {
         dropdown.classList.toggle('hidden');
+    }
+};
+
+// Функции для мобильных языковых и валютных dropdown
+window.toggleMobileLangDropdown = function() {
+    const dropdown = document.getElementById('mobileLangDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
+    }
+};
+
+window.toggleMobileCurrencyDropdown = function() {
+    const dropdown = document.getElementById('mobileCurrencyDropdown');
+    if (dropdown) {
+        dropdown.classList.toggle('show');
     }
 };
 
