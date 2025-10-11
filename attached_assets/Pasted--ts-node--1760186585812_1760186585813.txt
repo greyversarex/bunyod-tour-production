@@ -1,0 +1,96 @@
+Задача: сделать прод-деплой бэкенда стабильным и детерминированным (без ts-node в рантайме).
+Требования:
+
+Prod без ts-node
+
+В index.js подключать ts-node только в dev. В prod грузить скомпилированные роуты.
+
+Пример блока:
+
+// вокруг места, где сейчас require('ts-node/register') и /api
+try {
+  if (process.env.NODE_ENV === 'production') {
+    const apiRoutes = require('./dist/routes/index.js').default;
+    app.use('/api', apiRoutes);
+  } else {
+    require('ts-node/register');
+    const apiRoutes = require('./src/routes/index.ts').default;
+    app.use('/api', apiRoutes);
+  }
+  console.log('✅ Backend API routes loaded successfully');
+} catch (error) {
+  console.error('❌ Error loading backend routes:', error);
+  console.log('🔄 Running in frontend-only mode');
+}
+
+
+TypeScript build
+
+Создать/обновить tsconfig.json:
+
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"]
+}
+
+
+В package.json:
+
+{
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
+  }
+}
+
+
+Prisma и slides (XOR-конфликт)
+
+Убедиться, что везде используем relation-синтаксис, а не cityId в data:
+
+create: ...(cityId ? { city: { connect: { id: cityId } } } : {})
+
+update: если parsedData.cityId === null → city: { disconnect: true }, иначе city: { connect: { id: parsedData.cityId } }.
+
+Проверить, что npx prisma generate проходит и npm run typecheck чисто.
+
+PM2 + деплой
+
+Обновить update.sh: после npx prisma generate вставить npm run build, и только потом рестарт PM2.
+Последовательность:
+
+npm ci
+npx prisma generate
+npx prisma migrate deploy   # при необходимости
+npx prisma db seed          # идемпотентный сид
+npm run build               # НОВОЕ
+pm2 restart bunyod-tour
+
+
+В ecosystem.config.js оставляем старт через node index.js (теперь он в prod грузит dist), либо меняем на npm start. Важно, чтобы NODE_ENV=production.
+
+Проверки и документация
+
+Добавить в DEPLOYMENT_GUIDE.md раздел “Troubleshooting”: если curl /healthz выдаёт 000, смотреть pm2 logs; если ошибка TS — запускать npm run build локально и фиксить до чистого npm run typecheck.
+
+Убедиться, что GET /healthz и GET /api/health живут вне блока загрузки TS-роутов, чтобы health всегда работал.
+
+Ожидаемый результат:
+
+На проде ./update.sh делает build, PM2 поднимает сервер без ts-node, API стабилен.
+
+curl /healthz → 200, GET /api/tour-blocks → 7, GET /api/categories → 15, GET /api/slides → 200.
+
+Никаких временных “закомментировать роуты” больше не требуется.
+
+Пожалуйста, сделай PR с этими правками, прогоните npm run build и npm run typecheck в CI, опиши изменения в replit.md и DEPLOYMENT_GUIDE.md.
