@@ -77,11 +77,12 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **CORS_ORIGINS**: Comma-separated whitelist for allowed origins
 
 ### Deployment Files
--   `update.sh`: Production update automation (git pull → backup → migrate → seed → restart → healthcheck)
+-   `update.sh`: Production update automation (git pull → backup → migrate → seed → restart → healthcheck). **Oct 11, 2025**: Updated to use dynamic directory detection via `script_dir` variable instead of hardcoded path, allowing deployment from any location
 -   `ecosystem.config.js`: PM2 configuration for production
 -   `nginx/bunyod-tour.conf`: Nginx reverse proxy template
 -   `.env.example`: Complete environment variable template
--   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions
+-   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions with standardized deployment path `/srv/bunyod-tour`
+-   `README.md`: Quick start guide with deployment path reference
 
 ### Security & Monitoring
 -   Database backup before each update
