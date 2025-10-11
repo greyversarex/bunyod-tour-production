@@ -311,6 +311,22 @@ class LayoutLoader {
     }
 }
 
+// Глобальная функция для переключения секций футера (аккордеон на мобильных)
+window.toggleFooterSection = function(section) {
+    const menu = document.getElementById(`${section}-menu`);
+    const arrow = document.getElementById(`${section}-arrow`);
+    
+    if (menu && arrow) {
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            arrow.style.transform = 'rotate(180deg)';
+        } else {
+            menu.classList.add('hidden');
+            arrow.style.transform = 'rotate(0deg)';
+        }
+    }
+};
+
 // Автоматическая инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.layoutLoader = new LayoutLoader();
