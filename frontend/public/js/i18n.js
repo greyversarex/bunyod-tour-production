@@ -75,6 +75,23 @@ window.translations = window.translations || {
     'title.our_services': { ru: 'Наши услуги', en: 'Our Services' },
     'title.why_choose_us': { ru: 'Почему выбирают нас', en: 'Why Choose Us' },
     
+    // Страница акций (Hot Tours)
+    'hot_tours_page_title': { ru: 'Горящие туры - Bunyod-Tour', en: 'Hot Tours - Bunyod-Tour' },
+    'hot_tours_title': { ru: 'Горящие туры', en: 'Hot Tours' },
+    'hot_tours_subtitle': { ru: 'Успейте забронировать туры и экскурсии по специальным ценам!', en: 'Book tours and excursions at special prices!' },
+    'how_to_save_title': { ru: 'Как получить максимальную выгоду?', en: 'How to Get Maximum Savings?' },
+    'how_to_save_subtitle': { ru: 'Комбинируйте акции и получайте дополнительные скидки', en: 'Combine promotions and get additional discounts' },
+    'plan_ahead_title': { ru: 'Планируйте заранее', en: 'Plan Ahead' },
+    'plan_ahead_desc': { ru: 'Бронируйте туры за 3-6 месяцев и получите до 15% скидки', en: 'Book tours 3-6 months in advance and get up to 15% discount' },
+    'group_discount_title': { ru: 'Собирайте группу', en: 'Gather a Group' },
+    'group_discount_desc': { ru: 'Чем больше группа, тем больше скидка - до 20% при группе от 6 человек', en: 'The larger the group, the bigger the discount - up to 20% for groups of 6+' },
+    'loyal_customer_title': { ru: 'Станьте постоянным клиентом', en: 'Become a Regular Customer' },
+    'loyal_customer_desc': { ru: 'Накапливайте бонусы и получайте эксклюзивные предложения', en: 'Accumulate bonuses and receive exclusive offers' },
+    'ready_to_save_title': { ru: 'Готовы сэкономить на путешествии?', en: 'Ready to Save on Your Trip?' },
+    'ready_to_save_subtitle': { ru: 'Свяжитесь с нами и узнайте о всех актуальных акциях и скидках', en: 'Contact us to learn about all current promotions and discounts' },
+    'contact_us_btn': { ru: 'Связаться с нами', en: 'Contact Us' },
+    'view_all_tours_btn': { ru: 'Посмотреть все туры', en: 'View All Tours' },
+    
     // Ценовые обозначения
     'price.from': { ru: 'Цена от:', en: 'Price from:' },
     'price.from_prefix': { ru: 'от', en: 'from' },
