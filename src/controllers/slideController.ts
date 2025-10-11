@@ -117,7 +117,7 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
         buttonText: buttonText ? JSON.stringify(buttonText) : null,
         order,
         isActive,
-        cityId
+        ...(cityId ? { city: { connect: { id: cityId } } } : {})
       }
     });
 
@@ -226,7 +226,9 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
     if (parsedData.buttonText !== undefined) updateData.buttonText = parsedData.buttonText ? JSON.stringify(parsedData.buttonText) : null;
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
     if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
-    if (parsedData.cityId !== undefined) updateData.cityId = parsedData.cityId;
+    if (parsedData.cityId !== undefined) {
+      updateData.city = parsedData.cityId ? { connect: { id: parsedData.cityId } } : { disconnect: true };
+    }
     updateData.updatedAt = new Date();
 
     // 🔒 SECURITY: Protect existing image from being overwritten (like newsController)
