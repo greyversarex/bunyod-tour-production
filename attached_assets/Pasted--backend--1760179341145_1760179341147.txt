@@ -1,0 +1,45 @@
+Хочу точную картину репозитория и причины, почему падает backend-роутинг. Сформируй отчёт по пунктам и приводи короткие выдержки кода в блоках ``` для каждого пункта. Маскируй секреты (ключи/пароли/токены).
+
+Git и скрипты
+
+Выведи package.json (scripts, dependencies).
+
+Покажи последние 10 коммитов (git log --oneline -n 10), отметь изменения в prisma/, src/controllers/slideController.ts, src/routes/index.ts, update.sh.
+
+Prisma и миграции
+
+Дай prisma/schema.prisma (только модель(и) Slide, связанные модели и отношения).
+
+Список миграций prisma/migrations/*/migration.sql с заголовками и первой десяткой строк для тех, где менялся Slide.
+
+Ответь: есть ли поле cityId в модели Slide? Если нет — когда оно было удалено миграциями?
+
+Контроллеры и роуты
+
+Покажи src/controllers/slideController.ts вокруг мест, где формируется payload для prisma.slide.create(...)/update(...) (±30 строк), отметь, используются ли там cityId/связи города.
+
+Покажи src/routes/index.ts — список подключаемых роутов и под какими префиксами.
+
+Покажи src/routes/tourBlockRoutes.ts и src/routes/categoryRoutes.ts: какие endpoints и под каким корнем они монтируются.
+
+Входные точки и health
+
+Покажи содержимое index.js и src/app.ts (вырезками): как монтируется app.use('/api', ...), где health endpoints (/healthz, /api/health) и логика «frontend-only mode», если модуль роняет загрузку.
+
+Подтверди, что /api/tour-blocks и /api/categories живут под app.use('/api', routes) → routes/index.ts.
+
+Сид и обновление
+
+Покажи prisma/seed.ts: что создаётся (категории/блоки туров и т.д.), идемпотентно ли это.
+
+Покажи update.sh: порядок шагов (backup, pull, install, prisma generate, migrate deploy, seed, pm2 restart).
+
+Вердикт и фикс
+
+Объясни, что именно ломает backend (например: контроллер slides шлёт поле cityId, которого нет в Prisma client SlideCreateInput).
+
+Дай минимальный патч: либо убрать cityId из payload в slideController.ts, либо заменить на актуальные связи (city: { connect: { id: ... } } или другое по схеме).
+
+Дай PR-план: коммит «fix(slides): align controller with prisma model», проверить npm run build/запуск, описать тесты /api/slides.
+
+Формат ответа: кратко по каждому пункту, затем «Минимальный diff/патч» и «Шаги для проверки после фикса».
