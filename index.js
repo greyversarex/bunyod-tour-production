@@ -1,11 +1,20 @@
 // 🔧 КРИТИЧНО: Загружаем переменные окружения ПЕРВЫМ
 require('dotenv').config();
 
-// 🔧 КРИТИЧНО: Регистрируем ts-node ВТОРЫМ для импорта TypeScript модулей
-require('ts-node/register');
+// 🔧 PRODUCTION/DEVELOPMENT MODE: Условная загрузка TypeScript
+const isProduction = process.env.NODE_ENV === 'production';
+const srcPath = isProduction ? './dist' : './src';
+
+// В dev регистрируем ts-node для импорта TypeScript модулей
+if (!isProduction) {
+  require('ts-node/register');
+  console.log('🛠️  DEV MODE: Using ts-node for TypeScript compilation');
+} else {
+  console.log('🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/');
+}
 
 // 🔒 БЕЗОПАСНОСТЬ: Валидация переменных окружения ПЕРЕД запуском сервера
-const { validateEnvironment } = require('./src/config/validateEnv.ts');
+const { validateEnvironment } = require(`${srcPath}/config/validateEnv${isProduction ? '.js' : '.ts'}`);
 validateEnvironment();
 
 const express = require('express');
@@ -13,7 +22,7 @@ const cors = require('cors');
 const path = require('path');
 const { exec } = require('child_process');
 // 🗄️ ДОБАВЛЕНО: Автоматическая инициализация базы данных для новых серверов
-const { initializeDatabase } = require('./src/utils/initializeDatabase.ts');
+const { initializeDatabase } = require(`${srcPath}/utils/initializeDatabase${isProduction ? '.js' : '.ts'}`);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -92,19 +101,22 @@ app.get('/simple-admin-panel.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'simple-admin-panel.html'));
 });
 
-// Import TypeScript backend routes directly (with better error handling)
+// 🔌 BACKEND API ROUTES: Условная загрузка для dev/prod
 try {
-  require('ts-node/register');
-  const apiRoutes = require('./src/routes/index.ts').default;
+  const apiRoutes = require(`${srcPath}/routes/index${isProduction ? '.js' : '.ts'}`).default;
   app.use('/api', apiRoutes);
   
   // Add object storage routes directly (without /api prefix) for image serving
-  const objectStorageRoutes = require('./src/routes/objectStorageRoutes.ts').default;
+  const objectStorageRoutes = require(`${srcPath}/routes/objectStorageRoutes${isProduction ? '.js' : '.ts'}`).default;
   app.use('/', objectStorageRoutes);
-  console.log('✅ Backend API routes loaded successfully');
+  
+  console.log(`✅ Backend API routes loaded successfully (${isProduction ? 'compiled' : 'ts-node'})`);
 } catch (error) {
-  console.error('❌ Error loading backend routes:', error.message);
+  console.error('❌ Error loading backend routes:', error);
   console.log('🔄 Running in frontend-only mode');
+  if (!isProduction) {
+    console.log('💡 Hint: Try running "npm run build" to compile TypeScript');
+  }
 }
 
 // ИСПРАВЛЕНИЕ: Обработка repl_preview параметров и всех возможных путей
@@ -153,7 +165,7 @@ app.use('/uploads/guides', (req, res, next) => {
 });
 
 // Add upload routes for simple image handling
-const uploadRoutes = require('./src/routes/uploadRoutes.ts').default;
+const uploadRoutes = require(`${srcPath}/routes/uploadRoutes${isProduction ? '.js' : '.ts'}`).default;
 app.use('/upload', uploadRoutes);
 
 // Tour template page - explicit route BEFORE static middleware
