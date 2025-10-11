@@ -35,11 +35,13 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
--   **Responsive Design**: Mobile-first approach.
+-   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization (44x44px minimum for all interactive elements).
+-   **Mobile Footer**: Optimized with collapsible accordion sections (Company, Contacts), always-visible social links with proper touch targets, and desktop-only map display.
+-   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design with gradient backgrounds, backdrop-filter blur effects, smooth shadows, and hover transitions for premium UX.
 -   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and tour blocks (renamed to "НАПРАВЛЕНИЯ").
 -   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
 -   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments.
--   **Design**: Consistent color palette, Inter font family, unified component structures, and gray button theme.
+-   **Design**: Consistent color palette, Inter font family, unified component structures, gray button theme, and glassmorphism effects for modern visual appeal.
 -   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format.
 
 ### Production Deployment Infrastructure
