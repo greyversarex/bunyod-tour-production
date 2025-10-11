@@ -4,11 +4,11 @@
 <!-- Хедер -->
 <header class="shadow-md sticky top-0 z-50" style="background-color: #3E3E3E;">
     <div class="max-w-7xl mx-auto">
-        <div class="flex items-center justify-between h-16 px-6">
+        <div class="flex items-center justify-between h-16 px-4 md:px-6">
             <!-- Логотип -->
             <a href="/" class="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
-                <img src="/Logo-Ru_1754635713718.png" alt="Bunyod-Tour Logo" class="w-12 h-12 mr-3 rounded-full">
-                <span class="text-xl font-bold text-white">Bunyod-Tour</span>
+                <img src="/Logo-Ru_1754635713718.png" alt="Bunyod-Tour Logo" class="w-10 h-10 md:w-12 md:h-12 mr-2 md:mr-3 rounded-full">
+                <span class="text-lg md:text-xl font-bold text-white">Bunyod-Tour</span>
             </a>
             
             <!-- Навигационное меню -->
@@ -76,12 +76,13 @@
             </nav>
             
             <!-- Языковой и валютный селекторы -->
-            <div class="flex items-center space-x-4">
-                <!-- Языковой селектор -->
+            <div class="flex items-center space-x-2 md:space-x-4">
+                <!-- Языковой селектор - компактный на мобильных -->
                 <div class="language-dropdown">
-                    <button class="lang-selector-btn" onclick="toggleLanguageDropdown()">
-                        <span class="selected-lang" id="current-language">Русский</span>
-                        <svg class="dropdown-arrow" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button class="lang-selector-btn text-sm md:text-base" onclick="toggleLanguageDropdown()">
+                        <span class="selected-lang hidden md:inline" id="current-language">Русский</span>
+                        <span class="selected-lang md:hidden">RU</span>
+                        <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -99,9 +100,9 @@
 
                 <!-- Валютный селектор -->
                 <div class="language-dropdown">
-                    <button class="lang-selector-btn" onclick="toggleCurrencyDropdown()">
+                    <button class="lang-selector-btn text-sm md:text-base" onclick="toggleCurrencyDropdown()">
                         <span class="selected-currency">TJS</span>
-                        <svg class="dropdown-arrow" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
@@ -123,7 +124,90 @@
                         </a>
                     </div>
                 </div>
+                
+                <!-- Бургер-меню (только мобильные) -->
+                <button class="md:hidden text-white p-2" onclick="toggleMobileMenu()" id="mobileMenuButton">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
+    
+    <!-- Мобильное меню (выдвижное) -->
+    <div id="mobileMenu" class="hidden md:hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-95">
+        <div class="flex flex-col h-full">
+            <!-- Заголовок мобильного меню -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <span class="text-xl font-bold text-white">Меню</span>
+                <button onclick="toggleMobileMenu()" class="text-white p-2">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Пункты меню -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <a href="/about-us.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.about">О нас</a>
+                
+                <!-- Услуги -->
+                <div class="mobile-dropdown">
+                    <button onclick="toggleMobileDropdown('services')" class="w-full flex items-center justify-between px-6 py-3 text-white hover:bg-gray-800 transition-colors">
+                        <span data-translate="nav.services">Услуги</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="mobile-services" class="hidden bg-gray-800">
+                        <a href="/transfer.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.transfer">Трансфер</a>
+                        <a href="/tour-guides.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.guides">Тургиды</a>
+                        <a href="/hotels-catalog.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.hotels">Отели</a>
+                        <a href="#" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.book_tour">Заказ тура</a>
+                        <a href="/visa-support.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.visa_support">Визовая поддержка</a>
+                    </div>
+                </div>
+                
+                <!-- Туристам -->
+                <div class="mobile-dropdown">
+                    <button onclick="toggleMobileDropdown('tourists')" class="w-full flex items-center justify-between px-6 py-3 text-white hover:bg-gray-800 transition-colors">
+                        <span data-translate="nav.tourists">Туристам</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="mobile-tourists" class="hidden bg-gray-800">
+                        <a href="/booking-guide.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.site_guide">Инструкция сайта</a>
+                        <a href="/privacy-policy-ru.pdf" target="_blank" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.special_notes">Специальные заметки</a>
+                        <a href="/oferta-ru.pdf" target="_blank" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.offer_agreement">Договор оферта</a>
+                        <a href="/payment-rules-ru.pdf" target="_blank" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.payment_rules">Правила оплаты и возврата средств</a>
+                    </div>
+                </div>
+                
+                <a href="/aktsii.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.promotions">Акции</a>
+                <a href="/news.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.news">Новости</a>
+            </nav>
+        </div>
+    </div>
+    
+    <script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        const button = document.getElementById('mobileMenuButton');
+        
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Предотвращаем прокрутку фона
+        } else {
+            menu.classList.add('hidden');
+            document.body.style.overflow = ''; // Восстанавливаем прокрутку
+        }
+    }
+    
+    function toggleMobileDropdown(id) {
+        const dropdown = document.getElementById('mobile-' + id);
+        dropdown.classList.toggle('hidden');
+    }
+    </script>
 </header>
