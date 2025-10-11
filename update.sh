@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
+# Динамическое определение директории скрипта
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+cd "$script_dir"
+
 APP_NAME="bunyod-tour"
-APP_DIR="/srv/bunyod-tour"   # <- не /var/www, а именно /srv/bunyod-tour
 DB_NAME="bunyod_tour"
 BACKUP_DIR="/var/backups/bunyod-tour"
 
@@ -27,7 +30,6 @@ wait_for_200 () {
 }
 
 echo "🔄 Начинаю обновление ${APP_NAME}..."
-cd "$APP_DIR"
 
 echo "🧷 Бэкап БД перед обновлением..."
 mkdir -p "$BACKUP_DIR"
