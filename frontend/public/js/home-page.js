@@ -1979,18 +1979,25 @@ let slideInterval;
 
 async function loadSlides() {
     try {
-        const response = await fetch(`${window.location.origin}/api/slides`);
+        const url = `${window.location.origin}/api/slides`;
+        console.log('🎬 Loading slides from:', url);
+        
+        const response = await fetch(url);
+        console.log('📡 Slides response status:', response.status);
+        
         const data = await response.json();
+        console.log('📊 Slides data:', data);
         
         if (data.success && data.data && data.data.length > 0) {
             slides = data.data;
+            console.log('✅ Loaded', slides.length, 'slides');
             renderSlides();
             initializeSlider();
         } else {
             console.log('No slides found, using default content');
         }
     } catch (error) {
-        console.error('Error loading slides:', error);
+        console.error('❌ Error loading slides:', error);
     }
 }
 
@@ -1998,13 +2005,17 @@ function renderSlides() {
     const container = document.getElementById('slidesContainer');
     const navigation = document.getElementById('sliderNavigation');
     
-    if (!container || !navigation) return;
+    if (!container || !navigation) {
+        console.warn('⚠️ Slider elements not found:', { container: !!container, navigation: !!navigation });
+        return;
+    }
 
     // Создаем слайды
     container.innerHTML = slides.map((slide, index) => {
-        const title = JSON.parse(slide.title || '{}');
-        const description = JSON.parse(slide.description || '{}');
-        const buttonText = slide.buttonText ? JSON.parse(slide.buttonText) : null;
+        // Данные уже десериализованы из API, не нужен JSON.parse
+        const title = slide.title || {};
+        const description = slide.description || {};
+        const buttonText = slide.buttonText || null;
         
         return `
             <div class="hero-slide ${index === 0 ? 'active' : ''}" data-slide="${index}"
