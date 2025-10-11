@@ -1067,6 +1067,7 @@ function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const blockId = urlParams.get('blockId');
     const categoryId = urlParams.get('categoryId');
+    const cityId = urlParams.get('cityId');
 
     if (blockId) {
         const blockIdNum = parseInt(blockId);
@@ -1082,7 +1083,11 @@ function checkUrlParams() {
         }
     }
     
-    if (blockId || categoryId) {
+    if (cityId) {
+        state.filters.city = cityId;
+    }
+    
+    if (blockId || categoryId || cityId) {
         renderFilters(); // Re-render to show checked boxes
     }
 }

@@ -4585,6 +4585,11 @@
                     descriptionEn: descEn || ''
                 };
                 
+                // ИСПРАВЛЕНО: Проверяем и инициализируем window.tourDaysItinerary
+                if (!window.tourDaysItinerary) {
+                    window.tourDaysItinerary = {};
+                }
+                
                 if (!window.tourDaysItinerary[window.currentActiveDay]) {
                     window.tourDaysItinerary[window.currentActiveDay] = {
                         titleRu: '',
@@ -6364,6 +6369,7 @@
             
             // Очищаем все дополнительные данные
             window.tourItinerary = [];
+            window.tourDaysItinerary = {}; // ИСПРАВЛЕНО: Очищаем многодневную программу
             window.tourGalleryImages = [];
             window.editStartTimes = [];
             window.tourStartTimes = [];
