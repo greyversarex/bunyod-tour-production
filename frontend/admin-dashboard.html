@@ -486,6 +486,10 @@
                     <i class="fas fa-city"></i>
                     <span data-translate="admin.cities">Города</span>
                 </a>
+                <a href="#" class="nav-item" data-section="city-card-photos">
+                    <i class="fas fa-images"></i>
+                    <span data-translate="admin.city_card_photos">Фото карточек городов</span>
+                </a>
                 <a href="#" class="nav-item" data-section="customers">
                     <i class="fas fa-users"></i>
                     <span data-translate="admin.customers">Клиенты</span>
@@ -992,6 +996,21 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="citiesList">
                         <!-- Cities will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- City Card Photos Section - ОТДЕЛЬНАЯ система для фото карточек -->
+                <section id="cityCardPhotosSection" style="display: none;">
+                    <div class="mb-6 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold">Фото карточек городов</h2>
+                        <button class="btn btn-primary" onclick="openCityCardPhotoModal()">
+                            <i class="fas fa-plus mr-2"></i>
+                            Добавить фото карточки
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="cityCardPhotosList">
+                        <!-- City card photos will be loaded here -->
                     </div>
                 </section>
 
@@ -3042,6 +3061,65 @@
         </div>
     </div>
 
+    <!-- City Card Photo Modal - ОТДЕЛЬНАЯ система для фото карточек городов -->
+    <div id="cityCardPhotoModal" class="modal">
+        <div class="modal-content" style="width: 600px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold" id="cityCardPhotoModalTitle">Добавить фото карточки города</h2>
+                <button onclick="closeCityCardPhotoModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="cityCardPhotoForm" onsubmit="event.preventDefault(); saveCityCardPhoto();">
+                <input type="hidden" id="cityCardPhotoId">
+                
+                <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div class="form-group">
+                        <label class="form-label">Город *</label>
+                        <select id="cardPhotoCityId" class="form-input" required>
+                            <option value="">Выберите город</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Название (English) *</label>
+                        <input type="text" id="cardPhotoTitle" class="form-input" placeholder="City view, Landscape" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Название (Русский) *</label>
+                        <input type="text" id="cardPhotoTitleRu" class="form-input" placeholder="Вид города, Пейзаж" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Изображение *</label>
+                        <input type="file" id="cardPhotoImage" class="form-input" accept="image/*">
+                        <small class="text-gray-500">Максимальный размер: 5MB. Форматы: JPG, PNG, WebP</small>
+                        <div id="cardPhotoPreview" class="mt-3" style="display: none;">
+                            <img id="cardPhotoPreviewImage" class="rounded-lg max-w-full h-48 object-cover">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Порядок отображения</label>
+                        <input type="number" id="cardPhotoOrder" class="form-input" value="0" min="0">
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-4">
+                    <button type="button" onclick="closeCityCardPhotoModal()" class="btn btn-secondary">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Content Block Modal -->
     <div id="contentBlockModal" class="modal">
         <div class="modal-content" style="width: 800px; max-height: 90vh; overflow-y: auto;">
@@ -3527,6 +3605,7 @@
                     transfers: 'Управление трансферами',
                     countries: 'Управление странами',
                     cities: 'Управление городами',
+                    cityCardPhotos: 'Фото карточек городов',
                     customers: 'Клиенты',
                     reviews: 'Модерация отзывов',
                     payments: 'Платежи',
@@ -3544,6 +3623,7 @@
                     transfers: 'Transfers Management',
                     countries: 'Countries Management',
                     cities: 'Cities Management',
+                    cityCardPhotos: 'City Card Photos',
                     customers: 'Customers',
                     reviews: 'Reviews Moderation',
                     payments: 'Payments',
@@ -3790,6 +3870,9 @@
                     break;
                 case 'cities':
                     loadCities();
+                    break;
+                case 'city-card-photos':
+                    loadCityCardPhotos();
                     break;
                 case 'reviews':
                     loadReviews();
@@ -13495,7 +13578,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections
-            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'countriesSection', 'citiesSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -13567,6 +13650,9 @@
                     break;
                 case 'cities':
                     loadCities();
+                    break;
+                case 'city-card-photos':
+                    loadCityCardPhotos();
                     break;
                 case 'reviews':
                     loadReviews();
@@ -14339,6 +14425,215 @@
                 if (data.success) {
                     alert('Город удален');
                     loadCities();
+                } else {
+                    alert('Ошибка удаления: ' + (data.message || data.error));
+                }
+            } catch (error) {
+                alert('Ошибка соединения');
+            }
+        }
+
+        // ============== ФОТО КАРТОЧЕК ГОРОДОВ - ОТДЕЛЬНАЯ СИСТЕМА ==============
+        
+        async function loadCityCardPhotos() {
+            try {
+                const response = await fetch(`${getApiUrl()}/city-card-photos`, {
+                    headers: getAuthHeaders()
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const photosList = document.getElementById('cityCardPhotosList');
+                
+                if (!photosList) {
+                    console.error('cityCardPhotosList element not found');
+                    return;
+                }
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    photosList.innerHTML = data.data.map(photo => `
+                        <div class="bg-white rounded-lg shadow-sm border p-4">
+                            <div class="mb-3">
+                                ${photo.imageUrl ? 
+                                    `<img src="${photo.imageUrl}" alt="${photo.title}" class="w-full h-48 object-cover rounded-lg">` :
+                                    `<div class="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400 text-4xl"></i>
+                                    </div>`
+                                }
+                            </div>
+                            <h3 class="font-semibold text-gray-900 mb-1">${photo.title || 'Без названия'}</h3>
+                            <p class="text-sm text-gray-600 mb-2">${photo.titleRu || ''}</p>
+                            <p class="text-sm text-gray-500 mb-3">
+                                <i class="fas fa-city mr-1"></i>
+                                ${photo.city ? (photo.city.nameRu || photo.city.nameEn) : 'Город не указан'}
+                            </p>
+                            <p class="text-xs text-gray-400 mb-3">Порядок: ${photo.displayOrder || 0}</p>
+                            <div class="flex gap-2">
+                                <button onclick="editCityCardPhoto(${photo.id})" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i> Редактировать
+                                </button>
+                                <button onclick="deleteCityCardPhoto(${photo.id})" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i> Удалить
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    photosList.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <div class="bg-gray-50 rounded-xl p-8">
+                                <i class="fas fa-images text-gray-400 text-4xl mb-4"></i>
+                                <h3 class="text-lg font-medium text-gray-900 mb-2">Нет фото карточек</h3>
+                                <p class="text-gray-600 mb-6">Добавьте первое фото карточки города</p>
+                                <button onclick="openCityCardPhotoModal()" class="btn btn-primary">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Добавить фото карточки
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки фото карточек:', error);
+                const photosList = document.getElementById('cityCardPhotosList');
+                if (photosList) {
+                    photosList.innerHTML = `
+                        <div class="col-span-full">
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <span class="text-red-700">Ошибка загрузки фото карточек</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+        
+        function openCityCardPhotoModal(photoId = null) {
+            document.getElementById('cityCardPhotoModal').style.display = 'flex';
+            document.getElementById('cityCardPhotoForm').reset();
+            document.getElementById('cityCardPhotoId').value = '';
+            document.getElementById('cardPhotoPreview').style.display = 'none';
+            loadCitiesForCardPhotoModal();
+            
+            if (photoId) {
+                document.getElementById('cityCardPhotoModalTitle').textContent = 'Редактировать фото карточки';
+                loadCityCardPhotoForEdit(photoId);
+            } else {
+                document.getElementById('cityCardPhotoModalTitle').textContent = 'Добавить фото карточки города';
+            }
+        }
+        
+        function closeCityCardPhotoModal() {
+            document.getElementById('cityCardPhotoModal').style.display = 'none';
+        }
+        
+        async function saveCityCardPhoto() {
+            const photoId = document.getElementById('cityCardPhotoId').value;
+            const isEditing = !!photoId;
+            
+            const formData = new FormData();
+            formData.append('cityId', document.getElementById('cardPhotoCityId').value);
+            formData.append('title', document.getElementById('cardPhotoTitle').value);
+            formData.append('titleRu', document.getElementById('cardPhotoTitleRu').value);
+            formData.append('displayOrder', document.getElementById('cardPhotoOrder').value);
+            
+            const imageFile = document.getElementById('cardPhotoImage').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            } else if (!isEditing) {
+                alert('Пожалуйста, выберите изображение');
+                return;
+            }
+            
+            try {
+                const url = isEditing ? `${getApiUrl()}/city-card-photos/${photoId}` : `${getApiUrl()}/city-card-photos`;
+                const method = isEditing ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: getAuthHeaders(),
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert(isEditing ? 'Фото успешно обновлено!' : 'Фото успешно добавлено!');
+                    closeCityCardPhotoModal();
+                    loadCityCardPhotos();
+                } else {
+                    alert('Ошибка сохранения: ' + (data.message || data.error));
+                }
+            } catch (error) {
+                alert('Ошибка соединения: ' + error.message);
+            }
+        }
+        
+        function editCityCardPhoto(id) { openCityCardPhotoModal(id); }
+        
+        async function loadCitiesForCardPhotoModal() {
+            try {
+                const response = await fetch(`${getApiUrl()}/cities`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('cardPhotoCityId');
+                    select.innerHTML = '<option value="">Выберите город</option>';
+                    
+                    data.data.forEach(city => {
+                        const option = document.createElement('option');
+                        option.value = city.id;
+                        option.textContent = `${city.nameRu || city.nameEn} (${city.country ? city.country.nameRu : ''})`;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки городов:', error);
+            }
+        }
+        
+        async function loadCityCardPhotoForEdit(photoId) {
+            try {
+                const response = await fetch(`${getApiUrl()}/city-card-photos/${photoId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const photo = data.data;
+                    document.getElementById('cityCardPhotoId').value = photo.id;
+                    document.getElementById('cardPhotoCityId').value = photo.cityId;
+                    document.getElementById('cardPhotoTitle').value = photo.title;
+                    document.getElementById('cardPhotoTitleRu').value = photo.titleRu || '';
+                    document.getElementById('cardPhotoOrder').value = photo.displayOrder || 0;
+                    
+                    if (photo.imageUrl) {
+                        document.getElementById('cardPhotoPreview').style.display = 'block';
+                        document.getElementById('cardPhotoPreviewImage').src = photo.imageUrl;
+                    }
+                }
+            } catch (error) {
+                alert('Ошибка загрузки фото: ' + error.message);
+            }
+        }
+        
+        async function deleteCityCardPhoto(photoId) {
+            if (!confirm('Удалить фото карточки?')) return;
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/city-card-photos/${photoId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Фото удалено');
+                    loadCityCardPhotos();
                 } else {
                     alert('Ошибка удаления: ' + (data.message || data.error));
                 }
