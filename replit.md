@@ -62,30 +62,56 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 ### Database
 -   **PostgreSQL**: Relational database.
 
-## Production Deployment Infrastructure (Oct 10, 2025)
+## Production Deployment Infrastructure (Oct 11, 2025)
+
+### TypeScript Compilation Strategy
+**Oct 11, 2025 MAJOR UPDATE**: Migrated from runtime ts-node to pre-compiled TypeScript for production stability.
+
+**Development Mode:**
+- Uses `ts-node` for on-the-fly compilation
+- Loads from `./src/**/*.ts` 
+- Slower but convenient for development
+- Startup log: `🛠️  DEV MODE: Using ts-node for TypeScript compilation`
+
+**Production Mode:**
+- Uses pre-compiled JavaScript from `./dist/`
+- Loads from `./dist/**/*.js`
+- Faster, stable, no runtime compilation overhead
+- Startup log: `🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/`
+- **Requires**: `npm run build` before deployment
+
+**Conditional Loading System** (index.js):
+- Automatically detects `NODE_ENV=production`
+- Loads appropriate files based on environment
+- Falls back to frontend-only mode on compilation errors
+- Validates environment variables before startup
 
 ### Deployment System
 -   **Deployment Path**: `/srv/bunyod-tour` (standardized across all configs)
--   **Update Script**: `./update.sh` - automated deployment with DB backup, migrations, seed, and healthcheck
+-   **Update Script**: `./update.sh` - automated deployment with DB backup, migrations, **TypeScript build**, seed, and healthcheck
 -   **Process Manager**: PM2 with `ecosystem.config.js` (2 instances, cluster mode, auto-restart)
 -   **Reverse Proxy**: Nginx with template config in `nginx/bunyod-tour.conf`
 -   **Healthcheck Endpoint**: `GET /healthz` for monitoring and automated checks
 
 ### Optional Startup Controls
+-   **NODE_ENV**: Set to `production` for compiled code, omit for development
 -   **RUN_MIGRATIONS_ON_BOOT**: Controls auto-migrations on server boot (default: `false` in production)
 -   **RUN_SEED_ON_BOOT**: Controls auto-seeding on server boot (default: `false` in production)
 -   **CORS_ORIGINS**: Comma-separated whitelist for allowed origins
 
 ### Deployment Files
--   `update.sh`: Production update automation (git pull → backup → migrate → seed → restart → healthcheck). **Oct 11, 2025**: Updated to use dynamic directory detection via `script_dir` variable instead of hardcoded path, allowing deployment from any location
--   `ecosystem.config.js`: PM2 configuration for production
+-   `update.sh`: Production update automation (git pull → backup → migrate → seed → **TypeScript build** → restart → healthcheck). **Oct 11, 2025**: Added `npm run build` step for TypeScript compilation; updated to use dynamic directory detection via `script_dir` variable instead of hardcoded path
+-   `ecosystem.config.js`: PM2 configuration for production with NODE_ENV=production
 -   `nginx/bunyod-tour.conf`: Nginx reverse proxy template
 -   `.env.example`: Complete environment variable template
--   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions with standardized deployment path `/srv/bunyod-tour`
+-   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions with TypeScript troubleshooting section
 -   `README.md`: Quick start guide with deployment path reference
+-   `tsconfig.json`: TypeScript compiler configuration (target: ES2020, module: CommonJS, outDir: dist)
+-   `package.json`: Added scripts - `build` (tsc), `typecheck` (tsc --noEmit), `start:prod` (NODE_ENV=production)
 
 ### Security & Monitoring
 -   Database backup before each update
+-   TypeScript type checking before deployment
 -   Health check verification after deployment
 -   PM2 automatic restart on failures
 -   CORS whitelist enforcement
