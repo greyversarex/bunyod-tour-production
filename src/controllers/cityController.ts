@@ -144,15 +144,11 @@ export class CityController {
         });
       }
 
-      // Получаем путь к загруженному изображению из multer
-      const imagePath = (req.file as any)?.path || null;
-
       const city = await withRetry(() => prisma.city.create({
         data: {
           name,
           nameRu,
           nameEn,
-          image: imagePath,
           countryId: countryIdNum,
           isActive
         },
@@ -199,11 +195,6 @@ export class CityController {
       if (name !== undefined) updateData.name = name;
       if (nameRu !== undefined) updateData.nameRu = nameRu;
       if (nameEn !== undefined) updateData.nameEn = nameEn;
-      
-      // Получаем путь к загруженному изображению из multer
-      const imagePath = (req.file as any)?.path;
-      if (imagePath !== undefined) updateData.image = imagePath;
-      
       if (isActive !== undefined) updateData.isActive = isActive;
 
       if (countryId !== undefined) {

@@ -515,7 +515,6 @@ model City {
   name       String
   nameRu     String   @map("name_ru")
   nameEn     String   @map("name_en")
-  image      String?  // Фотография для карточки города на главной странице
   countryId  Int      @map("country_id")
   isActive   Boolean  @default(true)
   createdAt  DateTime @default(now())
@@ -527,7 +526,7 @@ model City {
   drivers    Driver[]   // Связь с водителями
   guides     Guide[]    // Связь с гидами
   tourAgents TourAgent[] // Связь с турагентами
-  slides     Slide[]    // Связь со слайдами (DEPRECATED - используйте поле image)
+  slides     Slide[]    // Связь со слайдами
 
   @@unique([name, countryId])
   @@map("cities")
