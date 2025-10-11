@@ -35,7 +35,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
 -   **Responsive Design**: Mobile-first approach.
--   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and **tour blocks** (Oct 10, 2025). 
+-   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and **tour blocks** (Oct 10, 2025). **Filter Updates (Oct 11, 2025)**: Renamed "Формат тура" to "Тип тура" with three fixed types (Персональный, Групповой персональный, Групповой общий) matching admin modal; removed "Длительность" filter completely; configured "Языки тура" filter to dynamically extract languages from tour data with proper filtering logic. 
 -   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
 -   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments. Clickable breadcrumb navigation on tour pages directs to search with pre-selected filters.
 -   **Design**: Consistent color palette, Inter font family, unified component structures, and gray button theme.
