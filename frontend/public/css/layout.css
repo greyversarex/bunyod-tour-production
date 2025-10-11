@@ -94,6 +94,12 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Валютный селектор - компактнее */
+.lang-selector-btn:has(.selected-currency) {
+    min-width: 85px;
+    padding: 0.6rem 1rem;
+}
+
 .lang-selector-btn:hover {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.18));
     border-color: rgba(255, 255, 255, 0.5);

@@ -85,6 +85,9 @@ class LayoutLoader {
             // Принудительно устанавливаем русский язык по умолчанию
             this.setDefaultLanguage();
             
+            // Принудительно устанавливаем сохраненную валюту
+            this.setDefaultCurrency();
+            
             // Инициализируем интернационализацию после загрузки layout
             if (typeof window.initializeI18n === 'function') {
                 window.initializeI18n();
@@ -263,6 +266,33 @@ class LayoutLoader {
         }
         
         console.info(`🌍 Language set to: ${savedLanguage}`);
+    }
+
+    setDefaultCurrency() {
+        // 💱 УМНАЯ ЛОГИКА: TJS по умолчанию, но сохраняем выбор пользователя
+        let savedCurrency = localStorage.getItem('selectedCurrency');
+        
+        // Список поддерживаемых валют
+        const supportedCurrencies = ['TJS', 'USD', 'EUR', 'RUB', 'CNY'];
+        
+        // Если валюта не сохранена или не поддерживается, устанавливаем TJS по умолчанию
+        if (!savedCurrency || !supportedCurrencies.includes(savedCurrency)) {
+            savedCurrency = 'TJS';
+            localStorage.setItem('selectedCurrency', savedCurrency);
+        }
+        
+        // Обновляем отображение выбранной валюты (все элементы - десктоп и мобильные)
+        const selectedCurrencies = document.querySelectorAll('.selected-currency');
+        selectedCurrencies.forEach(element => {
+            element.textContent = savedCurrency;
+        });
+        
+        // Вызываем обработчик смены валюты если он существует
+        if (typeof window.updateCurrency === 'function') {
+            window.updateCurrency(savedCurrency);
+        }
+        
+        console.info(`💱 Currency set to: ${savedCurrency}`);
     }
 
     initializeMapIfPresent() {
