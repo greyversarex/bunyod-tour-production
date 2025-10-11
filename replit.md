@@ -12,34 +12,40 @@ System integration preference: User requires simplified and unified pricing syst
 ## System Architecture
 
 ### Backend
-The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. **Prisma Relation Fix (Oct 11, 2025)**: Resolved XOR-conflict in slideController.ts that caused backend routing failure - replaced direct `cityId` field usage with proper Prisma relation syntax (`city: { connect: { id } }` for create, `disconnect: true` for clear) to comply with checked input types; this fix prevented ts-node compilation errors that were causing server to fall back to "frontend-only mode" and breaking all /api/* endpoints. **Slides API Bulletproof Fix (Oct 11, 2025)**: Implemented defensive programming in GET /api/slides endpoint - added parseML() helper that never throws on malformed JSON data, always returns safe multilingual objects; refactored getSlides() to use safe mapping with included city relation; endpoint now handles any database state without 500 errors (corrupted JSON, null values, missing relations all return graceful defaults).
+The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding, and a smart category migration system for a standardized 15-category structure. **Seed & Migration Updates (Oct 10, 2025)**: Fixed seed.ts to create exactly **7 IRON-CONCRETE tour blocks** (Popular, Combined, + 5 Central Asian countries) with RU/EN only - no Tajik language support; removed all 'tj' translations from categories and blocks; unified category migration to use only Russian/English; eliminated 4 legacy tour blocks to maintain clean 7-block structure matching frontend navigation. **Seeding Policy (Oct 10, 2025)**: Seed script creates ONLY reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities) - NEVER creates demo tours, test bookings, or fake users. Seeding is idempotent and safe to run multiple times. **Category Naming Fix (Oct 11, 2025)**: Updated all 15 categories to use singular form in Russian (Однодневный, Многодневный, Экскурсия, etc.) while keeping English in plural (Day Tours, Multi-day Tours, Excursions) to match admin panel design; updated both database and seed file for consistency.
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding for reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities), and a smart category migration system for a standardized 15-category structure. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users. Category names are consistent (singular in Russian, plural in English).
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
 -   **Multilingual Support**: JSON-based content for Russian and English, with dynamic content updates and a unified language system.
 -   **Component-based Tour Pricing**: Dynamic pricing with inline editing and automatic category detection.
--   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management and debounced price recalculations to prevent rate limiting.
--   **Payment Integration**: Multiple gateway integrations with full webhook support. **Active gateways (Oct 9, 2025)**: Payler (Russia/CIS) and AlifPay (Tajikistan) with HMAC-SHA256 signature validation, automatic order status updates, and email confirmations. Stripe backend fully implemented with Payment Intents and webhooks. **Payment flow improvements (Oct 9, 2025)**: Created payment-fail.html for error handling; migrated completedOrder storage from localStorage to sessionStorage for session isolation; implemented retry logic with bookingId persistence for seamless recovery after failed payments; removed non-integrated payment methods (Binance, Корти Милли) from UI to show only functional options.
+-   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management and debounced price recalculations.
+-   **Payment Integration**: Multiple gateway integrations with full webhook support (Payler, AlifPay, Stripe). Includes payment failure handling and retry logic.
 -   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management.
 -   **Admin Panel Modules**: Fully implemented "Drivers", "Trips", and "Transfers" sections with CRUD functionality.
--   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management. **Currency Update Fix (Oct 10, 2025)**: Fixed admin panel currency save button - replaced undefined `showSuccessMessage()` with `showNotification()` to eliminate false error messages; unified all notification handlers across exchange rate CRUD operations (create, update, delete, calculate).
+-   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management.
 -   **API Design**: RESTful endpoints with standardized responses and robust language parameter handling.
 -   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation.
--   **Tour Itinerary Enhancement**: Restructured tour program system to support custom day titles in Russian and English with object structure `{titleRu, titleEn, activities[]}`.
+-   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels.
--   **Booking Page Enhancements**: Comprehensive localization for all elements, dynamic hotel data localization, color scheme adherence (gray #6B7280), accurate total price calculation including meal costs, and graceful handling of rate-limiting errors with a new notification system. Includes detailed price breakdown with accommodation deduction across all booking steps. **October 2025 fixes**: Eliminated premature accommodation deduction (now triggers only when rooms are selected), cleaned Tour Details display (removed duplication and "Rooms and Meals" section for clarity), added meal selection toggle functionality, unified all price displays to single sidebar element (#sidebar-total-amount), and ensured correct accommodation logic (base 800 TJS is for entire tour, not per-day). **Multilingual Hotel Data (Oct 9, 2025)**: Fixed room and meal type display bugs where names showed as "[object Object]" due to new bilingual structure {ru: '...', en: '...'}; updated admin-dashboard.html to save room/meal types with dual-language names; refactored booking-step1.html, booking-step2.html, and booking-step3.html to use getLocalizedName() for proper localization; eliminated JavaScript errors in price calculations (roomNameRaw.startsWith failures); ensured backward compatibility with legacy string-format data. **Booking Steps 2-3 Critical Fixes (Oct 9, 2025)**: Resolved redirect loop by migrating all booking steps from localStorage to sessionStorage via bookingStateManager for unified state management; fixed "[object Object]" display on step 2 sidebar using getLocalizedName() function; implemented conditional price multiplication (totals × tourists count) for non-group tours only (excludes "Групповой общий" type); established bookingStateManager as single source of truth with Object.assign in-place updates and persist() calls to maintain sessionStorage sync across all booking steps; eliminated dual-storage conflicts that prevented step 3 data access; step 3 now properly initializes bookingStateManager before accessing state.
+-   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic.
+-   **Banner & City Images System**: Separated banner slider management (`/api/slides`) from city card images (`/api/cities` with Multer upload), ensuring clean architecture.
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
 -   **Responsive Design**: Mobile-first approach.
--   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and **tour blocks** (Oct 10, 2025). **Filter Updates (Oct 11, 2025)**: Renamed "Формат тура" to "Тип тура" with three fixed types (Персональный, Групповой персональный, Групповой общий) matching admin modal; removed "Длительность" filter completely; configured "Языки тура" filter to dynamically extract languages from tour data with proper filtering logic; renamed "БЛОКИ ТУРОВ" filter to "НАПРАВЛЕНИЯ" (Directions) and fixed tab button from "туров" to "Туры" for proper capitalization. 
+-   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and tour blocks (renamed to "НАПРАВЛЕНИЯ").
 -   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
--   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments. Clickable breadcrumb navigation on tour pages directs to search with pre-selected filters.
+-   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments.
 -   **Design**: Consistent color palette, Inter font family, unified component structures, and gray button theme.
--   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format with accordions for multi-day tours, time indicators, and numbered events.
+-   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format.
+
+### Production Deployment Infrastructure
+-   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/` (requires `npm run build`), while development uses `ts-node`.
+-   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management (2 instances, cluster mode), Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
+-   **Optional Startup Controls**: `NODE_ENV`, `RUN_MIGRATIONS_ON_BOOT`, `RUN_SEED_ON_BOOT`, `CORS_ORIGINS`.
 
 ## External Dependencies
 
@@ -52,67 +58,10 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 ### Payment Gateways
 -   **AlifPay API v2**
 -   **Stripe API**
--   **Payme API**
--   **Click API**
--   **PayPal API**
+-   **Payler API**
 
 ### Development Tools
 -   **TypeScript**: Static type checking.
 
 ### Database
 -   **PostgreSQL**: Relational database.
-
-## Production Deployment Infrastructure (Oct 11, 2025)
-
-### TypeScript Compilation Strategy
-**Oct 11, 2025 MAJOR UPDATE**: Migrated from runtime ts-node to pre-compiled TypeScript for production stability.
-
-**Development Mode:**
-- Uses `ts-node` for on-the-fly compilation
-- Loads from `./src/**/*.ts` 
-- Slower but convenient for development
-- Startup log: `🛠️  DEV MODE: Using ts-node for TypeScript compilation`
-
-**Production Mode:**
-- Uses pre-compiled JavaScript from `./dist/`
-- Loads from `./dist/**/*.js`
-- Faster, stable, no runtime compilation overhead
-- Startup log: `🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/`
-- **Requires**: `npm run build` before deployment
-
-**Conditional Loading System** (index.js):
-- Automatically detects `NODE_ENV=production`
-- Loads appropriate files based on environment
-- Falls back to frontend-only mode on compilation errors
-- Validates environment variables before startup
-
-### Deployment System
--   **Deployment Path**: `/srv/bunyod-tour` (standardized across all configs)
--   **Update Script**: `./update.sh` - automated deployment with DB backup, migrations, **TypeScript build**, seed, and healthcheck
--   **Process Manager**: PM2 with `ecosystem.config.js` (2 instances, cluster mode, auto-restart)
--   **Reverse Proxy**: Nginx with template config in `nginx/bunyod-tour.conf`
--   **Healthcheck Endpoint**: `GET /healthz` for monitoring and automated checks
-
-### Optional Startup Controls
--   **NODE_ENV**: Set to `production` for compiled code, omit for development
--   **RUN_MIGRATIONS_ON_BOOT**: Controls auto-migrations on server boot (default: `false` in production)
--   **RUN_SEED_ON_BOOT**: Controls auto-seeding on server boot (default: `false` in production)
--   **CORS_ORIGINS**: Comma-separated whitelist for allowed origins
-
-### Deployment Files
--   `update.sh`: Production update automation (git pull → backup → migrate → seed → **TypeScript build** → restart → healthcheck). **Oct 11, 2025**: Added `npm run build` step for TypeScript compilation; updated to use dynamic directory detection via `script_dir` variable instead of hardcoded path
--   `ecosystem.config.js`: PM2 configuration for production with NODE_ENV=production
--   `nginx/bunyod-tour.conf`: Nginx reverse proxy template
--   `.env.example`: Complete environment variable template
--   `DEPLOYMENT_GUIDE.md`: Full server setup and deployment instructions with TypeScript troubleshooting section
--   `README.md`: Quick start guide with deployment path reference
--   `tsconfig.json`: TypeScript compiler configuration (target: ES2020, module: CommonJS, outDir: dist)
--   `package.json`: Added scripts - `build` (tsc), `typecheck` (tsc --noEmit), `start:prod` (NODE_ENV=production)
-
-### Security & Monitoring
--   Database backup before each update
--   TypeScript type checking before deployment
--   Health check verification after deployment
--   PM2 automatic restart on failures
--   CORS whitelist enforcement
--   All deployment scripts use `/srv/bunyod-tour` path for consistency
