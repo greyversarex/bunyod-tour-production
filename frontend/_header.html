@@ -190,24 +190,4 @@
             </nav>
         </div>
     </div>
-    
-    <script>
-    function toggleMobileMenu() {
-        const menu = document.getElementById('mobileMenu');
-        const button = document.getElementById('mobileMenuButton');
-        
-        if (menu.classList.contains('hidden')) {
-            menu.classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Предотвращаем прокрутку фона
-        } else {
-            menu.classList.add('hidden');
-            document.body.style.overflow = ''; // Восстанавливаем прокрутку
-        }
-    }
-    
-    function toggleMobileDropdown(id) {
-        const dropdown = document.getElementById('mobile-' + id);
-        dropdown.classList.toggle('hidden');
-    }
-    </script>
 </header>

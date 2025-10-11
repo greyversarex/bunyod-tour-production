@@ -327,6 +327,28 @@ window.toggleFooterSection = function(section) {
     }
 };
 
+// Глобальная функция для переключения мобильного меню
+window.toggleMobileMenu = function() {
+    const menu = document.getElementById('mobileMenu');
+    const button = document.getElementById('mobileMenuButton');
+    
+    if (menu && menu.classList.contains('hidden')) {
+        menu.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Предотвращаем прокрутку фона
+    } else if (menu) {
+        menu.classList.add('hidden');
+        document.body.style.overflow = ''; // Восстанавливаем прокрутку
+    }
+};
+
+// Глобальная функция для переключения dropdown в мобильном меню
+window.toggleMobileDropdown = function(id) {
+    const dropdown = document.getElementById('mobile-' + id);
+    if (dropdown) {
+        dropdown.classList.toggle('hidden');
+    }
+};
+
 // Автоматическая инициализация при загрузке DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.layoutLoader = new LayoutLoader();
