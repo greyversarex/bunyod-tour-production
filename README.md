@@ -76,6 +76,9 @@ npm start                 # Start production server
 ./update.sh              # Complete update: backup → migrate → seed → restart
 ```
 
+> **📌 Стандартный путь деплоя:** `/srv/bunyod-tour`  
+> Скрипт автоматически определяет свою директорию и работает из неё.
+
 ## 🔧 Quick Start
 
 ### 1. Install Dependencies
