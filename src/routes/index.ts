@@ -28,6 +28,7 @@ import driverRoutes from './driverRoutes';
 // Location system
 import countryRoutes from './countryRoutes';
 import cityRoutes from './cityRoutes';
+import cityCardPhotoRoutes from './cityCardPhotoRoutes'; // ОТДЕЛЬНАЯ система для фото карточек городов
 // Trip system
 import tripRoutes from './tripRoutes';
 import tourAgentRoutes from './tourAgentRoutes';
@@ -66,6 +67,7 @@ router.use('/admin', adminTourHistoryRoutes); // Admin tour history and guide ma
 router.use('/drivers', driverRoutes); // Driver management and authentication
 router.use('/countries', countryRoutes); // Countries management
 router.use('/cities', cityRoutes); // Cities management
+router.use('/city-card-photos', cityCardPhotoRoutes); // ОТДЕЛЬНОЕ управление фото карточек городов
 router.use('/trips', tripRoutes); // Trip management
 router.use('/tour-agents', tourAgentRoutes); // Tour agents management
 router.use('/transfers', transferRoutes); // Transfer requests management

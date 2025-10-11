@@ -527,9 +527,27 @@ model City {
   guides     Guide[]    // Связь с гидами
   tourAgents TourAgent[] // Связь с турагентами
   slides     Slide[]    // Связь со слайдами
+  cityCardPhotos CityCardPhoto[] // ОТДЕЛЬНАЯ связь с фотографиями карточек
 
   @@unique([name, countryId])
   @@map("cities")
+}
+
+// ОТДЕЛЬНАЯ модель для фотографий карточек городов на главной странице
+// НЕ связана с моделью Slide (слайды баннера)
+// НЕ влияет на функциональность City (локации/фильтры)
+model CityCardPhoto {
+  id        Int      @id @default(autoincrement())
+  cityId    Int      @map("city_id")
+  image     String   // Путь к изображению
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order") // Порядок отображения
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("city_card_photos")
 }
 
 model NewsPost {
