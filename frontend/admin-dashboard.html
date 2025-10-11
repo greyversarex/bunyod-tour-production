@@ -1559,15 +1559,6 @@
                                     </div>
                                     
                                     <div class="form-group">
-                                        <label class="form-label">Город (для карточек городов)</label>
-                                        <select class="form-input" id="bannerCity">
-                                            <option value="">Не привязан к городу (главный слайд)</option>
-                                            <!-- Cities will be loaded here -->
-                                        </select>
-                                        <small class="text-gray-500 mt-1 block">Если слайд привязан к городу, он будет отображаться на карточке этого города на главной странице</small>
-                                    </div>
-                                    
-                                    <div class="form-group">
                                         <label class="checkbox-item">
                                             <input type="checkbox" id="bannerActive" checked> Активный
                                         </label>
@@ -1864,15 +1855,6 @@
                 <div class="form-group">
                     <label class="form-label">Порядок отображения</label>
                     <input type="number" class="form-input" id="editSlideOrder" value="1" min="1">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Город (для карточек городов)</label>
-                    <select class="form-input" id="editSlideCity">
-                        <option value="">Не привязан к городу (главный слайд)</option>
-                        <!-- Cities will be loaded here -->
-                    </select>
-                    <small class="text-gray-500 mt-1 block">Если слайд привязан к городу, он будет отображаться на карточке этого города на главной странице</small>
                 </div>
                 
                 <div class="form-group">
@@ -12840,8 +12822,7 @@
                     ru: safeGetValue('bannerButtonTextRu', '')
                 },
                 order: safeGetValue('bannerOrder', 1, 'int'),
-                isActive: safeGetValue('bannerActive', false, 'checkbox'),
-                cityId: safeGetValue('bannerCity', '', 'int') || null
+                isActive: safeGetValue('bannerActive', false, 'checkbox')
             };
             
             // Добавляем JSON данные
@@ -13614,38 +13595,7 @@
         // Load functions for new sections
         // REMOVED - old loadPriceCalculator function (conflicted with new one)
 
-        async function loadCitiesForSlides() {
-            try {
-                const response = await fetch(`${getApiUrl()}/cities`, {
-                    headers: getAuthHeaders()
-                });
-                const data = await response.json();
-                
-                if (data.success && data.data) {
-                    const cities = data.data;
-                    
-                    // Populate both city selects
-                    const bannerCitySelect = document.getElementById('bannerCity');
-                    const editSlideCitySelect = document.getElementById('editSlideCity');
-                    
-                    const cityOptions = cities.map(city => 
-                        `<option value="${city.id}">${city.nameRu} (${city.nameEn})</option>`
-                    ).join('');
-                    
-                    if (bannerCitySelect) {
-                        bannerCitySelect.innerHTML = '<option value="">Не привязан к городу (главный слайд)</option>' + cityOptions;
-                    }
-                    if (editSlideCitySelect) {
-                        editSlideCitySelect.innerHTML = '<option value="">Не привязан к городу (главный слайд)</option>' + cityOptions;
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading cities for slides:', error);
-            }
-        }
-
         function loadBannerManagement() {
-            loadCitiesForSlides();
             loadCurrentSlides();
         }
 
