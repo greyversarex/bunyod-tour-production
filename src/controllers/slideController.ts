@@ -2,17 +2,43 @@ import { Request, Response } from 'express';
 import { safeJsonParse } from '../utils/multilingual';
 import prisma from '../config/database';
 
-// Get all slides
+// 🛡️ SAFE JSON PARSER: Never throws, always returns valid multilingual object
+const parseML = (v: any) => {
+  try {
+    if (v == null) return { ru: "", en: "" };
+    const obj = typeof v === "string" ? JSON.parse(v) : v;
+    if (obj && typeof obj === "object") return obj;
+    return { ru: String(v ?? ""), en: String(v ?? "") };
+  } catch {
+    return { ru: String(v ?? ""), en: String(v ?? "") };
+  }
+};
+
+// Get all slides - BULLETPROOF: Never throws on malformed data
 export const getSlides = async (req: Request, res: Response) => {
   try {
-    const slides = await prisma.slide.findMany({
+    const rows = await prisma.slide.findMany({
       where: { isActive: true },
-      orderBy: { order: 'asc' }
+      orderBy: { order: 'asc' },
+      include: { city: true }
     });
+
+    // 🛡️ SAFE MAPPING: Parse all JSON fields safely, no exceptions
+    const data = rows.map(s => ({
+      id: s.id,
+      title: parseML(s.title),
+      description: parseML(s.description),
+      image: s.image,
+      link: s.link ?? null,
+      buttonText: s.buttonText ? parseML(s.buttonText) : null,
+      order: s.order,
+      isActive: s.isActive,
+      city: s.city ? { id: s.city.id, name: s.city.name } : null
+    }));
 
     res.json({
       success: true,
-      data: slides
+      data
     });
   } catch (error) {
     console.error('Error fetching slides:', error);
