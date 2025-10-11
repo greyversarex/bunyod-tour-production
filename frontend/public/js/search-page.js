@@ -17,9 +17,8 @@ const state = {
     categories: [],
     countries: [],
     cities: [],
-    formats: new Set(),
+    tourTypes: new Set(),
     languages: new Set(),
-    durations: new Set(),
     hotelStars: new Set(),
     amenities: new Set(),
     
@@ -30,8 +29,7 @@ const state = {
         city: '',
         tourBlocks: [],
         categories: [],
-        format: '',
-        duration: '',
+        tourTypes: [],
         priceMin: 0,
         priceMax: 100000,
         languages: [],
@@ -134,14 +132,14 @@ async function loadAllData() {
 
 // Extract unique filter values from tours
 function extractTourFilterData() {
-    state.formats.clear();
+    state.tourTypes.clear();
     state.languages.clear();
-    state.durations.clear();
     
     state.allTours.forEach(tour => {
-        // Extract formats
-        if (tour.format) {
-            state.formats.add(tour.format);
+        // Extract tour types (from tourType or format field)
+        const tourType = tour.tourType || tour.format;
+        if (tourType) {
+            state.tourTypes.add(tourType);
         }
         
         // Extract languages
@@ -153,17 +151,11 @@ function extractTourFilterData() {
                 }
             } catch (e) {}
         }
-        
-        // Extract durations
-        if (tour.durationDays) {
-            state.durations.add(tour.durationDays);
-        }
     });
     
     console.log('📊 Extracted filter data:', {
-        formats: Array.from(state.formats),
-        languages: Array.from(state.languages),
-        durations: Array.from(state.durations).sort((a, b) => a - b)
+        tourTypes: Array.from(state.tourTypes),
+        languages: Array.from(state.languages)
     });
 }
 
@@ -301,51 +293,8 @@ function updateLocationFilters() {
 }
 
 function renderTourFilters() {
-    // Render format filter
-    renderFormatFilter();
-    // Render duration filter
-    renderDurationFilter();
-    // Render languages filter  
+    // Render languages filter only (tour types are hardcoded in HTML)
     renderLanguagesFilter();
-}
-
-function renderFormatFilter() {
-    const container = document.getElementById('format-checkboxes');
-    if (!container) return;
-    
-    const formats = Array.from(state.formats);
-    container.innerHTML = formats.map(format => `
-        <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
-            <input type="checkbox" 
-                   value="${escapeHtml(format)}" 
-                   ${state.filters.format === format ? 'checked' : ''}
-                   onchange="handleFormatChange(this)"
-                   class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-            <span>${escapeHtml(format)}</span>
-        </label>
-    `).join('');
-}
-
-function renderDurationFilter() {
-    const container = document.getElementById('duration-checkboxes');
-    if (!container) return;
-    
-    const durations = Array.from(state.durations).sort((a, b) => a - b);
-    const currentLang = state.currentLang;
-    
-    container.innerHTML = durations.map(days => {
-        const label = currentLang === 'ru' ? `${days} ${getDaysText(days)}` : `${days} ${getDaysTextEn(days)}`;
-        return `
-            <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
-                <input type="checkbox" 
-                       value="${days}" 
-                       ${state.filters.duration == days ? 'checked' : ''}
-                       onchange="handleDurationChange(this)"
-                       class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-                <span>${label}</span>
-            </label>
-        `;
-    }).join('');
 }
 
 function renderLanguagesFilter() {
@@ -353,15 +302,21 @@ function renderLanguagesFilter() {
     if (!container) return;
     
     const languages = Array.from(state.languages).sort();
+    
+    if (languages.length === 0) {
+        container.innerHTML = '<div class="text-sm text-gray-500 py-2">Языки появятся после добавления туров</div>';
+        return;
+    }
+    
     container.innerHTML = languages.map(lang => `
-        <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
+        <div class="filter-option">
             <input type="checkbox" 
+                   id="lang-${escapeHtml(lang)}"
                    value="${escapeHtml(lang)}" 
                    ${state.filters.languages.includes(lang) ? 'checked' : ''}
-                   onchange="handleLanguageFilterChange(this)"
-                   class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-            <span>${escapeHtml(lang)}</span>
-        </label>
+                   onchange="applyFilters()">
+            <label for="lang-${escapeHtml(lang)}">${escapeHtml(lang)}</label>
+        </div>
     `).join('');
 }
 
@@ -504,25 +459,20 @@ function handleCategoryChange(checkbox) {
     performSearch();
 }
 
-function handleFormatChange(checkbox) {
-    state.filters.format = checkbox.checked ? checkbox.value : '';
-    performSearch();
-}
-
-function handleDurationChange(checkbox) {
-    state.filters.duration = checkbox.checked ? parseInt(checkbox.value) : '';
-    performSearch();
-}
-
-function handleLanguageFilterChange(checkbox) {
-    const lang = checkbox.value;
-    if (checkbox.checked) {
-        if (!state.filters.languages.includes(lang)) {
-            state.filters.languages.push(lang);
-        }
-    } else {
-        state.filters.languages = state.filters.languages.filter(l => l !== lang);
-    }
+// Apply all filters (called from filter UI)
+function applyFilters() {
+    // Collect tour types
+    state.filters.tourTypes = [];
+    document.querySelectorAll('#tourtype-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+        state.filters.tourTypes.push(cb.value);
+    });
+    
+    // Collect languages
+    state.filters.languages = [];
+    document.querySelectorAll('#languages-checkboxes input[type="checkbox"]:checked').forEach(cb => {
+        state.filters.languages.push(cb.value);
+    });
+    
     performSearch();
 }
 
@@ -597,14 +547,12 @@ function searchTours() {
         results = results.filter(tour => tour.cityId == state.filters.city);
     }
     
-    // Apply format filter
-    if (state.filters.format) {
-        results = results.filter(tour => tour.format === state.filters.format);
-    }
-    
-    // Apply duration filter
-    if (state.filters.duration) {
-        results = results.filter(tour => tour.durationDays == state.filters.duration);
+    // Apply tour type filter
+    if (state.filters.tourTypes.length > 0) {
+        results = results.filter(tour => {
+            const tourType = tour.tourType || tour.format;
+            return tourType && state.filters.tourTypes.includes(tourType);
+        });
     }
     
     // Apply language filter
