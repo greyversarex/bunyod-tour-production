@@ -55,6 +55,9 @@ npx prisma migrate deploy
 echo "🌱 Сид (идемпотентный справочник)..."
 npx prisma db seed || npm run seed
 
+echo "🏗️  Компиляция TypeScript для production..."
+npm run build
+
 echo "🚀 Перезапуск приложения..."
 pm2 restart "$APP_NAME"
 pm2 save
