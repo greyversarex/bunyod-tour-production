@@ -3029,6 +3029,12 @@
                     </div>
                     
                     <div class="form-group">
+                        <label class="form-label">Фотография карточки города</label>
+                        <input type="file" id="cityImageFile" class="form-input" accept="image/*">
+                        <small class="text-gray-500 mt-1 block">Поддерживаемые форматы: JPG, PNG, GIF. Максимальный размер: 5 МБ</small>
+                        <div class="mt-2">
+                            <img id="cityImagePreview" class="w-24 h-16 object-cover rounded border" style="display: none;" alt="Текущее изображение">
+                        </div>
                     </div>
                 </div>
                 
@@ -14211,6 +14217,12 @@
             document.getElementById('cityId').value = '';
             loadCountriesForCityModal();
             
+            // Скрываем превью изображения
+            const imagePreview = document.getElementById('cityImagePreview');
+            if (imagePreview) {
+                imagePreview.style.display = 'none';
+            }
+            
             if (cityId) {
                 // Режим редактирования
                 document.getElementById('cityModalTitle').textContent = 'Редактировать город';
@@ -14229,24 +14241,30 @@
             const cityId = document.getElementById('cityId').value;
             const isEditing = !!cityId;
             
-            const cityData = {
-                countryId: parseInt(document.getElementById('cityCountryId').value),
-                name: document.getElementById('cityName').value,
-                nameRu: document.getElementById('cityNameRu').value,
-                nameEn: document.getElementById('cityName').value,
-            };
+            const formData = new FormData();
+            formData.append('countryId', document.getElementById('cityCountryId').value);
+            formData.append('name', document.getElementById('cityName').value);
+            formData.append('nameRu', document.getElementById('cityNameRu').value);
+            formData.append('nameEn', document.getElementById('cityName').value);
+            
+            // Добавляем файл изображения если выбран
+            const imageFile = document.getElementById('cityImageFile').files[0];
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
             
             try {
                 const url = isEditing ? `${getApiUrl()}/cities/${cityId}` : `${getApiUrl()}/cities`;
                 const method = isEditing ? 'PUT' : 'POST';
                 
+                // Не добавляем Content-Type для FormData
+                const headers = getAuthHeaders();
+                delete headers['Content-Type'];
+                
                 const response = await fetch(url, {
                     method: method,
-                    headers: {
-                        ...getAuthHeaders(),
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(cityData)
+                    headers: headers,
+                    body: formData
                 });
                 
                 const data = await response.json();
@@ -14301,6 +14319,13 @@
                     document.getElementById('cityCountryId').value = city.countryId;
                     document.getElementById('cityName').value = city.nameEn || city.name;
                     document.getElementById('cityNameRu').value = city.nameRu;
+                    
+                    // Показываем превью изображения если есть
+                    const imagePreview = document.getElementById('cityImagePreview');
+                    if (city.image && imagePreview) {
+                        imagePreview.src = city.image;
+                        imagePreview.style.display = 'block';
+                    }
                 }
             } catch (error) {
                 alert('Ошибка загрузки города: ' + error.message);
