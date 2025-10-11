@@ -15,7 +15,7 @@ System integration preference: User requires simplified and unified pricing syst
 The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, and **Cities**. The system features automatic database initialization, schema application, data seeding for reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities), and a smart category migration system for a standardized 15-category structure. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users. Category names are consistent (singular in Russian, plural in English).
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto** (independent photo system for city cards). The system features automatic database initialization, schema application, data seeding for reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities), and a smart category migration system for a standardized 15-category structure. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users. Category names are consistent (singular in Russian, plural in English).
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
@@ -31,7 +31,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels.
 -   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic.
--   **Banner & City Images System**: Separated banner slider management (`/api/slides`) from city card images (`/api/cities` with Multer upload), ensuring clean architecture.
+-   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides`), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management.
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
