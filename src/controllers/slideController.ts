@@ -106,6 +106,8 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
     const order = parseInt(req.body.order) || 0;
     const isActive = req.body.isActive === 'true';
 
+    const cityId = req.body.cityId ? parseInt(req.body.cityId) : null;
+
     const slide = await prisma.slide.create({
       data: {
         title: JSON.stringify(title),
@@ -114,7 +116,8 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
         link,
         buttonText: buttonText ? JSON.stringify(buttonText) : null,
         order,
-        isActive
+        isActive,
+        cityId
       }
     });
 
@@ -174,6 +177,10 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
       if (Object.prototype.hasOwnProperty.call(req.body, 'isActive')) {
         parsedData.isActive = req.body.isActive === 'true';
       }
+      if (Object.prototype.hasOwnProperty.call(req.body, 'cityId')) {
+        const cityIdRaw = req.body.cityId;
+        parsedData.cityId = cityIdRaw ? parseInt(cityIdRaw) : null;
+      }
       
       // Handle uploaded image
       if (req.file) {
@@ -181,7 +188,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
       }
     } else {
       // 📊 JSON: Direct object assignment with robust type normalization
-      const { title, description, image, link, buttonText, order, isActive } = req.body;
+      const { title, description, image, link, buttonText, order, isActive, cityId } = req.body;
       parsedData.title = title;
       parsedData.description = description;
       parsedData.link = link;
@@ -201,6 +208,10 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
         parsedData.isActive = typeof v === 'string' ? v === 'true' : Boolean(v);
       }
       
+      if (Object.prototype.hasOwnProperty.call(req.body, 'cityId')) {
+        parsedData.cityId = cityId ? parseInt(cityId) : null;
+      }
+      
       // 🖼️ IMAGE SAFETY: Only set image if non-empty valid path provided
       if (image && image !== '' && image != null) {
         parsedData.image = image;
@@ -215,6 +226,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
     if (parsedData.buttonText !== undefined) updateData.buttonText = parsedData.buttonText ? JSON.stringify(parsedData.buttonText) : null;
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
     if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
+    if (parsedData.cityId !== undefined) updateData.cityId = parsedData.cityId;
     updateData.updatedAt = new Date();
 
     // 🔒 SECURITY: Protect existing image from being overwritten (like newsController)

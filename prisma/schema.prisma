@@ -526,6 +526,7 @@ model City {
   drivers    Driver[]   // Связь с водителями
   guides     Guide[]    // Связь с гидами
   tourAgents TourAgent[] // Связь с турагентами
+  slides     Slide[]    // Связь со слайдами (фото городов)
 
   @@unique([name, countryId])
   @@map("cities")
@@ -572,6 +573,8 @@ model Slide {
   buttonText  String?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
+  cityId      Int?     @map("city_id")
+  city        City?    @relation(fields: [cityId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

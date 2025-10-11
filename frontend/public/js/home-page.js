@@ -2356,3 +2356,44 @@ function initializeEventHandlers() {
     
     console.log('All event handlers initialized');
 }
+
+// Загрузка фото городов из слайдов
+async function loadCityPhotosFromSlides() {
+    try {
+        const response = await fetch('/api/slides');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+                const citySlides = result.data.filter(slide => slide.cityId);
+                
+                // Применяем фото к карточкам городов
+                citySlides.forEach(slide => {
+                    if (slide.image) {
+                        // Находим карточку города по cityId (используем data-city-id если он есть или ищем по onclick)
+                        const cityCards = document.querySelectorAll('.group.cursor-pointer.overflow-hidden.rounded-lg');
+                        cityCards.forEach(card => {
+                            const onclick = card.getAttribute('onclick');
+                            if (onclick && onclick.includes(`cityId=${slide.cityId}`)) {
+                                // Находим фоновый div
+                                const bgDiv = card.querySelector('.bg-gray-200');
+                                if (bgDiv) {
+                                    bgDiv.style.backgroundImage = `url(${slide.image})`;
+                                    bgDiv.style.backgroundSize = 'cover';
+                                    bgDiv.style.backgroundPosition = 'center';
+                                    bgDiv.classList.remove('bg-gray-200');
+                                }
+                            }
+                        });
+                    }
+                });
+                
+                console.log('✅ City photos loaded from slides:', citySlides.length);
+            }
+        }
+    } catch (error) {
+        console.error('❌ Error loading city photos:', error);
+    }
+}
+
+// Вызываем загрузку фото городов при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadCityPhotosFromSlides);
