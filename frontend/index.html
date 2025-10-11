@@ -146,20 +146,33 @@
         }
         
         .slider-dot {
+            cursor: pointer;
+            padding: 16px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: transparent;
+        }
+        
+        .slider-dot::before {
+            content: '';
+            position: absolute;
             width: 12px;
             height: 12px;
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
             transition: all 0.3s ease;
         }
         
-        .slider-dot.active {
+        .slider-dot.active::before {
             background-color: white;
             transform: scale(1.2);
         }
         
-        .slider-dot:hover {
+        .slider-dot:hover::before {
             background-color: rgba(255, 255, 255, 0.8);
         }
         
@@ -218,19 +231,98 @@
             transform: translateY(-50%) scale(0.9);
         }
         
+        /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
         @media (max-width: 768px) {
+            /* Баннер/Слайдер */
+            .banner-height {
+                height: 50vh;
+                min-height: 400px;
+            }
+            
+            .hero-slide h1 {
+                font-size: 2rem !important;
+                line-height: 1.2;
+                margin-bottom: 1rem !important;
+            }
+            
+            .hero-slide p {
+                font-size: 0.95rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .hero-slide a {
+                font-size: 0.9rem !important;
+                padding: 0.6rem 1.5rem !important;
+            }
+            
+            #sliderNavigation {
+                bottom: 3rem;
+            }
+            
+            #prevSlide, #nextSlide {
+                font-size: 2rem !important;
+                padding: 0.5rem;
+            }
+            
+            /* Карусель туров */
             .tour-carousel {
                 padding: 0 20px;
             }
             
             .carousel-button {
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
             }
             
             .carousel-button svg {
-                width: 20px;
-                height: 20px;
+                width: 22px;
+                height: 22px;
+            }
+            
+            /* Карточки туров */
+            .tour-card {
+                min-width: 240px;
+                max-width: 240px;
+            }
+            
+            /* Секции */
+            section {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+            
+            section h2 {
+                font-size: 1.75rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            section h3 {
+                font-size: 1.25rem !important;
+            }
+        }
+        
+        /* Экстра-малые экраны */
+        @media (max-width: 480px) {
+            .banner-height {
+                height: 45vh;
+                min-height: 350px;
+            }
+            
+            .hero-slide h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            .hero-slide p {
+                font-size: 0.875rem !important;
+            }
+            
+            .tour-card {
+                min-width: 200px;
+                max-width: 200px;
+            }
+            
+            section h2 {
+                font-size: 1.5rem !important;
             }
         }
         
