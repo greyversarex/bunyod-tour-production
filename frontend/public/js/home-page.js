@@ -2357,27 +2357,27 @@ function initializeEventHandlers() {
     console.log('All event handlers initialized');
 }
 
-// Загрузка фото городов из слайдов
+// Загрузка фото городов из API городов
 async function loadCityPhotosFromSlides() {
     try {
-        const response = await fetch('/api/slides');
+        const response = await fetch('/api/cities');
         if (response.ok) {
             const result = await response.json();
             if (result.success && result.data) {
-                const citySlides = result.data.filter(slide => slide.cityId);
+                const cities = result.data;
                 
                 // Применяем фото к карточкам городов
-                citySlides.forEach(slide => {
-                    if (slide.image) {
-                        // Находим карточку города по cityId (используем data-city-id если он есть или ищем по onclick)
+                cities.forEach(city => {
+                    if (city.image) {
+                        // Находим карточку города по cityId в onclick атрибуте
                         const cityCards = document.querySelectorAll('.group.cursor-pointer.overflow-hidden.rounded-lg');
                         cityCards.forEach(card => {
                             const onclick = card.getAttribute('onclick');
-                            if (onclick && onclick.includes(`cityId=${slide.cityId}`)) {
+                            if (onclick && onclick.includes(`cityId=${city.id}`)) {
                                 // Находим фоновый div
                                 const bgDiv = card.querySelector('.bg-gray-200');
                                 if (bgDiv) {
-                                    bgDiv.style.backgroundImage = `url(${slide.image})`;
+                                    bgDiv.style.backgroundImage = `url(${city.image})`;
                                     bgDiv.style.backgroundSize = 'cover';
                                     bgDiv.style.backgroundPosition = 'center';
                                     bgDiv.classList.remove('bg-gray-200');
@@ -2387,7 +2387,7 @@ async function loadCityPhotosFromSlides() {
                     }
                 });
                 
-                console.log('✅ City photos loaded from slides:', citySlides.length);
+                console.log('✅ City photos loaded from cities API:', cities.filter(c => c.image).length);
             }
         }
     } catch (error) {
