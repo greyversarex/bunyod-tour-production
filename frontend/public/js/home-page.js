@@ -2357,27 +2357,27 @@ function initializeEventHandlers() {
     console.log('All event handlers initialized');
 }
 
-// Загрузка фото городов из API городов
+// Загрузка фото городов из ОТДЕЛЬНОГО API city-card-photos
 async function loadCityPhotosFromSlides() {
     try {
-        const response = await fetch('/api/cities');
+        const response = await fetch('/api/city-card-photos');
         if (response.ok) {
             const result = await response.json();
             if (result.success && result.data) {
-                const cities = result.data;
+                const photos = result.data;
                 
                 // Применяем фото к карточкам городов
-                cities.forEach(city => {
-                    if (city.image) {
+                photos.forEach(photo => {
+                    if (photo.imageUrl && photo.cityId) {
                         // Находим карточку города по cityId в onclick атрибуте
                         const cityCards = document.querySelectorAll('.group.cursor-pointer.overflow-hidden.rounded-lg');
                         cityCards.forEach(card => {
                             const onclick = card.getAttribute('onclick');
-                            if (onclick && onclick.includes(`cityId=${city.id}`)) {
+                            if (onclick && onclick.includes(`cityId=${photo.cityId}`)) {
                                 // Находим фоновый div
                                 const bgDiv = card.querySelector('.bg-gray-200');
                                 if (bgDiv) {
-                                    bgDiv.style.backgroundImage = `url(${city.image})`;
+                                    bgDiv.style.backgroundImage = `url(${photo.imageUrl})`;
                                     bgDiv.style.backgroundSize = 'cover';
                                     bgDiv.style.backgroundPosition = 'center';
                                     bgDiv.classList.remove('bg-gray-200');
@@ -2387,7 +2387,7 @@ async function loadCityPhotosFromSlides() {
                     }
                 });
                 
-                console.log('✅ City photos loaded from cities API:', cities.filter(c => c.image).length);
+                console.log('✅ City photos loaded from city-card-photos API:', photos.length);
             }
         }
     } catch (error) {
