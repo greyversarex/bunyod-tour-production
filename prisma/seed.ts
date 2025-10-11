@@ -109,18 +109,18 @@ async function main() {
 
   // 5. Create categories (15 tourism categories - ONLY RU/EN, NO TJ)
   const categoriesData = [
-    { type: 'tour', name: JSON.stringify({ ru: 'Однодневные', en: 'Day Tours' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Многодневные', en: 'Multi-day Tours' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Экскурсии', en: 'Excursions' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Городские', en: 'City Tours' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Природа/экологические', en: 'Nature/Ecological' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Культурно познавательные', en: 'Cultural & Educational' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Исторические', en: 'Historical' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Однодневный', en: 'Day Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Многодневный', en: 'Multi-day Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Экскурсия', en: 'Excursions' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Городской', en: 'City Tours' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Природа/экологический', en: 'Nature/Ecological' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Культурно познавательный', en: 'Cultural & Educational' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Исторический', en: 'Historical' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'Походы/треккинги', en: 'Hiking/Trekking' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'Горные ландшафты', en: 'Mountain Landscapes' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'Озерные ландшафты', en: 'Lake Landscapes' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Приключенческие', en: 'Adventure' }) },
-    { type: 'tour', name: JSON.stringify({ ru: 'Гастрономические', en: 'Gastronomic' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Приключенческий', en: 'Adventure' }) },
+    { type: 'tour', name: JSON.stringify({ ru: 'Гастрономический', en: 'Gastronomic' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'Авто/сафари/джип', en: 'Auto/Safari/Jeep' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'Агротуризм', en: 'Agrotourism' }) },
     { type: 'tour', name: JSON.stringify({ ru: 'VIP', en: 'VIP' }) }
