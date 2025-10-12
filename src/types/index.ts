@@ -73,6 +73,7 @@ export interface CreateTourData {
   excluded?: string;
   isFeatured?: boolean;
   isDraft?: boolean;
+  isActive?: boolean;
   pickupInfo?: string;
   pickupInfoEn?: string;
   startTimeOptions?: string;
