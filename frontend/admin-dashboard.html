@@ -6378,7 +6378,7 @@
                 tourBlockIds: selectedTourBlocks, // 🎯 ДОБАВЛЕНО: Отправляем выбранные блоки туров
                 excluded: JSON.stringify(excludedServices),
                 includes: JSON.stringify(includedServices), // 🎯 ДОБАВЛЕНО: Отправляем включенные услуги
-                isActive: true,
+                isActive: !isDraft, // 📝 Черновики неактивны (isDraft=true → isActive=false)
                 isFeatured: false,
                 isDraft: isDraft // 📝 Добавляем статус черновика
             };
@@ -7731,7 +7731,7 @@
                 mealTypes: JSON.stringify(mealTypes),
                 amenities: JSON.stringify(amenities),
                 images: JSON.stringify(images),
-                isActive: isActive,
+                isActive: !isDraft && isActive, // 📝 Черновики всегда неактивны (isDraft=true → isActive=false)
                 isDraft: isDraft // 📝 Добавляем статус черновика
             };
             
@@ -9018,7 +9018,11 @@
                             
                             <div class="flex justify-end gap-3 mt-6">
                                 <button type="button" onclick="closeGuideModal()" class="btn btn-secondary">Отмена</button>
-                                <button type="submit" class="btn btn-primary">Сохранить</button>
+                                <button type="button" onclick="saveGuideAsDraft()" class="btn" style="background-color: #6b7280; color: white;">
+                                    <i class="fas fa-file"></i>
+                                    Сохранить как черновик
+                                </button>
+                                <button type="submit" class="btn btn-primary">Опубликовать</button>
                             </div>
                         </form>
                     </div>
@@ -10036,9 +10040,15 @@
         
         
 
-        function saveGuide() {
+        // Функция для сохранения гида как черновик
+        function saveGuideAsDraft() {
+            saveGuide(true); // isDraft = true
+        }
+        
+        function saveGuide(isDraft = false) {
             // ИСПРАВЛЕНО: Получаем выбранные языки из нового интерфейса
             console.log('🔍 Выбранные языки:', selectedGuideLanguages);
+            console.log('📝 Сохранение гида:', { isDraft });
             
             // Получаем ФИО из обоих языковых полей
             const fullNameRu = safeGetValue('guideFullNameRu', '').trim();
@@ -10074,8 +10084,9 @@
             const countryId = safeGetValue('guideCountry', '', 'int') || null;
             const cityId = safeGetValue('guideCity', '', 'int') || null;
             
-            // Получаем статус
-            const isActive = safeGetValue('guideIsActive', 'true');
+            // Получаем статус (черновики всегда неактивны)
+            const isActiveValue = safeGetValue('guideIsActive', 'true');
+            const isActive = !isDraft && (isActiveValue === 'true'); // 📝 Черновики неактивны
             
             // Получаем поля ценообразования
             const pricePerDay = safeGetValue('guidePricePerDay', '', 'float') || null;
@@ -10100,7 +10111,8 @@
             if (password && password.trim()) {
                 formData.append('password', password);
             }
-            formData.append('isActive', isActive === 'true' ? 'true' : 'false');
+            formData.append('isActive', isActive ? 'true' : 'false');
+            formData.append('isDraft', isDraft ? 'true' : 'false'); // 📝 Добавляем статус черновика
             
             // Добавляем новые поля
             formData.append('passportSeries', passportSeries);
@@ -10150,7 +10162,8 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    alert('Гид успешно создан!');
+                    const message = isDraft ? '✅ Черновик гида успешно сохранён!' : '✅ Гид успешно создан!';
+                    alert(message);
                     closeGuideModal();
                     loadGuides();
                 } else {
