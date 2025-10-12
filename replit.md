@@ -34,7 +34,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides`), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management.
 
 ### UI/UX
--   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status.
+-   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality fully operational for tours, hotels, and guides with proper `isDraft/isActive` handling.
 -   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization (44x44px minimum for all interactive elements).
 -   **Mobile Footer**: Optimized with collapsible accordion sections (Company, Contacts), always-visible social links with proper touch targets, and desktop-only map display.
 -   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design with gradient backgrounds, backdrop-filter blur effects, smooth shadows, and hover transitions for premium UX.
