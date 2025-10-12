@@ -115,7 +115,8 @@
     border-radius: 0.5rem;
     border: 1.5px solid rgba(255, 255, 255, 0.2);
     padding: 0.5rem 0;
-    min-width: 100px;
+    min-width: 70px;
+    width: fit-content;
     z-index: 1000;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
 }
@@ -127,8 +128,9 @@
 .lang-option {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
     color: white;
     cursor: pointer;
     transition: background-color 0.2s;
@@ -186,7 +188,8 @@
     border-radius: 0.5rem;
     border: 1.5px solid rgba(255,255,255,0.2);
     padding: 0.5rem 0;
-    min-width: 95px;
+    min-width: 75px;
+    width: fit-content;
     z-index: 1000;
     box-shadow: 0 8px 20px rgba(0,0,0,0.35);
 }
