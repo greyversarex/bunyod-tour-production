@@ -1,6 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
+# Trap для отлова ошибок
+trap 'echo "❌ Deploy failed. See logs above."; exit 1' ERR
+
 # Динамическое определение директории скрипта
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 cd "$script_dir"
@@ -49,8 +52,14 @@ npm ci || npm install
 echo "🔧 Prisma generate..."
 npx prisma generate
 
-echo "🗄️  Применяю миграции (deploy)..."
-npx prisma migrate deploy
+echo "🗄️  Применяю миграции (умная проверка)..."
+if [ -d prisma/migrations ] && [ "$(ls -A prisma/migrations 2>/dev/null)" ]; then
+  echo "📋 Найдены миграции, применяю migrate deploy..."
+  npx prisma migrate deploy
+else
+  echo "📋 Миграций нет, применяю db push..."
+  npx prisma db push
+fi
 
 echo "🌱 Сид (идемпотентный справочник)..."
 npx prisma db seed || npm run seed
@@ -58,8 +67,11 @@ npx prisma db seed || npm run seed
 echo "🏗️  Компиляция TypeScript для production..."
 npm run build
 
-echo "🚀 Перезапуск приложения..."
-pm2 restart "$APP_NAME"
+echo "📁 Создаю директорию логов..."
+mkdir -p logs
+
+echo "🚀 Перезапуск приложения через PM2 ecosystem..."
+pm2 startOrReload ecosystem.config.js --only bunyod-tour
 pm2 save
 
 echo "🔎 Проверяю порт 5000..."

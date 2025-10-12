@@ -6,20 +6,23 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('🌱 Starting database seeding...');
 
-  // 1. Create default admin user
-  const hashedPassword = await bcrypt.hash('admin12345', 10);
+  // 1. Create default admin user (ENV-driven)
+  const defaultPwd = process.env.ADMIN_DEFAULT_PASSWORD || 'admin12345';
+  const defaultEmail = process.env.ADMIN_DEFAULT_EMAIL || 'admin@bunyod-tour.tj';
+  const hashedPassword = await bcrypt.hash(defaultPwd, 10);
+  
   const admin = await prisma.admin.upsert({
     where: { username: 'admin' },
     update: {
       password: hashedPassword,
-      email: 'admin@bunyod-tour.tj',
+      email: defaultEmail,
       fullName: 'System Administrator',
       role: 'admin',
       isActive: true
     },
     create: {
       username: 'admin',
-      email: 'admin@bunyod-tour.tj',
+      email: defaultEmail,
       password: hashedPassword,
       fullName: 'System Administrator',
       role: 'admin',
