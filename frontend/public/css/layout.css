@@ -310,6 +310,10 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     border-radius: 12px;
     padding: 0.5rem;
+    left: 0;
+    right: auto;
+    width: 100%;
+    min-width: auto;
 }
 
 #mobileMenu .lang-option {
