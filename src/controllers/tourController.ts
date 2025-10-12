@@ -448,6 +448,7 @@ export class TourController {
         availableDays: availableDays || null,
         isFeatured: isFeatured || false,
         isDraft: isSavingDraft, // 📝 Сохраняем статус черновика
+        isActive: !isSavingDraft, // 📝 Черновики неактивны (isDraft=true → isActive=false)
         startDate: startDate || null,
         endDate: endDate || null,
         rating: ratingNumber,
@@ -753,7 +754,10 @@ export class TourController {
       if (ratingNumber !== undefined) updateData.rating = ratingNumber;
       if (reviewsCountNumber !== undefined) updateData.reviewsCount = reviewsCountNumber;
       if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
-      if (isDraft !== undefined) updateData.isDraft = isSavingDraft; // 📝 Обновляем статус черновика
+      if (isDraft !== undefined) {
+        updateData.isDraft = isSavingDraft; // 📝 Обновляем статус черновика
+        updateData.isActive = !isSavingDraft; // 📝 Черновики неактивны (isDraft=true → isActive=false)
+      }
       if (pricingComponents !== undefined) updateData.pricingComponents = pricingComponents;
       
       // Add support for assignedGuideId
