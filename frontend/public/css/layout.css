@@ -324,20 +324,24 @@
 
 #mobileMenu .lang-option {
     border-radius: 8px;
-    padding: 0.75rem 1rem;
+    padding: 0.5rem;
     transition: all 0.2s ease;
-    font-size: 14px;
+    font-size: 13px;
     min-height: 44px;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
 }
 
 #mobileMenu .lang-option .lang-name,
 #mobileMenu .lang-option .currency-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     white-space: nowrap;
+    display: block;
+    width: 100%;
+    text-align: center;
 }
 
 #mobileMenu .lang-option:hover,

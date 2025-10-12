@@ -147,49 +147,53 @@
             <nav class="flex-1 overflow-y-auto py-4">
                 <!-- Переключатели языка и валюты в мобильном меню -->
                 <div class="px-4 py-3 border-b border-gray-700">
-                    <div class="flex flex-col gap-3">
+                    <div class="flex gap-3 justify-center">
                         <!-- Язык -->
-                        <div class="language-dropdown">
-                            <button class="lang-selector-btn w-full justify-between" onclick="toggleMobileLangDropdown()">
-                                <span class="selected-lang">RU</span>
-                                <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </button>
-                            <div class="lang-dropdown-content" id="mobileLangDropdown">
-                                <a href="#" class="lang-option" data-lang="en" onclick="switchSiteLanguage('en')">
-                                    <span class="lang-name">EN</span>
-                                </a>
-                                <a href="#" class="lang-option active" data-lang="ru" onclick="switchSiteLanguage('ru')">
-                                    <span class="lang-name">RU</span>
-                                </a>
+                        <div>
+                            <div class="language-dropdown">
+                                <button class="lang-selector-btn justify-between" style="padding: 0.5rem 0.6rem !important; gap: 0.4rem !important;" onclick="toggleMobileLangDropdown()">
+                                    <span class="selected-lang">RU</span>
+                                    <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="lang-dropdown-content" id="mobileLangDropdown">
+                                    <a href="#" class="lang-option" data-lang="en" onclick="switchSiteLanguage('en')">
+                                        <span class="lang-name">EN</span>
+                                    </a>
+                                    <a href="#" class="lang-option active" data-lang="ru" onclick="switchSiteLanguage('ru')">
+                                        <span class="lang-name">RU</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- Валюта -->
-                        <div class="language-dropdown">
-                            <button class="lang-selector-btn w-full justify-between" onclick="toggleMobileCurrencyDropdown()">
-                                <span class="selected-currency">TJS</span>
-                                <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </button>
-                            <div class="lang-dropdown-content" id="mobileCurrencyDropdown">
-                                <a href="#" class="lang-option active" data-currency="TJS" onclick="selectCurrency('TJS', 'TJS')">
-                                    <span class="currency-name">TJS</span>
-                                </a>
-                                <a href="#" class="lang-option" data-currency="USD" onclick="selectCurrency('USD', 'USD')">
-                                    <span class="currency-name">USD</span>
-                                </a>
-                                <a href="#" class="lang-option" data-currency="EUR" onclick="selectCurrency('EUR', 'EUR')">
-                                    <span class="currency-name">EUR</span>
-                                </a>
-                                <a href="#" class="lang-option" data-currency="RUB" onclick="selectCurrency('RUB', 'RUB')">
-                                    <span class="currency-name">RUB</span>
-                                </a>
-                                <a href="#" class="lang-option" data-currency="CNY" onclick="selectCurrency('CNY', 'CNY')">
-                                    <span class="currency-name">CNY</span>
-                                </a>
+                        <div>
+                            <div class="language-dropdown">
+                                <button class="lang-selector-btn justify-between" style="padding: 0.5rem 0.7rem !important; gap: 0.4rem !important;" onclick="toggleMobileCurrencyDropdown()">
+                                    <span class="selected-currency">TJS</span>
+                                    <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="lang-dropdown-content" id="mobileCurrencyDropdown">
+                                    <a href="#" class="lang-option active" data-currency="TJS" onclick="selectCurrency('TJS', 'TJS')">
+                                        <span class="currency-name">TJS</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="USD" onclick="selectCurrency('USD', 'USD')">
+                                        <span class="currency-name">USD</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="EUR" onclick="selectCurrency('EUR', 'EUR')">
+                                        <span class="currency-name">EUR</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="RUB" onclick="selectCurrency('RUB', 'RUB')">
+                                        <span class="currency-name">RUB</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="CNY" onclick="selectCurrency('CNY', 'CNY')">
+                                        <span class="currency-name">CNY</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
