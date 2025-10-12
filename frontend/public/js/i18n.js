@@ -1677,21 +1677,22 @@ function updateLanguageSelector(lang) {
     
     // Обновляем основную кнопку (обычные страницы)
     const selectedFlag = document.querySelector('.selected-flag');
-    const selectedLangText = document.querySelector('.selected-lang');
+    const selectedLangElements = document.querySelectorAll('.selected-lang');
     
     if (selectedFlag) {
         selectedFlag.textContent = selectedLang.flag;
         selectedFlag.className = `selected-flag ${selectedLang.flagClass}`;
     }
     
-    if (selectedLangText) {
-        selectedLangText.textContent = selectedLang.name;
-    }
+    // Обновляем ВСЕ элементы .selected-lang на флаг + инициалы (десктоп и мобильный)
+    selectedLangElements.forEach(el => {
+        el.textContent = `${selectedLang.flag} ${selectedLang.code}`;
+    });
     
     // Обновляем новый переключатель с ID current-language
     const currentLanguageElement = document.getElementById('current-language');
     if (currentLanguageElement) {
-        currentLanguageElement.textContent = selectedLang.name;
+        currentLanguageElement.textContent = `${selectedLang.flag} ${selectedLang.code}`;
     }
     
     // ОБНОВЛЯЕМ ПЕРЕКЛЮЧАТЕЛЬ В АДМИН-ПАНЕЛИ
