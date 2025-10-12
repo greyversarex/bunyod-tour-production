@@ -367,7 +367,7 @@ const bookingStateManager = {
 
         try {
             const lang = window.currentLanguage || this.state.language || 'ru';
-            const response = await fetch(`/api/bookings/${this.state.bookingId}?lang=${lang}`);
+            const response = await fetch(`/api/booking/${this.state.bookingId}?lang=${lang}`);
             
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}`);

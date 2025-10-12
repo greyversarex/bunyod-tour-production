@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { emailService } from '../services/emailService';
 import { parseMultilingualField, getLanguageFromRequest } from '../utils/multilingual';
 import prisma from '../config/database';
+import { PriceCalculatorModel } from '../models';
 
 // Вспомогательная функция для получения цены проживания из компонентов тура
 async function getAccommodationPriceFromTour(tourServices: string): Promise<number> {
@@ -55,6 +56,47 @@ async function getAccommodationPriceFromTour(tourServices: string): Promise<numb
   } catch (error) {
     console.error('Error getting accommodation price from tour:', error);
     return 0;
+  }
+}
+
+/**
+ * Обогащает массив services английскими названиями из таблицы PriceCalculatorComponent
+ */
+async function enrichServicesWithTranslations(servicesJson: string | null): Promise<any[]> {
+  try {
+    if (!servicesJson) {
+      return [];
+    }
+    
+    const services = JSON.parse(servicesJson);
+    if (!Array.isArray(services) || services.length === 0) {
+      return [];
+    }
+    
+    // Получаем все компоненты из БД для сопоставления
+    const components = await PriceCalculatorModel.findAll();
+    
+    // Обогащаем каждый сервис английским названием
+    return services.map(service => {
+      // Если уже есть nameEn, оставляем как есть
+      if (service.nameEn) {
+        return service;
+      }
+      
+      // Ищем компонент по ключу или ID
+      const component = components.find(c => 
+        c.key === service.key || c.id === service.id
+      );
+      
+      // Добавляем nameEn из БД или используем name как fallback
+      return {
+        ...service,
+        nameEn: component?.nameEn || service.name
+      };
+    });
+  } catch (error) {
+    console.error('Error enriching services with translations:', error);
+    return [];
   }
 }
 
@@ -762,6 +804,9 @@ export const bookingController = {
       // Парсим JSON поля для ответа
       const language = getLanguageFromRequest(req);
       
+      // Обогащаем services английскими названиями из БД
+      const enrichedServices = await enrichServicesWithTranslations(booking.tour.services);
+      
       const formattedBooking = {
         ...booking,
         tourists: booking.tourists ? JSON.parse(booking.tourists) : [],
@@ -771,6 +816,7 @@ export const bookingController = {
           ...booking.tour,
           title: parseMultilingualField(booking.tour.title, language),
           description: parseMultilingualField(booking.tour.description, language),
+          services: enrichedServices, // Используем обогащенные services
           category: {
             ...booking.tour.category,
             name: booking.tour.category.name // Category.name is String, not JSON

@@ -13571,10 +13571,12 @@
                     }
                     
                     // Add to selected components
+                    const fullComponent = tourPricingComponents.find(c => c.id === componentId);
                     selectedTourComponents.push({
                         id: componentId,
                         key: savedComponent.key,
                         name: savedComponent.name,
+                        nameEn: savedComponent.nameEn || fullComponent?.nameEn || savedComponent.name,
                         price: price,
                         unit: savedComponent.unit,
                         quantity: quantity
