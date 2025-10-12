@@ -320,17 +320,19 @@
 
 #mobileMenu .lang-option {
     border-radius: 8px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 1rem;
     transition: all 0.2s ease;
     font-size: 13px;
     min-height: auto;
+    min-width: 70px;
 }
 
-#mobileMenu .lang-option .lang-name {
+#mobileMenu .lang-option .lang-name,
+#mobileMenu .lang-option .currency-name {
     font-size: 13px;
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    text-align: center;
+    display: block;
 }
 
 #mobileMenu .lang-option:hover,

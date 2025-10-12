@@ -2329,17 +2329,14 @@ function initializeEventHandlers() {
     }
     
     // Обработчики для опций языков
-    document.querySelectorAll('#langDropdown .lang-option').forEach(option => {
+    document.querySelectorAll('#langDropdown .lang-option, #mobileLangDropdown .lang-option').forEach(option => {
         option.removeAttribute('onclick');
         option.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             const lang = this.getAttribute('data-lang');
-            const flagClass = this.querySelector('.flag').className.split(' ')[1]; // CSS класс для обратной совместимости 
-            const flagEmoji = this.querySelector('.flag').textContent; // Берём эмодзи из span
-            const name = this.querySelector('.lang-name').textContent;
-            console.log('Language selected:', lang, 'Flag emoji:', flagEmoji);
-            selectLanguageNew(lang, flagClass, flagEmoji, name);
+            console.log('Language selected:', lang);
+            updatePageLanguage(lang);
         });
     });
     
