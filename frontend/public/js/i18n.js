@@ -1684,15 +1684,15 @@ function updateLanguageSelector(lang) {
         selectedFlag.className = `selected-flag ${selectedLang.flagClass}`;
     }
     
-    // Обновляем ВСЕ элементы .selected-lang на флаг + инициалы (десктоп и мобильный)
+    // Обновляем ВСЕ элементы .selected-lang только инициалами (десктоп и мобильный)
     selectedLangElements.forEach(el => {
-        el.textContent = `${selectedLang.flag} ${selectedLang.code}`;
+        el.textContent = selectedLang.code;
     });
     
     // Обновляем новый переключатель с ID current-language
     const currentLanguageElement = document.getElementById('current-language');
     if (currentLanguageElement) {
-        currentLanguageElement.textContent = `${selectedLang.flag} ${selectedLang.code}`;
+        currentLanguageElement.textContent = selectedLang.code;
     }
     
     // ОБНОВЛЯЕМ ПЕРЕКЛЮЧАТЕЛЬ В АДМИН-ПАНЕЛИ
