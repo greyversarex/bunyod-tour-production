@@ -80,7 +80,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem 1rem;
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
     border: 1.5px solid rgba(255, 255, 255, 0.35);
     border-radius: 8px;
@@ -89,7 +89,7 @@
     transition: all 0.3s ease;
     font-size: 14px;
     font-weight: 500;
-    min-width: 120px;
+    min-width: 70px;
     backdrop-filter: blur(8px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
