@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Трансфер - Bunyod-Tour</title>
+    <title data-i18n="transfer_page_title">Трансфер - Bunyod-Tour</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -94,8 +94,8 @@
         <div class="max-w-4xl mx-auto px-6">
             <!-- Заголовок страницы -->
             <div class="text-center mb-12">
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">Трансфер</h1>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4" data-i18n="transfer_main_title">Трансфер</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto" data-i18n="transfer_main_subtitle">
                     Закажите трансфер куда вам необходимо. Быстро, удобно и надежно.
                 </p>
             </div>
@@ -103,8 +103,8 @@
             <!-- Форма заявки на трансфер -->
             <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
                 <div class="mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-900 mb-2">Заказать трансфер</h2>
-                    <p class="text-gray-600">Заполните форму и мы свяжемся с вами в ближайшее время</p>
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-2" data-i18n="transfer_form_title">Заказать трансфер</h2>
+                    <p class="text-gray-600" data-i18n="transfer_form_subtitle">Заполните форму и мы свяжемся с вами в ближайшее время</p>
                 </div>
 
                 <form id="transferForm" class="space-y-6">
@@ -112,28 +112,31 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
-                                ФИО <span class="text-red-500">*</span>
+                                <span data-i18n="transfer_fullname">ФИО</span> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="fullName" name="fullName" required 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_fullname_placeholder"
                                 placeholder="Введите ваше полное имя">
                         </div>
                         <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_email">
                                 Email
                             </label>
                             <input type="email" id="email" name="email" 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_email_placeholder"
                                 placeholder="your@email.com">
                         </div>
                     </div>
 
                     <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_phone">
                             Телефон
                         </label>
                         <input type="tel" id="phone" name="phone" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            data-i18n-placeholder="transfer_phone_placeholder"
                             placeholder="+992 XX XXX XXXX">
                     </div>
 
@@ -141,18 +144,20 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="pickupLocation" class="block text-sm font-medium text-gray-700 mb-2">
-                                Место приёма <span class="text-red-500">*</span>
+                                <span data-i18n="transfer_pickup">Место приёма</span> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="pickupLocation" name="pickupLocation" required 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_pickup_placeholder"
                                 placeholder="Откуда забрать (адрес, отель, аэропорт)">
                         </div>
                         <div>
                             <label for="dropoffLocation" class="block text-sm font-medium text-gray-700 mb-2">
-                                Место высадки <span class="text-red-500">*</span>
+                                <span data-i18n="transfer_dropoff">Место высадки</span> <span class="text-red-500">*</span>
                             </label>
                             <input type="text" id="dropoffLocation" name="dropoffLocation" required 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_dropoff_placeholder"
                                 placeholder="Куда доставить (адрес, отель)">
                         </div>
                     </div>
@@ -160,20 +165,20 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div>
                             <label for="pickupDate" class="block text-sm font-medium text-gray-700 mb-2">
-                                Дата <span class="text-red-500">*</span>
+                                <span data-i18n="transfer_date">Дата</span> <span class="text-red-500">*</span>
                             </label>
                             <input type="date" id="pickupDate" name="pickupDate" required 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
                             <label for="pickupTime" class="block text-sm font-medium text-gray-700 mb-2">
-                                Время <span class="text-red-500">*</span>
+                                <span data-i18n="transfer_time">Время</span> <span class="text-red-500">*</span>
                             </label>
                             <input type="time" id="pickupTime" name="pickupTime" required 
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         </div>
                         <div>
-                            <label for="numberOfPeople" class="block text-sm font-medium text-gray-700 mb-2">
+                            <label for="numberOfPeople" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_passengers">
                                 Количество пассажиров
                             </label>
                             <input type="number" id="numberOfPeople" name="numberOfPeople" min="1" max="8" value="1"
@@ -182,25 +187,26 @@
                     </div>
 
                     <div>
-                        <label for="vehicleType" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="vehicleType" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_vehicle_type">
                             Тип транспорта
                         </label>
                         <select id="vehicleType" name="vehicleType" 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="">Выберите тип транспорта</option>
-                            <option value="sedan">Седан (1-4 пассажира)</option>
-                            <option value="suv">Внедорожник (1-5 пассажиров)</option>
-                            <option value="minibus">Микроавтобус (6-12 пассажиров)</option>
-                            <option value="bus">Автобус (13+ пассажиров)</option>
+                            <option value="" data-i18n="transfer_vehicle_select">Выберите тип транспорта</option>
+                            <option value="sedan" data-i18n="transfer_vehicle_sedan">Седан (1-4 пассажира)</option>
+                            <option value="suv" data-i18n="transfer_vehicle_suv">Внедорожник (1-5 пассажиров)</option>
+                            <option value="minibus" data-i18n="transfer_vehicle_minibus">Микроавтобус (6-12 пассажиров)</option>
+                            <option value="bus" data-i18n="transfer_vehicle_bus">Автобус (13+ пассажиров)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label for="specialRequests" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="specialRequests" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_special_requests">
                             Дополнительные пожелания
                         </label>
                         <textarea id="specialRequests" name="specialRequests" rows="3"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            data-i18n-placeholder="transfer_special_requests_placeholder"
                             placeholder="Детское автокресло, остановки в пути, особые требования..."></textarea>
                     </div>
 
@@ -208,13 +214,13 @@
                     <div class="pt-4">
                         <button type="submit" id="submitBtn"
                             class="w-full text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="background: #6B7280;">
-                            <span id="submitText">Отправить заявку</span>
+                            <span id="submitText" data-i18n="transfer_submit_btn">Отправить заявку</span>
                             <span id="loadingText" class="hidden">
                                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                Отправляется...
+                                <span data-i18n="transfer_submit_sending">Отправляется...</span>
                             </span>
                         </button>
                     </div>
@@ -360,14 +366,16 @@
                         const email = formData.get('email')?.trim();
                         const phone = formData.get('phone')?.trim();
                         if (!email && !phone) {
+                            const errorTitle = window.translations?.['transfer_error_validation']?.[window.currentLanguage] || 'Ошибка валидации';
+                            const errorMessage = window.translations?.['transfer_error_contact']?.[window.currentLanguage] || 'Укажите хотя бы один способ связи: email или телефон';
                             notificationContent.innerHTML = `
                                 <div class="flex items-center">
                                     <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                     <div>
-                                        <h4 class="font-semibold text-red-800">Ошибка валидации</h4>
-                                        <p class="text-red-600">Укажите хотя бы один способ связи: email или телефон</p>
+                                        <h4 class="font-semibold text-red-800">${errorTitle}</h4>
+                                        <p class="text-red-600">${errorMessage}</p>
                                     </div>
                                 </div>
                             `;
@@ -405,14 +413,16 @@
                         
                         if (result.success) {
                             // Успешная отправка
+                            const successTitle = window.translations?.['transfer_success_title']?.[window.currentLanguage] || 'Заявка отправлена!';
+                            const successMessage = window.translations?.['transfer_success_message']?.[window.currentLanguage] || 'Мы свяжемся с вами в ближайшее время для подтверждения трансфера.';
                             notificationContent.innerHTML = `
                                 <div class="flex items-center">
                                     <svg class="w-6 h-6 text-green-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                     </svg>
                                     <div>
-                                        <h4 class="font-semibold text-green-800">Заявка отправлена!</h4>
-                                        <p class="text-green-600">Мы свяжемся с вами в ближайшее время для подтверждения трансфера.</p>
+                                        <h4 class="font-semibold text-green-800">${successTitle}</h4>
+                                        <p class="text-green-600">${successMessage}</p>
                                     </div>
                                 </div>
                             `;
@@ -428,14 +438,16 @@
                             
                         } else {
                             // Ошибка валидации или сервера
+                            const errorTitle = window.translations?.['transfer_error_title']?.[window.currentLanguage] || 'Ошибка';
+                            const errorDefault = window.translations?.['transfer_error_message']?.[window.currentLanguage] || 'Произошла ошибка при отправке заявки';
                             notificationContent.innerHTML = `
                                 <div class="flex items-center">
                                     <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>
                                     <div>
-                                        <h4 class="font-semibold text-red-800">Ошибка</h4>
-                                        <p class="text-red-600">${result.error || 'Произошла ошибка при отправке заявки'}</p>
+                                        <h4 class="font-semibold text-red-800">${errorTitle}</h4>
+                                        <p class="text-red-600">${result.error || errorDefault}</p>
                                     </div>
                                 </div>
                             `;
