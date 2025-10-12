@@ -242,7 +242,8 @@ function showEmptyState() {
             <p class="text-gray-600 mb-6">${emptyMessage}</p>
             <a 
                 href="/tours-search.html" 
-                class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                class="inline-block text-white px-6 py-3 rounded-lg transition-colors"
+                style="background-color: #6B7280;"
             >
                 ${currentLang === 'en' ? 'View All Tours' : 'Посмотреть все туры'}
             </a>
