@@ -282,6 +282,8 @@ export class TourModel {
     if (data.location !== undefined) updateData.location = data.location;
     if (data.services !== undefined) updateData.services = data.services;
     if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.isDraft !== undefined) updateData.isDraft = data.isDraft;
     if (data.startDate !== undefined) updateData.startDate = data.startDate;
     if (data.endDate !== undefined) updateData.endDate = data.endDate;
     if (data.pricingComponents !== undefined) updateData.pricingData = data.pricingComponents;
