@@ -149,11 +149,11 @@
             <nav class="flex-1 overflow-y-auto py-4">
                 <!-- Переключатели языка и валюты в мобильном меню -->
                 <div class="px-4 py-3 border-b border-gray-700">
-                    <div class="flex gap-0">
+                    <div class="flex gap-3 justify-center">
                         <!-- Язык -->
-                        <div class="flex-1">
+                        <div>
                             <div class="language-dropdown">
-                                <button class="lang-selector-btn w-full justify-between text-sm" onclick="toggleMobileLangDropdown()">
+                                <button class="lang-selector-btn justify-between text-sm" style="min-width: 80px;" onclick="toggleMobileLangDropdown()">
                                     <span class="selected-lang">RU</span>
                                     <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -171,9 +171,9 @@
                         </div>
                         
                         <!-- Валюта -->
-                        <div class="flex-1">
+                        <div>
                             <div class="language-dropdown">
-                                <button class="lang-selector-btn w-full justify-between text-sm" onclick="toggleMobileCurrencyDropdown()">
+                                <button class="lang-selector-btn justify-between text-sm" style="min-width: 80px;" onclick="toggleMobileCurrencyDropdown()">
                                     <span class="selected-currency">TJS</span>
                                     <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
