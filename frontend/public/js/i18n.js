@@ -1789,9 +1789,9 @@ function initializeLanguage() {
 function translateStaticInterface(lang) {
     let translatedCount = 0;
     
-    // ПЕРЕВОДИМ ОСНОВНОЙ ТЕКСТ (data-translate)
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
+    // ПЕРЕВОДИМ ОСНОВНОЙ ТЕКСТ (data-translate ИЛИ data-i18n)
+    document.querySelectorAll('[data-translate], [data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-translate') || element.getAttribute('data-i18n');
         const translation = getTranslation(key, lang);
         
         if (translation && translation !== key) {
@@ -1807,9 +1807,9 @@ function translateStaticInterface(lang) {
         }
     });
     
-    // ПЕРЕВОДИМ PLACEHOLDERS (data-translate-placeholder)
-    document.querySelectorAll('[data-translate-placeholder]').forEach(element => {
-        const key = element.getAttribute('data-translate-placeholder');
+    // ПЕРЕВОДИМ PLACEHOLDERS (data-translate-placeholder ИЛИ data-i18n-placeholder)
+    document.querySelectorAll('[data-translate-placeholder], [data-i18n-placeholder]').forEach(element => {
+        const key = element.getAttribute('data-translate-placeholder') || element.getAttribute('data-i18n-placeholder');
         const translation = getTranslation(key, lang);
         
         if (translation && translation !== key) {
