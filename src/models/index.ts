@@ -710,7 +710,7 @@ export class HotelModel {
    */
   static async findAll() {
     const hotels = await prisma.hotel.findMany({
-      where: { isActive: true },
+      // 📝 Убран фильтр isActive для админ панели - возвращаем все отели (включая черновики)
       include: {
         hotelCountry: true,
         hotelCity: true

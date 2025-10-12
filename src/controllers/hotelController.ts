@@ -62,6 +62,7 @@ export const getHotels = async (req: Request, res: Response): Promise<Response> 
             roomTypes: hotel.roomTypes,
             mealTypes: hotel.mealTypes,
             isActive: hotel.isActive,
+            isDraft: hotel.isDraft, // 📝 Добавлено поле isDraft для админки
             createdAt: hotel.createdAt,
             updatedAt: hotel.updatedAt,
             _localized: {
