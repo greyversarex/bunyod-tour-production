@@ -34,7 +34,7 @@ class LayoutLoader {
 
     async loadHeader() {
         try {
-            const response = await fetch('/_header.html');
+            const response = await fetch('/_header.html?v=1.4');
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const headerHTML = await response.text();
@@ -58,7 +58,7 @@ class LayoutLoader {
 
     async loadFooter() {
         try {
-            const response = await fetch('/_footer.html');
+            const response = await fetch('/_footer.html?v=1.4');
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const footerHTML = await response.text();
