@@ -1015,6 +1015,7 @@ function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const blockId = urlParams.get('blockId');
     const categoryId = urlParams.get('categoryId');
+    const category = urlParams.get('category'); // Новый параметр из хедера
     const cityId = urlParams.get('cityId');
 
     if (blockId) {
@@ -1031,11 +1032,20 @@ function checkUrlParams() {
         }
     }
     
+    // Обработка параметра category из навигационного меню
+    if (category) {
+        const catIdNum = parseInt(category);
+        if (!state.filters.categories.includes(catIdNum)) {
+            state.filters.categories.push(catIdNum);
+        }
+        console.log(`✅ Applied category filter from URL: ${catIdNum}`);
+    }
+    
     if (cityId) {
         state.filters.city = cityId;
     }
     
-    if (blockId || categoryId || cityId) {
+    if (blockId || categoryId || category || cityId) {
         renderFilters(); // Re-render to show checked boxes
     }
 }
