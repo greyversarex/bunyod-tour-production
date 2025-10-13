@@ -20,6 +20,7 @@ model Category {
   name  String
   type  String @default("tour") // "tour" or "hotel"
   tours Tour[]
+  tourCategoryAssignments TourCategoryAssignment[] // Many-to-many связь с турами
 
   @@map("categories")
 }
@@ -101,6 +102,7 @@ model Tour {
   tourHotels         TourHotel[]
   pricingComponents  TourPricingComponent[]
   tourBlockAssignments TourBlockAssignment[] // Новая связь many-to-many
+  tourCategoryAssignments TourCategoryAssignment[] // Many-to-many связь с категориями
   tourDrivers        TourDriver[]           // Связь с водителями
   tourCountries      TourCountry[]         // Many-to-many связь со странами
   tourCities         TourCity[]            // Many-to-many связь с городами
@@ -169,6 +171,21 @@ model TourBlockAssignment {
 
   @@unique([tourId, tourBlockId])
   @@map("tour_block_assignments")
+}
+
+// Промежуточная таблица для many-to-many связи туров и категорий
+model TourCategoryAssignment {
+  id           Int       @id @default(autoincrement())
+  tourId       Int       @map("tour_id")
+  categoryId   Int       @map("category_id")
+  isPrimary    Boolean   @default(false) @map("is_primary") // Основная категория
+  createdAt    DateTime  @default(now()) @map("created_at")
+  
+  tour         Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, categoryId])
+  @@map("tour_category_assignments")
 }
 
 model Guide {
