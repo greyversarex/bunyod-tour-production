@@ -736,16 +736,15 @@
                     }));
                     
                     // Redirect to payment gateway or show success
-                    if (paymentData.paymentUrl || paymentData.redirectUrl) {
+                    if (paymentData.method === 'POST' && paymentData.formData && paymentData.action) {
+                        // AlifPay Legacy: Create and submit POST form
+                        console.log('🔄 Creating POST form for AlifPay:', paymentData.action);
+                        redirectToAlifPay(paymentData.action, paymentData.formData);
+                    } else if (paymentData.paymentUrl || paymentData.redirectUrl) {
+                        // Payler: Direct GET redirect
                         const redirectUrl = paymentData.paymentUrl || paymentData.redirectUrl;
-                        if (paymentData.method === 'POST' && paymentData.formData) {
-                            // Create form for AlifPay redirect
-                            redirectToAlifPay(redirectUrl, paymentData.formData);
-                        } else {
-                            // Direct redirect for Payler and other gateways
-                            console.log('🔄 Redirecting to payment gateway:', redirectUrl);
-                            window.location.href = redirectUrl;
-                        }
+                        console.log('🔄 Redirecting to payment gateway:', redirectUrl);
+                        window.location.href = redirectUrl;
                     } else if (paymentData.clientSecret) {
                         // Handle Stripe payment
                         showPaymentSuccess();
