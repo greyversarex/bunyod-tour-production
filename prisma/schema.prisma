@@ -93,6 +93,9 @@ model Tour {
   scheduledEndDate   DateTime?
   scheduledStartDate DateTime?
   status             String                 @default("pending")
+  currentDay         Int?                   @map("current_day")
+  completedDays      Int[]                  @default([]) @map("completed_days")
+  totalDays          Int?                   @map("total_days")
   uniqueCode         String?                @unique
   bookingRequests    BookingRequest[]
   bookings           Booking[]
