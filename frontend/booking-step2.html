@@ -606,7 +606,10 @@
             
             if (hasSelectedRooms && tour.services) {
                 try {
-                    const services = JSON.parse(tour.services);
+                    // 🔧 Поддержка обоих форматов: строка JSON или уже распарсенный массив
+                    const services = typeof tour.services === 'string' ? 
+                        JSON.parse(tour.services) : tour.services;
+                    
                     const accommodationService = services.find(service => 
                         service && service.key && (
                             service.key === 'accommodation_std' ||
