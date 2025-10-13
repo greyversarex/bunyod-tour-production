@@ -57,9 +57,9 @@ export const alifController = {
 
       const amountFormatted = amount.toFixed(2);
       
-      const secretkey = crypto.createHmac('sha256', password).update(key).digest('hex');
-      const token = crypto.createHmac('sha256', key + orderId + amountFormatted + callbackUrl)
-        .update(secretkey)
+      const secretkey = crypto.createHmac('sha256', key).update(password).digest('hex');
+      const token = crypto.createHmac('sha256', secretkey)
+        .update(key + orderId + amountFormatted + callbackUrl)
         .digest('hex');
 
       console.log(`🔄 Creating AlifPay Legacy payment: Order ${orderId}, Amount ${amount} TJS`);
@@ -80,7 +80,7 @@ export const alifController = {
           key,
           token,
           orderId,
-          amount: amount.toString(),
+          amount: amountFormatted,
           callbackUrl,
           returnUrl,
           info,

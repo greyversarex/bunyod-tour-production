@@ -58,9 +58,9 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Nodemailer**: Email sending.
 
 ### Payment Gateways
--   **AlifPay API v2**
--   **Stripe API**
--   **Payler API**
+-   **AlifPay Legacy** (POST form to https://web.alif.tj/) - Fully configured with merchant credentials from original PHP site. Uses HMAC-SHA256 token generation matching legacy implementation.
+-   **Payler API** - StartSession/Pay flow with production credentials (key: 1a92a7df-45d3-4fe7-8149-2fd0c7e8d366). Uses secure.payler.com endpoints.
+-   **Stripe API** - Payment Intents integration (requires STRIPE_SECRET_KEY configuration)
 
 ### Development Tools
 -   **TypeScript**: Static type checking.
