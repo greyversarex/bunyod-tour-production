@@ -212,9 +212,21 @@ export const bookingController = {
         const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
         
         for (const [mealType, mealData] of Object.entries(mealSelection as any)) {
-          const meal = mealData as any;
-          if (meal.selected) {
-            totalPrice += meal.price * existingBooking.numberOfTourists * tourDuration;
+          // 🔧 Поддержка двух форматов: { HB: 30 } или { HB: { selected: true, price: 30 } }
+          let price = 0;
+          let selected = false;
+          
+          if (typeof mealData === 'number') {
+            price = mealData;
+            selected = true;
+          } else if (typeof mealData === 'object' && mealData !== null) {
+            const mealObj = mealData as any;
+            price = mealObj.price || 0;
+            selected = mealObj.selected || false;
+          }
+          
+          if (selected && price > 0) {
+            totalPrice += price * existingBooking.numberOfTourists * tourDuration;
           }
         }
       }
@@ -359,9 +371,21 @@ export const bookingController = {
         const tourDuration = parseInt(tour.duration.replace(/\D/g, '')) || 1;
         
         for (const [mealType, mealData] of Object.entries(mealSelection as any)) {
-          const meal = mealData as any;
-          if (meal.selected) {
-            totalPrice += meal.price * parseInt(numberOfTourists.toString()) * tourDuration;
+          // 🔧 Поддержка двух форматов: { HB: 30 } или { HB: { selected: true, price: 30 } }
+          let price = 0;
+          let selected = false;
+          
+          if (typeof mealData === 'number') {
+            price = mealData;
+            selected = true;
+          } else if (typeof mealData === 'object' && mealData !== null) {
+            const mealObj = mealData as any;
+            price = mealObj.price || 0;
+            selected = mealObj.selected || false;
+          }
+          
+          if (selected && price > 0) {
+            totalPrice += price * parseInt(numberOfTourists.toString()) * tourDuration;
           }
         }
       }
@@ -541,10 +565,25 @@ export const bookingController = {
         const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
         
         for (const [mealType, mealData] of Object.entries(finalMealSelection as any)) {
-          const meal = mealData as any;
-          if (meal.selected) {
-            totalPrice += meal.price * existingBooking.numberOfTourists * tourDuration;
-            console.log(`➕ Update - Added meal ${mealType}: ${meal.price} x ${existingBooking.numberOfTourists} x ${tourDuration} days = ${meal.price * existingBooking.numberOfTourists * tourDuration} TJS`);
+          // 🔧 Поддержка двух форматов: { HB: 30 } или { HB: { selected: true, price: 30 } }
+          let price = 0;
+          let selected = false;
+          
+          if (typeof mealData === 'number') {
+            // Простой формат: { HB: 30 }
+            price = mealData;
+            selected = true; // Если цена указана, считаем что выбрано
+          } else if (typeof mealData === 'object' && mealData !== null) {
+            // Полный формат: { HB: { selected: true, price: 30 } }
+            const mealObj = mealData as any;
+            price = mealObj.price || 0;
+            selected = mealObj.selected || false;
+          }
+          
+          if (selected && price > 0) {
+            const mealCost = price * existingBooking.numberOfTourists * tourDuration;
+            totalPrice += mealCost;
+            console.log(`➕ Update - Added meal ${mealType}: ${price} x ${existingBooking.numberOfTourists} x ${tourDuration} days = ${mealCost} TJS`);
           }
         }
       }
