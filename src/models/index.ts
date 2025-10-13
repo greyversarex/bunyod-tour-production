@@ -472,7 +472,9 @@ export class TourModel {
     return await prisma.tour.findMany({
       where: filters,
       include: {
-        category: true
+        category: true,
+        tourCountry: true,
+        tourCity: true
       },
       orderBy: {
         createdAt: 'desc'
