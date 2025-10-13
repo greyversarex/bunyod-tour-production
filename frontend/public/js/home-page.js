@@ -2010,8 +2010,11 @@ function renderSlides() {
         return;
     }
 
+    // Очищаем контейнер (удаляем плейсхолдер)
+    container.innerHTML = '';
+    
     // Создаем слайды
-    container.innerHTML = slides.map((slide, index) => {
+    const slidesHTML = slides.map((slide, index) => {
         // Данные уже десериализованы из API, не нужен JSON.parse
         const title = slide.title || {};
         const description = slide.description || {};
@@ -2040,6 +2043,9 @@ function renderSlides() {
             </div>
         `;
     }).join('');
+    
+    // Вставляем слайды
+    container.innerHTML = slidesHTML;
 
     // Создаем точки навигации
     navigation.innerHTML = slides.map((_, index) => 
