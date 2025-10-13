@@ -5467,16 +5467,19 @@
                     }
                     
                     tbody.innerHTML = tours.map(tour => {
-                        // С includeRaw=true API возвращает локализованные строки title и category.name
+                        // API возвращает локализованные строки
                         const tourTitle = tour.title || 'Без названия';
                         const categoryName = tour.category ? tour.category.name || 'Без категории' : 'Без категории';
+                        const countryName = tour.country || '-';
+                        const cityName = tour.city || '-';
+                        
                         return `
                             <tr>
                                 <td>${tour.id}</td>
                                 <td class="font-medium">${tourTitle}</td>
                                 <td>${categoryName}</td>
-                                <td>${tour.country || '-'}</td>
-                                <td>${tour.city || '-'}</td>
+                                <td>${countryName}</td>
+                                <td>${cityName}</td>
                                 <td>${tour.duration || tour.durationDays || '-'} дней</td>
                                 <td class="font-semibold">${tour.price} сом.</td>
                                 <td>
