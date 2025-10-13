@@ -58,15 +58,16 @@ export const paylerController = {
 
       // Подготовить данные для StartSession API (как в PHP-версии)
       const fields = {
-        key: paylerKey, // ключ берём теперь из .env
+        key: paylerKey,
         type: 'OneStep',
         currency: 'TJS',
-        lang: 'en',
         amount: amount.toString(),
         order_id: orderId,
         return_url: returnUrl,
         fail_url: failUrl
       };
+
+      console.log('📤 Payler request:', { ...fields, key: '***' });
 
       // Отправить запрос к боевому Payler StartSession API (убрали sandbox)
       const response = await fetch('https://secure.payler.com/gapi/StartSession', {
@@ -77,16 +78,19 @@ export const paylerController = {
         body: new URLSearchParams(fields),
       });
 
+      console.log('📥 Payler response status:', response.status, response.statusText);
+
+      const responseText = await response.text();
+      console.log('📥 Payler response body:', responseText);
+
       if (!response.ok) {
-        console.error('❌ Payler StartSession failed:', response.statusText);
+        console.error('❌ Payler StartSession failed:', response.status, response.statusText);
         return res.status(500).json({
           success: false,
           message: 'Failed to communicate with Payler API',
+          details: responseText,
         });
       }
-
-      const responseText = await response.text();
-      console.log('🔄 Payler StartSession response:', responseText);
 
       // Парсим ответ
       let responseData;
