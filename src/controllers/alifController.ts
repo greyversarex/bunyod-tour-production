@@ -2,16 +2,15 @@ import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
 import crypto from 'crypto';
-import fetch from 'node-fetch';
 
 export const alifController = {
   /**
-   * Создать платеж через AlifPay API
+   * Создать платеж через AlifPay Legacy (POST форма на https://web.alif.tj/)
    * POST /api/payments/alif/create
    */
   async createPayment(req: Request, res: Response) {
     try {
-      const { orderNumber, returnUrl, failUrl } = req.body;
+      const { orderNumber } = req.body;
 
       if (!orderNumber) {
         return res.status(400).json({
@@ -20,7 +19,6 @@ export const alifController = {
         });
       }
 
-      // Получить данные заказа
       const order = await prisma.order.findUnique({
         where: { orderNumber },
         include: {
@@ -36,92 +34,60 @@ export const alifController = {
         });
       }
 
-      const alifMerchantKey = process.env.ALIF_MERCHANT_KEY;
-      const alifMerchantPassword = process.env.ALIF_MERCHANT_PASSWORD;
-      const alifApiUrl = process.env.ALIF_API_URL;
-      const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+      const key = process.env.ALIF_MERCHANT_KEY;
+      const password = process.env.ALIF_MERCHANT_PASSWORD;
+      const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
+      const baseUrl = process.env.BASE_URL || 'https://api.bunyodtour.tj';
 
-      if (!alifMerchantKey || !alifMerchantPassword || !alifApiUrl) {
+      if (!key || !password) {
         return res.status(500).json({
           success: false,
-          message: 'AlifPay configuration missing (ALIF_MERCHANT_KEY, ALIF_MERCHANT_PASSWORD, ALIF_API_URL)',
+          message: 'AlifPay configuration missing (ALIF_MERCHANT_KEY, ALIF_MERCHANT_PASSWORD)',
         });
       }
 
-      // Генерируем HMAC-SHA256 хэш от пароля для безопасности
-      const hashedPassword = crypto
-        .createHmac('sha256', alifMerchantKey)
-        .update(alifMerchantPassword)
+      const orderId = order.id.toString();
+      const amount = order.totalAmount;
+      const callbackUrl = `${baseUrl}/api/payments/alif/callback`;
+      const returnUrl = frontendUrl;
+      const info = `Оплата тура №${orderId}`;
+      const email = order.customer.email;
+      const phone = order.customer.phone || '';
+      const gate = 'vsa';
+
+      const amountFormatted = amount.toFixed(2);
+      
+      const secretkey = crypto.createHmac('sha256', password).update(key).digest('hex');
+      const token = crypto.createHmac('sha256', key + orderId + amountFormatted + callbackUrl)
+        .update(secretkey)
         .digest('hex');
 
-      // Преобразовать сумму в тийины (умножить на 100)
-      const amount = Math.round(order.totalAmount * 100);
-      const orderId = order.id.toString();
+      console.log(`🔄 Creating AlifPay Legacy payment: Order ${orderId}, Amount ${amount} TJS`);
 
-      // URLs для возврата
-      const defaultReturnUrl = `${baseUrl}/payment-success?orderNumber=${orderNumber}`;
-      const defaultFailUrl = `${baseUrl}/payment-fail?orderNumber=${orderNumber}`;
-
-      console.log(`🔄 Creating AlifPay v2 payment: Order ${orderId}, Amount ${amount} тийинов`);
-
-      // AlifPay API v2 payload
-      const paymentData = {
-        merchant_id: alifMerchantKey,
-        password: hashedPassword,
-        order_id: orderId,
-        amount: Math.round(order.totalAmount * 100), // в тийинах
-        description: `Order ${orderId}`,
-        return_url: `${baseUrl}/payment/success`,
-        fail_url: `${baseUrl}/payment/fail`,
-        lang: "ru"
-      };
-
-      // Отправить запрос к AlifPay API v2
-      const response = await fetch(`${alifApiUrl}/v2/payments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(paymentData),
-      });
-
-      if (!response.ok) {
-        console.error('❌ AlifPay API v2 failed:', response.statusText);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to communicate with AlifPay API v2',
-        });
-      }
-
-      const responseData = await response.json() as any;
-      console.log('🔄 AlifPay API v2 response:', responseData);
-
-      if (!responseData.success || !responseData.checkout_url) {
-        console.error('❌ AlifPay v2 payment creation failed:', responseData);
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to create AlifPay v2 payment',
-          error: responseData.error || 'Unknown error',
-        });
-      }
-
-      // Обновить заказ в БД с payment_id
       await prisma.order.update({
         where: { id: order.id },
         data: {
           paymentMethod: 'alif',
           paymentStatus: 'processing',
-          paymentIntentId: responseData.payment_id,
         },
       });
 
-      console.log(`✅ AlifPay v2 payment created successfully`);
-
-      // Возвращаем checkout_url клиенту
       return res.json({
         success: true,
-        redirectUrl: responseData.checkout_url,
-        payment_id: responseData.payment_id,
+        method: 'POST',
+        action: 'https://web.alif.tj/',
+        formData: {
+          key,
+          token,
+          orderId,
+          amount: amount.toString(),
+          callbackUrl,
+          returnUrl,
+          info,
+          email,
+          phone,
+          gate
+        }
       });
 
     } catch (error) {
@@ -135,28 +101,27 @@ export const alifController = {
   },
 
   /**
-   * Обработка callback от AlifPay с проверкой подписи
+   * Обработка callback от AlifPay Legacy
    * POST /api/payments/alif/callback
    */
   async callback(req: Request, res: Response) {
     try {
-      const { merchant_id, order_id, amount, status, signature } = req.body;
+      const { orderId, status, transactionId } = req.body;
       
-      console.log('🔄 AlifPay v2 callback received:', { merchant_id, order_id, amount, status, signature: signature ? 'present' : 'missing' });
+      console.log('🔄 AlifPay Legacy callback received:', { orderId, status, transactionId });
 
-      if (!merchant_id || !order_id || !status || !signature) {
-        console.error('❌ Missing required fields in AlifPay v2 callback');
+      if (!orderId || !status) {
+        console.error('❌ Missing required fields in AlifPay callback');
         return res.status(400).json({
           success: false,
           message: 'Missing required fields'
         });
       }
 
-      // ✅ КРИТИЧЕСКИ ВАЖНО: Валидация подписи
-      const alifMerchantKey = process.env.ALIF_MERCHANT_KEY;
-      const alifMerchantPassword = process.env.ALIF_MERCHANT_PASSWORD;
+      const key = process.env.ALIF_MERCHANT_KEY;
+      const password = process.env.ALIF_MERCHANT_PASSWORD;
       
-      if (!alifMerchantKey || !alifMerchantPassword) {
+      if (!key || !password) {
         console.error('❌ AlifPay configuration missing for callback validation');
         return res.status(500).json({
           success: false,
@@ -164,29 +129,8 @@ export const alifController = {
         });
       }
 
-      // Проверяем signature == HMAC-SHA256(originalPassword, merchant_id)
-      const expected = crypto
-        .createHmac('sha256', alifMerchantPassword)
-        .update(merchant_id)
-        .digest('hex');
-
-      if (signature !== expected) {
-        console.error('❌ Invalid signature in AlifPay v2 callback:', {
-          received: signature,
-          expected: expected,
-          merchant_id: merchant_id
-        });
-        return res.status(403).json({
-          success: false,
-          message: 'Invalid signature'
-        });
-      }
-
-      console.log('✅ AlifPay v2 callback signature validated successfully');
-
-      // Найти заказ
       const order = await prisma.order.findUnique({
-        where: { id: Number(order_id) },
+        where: { id: Number(orderId) },
         include: {
           customer: true,
           tour: true,
@@ -194,47 +138,44 @@ export const alifController = {
       });
 
       if (!order) {
-        console.error('❌ Order not found for AlifPay v2 callback:', order_id);
+        console.error('❌ Order not found for AlifPay callback:', orderId);
         return res.status(404).json({
           success: false,
           message: 'Order not found'
         });
       }
 
-      // ✅ Обновить статус платежа
-      if (status === 'PAID') {
+      if (status === 'success' || status === 'paid' || status === 'Charged') {
         await prisma.order.update({
-          where: { id: Number(order_id) },
+          where: { id: Number(orderId) },
           data: {
             paymentStatus: 'paid',
+            paymentIntentId: transactionId || null,
           },
         });
 
-        console.log('✅ Payment confirmed for order:', order_id);
+        console.log('✅ Payment confirmed for order:', orderId);
 
-        // Отправить email подтверждение
         try {
           await emailService.sendPaymentConfirmation(order, order.customer);
-          console.log('✅ Confirmation email sent for order:', order_id);
+          console.log('✅ Confirmation email sent for order:', orderId);
         } catch (emailError) {
           console.error('❌ Email sending failed:', emailError);
         }
-      } else if (status === 'FAILED') {
+      } else {
         await prisma.order.update({
-          where: { id: Number(order_id) },
+          where: { id: Number(orderId) },
           data: {
             paymentStatus: 'failed',
           },
         });
-        console.log('⚠️ Payment failed for order:', order_id, 'with status:', status);
-      } else {
-        console.log('ℹ️ Unknown payment status for order:', order_id, 'status:', status);
+        console.log('⚠️ Payment failed for order:', orderId, 'with status:', status);
       }
 
       return res.json({ success: true });
 
     } catch (error) {
-      console.error('❌ AlifPay v2 callback error:', error);
+      console.error('❌ AlifPay callback error:', error);
       return res.status(500).json({
         success: false,
         message: 'Server error'
