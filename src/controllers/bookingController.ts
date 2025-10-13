@@ -470,7 +470,10 @@ export const bookingController = {
       }
 
       // НОВАЯ ЛОГИКА: Если выбран отель, вычесть хостел и добавить отель
-      if (roomSelection && existingBooking.hotel) {
+      // 🔧 ИСПРАВЛЕНО: Используем сохраненный roomSelection из БД, если не передан новый
+      const finalRoomSelection = roomSelection || (existingBooking.roomSelection ? JSON.parse(existingBooking.roomSelection) : null);
+      
+      if (finalRoomSelection && existingBooking.hotel) {
         const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
         
         // Получаем цену проживания из компонентов тура
@@ -478,6 +481,7 @@ export const bookingController = {
         
         console.log(`💰 Update - Tour base price: ${totalPrice} TJS`);
         console.log(`🏨 Update - Tour accommodation component: ${tourAccommodationPrice} TJS`);
+        console.log(`🔍 Update - Room selection format:`, finalRoomSelection);
         
         // Вычитаем стоимость компонента проживания из тура
         // ВАЖНО: Компонент проживания уже включен в базовую цену за весь тур, не умножаем на дни!
@@ -498,14 +502,31 @@ export const bookingController = {
         console.log(`💰 Update - Price after accommodation subtraction: ${totalPrice} TJS`);
         
         // Добавляем стоимость выбранных номеров отеля
+        // Получаем roomTypes отеля для цен
+        const hotelData = existingBooking.hotel.roomTypes ? JSON.parse(existingBooking.hotel.roomTypes) : {};
+        
         let hotelRoomsCost = 0;
-        for (const [roomType, roomData] of Object.entries(roomSelection as any)) {
-          const room = roomData as any;
-          if (room.quantity > 0) {
-            const roomCost = room.price * room.quantity * tourDuration;
+        for (const [roomType, roomData] of Object.entries(finalRoomSelection as any)) {
+          // 🔧 Поддержка двух форматов: { SGL: 1 } или { SGL: { quantity: 1, price: 100 } }
+          let quantity = 0;
+          let price = 0;
+          
+          if (typeof roomData === 'number') {
+            // Простой формат: { SGL: 1 }
+            quantity = roomData;
+            price = hotelData[roomType]?.price || 0;
+          } else if (typeof roomData === 'object' && roomData !== null) {
+            // Полный формат: { SGL: { quantity: 1, price: 100 } }
+            const roomObj = roomData as any;
+            quantity = roomObj.quantity || 0;
+            price = roomObj.price || 0;
+          }
+          
+          if (quantity > 0 && price > 0) {
+            const roomCost = price * quantity * tourDuration;
             totalPrice += roomCost;
             hotelRoomsCost += roomCost;
-            console.log(`➕ Update - Added hotel room: ${room.quantity} x ${room.price} x ${tourDuration} days = ${roomCost} TJS`);
+            console.log(`➕ Update - Added hotel room ${roomType}: ${quantity} x ${price} x ${tourDuration} days = ${roomCost} TJS`);
           }
         }
         
