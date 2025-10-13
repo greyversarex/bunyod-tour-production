@@ -588,6 +588,8 @@
                     JSON.parse(bookingState.roomSelection) : (bookingState.roomSelection || {});
             } catch (e) {}
             
+            console.log('🔍 Step 2 - Room selection:', roomSelection);
+            
             // Check for selected rooms - handle both flat and nested structures
             const hasSelectedRooms = Object.values(roomSelection).some(value => {
                 // If value is a number, it's a flat structure
@@ -598,6 +600,9 @@
                 }
                 return false;
             });
+            
+            console.log('🔍 Step 2 - Has selected rooms:', hasSelectedRooms);
+            console.log('🔍 Step 2 - Tour services:', tour.services);
             
             if (hasSelectedRooms && tour.services) {
                 try {
@@ -612,6 +617,8 @@
                         )
                     );
                     
+                    console.log('🔍 Step 2 - Found accommodation service:', accommodationService);
+                    
                     if (accommodationService && accommodationService.price) {
                         const accommodationPrice = parseFloat(accommodationService.price);
                         
@@ -622,6 +629,8 @@
                         } else {
                             accommodationDeduction = accommodationPrice;
                         }
+                        
+                        console.log('🔍 Step 2 - Accommodation deduction:', accommodationDeduction);
                         
                         // Show accommodation deduction
                         if (roomCostsCalc && accommodationDeduction > 0) {
