@@ -1,0 +1,60 @@
+Ты — технический ревизор проекта. Сформируй исчерпывающий отчёт о платёжной подсистеме репозитория. Действуй по шагам, исполняй команды, вкладывай выдержки кода с номерами строк. На выходе дай: (1) краткую сводку, (2) детальный отчёт, (3) JSON-сводку для интеграции. 
+
+Шаг 1. Инвентаризация окружения
+1. Показать наличие .env, .env.* и переменных окружения Replit.
+2. Выполнить: 
+   - `ls -la` в корне и в `src/`, `server/`, `api/`, `pages/api/`, `app/api/`
+   - `grep -RIn --exclude-dir=node_modules -E "ALIF|PAYLER|STRIPE|KM|KORTI|MERCHANT|SECRET|PUBLIC|PAYMENT|checkout|webhook|callback|return_url|success_url|cancel_url|invoice|session|StartSession|createCheckoutSession|createPayment|gate"` по всему репо.
+3. Извлечь значения и имена переменных окружения, касающихся платежей (вставить без маскировки имена, значения замаскировать: первые 6 символов и длина).
+
+Шаг 2. Маршруты и обработчики
+1. Найти все эндпоинты, инициирующие оплату: `POST /api/*`, `app/api/*/route.ts`, `pages/api/*`, контроллеры бэкенда. 
+2. Найти обработчики обратных вызовов/вебхуков: `callback`, `webhook`, `notify`, `finish`, `success`, `fail`.
+3. Для каждого эндпоинта вывести: файл, путь, HTTP-метод, входные поля (amount, currency, orderId, customer, gate), внешние вызовы (SDK/HTTP), что возвращается клиенту (JSON поля или redirect).
+4. Привести выдержки кода (20–40 строк вокруг ключевых мест) с номерами строк.
+
+Шаг 3. Фронтенд-поток
+1. Найти компоненты/страницы, где появляется кнопка «Оплатить» или выбор шлюза (`Alif`, `DC`, `Korti Milli`, `Stripe`, `Payler`).
+2. Показать, как формируется `amount`, `orderId`, `gate`, откуда берутся значения (стейт/контекст/URL/Redux/сервер).
+3. Проверить, что происходит по клику: `fetch`/`axios` к какому эндпоинту, что ожидается в ответе (например, `url`), как выполняется редирект (`router.push`/`window.location.assign`).
+
+Шаг 4. Внешние SDK/HTTP
+1. Список npm-зависимостей по платежам: `stripe`, `@stripe/stripe-js`, `axios` для Payler/Alif/DC и т.п.
+2. Если используется Payler: найти вызовы `StartSession` и итоговый переход на `https://secure.payler.com/gapi/Pay/?session_id=...`.
+3. Если используется Stripe: найти создание Checkout Session и `success_url`/`cancel_url`.
+4. Если используется Alif: найти формирование HMAC, поля `key`, `orderid`, `amount`, `callbackUrl`.
+
+Шаг 5. Конфигурация редиректов
+1. Зафиксировать реальные `success_url`, `cancel_url`, `callback_url` и где они склеиваются (env/код).
+2. Проверить CORS/Next.js API route handlers (если есть): возвращают ли 302/JSON с `url`.
+
+Шаг 6. Диаграмма потока
+Построить текстовую последовательность (sequence) из шагов: UI → API → платёжный шлюз → webhook/callback → сервер → UI, со всеми URL.
+
+Форматы вывода:
+— Краткая сводка (до 15 строк): провайдеры, файлы входа, файлы callback, как сейчас выполняется переход на оплату.
+— Детальный отчёт: все находки, дерево файлов, выдержки кода с номерами строк.
+— JSON-сводка (валидный JSON, без комментариев), массив объектов провайдеров:
+[
+  {
+    "provider": "stripe|payler|alif|km|dc|custom",
+    "env_vars": ["..."],
+    "frontend_entry": {"file": "...", "component": "...", "onClick": "..."},
+    "init_endpoint": {"method": "POST", "path": "...", "file": "..."},
+    "init_request_schema": {"amount": "number|source", "currency": "string", "orderId": "source", "gate": "enum"},
+    "outbound_call": {"type": "sdk|http", "url_or_sdk": "...", "request_fields": ["..."], "response_fields": ["..."]},
+    "redirect_logic": {"type": "client|server", "value": "final_url|session_id_to_url"},
+    "hosted_payment_url_template": "e.g. https://secure.payler.com/gapi/Pay/?session_id={session_id}",
+    "callback_url": "https://.../api/payments/callback/..",
+    "webhook_url": "https://.../api/payments/webhook/..",
+    "success_url": "https://.../payment/success",
+    "cancel_url": "https://.../payment/cancel",
+    "currency": "TJS|RUB|USD|…",
+    "amount_source": "UI state|server calc|DB",
+    "order_id_source": "uuid|db|timestamp",
+    "test_mode": true|false,
+    "gaps": ["что отсутствует для мгновенного редиректа"]
+  }
+]
+
+Выведи всё последовательно в одном сообщении.
