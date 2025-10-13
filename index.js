@@ -27,6 +27,9 @@ const { initializeDatabase } = require(`${srcPath}/utils/initializeDatabase${isP
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// 🔒 Trust proxy для корректной работы rate limiting в Replit
+app.set('trust proxy', true);
+
 // Middleware для парсинга JSON
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
