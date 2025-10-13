@@ -257,7 +257,7 @@ export class TourController {
   static async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating tour with data:', req.body);
-      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
+      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
 
       // Parse JSON strings if needed
       if (typeof title === 'string') {
@@ -353,16 +353,6 @@ export class TourController {
       // Use durationDays if duration is not provided (для обоих режимов)
       const finalDuration = duration || durationDays;
 
-      // Convert string fields to numbers for Prisma
-      const categoryIdNumber = parseInt(categoryId);
-      const countryIdNumber = countryId ? parseInt(countryId) : undefined;
-      const cityIdNumber = cityId ? parseInt(cityId) : undefined;
-      const durationDaysNumber = durationDays ? parseInt(durationDays) : undefined;
-      const maxPeopleNumber = maxPeople ? parseInt(maxPeople) : undefined;
-      const minPeopleNumber = minPeople ? parseInt(minPeople) : undefined;
-      const ratingNumber = rating ? parseFloat(rating) : undefined;
-      const reviewsCountNumber = reviewsCount ? parseInt(reviewsCount) : undefined;
-
       // Parse arrays for multiple countries and cities
       let countriesIdsNumbers: number[] | undefined;
       let citiesIdsNumbers: number[] | undefined;
@@ -386,6 +376,32 @@ export class TourController {
           });
         }
       }
+      
+      // Parse array for multiple categories and set fallback BEFORE parsing categoryIdNumber
+      let categoriesIdsNumbers: number[] | undefined;
+      if (categoriesIds && Array.isArray(categoriesIds) && categoriesIds.length > 0) {
+        categoriesIdsNumbers = categoriesIds.map((id: any) => parseInt(id)).filter((id: number) => !isNaN(id));
+        if (categoriesIdsNumbers.length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'Invalid categories IDs format'
+          });
+        }
+        // Use first category as primary for backward compatibility
+        if (!categoryId || isNaN(parseInt(categoryId))) {
+          categoryId = categoriesIdsNumbers[0];
+        }
+      }
+
+      // Convert string fields to numbers for Prisma (AFTER setting categoryId fallback)
+      const categoryIdNumber = parseInt(categoryId);
+      const countryIdNumber = countryId ? parseInt(countryId) : undefined;
+      const cityIdNumber = cityId ? parseInt(cityId) : undefined;
+      const durationDaysNumber = durationDays ? parseInt(durationDays) : undefined;
+      const maxPeopleNumber = maxPeople ? parseInt(maxPeople) : undefined;
+      const minPeopleNumber = minPeople ? parseInt(minPeople) : undefined;
+      const ratingNumber = rating ? parseFloat(rating) : undefined;
+      const reviewsCountNumber = reviewsCount ? parseInt(reviewsCount) : undefined;
       
       if (isNaN(categoryIdNumber)) {
         return res.status(400).json({
@@ -555,6 +571,29 @@ export class TourController {
         } catch (blockError) {
           console.error('❌ Error creating tour block associations:', blockError);
           throw blockError;
+        }
+      }
+
+      // Create category associations if provided
+      if (categoriesIdsNumbers && categoriesIdsNumbers.length > 0) {
+        console.log('🏷️ Creating category associations:', categoriesIdsNumbers);
+        try {
+          const tourCategoryData = categoriesIdsNumbers.map((catId: number, index: number) => ({
+            tourId: tour.id,
+            categoryId: catId,
+            isPrimary: index === 0 // Первая категория считается основной
+          }));
+          
+          console.log('🏷️ TourCategoryAssignment data to create:', tourCategoryData);
+          
+          await prisma.tourCategoryAssignment.createMany({
+            data: tourCategoryData
+          });
+          
+          console.log('✅ Category associations created successfully');
+        } catch (categoryError) {
+          console.error('❌ Error creating category associations:', categoryError);
+          throw categoryError;
         }
       }
 

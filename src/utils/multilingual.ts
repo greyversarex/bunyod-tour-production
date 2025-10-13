@@ -183,18 +183,33 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
   const { includeRaw = false, removeImages = false } = options;
   
   try {
+    // Process categories from many-to-many relation or fallback to single category
+    let categories = [];
+    if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
+      categories = tour.tourCategoryAssignments.map((assignment: any) => ({
+        id: assignment.category.id,
+        name: parseMultilingualField(assignment.category.name, language),
+        isPrimary: assignment.isPrimary
+      }));
+    } else if (tour.category) {
+      // Fallback to single category for backward compatibility
+      categories = [{
+        id: tour.category.id,
+        name: parseMultilingualField(tour.category.name, language),
+        isPrimary: true
+      }];
+    }
+    
     const mappedTour = {
       ...tour,
       title: parseMultilingualField(tour.title, language),
       description: parseMultilingualField(tour.description, language),
       shortDesc: tour.shortDesc ? parseMultilingualField(tour.shortDesc, language) : null,
       hasImages: !!(tour.mainImage || tour.images),
-      // Safe category handling - parse category.name as JSON multilingual field
-      category: tour.category ? {
-        id: tour.category.id,
-        name: parseMultilingualField(tour.category.name, language),
-        nameRaw: safeJsonParse(tour.category.name) // For admin panel
-      } : null,
+      // Primary category for backward compatibility
+      category: categories.find((c: any) => c.isPrimary) || categories[0] || null,
+      // All categories
+      categories: categories,
       // Add country and city from relations
       country: tour.tourCountry ? parseMultilingualField(tour.tourCountry.name, language) : null,
       city: tour.tourCity ? parseMultilingualField(tour.tourCity.name, language) : null
@@ -228,7 +243,8 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       category: tour.category ? {
         id: tour.category.id,
         name: parseMultilingualField(tour.category.name, language)
-      } : null
+      } : null,
+      categories: []
     };
   }
 }

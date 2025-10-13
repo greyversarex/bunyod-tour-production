@@ -474,7 +474,15 @@ export class TourModel {
       include: {
         category: true,
         tourCountry: true,
-        tourCity: true
+        tourCity: true,
+        tourCategoryAssignments: {
+          include: {
+            category: true
+          },
+          orderBy: {
+            isPrimary: 'desc'
+          }
+        }
       },
       orderBy: {
         createdAt: 'desc'
