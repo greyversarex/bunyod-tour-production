@@ -6995,7 +6995,7 @@
                         const hotelAddress = escapeHtml(getLocalizedField(hotel, 'address', 'Адрес не указан'));
                         const images = ensureArray(hotel.images);
                         const amenities = ensureArray(hotel.amenities);
-                        const mainImageUrl = images.length > 0 ? validateImageUrl(images[0]) : '';
+                        const mainImageUrl = images.length > 0 ? getAbsoluteImageUrl(images[0]) : '';
                         
                         // Получение страны и города из связанных данных
                         const countryName = hotel.country ? escapeHtml(hotel.country.nameRu || hotel.country.nameEn || '') : '';
@@ -7010,7 +7010,7 @@
                             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
                                 ${mainImageUrl ? `
                                     <div class="h-48 overflow-hidden">
-                                        <img src="${getAbsoluteImageUrl(mainImageUrl)}" alt="${hotelName}" class="w-full h-full object-cover">
+                                        <img src="${mainImageUrl}" alt="${hotelName}" class="w-full h-full object-cover">
                                     </div>
                                 ` : ''}
                                 <div class="p-6">
@@ -7295,8 +7295,9 @@
                                 if (uploaderContainer) {
                                     let imagesHtml = '<div class="uploaded-images-preview mb-3"><h4 class="text-sm font-semibold mb-2">Загруженные изображения:</h4><div class="flex gap-2 flex-wrap">';
                                     images.forEach((img, index) => {
+                                        const absoluteImageUrl = getAbsoluteImageUrl(img);
                                         imagesHtml += `<div class="image-preview-item relative">
-                                            <img src="${getAbsoluteImageUrl(img)}" alt="Hotel image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb;">
+                                            <img src="${absoluteImageUrl}" alt="Hotel image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #e5e7eb;">
                                             <div class="text-xs text-gray-500 text-center mt-1">Изображение ${index + 1}</div>
                                         </div>`;
                                     });
