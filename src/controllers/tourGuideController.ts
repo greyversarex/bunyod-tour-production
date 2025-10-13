@@ -234,6 +234,9 @@ export const getGuideTours = async (req: Request, res: Response): Promise<void> 
         scheduledStartDate: tour.scheduledStartDate,
         scheduledEndDate: tour.scheduledEndDate,
         status: tour.status,
+        currentDay: tour.currentDay,
+        completedDays: tour.completedDays,
+        totalDays: tour.totalDays,
         totalTourists,
         bookingsCount: tour.bookings.length,
         category: tour.category,
@@ -349,6 +352,10 @@ export const getTourDetails = async (req: Request, res: Response): Promise<void>
       scheduledStartDate: tour.scheduledStartDate,
       scheduledEndDate: tour.scheduledEndDate,
       status: tour.status,
+      currentDay: tour.currentDay,
+      completedDays: tour.completedDays,
+      totalDays: tour.totalDays,
+      durationDays: tour.durationDays,
       bookings: tour.bookings,
       tourists: tourists,
       totalTourists: tourists.length,
@@ -413,14 +420,34 @@ export const startTour = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    // Определяем общее количество дней тура
+    let totalDays = tour.totalDays || tour.durationDays || 1;
+    
+    // Если есть itinerary, пытаемся определить количество дней из него
+    if (tour.itinerary && !tour.totalDays) {
+      try {
+        const itinerary = typeof tour.itinerary === 'string' ? JSON.parse(tour.itinerary) : tour.itinerary;
+        const itineraryArray = Array.isArray(itinerary) ? itinerary : (itinerary.days || []);
+        if (itineraryArray.length > 0) {
+          const maxDay = Math.max(...itineraryArray.map((item: any) => item.day || 1));
+          totalDays = Math.max(totalDays, maxDay);
+        }
+      } catch (e) {
+        console.log('Could not parse itinerary for day count');
+      }
+    }
+
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: { 
-        status: 'active' 
+        status: 'active',
+        currentDay: 1,
+        completedDays: [],
+        totalDays: totalDays
       }
     });
 
-    console.log(`🚀 Tour ${tourId} started by guide ${guideId}`);
+    console.log(`🚀 Tour ${tourId} started by guide ${guideId}, totalDays: ${totalDays}`);
 
     res.json({
       success: true,
@@ -479,19 +506,55 @@ export const finishTour = async (req: Request, res: Response): Promise<void> => 
       return;
     }
 
+    // Определяем логику завершения: по дням или целиком
+    const totalDays = tour.totalDays || 1;
+    const currentDay = tour.currentDay || 1;
+    const completedDays = tour.completedDays || [];
+    
+    let newStatus = tour.status;
+    let newCurrentDay = currentDay;
+    let newCompletedDays = [...completedDays];
+    let message = '';
+
+    if (totalDays === 1) {
+      // Однодневный тур - завершаем сразу
+      newStatus = 'finished';
+      newCompletedDays = [1];
+      message = 'Тур завершён';
+      console.log(`✅ Single-day tour ${tourId} finished by guide ${guideId}`);
+    } else {
+      // Многодневный тур - завершаем текущий день
+      if (!newCompletedDays.includes(currentDay)) {
+        newCompletedDays.push(currentDay);
+        newCompletedDays.sort((a, b) => a - b);
+      }
+      
+      // Проверяем, все ли дни завершены
+      if (newCompletedDays.length >= totalDays) {
+        newStatus = 'finished';
+        message = `Тур полностью завершён (${totalDays} дней)`;
+        console.log(`✅ Multi-day tour ${tourId} fully completed by guide ${guideId}`);
+      } else {
+        newCurrentDay = currentDay + 1;
+        newStatus = 'active'; // Остаемся активными
+        message = `День ${currentDay} завершён. Текущий день: ${newCurrentDay} из ${totalDays}`;
+        console.log(`✅ Day ${currentDay} of tour ${tourId} finished by guide ${guideId}`);
+      }
+    }
+
     const updatedTour = await prisma.tour.update({
       where: { id: tourId },
       data: { 
-        status: 'finished' 
+        status: newStatus,
+        currentDay: newCurrentDay,
+        completedDays: newCompletedDays
       }
     });
-
-    console.log(`✅ Tour ${tourId} finished by guide ${guideId}`);
 
     res.json({
       success: true,
       data: updatedTour,
-      message: 'Тур завершён'
+      message: message
     });
 
   } catch (error) {

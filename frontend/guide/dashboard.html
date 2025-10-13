@@ -215,6 +215,43 @@
         </div>
     </div>
 
+    <!-- Review Collection Modal -->
+    <div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-envelope mr-2 text-blue-600"></i>
+                        Собрать отзывы
+                    </h3>
+                    <button id="closeReviewModal" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <div class="mb-4">
+                    <p class="text-gray-600">Выберите туристов, которым отправить ссылку для оставления отзыва:</p>
+                </div>
+
+                <!-- Tourist List with Checkboxes -->
+                <div id="touristCheckboxList" class="space-y-2 mb-6 max-h-96 overflow-y-auto">
+                    <!-- Will be populated dynamically -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-end space-x-3">
+                    <button id="cancelReviewBtn" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors">
+                        Отмена
+                    </button>
+                    <button id="sendReviewEmailsBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        Отправить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let guideData = null;
         let tours = [];
@@ -832,19 +869,63 @@
                 'finished': 'Завершён'
             }[tour.status || 'pending'];
 
+            // Проверка времени начала тура
+            const now = new Date();
+            const scheduledStart = tour.scheduledStartDate ? new Date(tour.scheduledStartDate) : null;
+            const canStart = !scheduledStart || scheduledStart <= now;
+
+            // Определение многодневности
+            const totalDays = tour.totalDays || 1;
+            const currentDay = tour.currentDay || 1;
+            const completedDays = tour.completedDays || [];
+            const isMultiDay = totalDays > 1;
+
+            // Формирование текста для кнопки завершения
+            let finishButtonText = 'Завершить тур';
+            if (isMultiDay && tour.status === 'active') {
+                finishButtonText = `Завершить день ${currentDay}`;
+            }
+
+            // Сохраняем tour в глобальную переменную для доступа из других функций
+            window.currentTourData = tour;
+
             document.getElementById('modalContent').innerHTML = `
                 <div class="space-y-6">
                     <div class="p-4 rounded-lg" style="background-color: #f3f4f6;">
-                        <h4 class="font-semibold mb-2" style="color: #374151;">Статус тура: ${statusText}</h4>
+                        <h4 class="font-semibold mb-2" style="color: #374151;">
+                            Статус тура: ${statusText}
+                            ${isMultiDay && tour.status === 'active' ? `<span class="ml-2 text-sm">(День ${currentDay} из ${totalDays})</span>` : ''}
+                        </h4>
+                        ${isMultiDay && completedDays.length > 0 ? `
+                            <p class="text-sm text-gray-600 mb-2">
+                                Завершённые дни: ${completedDays.join(', ')}
+                            </p>
+                        ` : ''}
                         <div class="flex space-x-3">
                             ${tour.status === 'pending' ? `
-                                <button onclick="updateTourStatus(${tour.id}, 'active')" class="text-white px-4 py-2 rounded-lg transition-colors" style="background-color: #6B7280;" onmouseover="this.style.backgroundColor='#3E3E3E'" onmouseout="this.style.backgroundColor='#6B7280'">
+                                <button 
+                                    onclick="updateTourStatus(${tour.id}, 'active')" 
+                                    ${!canStart ? 'disabled' : ''} 
+                                    class="text-white px-4 py-2 rounded-lg transition-colors ${!canStart ? 'opacity-50 cursor-not-allowed' : ''}" 
+                                    style="background-color: ${!canStart ? '#9CA3AF' : '#6B7280'};" 
+                                    ${canStart ? `onmouseover="this.style.backgroundColor='#3E3E3E'" onmouseout="this.style.backgroundColor='#6B7280'"` : ''}>
                                     <i class="fas fa-play mr-2"></i>Начать тур
                                 </button>
+                                ${!canStart && scheduledStart ? `
+                                    <span class="text-sm text-gray-600 flex items-center">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Начало: ${scheduledStart.toLocaleString('ru-RU')}
+                                    </span>
+                                ` : ''}
                             ` : ''}
                             ${tour.status === 'active' ? `
                                 <button onclick="updateTourStatus(${tour.id}, 'finished')" class="text-white px-4 py-2 rounded-lg transition-colors" style="background-color: #3E3E3E;" onmouseover="this.style.backgroundColor='#6B7280'" onmouseout="this.style.backgroundColor='#3E3E3E'">
-                                    <i class="fas fa-check mr-2"></i>Завершить тур
+                                    <i class="fas fa-check mr-2"></i>${finishButtonText}
+                                </button>
+                            ` : ''}
+                            ${tour.status === 'finished' ? `
+                                <button onclick="openReviewCollectionModal(${tour.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                                    <i class="fas fa-envelope mr-2"></i>Собрать отзывы
                                 </button>
                             ` : ''}
                         </div>
@@ -854,6 +935,7 @@
                         <h4 class="font-semibold text-gray-800 mb-3">Информация о туре</h4>
                         <div class="bg-gray-50 p-4 rounded-lg space-y-2">
                             <p><strong>Название:</strong> ${tourTitle.ru}</p>
+                            ${isMultiDay ? `<p><strong>Продолжительность:</strong> ${totalDays} дней</p>` : ''}
                         </div>
                     </div>
 
@@ -909,8 +991,8 @@
                     // Reload tour details in modal
                     loadTourDetails(tourId);
                     
-                    // Show success message
-                    alert(`Статус тура обновлен: ${newStatus === 'active' ? 'Тур начат' : 'Тур завершён'}`);
+                    // Show success message from server
+                    alert(result.message || `Статус тура обновлен: ${newStatus === 'active' ? 'Тур начат' : 'Тур завершён'}`);
                 } else {
                     throw new Error(result.message || 'Failed to update tour status');
                 }
@@ -920,10 +1002,112 @@
             }
         }
 
+        // Open review collection modal
+        function openReviewCollectionModal(tourId) {
+            const tour = window.currentTourData;
+            
+            if (!tour || !tour.bookings || tour.bookings.length === 0) {
+                alert('Нет бронирований для сбора отзывов');
+                return;
+            }
+
+            // Collect all tourists from bookings
+            const tourists = [];
+            tour.bookings.forEach(booking => {
+                if (booking.contactEmail) {
+                    tourists.push({
+                        name: booking.contactName || 'Клиент',
+                        email: booking.contactEmail,
+                        bookingId: booking.id
+                    });
+                }
+            });
+
+            if (tourists.length === 0) {
+                alert('Нет туристов с email для отправки отзывов');
+                return;
+            }
+
+            // Populate tourist checkboxes
+            const touristList = document.getElementById('touristCheckboxList');
+            touristList.innerHTML = tourists.map((tourist, index) => `
+                <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
+                    <input type="checkbox" 
+                           class="tourist-checkbox w-5 h-5 text-blue-600 rounded mr-3" 
+                           data-name="${tourist.name}" 
+                           data-email="${tourist.email}"
+                           checked>
+                    <div class="flex-1">
+                        <span class="font-semibold">${tourist.name}</span>
+                        <span class="text-sm text-gray-600 ml-2">${tourist.email}</span>
+                    </div>
+                </label>
+            `).join('');
+
+            // Show modal
+            document.getElementById('reviewModal').classList.remove('hidden');
+            
+            // Store tour ID for sending
+            window.currentReviewTourId = tourId;
+        }
+
+        // Send review emails
+        async function sendReviewEmails() {
+            const tourId = window.currentReviewTourId;
+            
+            // Get selected tourists
+            const checkboxes = document.querySelectorAll('.tourist-checkbox:checked');
+            const selectedTourists = Array.from(checkboxes).map(cb => ({
+                name: cb.dataset.name,
+                email: cb.dataset.email
+            }));
+
+            if (selectedTourists.length === 0) {
+                alert('Выберите хотя бы одного туриста');
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch(`/api/guide/tours/${tourId}/collect-reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        selectedTourists: selectedTourists
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ ${result.message || 'Письма успешно отправлены'}`);
+                    document.getElementById('reviewModal').classList.add('hidden');
+                } else {
+                    throw new Error(result.message || 'Failed to send emails');
+                }
+            } catch (error) {
+                console.error('Error sending review emails:', error);
+                alert('Ошибка при отправке писем: ' + error.message);
+            }
+        }
+
         // Event listeners
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('tourModal').classList.add('hidden');
         });
+
+        document.getElementById('closeReviewModal').addEventListener('click', () => {
+            document.getElementById('reviewModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelReviewBtn').addEventListener('click', () => {
+            document.getElementById('reviewModal').classList.add('hidden');
+        });
+
+        document.getElementById('sendReviewEmailsBtn').addEventListener('click', sendReviewEmails);
 
         document.getElementById('refreshBtn').addEventListener('click', loadTours);
 
