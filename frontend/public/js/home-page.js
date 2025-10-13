@@ -1843,7 +1843,7 @@ function renderTourCard(tour, blockId = null) {
              data-tour-id="${tour.id}"
              data-unique-card-id="${uniqueCardId}">
             <div class="relative overflow-hidden rounded-t-lg">
-                <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
+                <div class="w-full h-44 sm:h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
                     ${tourImages.length > 0 ? 
                         tourImages.map((imgSrc, index) => `
                             <img src="${imgSrc}" 
@@ -1872,30 +1872,30 @@ function renderTourCard(tour, blockId = null) {
                     `).join('')}
                 </div>` : ''}
             </div>
-            <div class="p-4 flex flex-col flex-grow">
+            <div class="p-3 sm:p-4 flex flex-col flex-grow">
                 <!-- Локация -->
-                <div class="text-xs text-gray-500 mb-2">
+                <div class="text-xs text-gray-500 mb-1 sm:mb-2">
                     📍 ${getDisplayLocation(tour)}
                 </div>
                 <!-- Тип тура -->
-                <div class="text-xs text-blue-600 mb-2">
+                <div class="text-xs text-blue-600 mb-1 sm:mb-2">
                     🎯 <span class="font-medium tour-type-text" data-tour-type="${tour.format || tour.tourType || 'Групповой'}" data-translate="tour_type.${(tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')}">${currentLang === 'en' ? (getTranslation('tour_type.' + (tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')) || tour.format || tour.tourType || 'Group') : (tour.format || tour.tourType || 'Групповой')}</span>
                 </div>
                 <!-- Категория тура -->
-                <div class="text-xs mb-2" style="color: #3E3E3E;">
+                <div class="text-xs mb-1 sm:mb-2" style="color: #3E3E3E;">
                     🏷️ <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}</span>
                 </div>
                 ${tour.rating ? `
-                <div class="text-xs text-green-600 mb-2">
+                <div class="text-xs text-green-600 mb-1 sm:mb-2">
                     <span class="font-semibold">★ ${tour.rating}</span>
                     <span class="text-gray-500 ml-1">(${tour.reviewsCount || 0})</span>
                 </div>` : ''}
                 <!-- Заголовок -->
-                <h3 class="text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-tight" data-tour-title="${JSON.stringify(titleData).replace(/"/g, '&quot;')}">
+                <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 leading-tight" data-tour-title="${JSON.stringify(titleData).replace(/"/g, '&quot;')}">
                     ${titleText}
                 </h3>
                 <!-- Описание -->
-                <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
+                <p class="text-xs text-gray-600 mb-1 sm:mb-2 line-clamp-2 leading-relaxed" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1">
