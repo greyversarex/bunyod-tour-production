@@ -534,13 +534,17 @@ export const bookingController = {
       }
 
       // Добавить стоимость питания (если выбрано)
-      if (mealSelection && existingBooking.hotel) {
+      // 🔧 ИСПРАВЛЕНО: Используем сохраненный mealSelection из БД, если не передан новый
+      const finalMealSelection = mealSelection || (existingBooking.mealSelection ? JSON.parse(existingBooking.mealSelection) : null);
+      
+      if (finalMealSelection && existingBooking.hotel) {
         const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
         
-        for (const [mealType, mealData] of Object.entries(mealSelection as any)) {
+        for (const [mealType, mealData] of Object.entries(finalMealSelection as any)) {
           const meal = mealData as any;
           if (meal.selected) {
             totalPrice += meal.price * existingBooking.numberOfTourists * tourDuration;
+            console.log(`➕ Update - Added meal ${mealType}: ${meal.price} x ${existingBooking.numberOfTourists} x ${tourDuration} days = ${meal.price * existingBooking.numberOfTourists * tourDuration} TJS`);
           }
         }
       }
@@ -554,8 +558,9 @@ export const bookingController = {
           contactEmail,
           tourists: JSON.stringify(tourists),
           specialRequests,
-          roomSelection: roomSelection ? JSON.stringify(roomSelection) : null,
-          mealSelection: mealSelection ? JSON.stringify(mealSelection) : null,
+          // 🔧 ИСПРАВЛЕНО: Сохраняем существующее значение, если новое не предоставлено
+          roomSelection: roomSelection ? JSON.stringify(roomSelection) : existingBooking.roomSelection,
+          mealSelection: mealSelection ? JSON.stringify(mealSelection) : existingBooking.mealSelection,
           totalPrice,
           status: 'pending' // Переводим в состояние ожидания оплаты
         }
