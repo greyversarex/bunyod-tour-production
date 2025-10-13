@@ -266,7 +266,7 @@
             
             /* Карусель туров */
             .tour-carousel {
-                padding: 0 20px;
+                padding: 0 16px;
             }
             
             /* Скрываем стрелки карусели туров на мобильных */
@@ -274,10 +274,10 @@
                 display: none !important;
             }
             
-            /* Карточки туров */
+            /* Карточки туров - занимают всю ширину с симметричными отступами */
             .tour-card {
-                min-width: 240px;
-                max-width: 240px;
+                min-width: calc(100vw - 32px);
+                max-width: calc(100vw - 32px);
             }
             
             /* Секции */
@@ -309,11 +309,6 @@
             
             .hero-slide p {
                 font-size: 0.875rem !important;
-            }
-            
-            .tour-card {
-                min-width: 200px;
-                max-width: 200px;
             }
             
             section h2 {
