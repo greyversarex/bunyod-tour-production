@@ -27,11 +27,11 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Admin Panel Modules**: Fully implemented "Drivers", "Trips", and "Transfers" sections with CRUD functionality.
 -   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management.
 -   **API Design**: RESTful endpoints with standardized responses and robust language parameter handling.
--   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation.
+-   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation. Restricted `/uploads` access with granular middleware: `/uploads/guides` and `/uploads/slides` allow only image files (.jpg, .jpeg, .png, .webp, .gif), blocking documents and other file types for security.
 -   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels.
 -   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic.
--   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides` with full CRUD in admin panel), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management. Banner system supports multilingual titles/descriptions/buttons, image uploads, ordering, and activation toggles.
+-   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides` with full CRUD in admin panel), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management. Banner system supports multilingual titles/descriptions/buttons, image uploads, ordering, and activation toggles. Secure static routes implemented for `/uploads/slides` (images only) with proper Express middleware restrictions.
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality fully operational for tours, hotels, and guides with proper `isDraft/isActive` handling. Banner management (Слайдер) allows adding/editing homepage hero slides with multilingual content and image uploads.

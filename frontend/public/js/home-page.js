@@ -2016,10 +2016,11 @@ function renderSlides() {
         const title = slide.title || {};
         const description = slide.description || {};
         const buttonText = slide.buttonText || null;
+        const imageUrl = slide.image ? getAbsoluteImageUrl(slide.image) : '';
         
         return `
             <div class="hero-slide ${index === 0 ? 'active' : ''}" data-slide="${index}"
-                 style="background-image: url('${slide.image || ''}'); ${!slide.image ? 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);' : ''}">
+                 style="background-image: url('${imageUrl}'); ${!imageUrl ? 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);' : ''}">
                 <div class="gradient-overlay absolute inset-0"></div>
                 <div class="relative z-10 text-center max-w-4xl mx-auto px-6 flex items-center justify-center h-full">
                     <div>

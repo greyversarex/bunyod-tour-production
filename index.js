@@ -164,6 +164,22 @@ app.use('/uploads/guides', (req, res, next) => {
   }
 });
 
+// Add secure route for banner slides (only images)
+app.use('/uploads/slides', (req, res, next) => {
+  // Security: Only allow image files for banner slides
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  const fileExtension = path.extname(req.path).toLowerCase();
+  
+  if (allowedExtensions.includes(fileExtension)) {
+    express.static(path.join(__dirname, 'uploads/slides'))(req, res, next);
+  } else {
+    res.status(403).json({ 
+      success: false, 
+      message: 'Access denied: Only image files are allowed' 
+    });
+  }
+});
+
 // Add upload routes for simple image handling
 const uploadRoutes = require(`${srcPath}/routes/uploadRoutes${isProduction ? '.js' : '.ts'}`).default;
 app.use('/upload', uploadRoutes);
