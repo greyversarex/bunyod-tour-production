@@ -32,7 +32,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
-const allowlist = (process.env.CORS_ORIGINS || '')
+const corsOrigins = process.env.CORS_ORIGINS || '';
+const allowlist = corsOrigins
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
@@ -41,6 +42,11 @@ app.use(cors({
   origin(origin, callback) {
     // Разрешить запросы без origin (curl, healthcheck, same-origin)
     if (!origin) return callback(null, true);
+    
+    // Разрешить все если установлено *
+    if (corsOrigins === '*' || allowlist.includes('*')) {
+      return callback(null, true);
+    }
     
     // Разрешить если в белом списке
     if (allowlist.length === 0 || allowlist.includes(origin)) {
