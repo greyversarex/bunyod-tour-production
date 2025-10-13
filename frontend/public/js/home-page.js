@@ -922,8 +922,11 @@ window.formatPrice = formatPrice;
 window.updateCurrency = function(currency) {
     console.log('💱 Updating currency to:', currency);
     
-    if (!exchangeRates[currency]) {
-        console.error('❌ Currency not found:', currency);
+    // Если exchangeRates ещё не загружены, сохраняем валюту и выходим
+    if (!exchangeRates || !exchangeRates[currency]) {
+        currentCurrency = currency;
+        localStorage.setItem('selectedCurrency', currency);
+        console.log('💱 Currency saved, exchange rates will be applied when loaded');
         return;
     }
     
