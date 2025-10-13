@@ -267,7 +267,10 @@
             /* Карусель туров */
             .tour-carousel {
                 padding: 0;
-                gap: 0;
+                gap: 16px;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x mandatory;
+                touch-action: pan-x;
             }
             
             /* Скрываем стрелки карусели туров на мобильных */
@@ -277,11 +280,17 @@
             
             /* Карточки туров - 100% ширины контейнера (точно как блок "Виды тура") */
             .tour-card {
-                flex: 0 0 100%;
-                width: 100%;
+                flex: 0 0 calc(100% - 8px);
+                width: calc(100% - 8px);
                 min-width: unset;
                 max-width: unset;
                 box-sizing: border-box;
+                scroll-snap-align: center;
+            }
+            
+            /* Первая карточка - компенсируем отступ */
+            .tour-card:first-child {
+                margin-left: 0;
             }
             
             /* Секции */
