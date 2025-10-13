@@ -1897,7 +1897,7 @@ function renderTourCard(tour, blockId = null) {
                 <!-- Описание -->
                 <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
                 <!-- Цена и кнопка -->
-                <div class="flex items-center justify-between mt-auto gap-3">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1">
                         ${tour.originalPrice ? `
                             <div class="text-xs line-through text-gray-400 mb-1 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.originalPrice} с.</div>
@@ -1908,7 +1908,7 @@ function renderTourCard(tour, blockId = null) {
                         <div class="converted-price text-xs text-gray-600 mt-1" style="display: none;"></div>
                         <div class="text-xs text-gray-500" data-translate="price.${(tour.priceType || 'за человека').replace(/\s/g, '_')}">${tour.priceType}</div>
                     </div>
-                    <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0" 
+                    <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap w-full sm:w-auto sm:flex-shrink-0" 
                             style="background-color: #3E3E3E;"
                             onclick="event.stopPropagation(); window.location.href='tour-template.html?id=${tour.id}'"
                             data-translate="btn.book">

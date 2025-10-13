@@ -217,7 +217,21 @@ async function main() {
 
   console.log('✅ Tour blocks created (7 IRON-CONCRETE blocks - unchangeable!)');
 
-  // 7. Sample tours removed - users will create their own tours
+  // 7. Ensure all hotels are active (fix for inactive hotels issue)
+  const hotelsUpdated = await prisma.hotel.updateMany({
+    where: {
+      isActive: false
+    },
+    data: {
+      isActive: true
+    }
+  });
+  
+  if (hotelsUpdated.count > 0) {
+    console.log(`✅ Activated ${hotelsUpdated.count} inactive hotels`);
+  }
+
+  // 8. Sample tours removed - users will create their own tours
   console.log('✅ Seed completed - no demo tours created');
   console.log('🎉 Database seeding completed successfully!');
 }
