@@ -31,10 +31,10 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels.
 -   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic.
--   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides`), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management.
+-   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides` with full CRUD in admin panel), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management. Banner system supports multilingual titles/descriptions/buttons, image uploads, ordering, and activation toggles.
 
 ### UI/UX
--   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality fully operational for tours, hotels, and guides with proper `isDraft/isActive` handling.
+-   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality fully operational for tours, hotels, and guides with proper `isDraft/isActive` handling. Banner management (Слайдер) allows adding/editing homepage hero slides with multilingual content and image uploads.
 -   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization (44x44px minimum for all interactive elements).
 -   **Mobile Footer**: Optimized with collapsible accordion sections (Company, Contacts), always-visible social links with proper touch targets, and desktop-only map display.
 -   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design with gradient backgrounds, backdrop-filter blur effects, smooth shadows, and hover transitions for premium UX.

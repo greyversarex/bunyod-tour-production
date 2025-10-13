@@ -14,7 +14,7 @@ import tourBlockRoutes from './tourBlockRoutes';
 import translationRoutes from './translationRoutes';
 import exchangeRateRoutes from './exchangeRateRoutes';
 import newsRoutes from './newsRoutes';
-// import slideRoutes from './slideRoutes'; // ОТКЛЮЧЕНО: больше не используем
+import slideRoutes from './slideRoutes';
 import objectStorageRoutes from './objectStorageRoutes';
 import bookingRoutes from './bookingRoutes';
 import uploadRoutes from './uploadRoutes';
@@ -57,7 +57,7 @@ router.use('/tour-blocks', tourBlockRoutes);
 router.use('/translate', translationRoutes);
 router.use('/exchange-rates', exchangeRateRoutes);
 router.use('/news', newsRoutes);
-// router.use('/slides', slideRoutes); // ОТКЛЮЧЕНО: больше не используем
+router.use('/slides', slideRoutes);
 router.use('/booking', bookingRoutes);
 router.use('/images', uploadRoutes); // Add images endpoint for frontend compatibility
 router.use('/objects', objectsRoutes); // Add objects endpoint for ObjectUploader
