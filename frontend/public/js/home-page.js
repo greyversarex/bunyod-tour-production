@@ -1994,11 +1994,39 @@ async function loadSlides() {
             renderSlides();
             initializeSlider();
         } else {
-            console.log('No slides found, using default content');
+            console.log('⚠️ No slides found, showing default content');
+            showDefaultSlide();
         }
     } catch (error) {
         console.error('❌ Error loading slides:', error);
+        showDefaultSlide();
     }
+}
+
+function showDefaultSlide() {
+    const container = document.getElementById('slidesContainer');
+    if (!container) return;
+    
+    const currentLang = getCurrentLanguage();
+    const title = currentLang === 'en' ? 'Welcome to Central Asia' : 'Добро пожаловать в Центральную Азию';
+    const description = currentLang === 'en' 
+        ? 'Discover amazing landscapes and rich culture of the region' 
+        : 'Откройте для себя удивительные пейзажи и богатую культуру региона';
+    
+    container.innerHTML = `
+        <div class="hero-slide active" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="gradient-overlay absolute inset-0"></div>
+            <div class="relative z-10 text-center max-w-4xl mx-auto px-6 flex items-center justify-center h-full">
+                <div>
+                    <h1 class="text-6xl font-bold mb-6 text-white">${title}</h1>
+                    <p class="text-xl mb-8 max-w-2xl mx-auto text-white">${description}</p>
+                    <a href="/tours" class="inline-block bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                        ${currentLang === 'en' ? 'Explore Tours' : 'Посмотреть туры'}
+                    </a>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 function renderSlides() {
