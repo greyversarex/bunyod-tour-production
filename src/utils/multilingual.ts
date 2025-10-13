@@ -189,11 +189,15 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       description: parseMultilingualField(tour.description, language),
       shortDesc: tour.shortDesc ? parseMultilingualField(tour.shortDesc, language) : null,
       hasImages: !!(tour.mainImage || tour.images),
-      // Safe category handling - no JSON parsing needed for Category.name (String type)
+      // Safe category handling - parse category.name as JSON multilingual field
       category: tour.category ? {
         id: tour.category.id,
-        name: tour.category.name // Category.name is String, not JSON - no parsing needed
-      } : null
+        name: parseMultilingualField(tour.category.name, language),
+        nameRaw: safeJsonParse(tour.category.name) // For admin panel
+      } : null,
+      // Add country and city from relations
+      country: tour.tourCountry ? parseMultilingualField(tour.tourCountry.name, language) : null,
+      city: tour.tourCity ? parseMultilingualField(tour.tourCity.name, language) : null
     };
 
     // Remove images for performance if requested
@@ -223,7 +227,7 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       hasImages: !!(tour.mainImage || tour.images),
       category: tour.category ? {
         id: tour.category.id,
-        name: tour.category.name
+        name: parseMultilingualField(tour.category.name, language)
       } : null
     };
   }
