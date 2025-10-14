@@ -30,25 +30,27 @@ const PORT = process.env.PORT || 5000;
 // 🔒 Trust proxy для корректной работы rate limiting в Replit
 app.set('trust proxy', true);
 
-// Инициализируем парсеры
-const jsonParser = express.json({ limit: '50mb' });
-const urlencodedParser = express.urlencoded({ extended: true, limit: '50mb' });
-
-// Middleware для парсинга JSON (пропускаем multipart/form-data для загрузки файлов)
+// Middleware для парсинга - пропускаем multipart/form-data
 app.use((req, res, next) => {
-  const contentType = req.get('Content-Type') || '';
-  if (contentType.includes('multipart/form-data')) {
-    return next(); // Пропускаем для multer
+  const contentType = req.headers['content-type'] || '';
+  
+  // Пропускаем multipart для загрузки файлов
+  if (contentType.startsWith('multipart/form-data')) {
+    console.log('⏭️ Skipping body parsers for multipart/form-data');
+    return next();
   }
-  jsonParser(req, res, next);
-});
-
-app.use((req, res, next) => {
-  const contentType = req.get('Content-Type') || '';
-  if (contentType.includes('multipart/form-data')) {
-    return next(); // Пропускаем для multer
+  
+  // Применяем JSON парсер
+  if (contentType.includes('application/json') || contentType === '') {
+    return express.json({ limit: '50mb' })(req, res, next);
   }
-  urlencodedParser(req, res, next);
+  
+  // Применяем URL-encoded парсер
+  if (contentType.includes('application/x-www-form-urlencoded')) {
+    return express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+  }
+  
+  next();
 });
 
 // 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
