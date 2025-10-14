@@ -30,20 +30,25 @@ const PORT = process.env.PORT || 5000;
 // 🔒 Trust proxy для корректной работы rate limiting в Replit
 app.set('trust proxy', true);
 
+// Инициализируем парсеры
+const jsonParser = express.json({ limit: '50mb' });
+const urlencodedParser = express.urlencoded({ extended: true, limit: '50mb' });
+
 // Middleware для парсинга JSON (пропускаем multipart/form-data для загрузки файлов)
 app.use((req, res, next) => {
   const contentType = req.get('Content-Type') || '';
   if (contentType.includes('multipart/form-data')) {
     return next(); // Пропускаем для multer
   }
-  express.json({ limit: '50mb' })(req, res, next);
+  jsonParser(req, res, next);
 });
+
 app.use((req, res, next) => {
   const contentType = req.get('Content-Type') || '';
   if (contentType.includes('multipart/form-data')) {
     return next(); // Пропускаем для multer
   }
-  express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+  urlencodedParser(req, res, next);
 });
 
 // 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
