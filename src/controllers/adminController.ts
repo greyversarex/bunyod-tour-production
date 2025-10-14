@@ -184,16 +184,38 @@ export class AdminController {
    */
   static async getDashboardStats(req: Request, res: Response, next: NextFunction) {
     try {
-      const [toursCount, ordersCount, customersCount, hotelsCount, guidesCount, reviewsCount] = await Promise.all([
-        prisma.tour.count(),
-        prisma.order.count(),
-        prisma.customer.count(),
-        prisma.hotel.count(),
+      // Дата месяц назад
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+
+      // Считаем только оплаченные заказы
+      const [toursCount, paidOrdersCount, hotelsCount, guidesCount, reviewsCount, monthlyRevenue, activeCustomersCount] = await Promise.all([
+        prisma.tour.count({ where: { isActive: true } }),
+        prisma.order.count({ where: { paymentStatus: 'paid' } }),
+        prisma.hotel.count({ where: { isActive: true } }),
         prisma.guide.count(),
-        prisma.review.count()
+        prisma.review.count(),
+        // Доход за месяц только от оплаченных заказов
+        prisma.order.aggregate({
+          where: {
+            paymentStatus: 'paid',
+            createdAt: { gte: oneMonthAgo }
+          },
+          _sum: { totalAmount: true }
+        }),
+        // Активные клиенты - те, кто сделал хотя бы один оплаченный заказ
+        prisma.customer.count({
+          where: {
+            orders: {
+              some: { paymentStatus: 'paid' }
+            }
+          }
+        })
       ]);
 
+      // Последние заказы - только оплаченные
       const recentOrders = await prisma.order.findMany({
+        where: { paymentStatus: 'paid' },
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: {
@@ -207,9 +229,10 @@ export class AdminController {
         data: {
           stats: {
             tours: toursCount,
-            orders: ordersCount,
-            customers: customersCount,
+            orders: paidOrdersCount,
             hotels: hotelsCount,
+            revenue: monthlyRevenue._sum.totalAmount || 0,
+            activeCustomers: activeCustomersCount,
             guides: guidesCount,
             reviews: reviewsCount
           },

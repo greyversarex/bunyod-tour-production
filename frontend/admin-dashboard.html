@@ -571,12 +571,12 @@
                         <div class="stat-card">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <i class="fas fa-users text-green-600 text-xl"></i>
+                                    <i class="fas fa-hotel text-green-600 text-xl"></i>
                                 </div>
                                 <span class="text-green-500 text-sm font-medium">+23%</span>
                             </div>
-                            <h3 class="text-2xl font-bold text-gray-800">342</h3>
-                            <p class="text-gray-600 text-sm mt-1" data-translate="admin.orders_this_month">Заказов за месяц</p>
+                            <h3 class="text-2xl font-bold text-gray-800">0</h3>
+                            <p class="text-gray-600 text-sm mt-1" data-translate="admin.hotels_count">Количество отелей</p>
                         </div>
                         
                         <div class="stat-card">
@@ -3061,11 +3061,11 @@
         </div>
     </div>
 
-    <!-- City Card Photo Modal - ОТДЕЛЬНАЯ система для фото карточек городов -->
+    <!-- City Card Photo Modal - Управление фото для карточек городов -->
     <div id="cityCardPhotoModal" class="modal">
-        <div class="modal-content" style="width: 600px;">
+        <div class="modal-content" style="width: 500px;">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-semibold" id="cityCardPhotoModalTitle">Добавить фото карточки города</h2>
+                <h2 class="text-2xl font-semibold" id="cityCardPhotoModalTitle">Загрузить фото города</h2>
                 <button onclick="closeCityCardPhotoModal()" class="text-gray-500 hover:text-gray-700">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -3080,30 +3080,16 @@
                         <select id="cardPhotoCityId" class="form-input" required>
                             <option value="">Выберите город</option>
                         </select>
+                        <small class="text-gray-500">Выберите город для которого загружается фото карточки</small>
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label">Название (English) *</label>
-                        <input type="text" id="cardPhotoTitle" class="form-input" placeholder="City view, Landscape" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Название (Русский) *</label>
-                        <input type="text" id="cardPhotoTitleRu" class="form-input" placeholder="Вид города, Пейзаж" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Изображение *</label>
-                        <input type="file" id="cardPhotoImage" class="form-input" accept="image/*">
-                        <small class="text-gray-500">Максимальный размер: 5MB. Форматы: JPG, PNG, WebP</small>
+                        <label class="form-label">Изображение карточки *</label>
+                        <input type="file" id="cardPhotoImage" class="form-input" accept="image/*" required>
+                        <small class="text-gray-500">Рекомендуемый размер: 800x400px. Максимум: 5MB</small>
                         <div id="cardPhotoPreview" class="mt-3" style="display: none;">
                             <img id="cardPhotoPreviewImage" class="rounded-lg max-w-full h-48 object-cover">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Порядок отображения</label>
-                        <input type="number" id="cardPhotoOrder" class="form-input" value="0" min="0">
                     </div>
                 </div>
                 
@@ -3112,8 +3098,8 @@
                         Отмена
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i>
-                        Сохранить
+                        <i class="fas fa-upload"></i>
+                        Загрузить
                     </button>
                 </div>
             </form>
@@ -3895,7 +3881,6 @@
         // Dashboard functions
         function loadDashboard() {
             loadDashboardStats();
-            loadRecentOrders();
             loadCharts();
         }
         
@@ -3926,16 +3911,37 @@
                     console.log('Dashboard stats loaded:', data);
                     if (data.success) {
                         const stats = data.data.stats;
-                        const revenue = data.data.recentOrders.reduce((total, order) => 
-                            total + (parseFloat(order.totalAmount) || 0), 0);
                         
                         // Обновить статистические карточки
                         const statsCards = document.querySelectorAll('.stat-card h3');
                         if (statsCards.length >= 4) {
                             statsCards[0].textContent = stats.tours || 0;
-                            statsCards[1].textContent = stats.orders || 0; 
-                            statsCards[2].textContent = '$' + revenue.toFixed(2);
-                            statsCards[3].textContent = stats.customers || 0;
+                            statsCards[1].textContent = stats.hotels || 0; 
+                            statsCards[2].textContent = '$' + (stats.revenue || 0).toFixed(2);
+                            statsCards[3].textContent = stats.activeCustomers || 0;
+                        }
+                        
+                        // Обновить таблицу последних заказов (только оплаченные)
+                        const tbody = document.getElementById('recentOrdersTable');
+                        const orders = data.data.recentOrders || [];
+                        if (orders.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">Нет оплаченных заказов</td></tr>';
+                        } else {
+                            tbody.innerHTML = orders.map(order => `
+                                <tr>
+                                    <td class="font-medium">${order.orderNumber || 'N/A'}</td>
+                                    <td>${order.customer?.fullName || 'Неизвестно'}</td>
+                                    <td>${getTourName(order.tour)}</td>
+                                    <td>${formatDate(order.createdAt)}</td>
+                                    <td class="font-semibold">$${order.totalAmount}</td>
+                                    <td><span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Оплачено</span></td>
+                                    <td>
+                                        <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('');
                         }
                     } else {
                         console.error('Dashboard stats API error:', data.message);
@@ -14556,18 +14562,22 @@
             const photoId = document.getElementById('cityCardPhotoId').value;
             const isEditing = !!photoId;
             
-            const formData = new FormData();
-            formData.append('cityId', document.getElementById('cardPhotoCityId').value);
-            formData.append('title', document.getElementById('cardPhotoTitle').value);
-            formData.append('titleRu', document.getElementById('cardPhotoTitleRu').value);
-            formData.append('displayOrder', document.getElementById('cardPhotoOrder').value);
+            const cityId = document.getElementById('cardPhotoCityId').value;
+            if (!cityId) {
+                alert('Пожалуйста, выберите город');
+                return;
+            }
             
             const imageFile = document.getElementById('cardPhotoImage').files[0];
-            if (imageFile) {
-                formData.append('image', imageFile);
-            } else if (!isEditing) {
+            if (!imageFile && !isEditing) {
                 alert('Пожалуйста, выберите изображение');
                 return;
+            }
+            
+            const formData = new FormData();
+            formData.append('cityId', cityId);
+            if (imageFile) {
+                formData.append('image', imageFile);
             }
             
             try {
@@ -14582,11 +14592,11 @@
                 
                 const data = await response.json();
                 if (data.success) {
-                    alert(isEditing ? 'Фото успешно обновлено!' : 'Фото успешно добавлено!');
+                    alert(isEditing ? 'Фото города обновлено!' : 'Фото города загружено!');
                     closeCityCardPhotoModal();
                     loadCityCardPhotos();
                 } else {
-                    alert('Ошибка сохранения: ' + (data.message || data.error));
+                    alert('Ошибка: ' + (data.message || data.error));
                 }
             } catch (error) {
                 alert('Ошибка соединения: ' + error.message);
@@ -14629,9 +14639,6 @@
                     const photo = data.data;
                     document.getElementById('cityCardPhotoId').value = photo.id;
                     document.getElementById('cardPhotoCityId').value = photo.cityId;
-                    document.getElementById('cardPhotoTitle').value = photo.title;
-                    document.getElementById('cardPhotoTitleRu').value = photo.titleRu || '';
-                    document.getElementById('cardPhotoOrder').value = photo.displayOrder || 0;
                     
                     if (photo.imageUrl) {
                         document.getElementById('cardPhotoPreview').style.display = 'block';
