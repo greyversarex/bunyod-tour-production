@@ -9,10 +9,16 @@ Development approach: Improve existing files rather than creating new ones. User
 Frontend structure alignment: Admin panel must perfectly match the frontend homepage structure with exact block names and tour organization as shown in provided screenshots.
 System integration preference: User requires simplified and unified pricing systems with single source of truth. Eliminated complex manual categorization in favor of automatic detection.
 
+## Recent Changes (October 2025)
+- **Code Cleanup**: Removed 640+ unused files from attached_assets (screenshots, temporary HTML/PHP/text files), keeping only essential city-card-photos folder
+- **Routing Optimization**: Fixed conflicting /admin routes - moved tour history endpoints to `/admin/history/*` with cleaner paths (e.g., `/admin/history/tours/active`, `/admin/history/guides`)
+- **Admin Dashboard**: Removed non-functional Chart.js graphs, streamlined statistics to show only paid orders and hotel count
+- **Console Logs**: Retained debug console.log statements per architectural review - useful for development troubleshooting
+
 ## System Architecture
 
 ### Backend
-The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints.
+The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints with clean routing structure - admin routes properly separated (`/admin/*` for general admin, `/admin/history/*` for tour history).
 
 ### Database
 **PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourCategoryAssignment** (many-to-many junction table for tour categories), **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto** (independent photo system for city cards). The system features automatic database initialization, schema application, data seeding for reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities), and a smart category migration system for a standardized 15-category structure. Tours now support multiple categories through the TourCategoryAssignment junction table with primary category designation, while maintaining backward compatibility with the legacy single category field. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users. Category names are consistent (singular in Russian, plural in English).
