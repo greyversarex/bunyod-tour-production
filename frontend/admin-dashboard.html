@@ -624,22 +624,6 @@
                             </table>
                         </div>
                     </div>
-
-                    <!-- Charts -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="admin.sales_chart">График продаж</h3>
-                            <div style="height: 300px; position: relative;">
-                                <canvas id="salesChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-sm p-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="admin.popular_destinations">Популярные направления</h3>
-                            <div style="height: 300px; position: relative;">
-                                <canvas id="destinationsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
                 </section>
 
                 <!-- Tours Section -->
@@ -3448,7 +3432,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="components/ObjectUploader.js"></script>
     <script>
         // ==============================================
@@ -3881,7 +3864,6 @@
         // Dashboard functions
         function loadDashboard() {
             loadDashboardStats();
-            loadCharts();
         }
         
         function loadDashboardStats() {
@@ -4000,63 +3982,6 @@
                         '<tr><td colspan="7" class="text-center text-red-500">Ошибка загрузки данных</td></tr>';
                 });
         }
-        
-        function loadCharts() {
-            // ИСПРАВЛЕНИЕ: Уничтожаем существующие charts перед созданием новых
-            if (salesChart) {
-                salesChart.destroy();
-                salesChart = null;
-            }
-            if (destinationsChart) {
-                destinationsChart.destroy();
-                destinationsChart = null;
-            }
-            
-            // Sales Chart
-            const salesCtx = document.getElementById('salesChart');
-            if (salesCtx) {
-                salesChart = new Chart(salesCtx, {
-                    type: 'line',
-                    data: {
-                        labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-                        datasets: [{
-                            label: 'Продажи',
-                            data: [12000, 19000, 15000, 25000, 22000, 30000],
-                            borderColor: '#3E3E3E',
-                            backgroundColor: 'rgba(62, 62, 62, 0.1)',
-                            tension: 0.4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-            
-            // Destinations Chart
-            const destCtx = document.getElementById('destinationsChart');
-            if (destCtx) {
-                destinationsChart = new Chart(destCtx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Таджикистан', 'Узбекистан', 'Казахстан', 'Кыргызстан'],
-                        datasets: [{
-                            data: [45, 25, 20, 10],
-                            backgroundColor: ['#3E3E3E', '#10b981', '#f59e0b', '#ef4444']
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false
-                    }
-                });
-            }
-        }
-        
-        // ИСПРАВЛЕНИЕ: Глобальные переменные для Chart.js экземпляров
-        let salesChart = null;
-        let destinationsChart = null;
         
         // Глобальные переменные для выбранных элементов (восстановлены)
         let selectedCategories = [];
