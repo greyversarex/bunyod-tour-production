@@ -51,6 +51,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/customers', customerRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/cms', cmsRoutes);
+router.use('/admin', adminTourHistoryRoutes); // Admin tour history and guide management (mounted BEFORE adminRoutes for specificity)
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/tour-blocks', tourBlockRoutes);
@@ -63,7 +64,6 @@ router.use('/images', uploadRoutes); // Add images endpoint for frontend compati
 router.use('/objects', objectsRoutes); // Add objects endpoint for ObjectUploader
 router.use('/price-calculator', priceCalculatorRoutes); // Add price calculator endpoints
 router.use('/guide', tourGuideRoutes); // Tour guide authentication and management
-router.use('/admin', adminTourHistoryRoutes); // Admin tour history and guide management
 router.use('/drivers', driverRoutes); // Driver management and authentication
 router.use('/countries', countryRoutes); // Countries management
 router.use('/cities', cityRoutes); // Cities management
