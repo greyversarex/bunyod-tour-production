@@ -12,16 +12,16 @@ import {
 
 const router = express.Router();
 
-// Маршруты для истории туров
-router.get('/tours/history/active', getActiveTours);
-router.get('/tours/history/finished', getFinishedTours);
+// Маршруты для истории туров (префикс /admin/history уже добавлен в index.ts)
+router.get('/tours/active', getActiveTours);
+router.get('/tours/finished', getFinishedTours);
 router.get('/tours/:id', getTourDetailsAdmin);
 
 // Маршруты для управления тургидами
-router.post('/tour-guides', createTourGuide);
-router.get('/tour-guides', getAllTourGuides);
-router.put('/tour-guides/:id', updateTourGuide);
-router.delete('/tour-guides/:id', deleteTourGuide);
+router.post('/guides', createTourGuide);
+router.get('/guides', getAllTourGuides);
+router.put('/guides/:id', updateTourGuide);
+router.delete('/guides/:id', deleteTourGuide);
 
 // Назначение тургидов на туры
 router.post('/tours/assign-guide', assignGuideToTour);

@@ -51,7 +51,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/customers', customerRoutes);
 router.use('/payments', paymentRoutes);
 router.use('/cms', cmsRoutes);
-router.use('/admin', adminTourHistoryRoutes); // Admin tour history and guide management (mounted BEFORE adminRoutes for specificity)
+router.use('/admin/history', adminTourHistoryRoutes); // Admin tour history and guide management (unique path to avoid conflicts)
 router.use('/admin', adminRoutes);
 router.use('/public', publicRoutes);
 router.use('/tour-blocks', tourBlockRoutes);
