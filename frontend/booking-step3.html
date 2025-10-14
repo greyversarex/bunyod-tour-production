@@ -726,6 +726,9 @@
 
                 const paymentData = await paymentResponse.json();
                 
+                console.log('💳 Payment response:', paymentData);
+                console.log('💳 Payment method:', selectedPaymentMethod);
+                
                 if (paymentData.success) {
                     
                     // Store order info for success page in sessionStorage (including bookingId for retry)
