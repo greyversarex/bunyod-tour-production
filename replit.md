@@ -15,6 +15,7 @@ System integration preference: User requires simplified and unified pricing syst
 - **Admin Dashboard**: Removed non-functional Chart.js graphs, streamlined statistics to show only paid orders and hotel count
 - **Console Logs**: Retained debug console.log statements per architectural review - useful for development troubleshooting
 - **UI Bug Fixes**: Fixed pickup location icon (replaced people icon with map pin SVG) and participant count display logic (now uses proper i18n system with getTranslation() for singular/plural forms in both RU/EN)
+- **File Upload Fix**: Resolved "Internal server error" on file uploads by implementing conditional body parser middleware that correctly skips multipart/form-data requests, allowing multer to handle uploads properly for all routes (city card photos, slides, tour guide avatars, etc.)
 
 ## System Architecture
 

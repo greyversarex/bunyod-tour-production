@@ -111,9 +111,20 @@ app.get('/simple-admin-panel.html', (req, res) => {
 
 // 🔌 BACKEND API ROUTES: Условная загрузка для dev/prod
 try {
-  // Добавляем парсеры body только к API маршрутам (НЕ к upload маршрутам с multer)
-  app.use('/api', express.json({ limit: '50mb' }));
-  app.use('/api', express.urlencoded({ extended: true, limit: '50mb' }));
+  // Условные парсеры body - применяются ТОЛЬКО к не-multipart запросам
+  app.use('/api', (req, res, next) => {
+    const contentType = req.get('content-type') || '';
+    // Пропускаем JSON парсеры для multipart/form-data (file uploads)
+    if (contentType.includes('multipart/form-data')) {
+      console.log('⏭️  Skipping JSON parser for multipart/form-data request:', req.path);
+      return next();
+    }
+    // Для не-multipart запросов применяем JSON парсеры
+    express.json({ limit: '50mb' })(req, res, (err) => {
+      if (err) return next(err);
+      express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+    });
+  });
   
   const apiRoutes = require(`${srcPath}/routes/index${isProduction ? '.js' : '.ts'}`).default;
   app.use('/api', apiRoutes);
