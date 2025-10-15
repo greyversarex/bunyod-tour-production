@@ -30,28 +30,8 @@ const PORT = process.env.PORT || 5000;
 // 🔒 Trust proxy для корректной работы rate limiting в Replit
 app.set('trust proxy', true);
 
-// Middleware для парсинга - пропускаем multipart/form-data
-app.use((req, res, next) => {
-  const contentType = req.headers['content-type'] || '';
-  
-  // Пропускаем multipart для загрузки файлов
-  if (contentType.startsWith('multipart/form-data')) {
-    console.log('⏭️ Skipping body parsers for multipart/form-data');
-    return next();
-  }
-  
-  // Применяем JSON парсер
-  if (contentType.includes('application/json') || contentType === '') {
-    return express.json({ limit: '50mb' })(req, res, next);
-  }
-  
-  // Применяем URL-encoded парсер
-  if (contentType.includes('application/x-www-form-urlencoded')) {
-    return express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
-  }
-  
-  next();
-});
+// ОТКЛЮЧАЕМ глобальные парсеры body - они будут применяться на уровне роутов
+// Это исправляет конфликт с multer для загрузки файлов
 
 // 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
 const corsOrigins = process.env.CORS_ORIGINS || '';
@@ -131,6 +111,10 @@ app.get('/simple-admin-panel.html', (req, res) => {
 
 // 🔌 BACKEND API ROUTES: Условная загрузка для dev/prod
 try {
+  // Добавляем парсеры body только к API маршрутам (НЕ к upload маршрутам с multer)
+  app.use('/api', express.json({ limit: '50mb' }));
+  app.use('/api', express.urlencoded({ extended: true, limit: '50mb' }));
+  
   const apiRoutes = require(`${srcPath}/routes/index${isProduction ? '.js' : '.ts'}`).default;
   app.use('/api', apiRoutes);
   
