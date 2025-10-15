@@ -14,6 +14,7 @@ System integration preference: User requires simplified and unified pricing syst
 - **Routing Optimization**: Fixed conflicting /admin routes - moved tour history endpoints to `/admin/history/*` with cleaner paths (e.g., `/admin/history/tours/active`, `/admin/history/guides`)
 - **Admin Dashboard**: Removed non-functional Chart.js graphs, streamlined statistics to show only paid orders and hotel count
 - **Console Logs**: Retained debug console.log statements per architectural review - useful for development troubleshooting
+- **UI Bug Fixes**: Fixed pickup location icon (replaced people icon with map pin SVG) and participant count display logic (now uses proper i18n system with getTranslation() for singular/plural forms in both RU/EN)
 
 ## System Architecture
 

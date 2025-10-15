@@ -1606,6 +1606,8 @@ window.translations = window.translations || {
     'booking.voucher.participants': { ru: 'Участники тура:', en: 'Tour Participants:' },
     'booking.voucher.adults': { ru: 'взрослый(ых)', en: 'adult(s)' },
     'booking.voucher.children': { ru: 'детей', en: 'child(ren)' },
+    'booking.voucher.participants_count': { ru: 'участников', en: 'participants' },
+    'booking.voucher.participant_singular': { ru: 'участник', en: 'participant' },
     'booking.voucher.tour_language': { ru: 'Язык тура:', en: 'Tour Language:' },
     'booking.voucher.included': { ru: 'Включено:', en: 'Included:' },
     'booking.voucher.client_phone': { ru: 'Номер телефона клиента:', en: 'Client Phone:' },
