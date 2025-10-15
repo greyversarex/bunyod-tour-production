@@ -111,18 +111,23 @@ app.get('/simple-admin-panel.html', (req, res) => {
 
 // 🔌 BACKEND API ROUTES: Условная загрузка для dev/prod
 try {
-  // Условные парсеры body - применяются ТОЛЬКО к не-multipart запросам
+  // Парсеры JSON/urlencoded для обычных API запросов (НЕ для file uploads)
+  const jsonParser = express.json({ limit: '50mb' });
+  const urlencodedParser = express.urlencoded({ extended: true, limit: '50mb' });
+  
+  // Условный body parser middleware
   app.use('/api', (req, res, next) => {
     const contentType = req.get('content-type') || '';
-    // Пропускаем JSON парсеры для multipart/form-data (file uploads)
+    // Пропускаем парсеры для multipart/form-data (file uploads обрабатывает multer)
     if (contentType.includes('multipart/form-data')) {
-      console.log('⏭️  Skipping JSON parser for multipart/form-data request:', req.path);
+      console.log('⏭️  Skipping body parsers for file upload:', req.path);
       return next();
     }
-    // Для не-multipart запросов применяем JSON парсеры
-    express.json({ limit: '50mb' })(req, res, (err) => {
+    // Применяем JSON парсер
+    jsonParser(req, res, (err) => {
       if (err) return next(err);
-      express.urlencoded({ extended: true, limit: '50mb' })(req, res, next);
+      // Применяем urlencoded парсер
+      urlencodedParser(req, res, next);
     });
   });
   
