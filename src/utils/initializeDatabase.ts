@@ -321,7 +321,7 @@ async function createDefaultExchangeRates() {
         {
             currency: 'TJS',
             rate: 1,
-            symbol: 'с.',
+            symbol: 'tjs',
             name: 'Сомони',
             isActive: true
         },

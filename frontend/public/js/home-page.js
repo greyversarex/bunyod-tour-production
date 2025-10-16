@@ -888,7 +888,7 @@ async function loadExchangeRates() {
         console.error('❌ Error loading exchange rates:', error);
         // Fallback курсы валют
         exchangeRates = {
-            'TJS': { rate: 1, symbol: 'с.', name: 'Сомони' },
+            'TJS': { rate: 1, symbol: 'tjs', name: 'Сомони' },
             'USD': { rate: 11.0, symbol: '$', name: 'Доллар США' },
             'EUR': { rate: 12.0, symbol: '€', name: 'Евро' },
             'RUB': { rate: 0.12, symbol: '₽', name: 'Российский рубль' },
@@ -901,7 +901,7 @@ async function loadExchangeRates() {
 // Форматирование цены с учетом валюты
 function formatPrice(priceInTJS, currency) {
     if (!priceInTJS || !exchangeRates[currency]) {
-        return `${priceInTJS || 0} с.`;
+        return `${priceInTJS || 0} tjs`;
     }
     
     const rate = exchangeRates[currency];

@@ -33,7 +33,7 @@ async function main() {
 
   // 2. Create exchange rates (currencies)
   const currencies = [
-    { currency: 'TJS', rate: 1.0, symbol: 'с.', name: 'Сомони' },
+    { currency: 'TJS', rate: 1.0, symbol: 'tjs', name: 'Сомони' },
     { currency: 'USD', rate: 0.094, symbol: '$', name: 'Доллар США' },
     { currency: 'EUR', rate: 0.086, symbol: '€', name: 'Евро' },
     { currency: 'RUB', rate: 9.2, symbol: '₽', name: 'Российский рубль' },

@@ -44,7 +44,7 @@ const state = {
 // ============= PRICE FORMATTING =============
 function formatPrice(priceInTJS, currency = 'TJS') {
     const exchangeRates = window.exchangeRates || {
-        'TJS': { rate: 1, symbol: 'с.', name: 'Сомони' },
+        'TJS': { rate: 1, symbol: 'tjs', name: 'Сомони' },
         'USD': { rate: 11.0, symbol: '$', name: 'Доллар США' },
         'EUR': { rate: 12.0, symbol: '€', name: 'Евро' },
         'RUB': { rate: 0.12, symbol: '₽', name: 'Российский рубль' },
@@ -52,7 +52,7 @@ function formatPrice(priceInTJS, currency = 'TJS') {
     };
     
     if (!priceInTJS || !exchangeRates[currency]) {
-        return `${priceInTJS || 0} с.`;
+        return `${priceInTJS || 0} tjs`;
     }
     
     const rate = exchangeRates[currency];
