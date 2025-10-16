@@ -44,7 +44,7 @@ const state = {
 // ============= PRICE FORMATTING =============
 function formatPrice(priceInTJS, currency = 'TJS') {
     const exchangeRates = window.exchangeRates || {
-        'TJS': { rate: 1, symbol: 'tjs', name: 'Сомони' },
+        'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
         'USD': { rate: 11.0, symbol: '$', name: 'Доллар США' },
         'EUR': { rate: 12.0, symbol: '€', name: 'Евро' },
         'RUB': { rate: 0.12, symbol: '₽', name: 'Российский рубль' },
@@ -52,7 +52,8 @@ function formatPrice(priceInTJS, currency = 'TJS') {
     };
     
     if (!priceInTJS || !exchangeRates[currency]) {
-        return `${priceInTJS || 0} tjs`;
+        const fallbackSymbol = (exchangeRates && exchangeRates['TJS']) ? exchangeRates['TJS'].symbol : 'TJS';
+        return `${priceInTJS || 0} ${fallbackSymbol}`;
     }
     
     const rate = exchangeRates[currency];
@@ -729,10 +730,10 @@ function createTourCard(tour) {
                 <div class="flex items-center justify-between mt-auto gap-3">
                     <div class="flex-1">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-1"><span>${priceText}</span> ${tour.originalPrice} tjs</div>
+                            <div class="text-xs line-through text-gray-400 mb-1"><span>${priceText}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
                         ` : ''}
                         <div class="text-lg font-bold text-gray-900">
-                            <span>${priceText}</span> ${tour.price} tjs
+                            <span>${priceText}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
                         <div class="text-xs text-gray-500">${tour.priceType || (currentLang === 'en' ? 'per person' : 'за человека')}</div>
                     </div>

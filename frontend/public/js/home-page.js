@@ -888,7 +888,7 @@ async function loadExchangeRates() {
         console.error('❌ Error loading exchange rates:', error);
         // Fallback курсы валют
         exchangeRates = {
-            'TJS': { rate: 1, symbol: 'tjs', name: 'Сомони' },
+            'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
             'USD': { rate: 11.0, symbol: '$', name: 'Доллар США' },
             'EUR': { rate: 12.0, symbol: '€', name: 'Евро' },
             'RUB': { rate: 0.12, symbol: '₽', name: 'Российский рубль' },
@@ -901,7 +901,8 @@ async function loadExchangeRates() {
 // Форматирование цены с учетом валюты
 function formatPrice(priceInTJS, currency) {
     if (!priceInTJS || !exchangeRates[currency]) {
-        return `${priceInTJS || 0} tjs`;
+        const fallbackSymbol = (exchangeRates && exchangeRates['TJS']) ? exchangeRates['TJS'].symbol : 'TJS';
+        return `${priceInTJS || 0} ${fallbackSymbol}`;
     }
     
     const rate = exchangeRates[currency];
@@ -1900,10 +1901,10 @@ function renderTourCard(tour, blockId = null) {
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-1 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.originalPrice} tjs</div>
+                            <div class="text-xs line-through text-gray-400 mb-1 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
                         ` : ''}
                         <div class="text-lg font-bold text-gray-900 tour-price price-display" data-original-price="${tour.price}">
-                            <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.price} tjs
+                            <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
                         <div class="converted-price text-xs text-gray-600 mt-1" style="display: none;"></div>
                         <div class="text-xs text-gray-500" data-translate="price.${(tour.priceType || 'за человека').replace(/\s/g, '_')}">${tour.priceType}</div>
