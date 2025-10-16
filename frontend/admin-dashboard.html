@@ -13702,7 +13702,15 @@
                                     Удалить
                                 </button>
                             </div>
-                        ` : '<span class="text-gray-400 text-sm">Базовая валюта</span>'}
+                        ` : `
+                            <div class="flex gap-2">
+                                <button onclick="editBaseCurrencySymbol('${rate.symbol}')" class="btn btn-sm" style="background-color: #6b7280; color: white;">
+                                    <i class="fas fa-edit"></i>
+                                    Редактировать символ
+                                </button>
+                                <span class="text-gray-400 text-sm ml-2">Базовая валюта</span>
+                            </div>
+                        `}
                     </td>
                 </tr>
             `).join('');
@@ -13790,6 +13798,42 @@
             } catch (error) {
                 console.error('Error deleting exchange rate:', error);
                 showNotification('Ошибка при удалении валюты', 'error');
+            }
+        }
+
+        // Редактирование символа базовой валюты
+        async function editBaseCurrencySymbol(currentSymbol) {
+            const newSymbol = prompt('Введите новый символ для базовой валюты (TJS):', currentSymbol);
+            
+            if (!newSymbol || newSymbol.trim() === '') {
+                return; // Пользователь отменил или ввел пустое значение
+            }
+            
+            if (newSymbol.trim() === currentSymbol) {
+                showNotification('Символ не изменен', 'info');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/exchange-rates/base-currency-symbol`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ symbol: newSymbol.trim() })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Символ базовой валюты обновлен', 'success');
+                    loadExchangeRates();
+                } else {
+                    showNotification(data.message || 'Ошибка при обновлении символа', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating base currency symbol:', error);
+                showNotification('Ошибка при обновлении символа', 'error');
             }
         }
 

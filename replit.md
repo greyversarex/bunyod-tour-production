@@ -19,6 +19,7 @@ System integration preference: User requires simplified and unified pricing syst
 - **UI Improvements (Oct 16)**: Enhanced tour page display - removed "Место сбора:" label prefix (now shows pickup text directly), renamed "Что включено/Что не включено" to "Включено/Не включено", changed TJS currency symbol from "с." to "tjs" across all frontend/backend files and database
 - **Tour Program Display**: Added 2-line truncation for event descriptions with "Подробнее/Show less" toggle button, implemented accordion behavior that closes other days when one is expanded
 - **Price Calculator Components (Oct 16)**: Complete 26-component system across 7 categories: Accommodation (1: STD 250 TJS), Guides (3: local/VIP/regional), Local_transport (13: tickets & internal flights), Meals (2: HB/FB), Permits (2: GBAO/Nurek), Tour_transport (3: 4WD/sedan/van), Transfer (2: airport transfers). All components auto-seed on deployment with bilingual RU/EN names.
+- **Base Currency Symbol Editing (Oct 16)**: Added ability to edit TJS (base currency) symbol through admin panel. Admin can update only the symbol while keeping all other properties (rate, name) intact. Endpoint: PUT /api/exchange-rates/base-currency-symbol (admin-protected).
 
 ## System Architecture
 

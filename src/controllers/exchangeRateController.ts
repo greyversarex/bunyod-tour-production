@@ -306,3 +306,46 @@ export const convertPrice = async (req: Request, res: Response) => {
         });
     }
 };
+
+// Обновить символ базовой валюты (TJS)
+export const updateBaseCurrencySymbol = async (req: Request, res: Response) => {
+    try {
+        const { symbol } = req.body;
+
+        if (!symbol || typeof symbol !== 'string' || symbol.trim() === '') {
+            res.status(400).json({
+                success: false,
+                message: 'Символ валюты не может быть пустым'
+            });
+            return;
+        }
+
+        // Обновляем только символ базовой валюты TJS
+        const updatedRate = await prisma.exchangeRate.update({
+            where: { currency: 'TJS' },
+            data: {
+                symbol: symbol.trim(),
+                updatedAt: new Date()
+            }
+        });
+
+        res.json({
+            success: true,
+            message: 'Символ базовой валюты обновлен',
+            data: updatedRate
+        });
+    } catch (error: any) {
+        if (error.code === 'P2025') {
+            res.status(404).json({
+                success: false,
+                message: 'Базовая валюта TJS не найдена в системе'
+            });
+        } else {
+            console.error('Error updating base currency symbol:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Ошибка при обновлении символа базовой валюты'
+            });
+        }
+    }
+};

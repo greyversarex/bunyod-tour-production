@@ -6,7 +6,8 @@ import {
     deleteExchangeRate,
     createExchangeRate,
     initializeExchangeRates,
-    convertPrice
+    convertPrice,
+    updateBaseCurrencySymbol
 } from '../controllers/exchangeRateController';
 import { adminAuthMiddleware } from '../controllers/adminController';
 
@@ -20,6 +21,7 @@ router.get('/convert', convertPrice);
 // Административные endpoints (требуют авторизации администратора)
 router.post('/initialize', adminAuthMiddleware, initializeExchangeRates);
 router.post('/', adminAuthMiddleware, createExchangeRate);
+router.put('/base-currency-symbol', adminAuthMiddleware, updateBaseCurrencySymbol);
 router.put('/:currency', adminAuthMiddleware, updateExchangeRate);
 router.delete('/:currency', adminAuthMiddleware, deleteExchangeRate);
 
