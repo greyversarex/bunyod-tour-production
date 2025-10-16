@@ -2336,7 +2336,7 @@
         // 💱 ФУНКЦИЯ ФОРМАТИРОВАНИЯ ЦЕНЫ С УЧЕТОМ ВАЛЮТЫ
         function formatPrice(priceInTJS, currency) {
             if (!priceInTJS || !window.exchangeRates || !window.exchangeRates[currency]) {
-                return `${priceInTJS || 0} с.`;
+                return `${priceInTJS || 0} tjs`;
             }
             
             const rate = window.exchangeRates[currency];

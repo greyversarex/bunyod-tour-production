@@ -729,10 +729,10 @@ function createTourCard(tour) {
                 <div class="flex items-center justify-between mt-auto gap-3">
                     <div class="flex-1">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-1"><span>${priceText}</span> ${tour.originalPrice} с.</div>
+                            <div class="text-xs line-through text-gray-400 mb-1"><span>${priceText}</span> ${tour.originalPrice} tjs</div>
                         ` : ''}
                         <div class="text-lg font-bold text-gray-900">
-                            <span>${priceText}</span> ${tour.price} с.
+                            <span>${priceText}</span> ${tour.price} tjs
                         </div>
                         <div class="text-xs text-gray-500">${tour.priceType || (currentLang === 'en' ? 'per person' : 'за человека')}</div>
                     </div>

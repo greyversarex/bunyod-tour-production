@@ -210,7 +210,7 @@ function convertPrice(amount, fromCurrency, toCurrency) {
 // Форматирование цены
 function formatPrice(amount, currency) {
     const symbols = {
-        TJS: 'с.',
+        TJS: 'tjs',
         USD: '$',
         EUR: '€',
         RUB: '₽',

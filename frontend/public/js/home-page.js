@@ -1900,10 +1900,10 @@ function renderTourCard(tour, blockId = null) {
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-1 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.originalPrice} с.</div>
+                            <div class="text-xs line-through text-gray-400 mb-1 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.originalPrice} tjs</div>
                         ` : ''}
                         <div class="text-lg font-bold text-gray-900 tour-price price-display" data-original-price="${tour.price}">
-                            <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.price} с.
+                            <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${tour.price} tjs
                         </div>
                         <div class="converted-price text-xs text-gray-600 mt-1" style="display: none;"></div>
                         <div class="text-xs text-gray-500" data-translate="price.${(tour.priceType || 'за человека').replace(/\s/g, '_')}">${tour.priceType}</div>
