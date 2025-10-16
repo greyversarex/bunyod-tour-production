@@ -13838,7 +13838,7 @@
             }
             
             try {
-                const token = localStorage.getItem('token');
+                const token = localStorage.getItem('authToken');
                 console.log('🔑 Token:', token ? 'exists' : 'missing');
                 console.log('📡 Sending request to:', `${getApiUrl()}/exchange-rates/base-currency-symbol`);
                 
