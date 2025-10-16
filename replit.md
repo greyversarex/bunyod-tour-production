@@ -16,6 +16,8 @@ System integration preference: User requires simplified and unified pricing syst
 - **Console Logs**: Retained debug console.log statements per architectural review - useful for development troubleshooting
 - **UI Bug Fixes**: Fixed pickup location icon (replaced people icon with map pin SVG) and participant count display logic (now uses proper i18n system with getTranslation() for singular/plural forms in both RU/EN)
 - **File Upload Fix**: Resolved "Internal server error" on file uploads by implementing conditional body parser middleware that correctly skips multipart/form-data requests, allowing multer to handle uploads properly for all routes (city card photos, slides, tour guide avatars, etc.)
+- **UI Improvements (Oct 16)**: Enhanced tour page display - removed "Место сбора:" label prefix (now shows pickup text directly), renamed "Что включено/Что не включено" to "Включено/Не включено", changed TJS currency symbol from "с." to "tjs" across all frontend/backend files and database
+- **Tour Program Display**: Added 2-line truncation for event descriptions with "Подробнее/Show less" toggle button, implemented accordion behavior that closes other days when one is expanded
 
 ## System Architecture
 
