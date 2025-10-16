@@ -1,0 +1,244 @@
+Проживание, STD, базовая опция (хостел, гестхоусы)
+EN: Accommodation, STD, base option (guesthouses)
+
+Единица:
+человек/день
+Цена (TJS)
+250
+
+
+Гиды/Сопровождение
+3
+Тур-гид, местный
+EN: Tour Guide, local
+
+Единица:
+единица
+Цена (TJS)
+500
+
+
+Тур-гид, VIP
+EN: VIP Tour Guide
+
+Единица:
+единица
+Цена (TJS)
+1000
+
+
+Тур-гид, региональный
+EN: Regional Tour Guide
+
+Единица:
+единица
+Цена (TJS)
+600
+
+
+Local_transport
+13
+Билеты ЖД по Узбекистану
+EN: Train tickets in Uzbekistan
+
+Единица:
+человек/час
+Цена (TJS)
+380
+
+
+Входной билет в комплекс Рудаки, Пенджикент
+EN: Entrance ticket to Rudaki Complex, Panjakent
+
+Единица:
+человек/час
+Цена (TJS)
+30
+
+
+Входной билет в Кули (аквапрак) Душанбе
+EN: Entrance tickets to Kuli (Aquapark) Dushanbe
+
+Единица:
+человек/час
+Цена (TJS)
+150
+
+
+Входные билеты в объектах г.Бохтар
+EN: Entrabce tickets to visiting objects of Bokhtar city
+
+Единица:
+человек/час
+Цена (TJS)
+40
+
+
+Входные билеты в объектах Гиссарской Крепости
+EN: Entrance tickets to objects of Hisor Fortress
+
+Единица:
+человек/час
+Цена (TJS)
+90
+
+
+Входные билеты в объектах г.Душанбе
+EN: Entrance tickets to objects of Dushanbe
+
+Единица:
+человек/час
+Цена (TJS)
+250
+
+
+Входные билеты в объектах г.Истаравшан
+EN: Entrance tickets to objects of Istaravshan
+
+Единица:
+человек/час
+Цена (TJS)
+50
+
+
+Авиабилет на внутренний рейс, Худжанд
+EN: Flight tickets to domestic lines, Khujand
+
+Единица:
+человек/час
+Цена (TJS)
+450
+
+
+Входные билеты в объектах г.Пенджикент
+EN: Entrance tickets to objects of Penjikent
+
+Единица:
+человек/час
+Цена (TJS)
+60
+
+
+Входные билеты в объектах г.Душанбе, тур на 4 часа
+EN: Entrance tickets to objects of Dushanbe, 4 hour Tour
+
+Единица:
+человек/час
+Цена (TJS)
+120
+
+
+Входной билет в озеро Искандеркуль
+EN: Entrance ticket to Iskanderkul Lake
+
+Единица:
+человек/час
+Цена (TJS)
+30
+
+
+Входные билеты в объектах г.Нурек
+EN: Entrance tickets to objects of Nurek
+
+Единица:
+человек/час
+Цена (TJS)
+40
+
+
+Входные билеты в туристских объектах, ЦАР
+EN: Entrance tickets to tourism objects, CAR
+
+Единица:
+человек/час
+Цена (TJS)
+50
+
+
+Питание
+2
+Питание, обед, НВ
+EN: Meals, Lunch, HB
+
+Единица:
+человек/день
+Цена (TJS)
+70
+
+
+Питание, обед и ужин, FB
+EN: Meals, Lunch & Dinner, FB
+
+Единица:
+человек/день
+Цена (TJS)
+130
+
+
+Permits
+2
+Разрешение на въезд в ГБАО
+EN: GBAO Entry Permit
+
+Единица:
+человек
+Цена (TJS)
+250
+
+
+Разрешение на въезд на платину Нурекской ГЭС
+EN: Nurek HPP Dam Entry Permit
+
+Единица:
+человек
+Цена (TJS)
+500
+
+
+Tour_transport
+3
+Транспорт по время тура, 4WD
+EN: Transport During Tour, 4WD
+
+Единица:
+единица/день
+Цена (TJS)
+1200
+
+
+Транспорт по время тура, легковой
+EN: Transport During the Tour, sedan
+
+Единица:
+единица/день
+Цена (TJS)
+400
+
+
+Транспорт по время тура, миниавтобус
+EN: Transport During the Tour, Van
+
+Единица:
+единица/день
+Цена (TJS)
+2000
+
+
+Трансфер
+2
+Трансфер от/до аэропорта, миниавтобус
+EN: Transfer from/to airport, Van
+
+Единица:
+единица/день
+Цена (TJS)
+2000
+
+
+Трансфер от/до аэропорта, легковой автомобил
+EN: Transfer from/to airport, sedan
+
+Единица:
+единица/день
+Цена (TJS)
+500

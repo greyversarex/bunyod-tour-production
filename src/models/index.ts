@@ -1225,45 +1225,45 @@ export class PriceCalculatorModel {
    */
   static async initializeDefaults() {
     const defaultComponents = [
-      // Размещение в отеле
-      { key: 'accommodation_breakfast', category: 'accommodation', name: 'Завтрак', nameEn: 'Breakfast', price: 30.0, unit: 'человек/день', sortOrder: 1 },
-      { key: 'accommodation_hb', category: 'accommodation', name: 'Полупансион', nameEn: 'Half Board (HB)', price: 50.0, unit: 'человек/день', sortOrder: 2 },
-      { key: 'accommodation_fb', category: 'accommodation', name: 'Полный пансион', nameEn: 'Full Board (FB)', price: 70.0, unit: 'человек/день', sortOrder: 3 },
-      { key: 'accommodation_ai', category: 'accommodation', name: 'All Inclusive', nameEn: 'All Inclusive', price: 100.0, unit: 'человек/день', sortOrder: 4 },
+      // Проживание
+      { key: 'accommodation_std', category: 'accommodation', name: 'Проживание, STD, базовая опция (хостел, гестхоусы)', nameEn: 'Accommodation, STD, base option (guesthouses)', price: 250.0, unit: 'человек/день', sortOrder: 1 },
       
-      // Транспортная логистика
-      { key: 'transport_sedan', category: 'transport_logistics', name: 'Седан', nameEn: 'Sedan', price: 50.0, unit: 'единица/день', sortOrder: 1 },
-      { key: 'transport_minivan', category: 'transport_logistics', name: 'Минивэн', nameEn: 'Minivan', price: 80.0, unit: 'единица/день', sortOrder: 2 },
-      { key: 'transport_microbus', category: 'transport_logistics', name: 'Микроавтобус (около 20 мест)', nameEn: 'Microbus (about 20 seats)', price: 120.0, unit: 'единица/день', sortOrder: 3 },
+      // Гиды/Сопровождение
+      { key: 'guide_local', category: 'guides', name: 'Тур-гид, местный', nameEn: 'Tour Guide, local', price: 500.0, unit: 'единица', sortOrder: 1 },
+      { key: 'guide_vip', category: 'guides', name: 'Тур-гид, VIP', nameEn: 'VIP Tour Guide', price: 1000.0, unit: 'единица', sortOrder: 2 },
+      { key: 'guide_regional', category: 'guides', name: 'Тур-гид, региональный', nameEn: 'Regional Tour Guide', price: 600.0, unit: 'единица', sortOrder: 3 },
       
-      // Входные билеты
-      { key: 'ticket_iskanderkul', category: 'entrance_tickets', name: 'Билеты в нац. парк Искандеркуль', nameEn: 'Iskanderkul National Park', price: 15.0, unit: 'человек', sortOrder: 1 },
-      { key: 'ticket_fann_marguzor', category: 'entrance_tickets', name: 'Билеты в Фанские горы Маргузорские озёра', nameEn: 'Fann Mountains Marguzor Lakes', price: 20.0, unit: 'человек', sortOrder: 2 },
-      { key: 'ticket_national_museum', category: 'entrance_tickets', name: 'Билеты в Национальный музей', nameEn: 'National Museum', price: 5.0, unit: 'человек', sortOrder: 3 },
-      { key: 'ticket_city_parks', category: 'entrance_tickets', name: 'Билеты в парки/сады города', nameEn: 'City Parks & Gardens', price: 3.0, unit: 'человек', sortOrder: 4 },
-      { key: 'ticket_istravshan', category: 'entrance_tickets', name: 'Билеты в Древние города Истаравшан', nameEn: 'Ancient Istravshan Cities', price: 10.0, unit: 'человек', sortOrder: 5 },
-      { key: 'ticket_pamir_wakhan', category: 'entrance_tickets', name: 'Билеты в Памирский тракт и Ваханский коридор', nameEn: 'Pamir Highway and Wakhan Corridor', price: 25.0, unit: 'человек', sortOrder: 6 },
-      { key: 'ticket_sarez_lake', category: 'entrance_tickets', name: 'Билеты в Национальный парк Сарезское озеро', nameEn: 'Sarez Lake National Park', price: 30.0, unit: 'человек', sortOrder: 7 },
-      { key: 'ticket_rabat_gorge', category: 'entrance_tickets', name: 'Билеты в Ущелье Рабат', nameEn: 'Rabat Gorge', price: 8.0, unit: 'человек', sortOrder: 8 },
-      { key: 'ticket_khujand_fortress', category: 'entrance_tickets', name: 'Билеты в Крепость Худжанд', nameEn: 'Khujand Fortress', price: 7.0, unit: 'человек', sortOrder: 9 },
-      { key: 'ticket_samanid_mausoleum', category: 'entrance_tickets', name: 'Билеты в Мавзолей Саманидов', nameEn: 'Samanid Mausoleum', price: 12.0, unit: 'человек', sortOrder: 10 },
+      // Local_transport (входные билеты и транспорт)
+      { key: 'train_uzbekistan', category: 'local_transport', name: 'Билеты ЖД по Узбекистану', nameEn: 'Train tickets in Uzbekistan', price: 380.0, unit: 'человек/час', sortOrder: 1 },
+      { key: 'ticket_rudaki', category: 'local_transport', name: 'Входной билет в комплекс Рудаки, Пенджикент', nameEn: 'Entrance ticket to Rudaki Complex, Panjakent', price: 30.0, unit: 'человек/час', sortOrder: 2 },
+      { key: 'ticket_kuli', category: 'local_transport', name: 'Входной билет в Кули (аквапрак) Душанбе', nameEn: 'Entrance tickets to Kuli (Aquapark) Dushanbe', price: 150.0, unit: 'человек/час', sortOrder: 3 },
+      { key: 'ticket_bokhtar', category: 'local_transport', name: 'Входные билеты в объектах г.Бохтар', nameEn: 'Entrance tickets to visiting objects of Bokhtar city', price: 40.0, unit: 'человек/час', sortOrder: 4 },
+      { key: 'ticket_hisor', category: 'local_transport', name: 'Входные билеты в объектах Гиссарской Крепости', nameEn: 'Entrance tickets to objects of Hisor Fortress', price: 90.0, unit: 'человек/час', sortOrder: 5 },
+      { key: 'ticket_dushanbe', category: 'local_transport', name: 'Входные билеты в объектах г.Душанбе', nameEn: 'Entrance tickets to objects of Dushanbe', price: 250.0, unit: 'человек/час', sortOrder: 6 },
+      { key: 'ticket_istaravshan', category: 'local_transport', name: 'Входные билеты в объектах г.Истаравшан', nameEn: 'Entrance tickets to objects of Istaravshan', price: 50.0, unit: 'человек/час', sortOrder: 7 },
+      { key: 'flight_khujand', category: 'local_transport', name: 'Авиабилет на внутренний рейс, Худжанд', nameEn: 'Flight tickets to domestic lines, Khujand', price: 450.0, unit: 'человек/час', sortOrder: 8 },
+      { key: 'ticket_penjikent', category: 'local_transport', name: 'Входные билеты в объектах г.Пенджикент', nameEn: 'Entrance tickets to objects of Penjikent', price: 60.0, unit: 'человек/час', sortOrder: 9 },
+      { key: 'ticket_dushanbe_4h', category: 'local_transport', name: 'Входные билеты в объектах г.Душанбе, тур на 4 часа', nameEn: 'Entrance tickets to objects of Dushanbe, 4 hour Tour', price: 120.0, unit: 'человек/час', sortOrder: 10 },
+      { key: 'ticket_iskanderkul', category: 'local_transport', name: 'Входной билет в озеро Искандеркуль', nameEn: 'Entrance ticket to Iskanderkul Lake', price: 30.0, unit: 'человек/час', sortOrder: 11 },
+      { key: 'ticket_nurek', category: 'local_transport', name: 'Входные билеты в объектах г.Нурек', nameEn: 'Entrance tickets to objects of Nurek', price: 40.0, unit: 'человек/час', sortOrder: 12 },
+      { key: 'ticket_car', category: 'local_transport', name: 'Входные билеты в туристских объектах, ЦАР', nameEn: 'Entrance tickets to tourism objects, CAR', price: 50.0, unit: 'человек/час', sortOrder: 13 },
       
       // Питание
-      { key: 'meal_breakfast', category: 'meals', name: 'Завтрак', nameEn: 'Breakfast', price: 10.0, unit: 'человек', sortOrder: 1 },
-      { key: 'meal_lunch', category: 'meals', name: 'Обед (2ст. блюда)', nameEn: 'Lunch (2nd course)', price: 15.0, unit: 'человек', sortOrder: 2 },
-      { key: 'meal_dinner', category: 'meals', name: 'Ужин', nameEn: 'Dinner', price: 12.0, unit: 'человек', sortOrder: 3 },
+      { key: 'meal_hb', category: 'meals', name: 'Питание, обед, НВ', nameEn: 'Meals, Lunch, HB', price: 70.0, unit: 'человек/день', sortOrder: 1 },
+      { key: 'meal_fb', category: 'meals', name: 'Питание, обед и ужин, FB', nameEn: 'Meals, Lunch & Dinner, FB', price: 130.0, unit: 'человек/день', sortOrder: 2 },
       
-      // Гиды
-      { key: 'guide_professional', category: 'guides', name: 'Профессиональный гид', nameEn: 'Professional Guide', price: 50.0, unit: 'единица/день', sortOrder: 1 },
-      { key: 'guide_translator', category: 'guides', name: 'Переводчик (носитель русского, персидского)', nameEn: 'Translator (Russian, Persian native)', price: 40.0, unit: 'единица/день', sortOrder: 2 },
+      // Permits (разрешения)
+      { key: 'permit_gbao', category: 'permits', name: 'Разрешение на въезд в ГБАО', nameEn: 'GBAO Entry Permit', price: 250.0, unit: 'человек', sortOrder: 1 },
+      { key: 'permit_nurek', category: 'permits', name: 'Разрешение на въезд на платину Нурекской ГЭС', nameEn: 'Nurek HPP Dam Entry Permit', price: 500.0, unit: 'человек', sortOrder: 2 },
       
-      // Дополнительные услуги
-      { key: 'service_insurance', category: 'additional_services', name: 'Страхование жизни и здоровья', nameEn: 'Health & Life Insurance', price: 25.0, unit: 'человек', sortOrder: 1 },
-      { key: 'service_photographer', category: 'additional_services', name: 'Фотограф для групповых фото', nameEn: 'Group Photo Photographer', price: 30.0, unit: 'единица', sortOrder: 2 },
-      { key: 'service_helicopter', category: 'additional_services', name: 'Бронирование на вертолётные туры', nameEn: 'Helicopter Tour Booking', price: 500.0, unit: 'единица', sortOrder: 3 },
+      // Tour_transport (транспорт во время тура)
+      { key: 'transport_4wd', category: 'tour_transport', name: 'Транспорт по время тура, 4WD', nameEn: 'Transport During Tour, 4WD', price: 1200.0, unit: 'единица/день', sortOrder: 1 },
+      { key: 'transport_sedan', category: 'tour_transport', name: 'Транспорт по время тура, легковой', nameEn: 'Transport During the Tour, sedan', price: 400.0, unit: 'единица/день', sortOrder: 2 },
+      { key: 'transport_van', category: 'tour_transport', name: 'Транспорт по время тура, миниавтобус', nameEn: 'Transport During the Tour, Van', price: 2000.0, unit: 'единица/день', sortOrder: 3 },
       
-      // Прочее
-      { key: 'other_equipment_rental', category: 'other', name: 'Аренда снаряжения: палатки, рюкзаки', nameEn: 'Equipment rental: tents, backpacks', price: 20.0, unit: 'единица/день', sortOrder: 1 }
+      // Трансфер
+      { key: 'transfer_van', category: 'transfer', name: 'Трансфер от/до аэропорта, миниавтобус', nameEn: 'Transfer from/to airport, Van', price: 2000.0, unit: 'единица/день', sortOrder: 1 },
+      { key: 'transfer_sedan', category: 'transfer', name: 'Трансфер от/до аэропорта, легковой автомобил', nameEn: 'Transfer from/to airport, sedan', price: 500.0, unit: 'единица/день', sortOrder: 2 }
     ];
 
     const results = [];

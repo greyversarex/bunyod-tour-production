@@ -18,7 +18,7 @@ System integration preference: User requires simplified and unified pricing syst
 - **File Upload Fix**: Resolved "Internal server error" on file uploads by implementing conditional body parser middleware that correctly skips multipart/form-data requests, allowing multer to handle uploads properly for all routes (city card photos, slides, tour guide avatars, etc.)
 - **UI Improvements (Oct 16)**: Enhanced tour page display - removed "Место сбора:" label prefix (now shows pickup text directly), renamed "Что включено/Что не включено" to "Включено/Не включено", changed TJS currency symbol from "с." to "tjs" across all frontend/backend files and database
 - **Tour Program Display**: Added 2-line truncation for event descriptions with "Подробнее/Show less" toggle button, implemented accordion behavior that closes other days when one is expanded
-- **Price Calculator Components (Oct 16)**: System now has 4 core components: 1 accommodation option (STD base 250 TJS) and 3 guide types (local 500 TJS, VIP 1000 TJS, regional 600 TJS). All with proper Russian/English bilingual support.
+- **Price Calculator Components (Oct 16)**: Complete 26-component system across 7 categories: Accommodation (1: STD 250 TJS), Guides (3: local/VIP/regional), Local_transport (13: tickets & internal flights), Meals (2: HB/FB), Permits (2: GBAO/Nurek), Tour_transport (3: 4WD/sedan/van), Transfer (2: airport transfers). All components auto-seed on deployment with bilingual RU/EN names.
 
 ## System Architecture
 
