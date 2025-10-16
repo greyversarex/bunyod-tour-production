@@ -15,6 +15,8 @@
     <script src="/public/js/multilingual-utils.js?v=1759745702"></script>
     <script src="/public/js/layout-loader.js?v=1759745702"></script>
     <script src="/public/js/utils.js?v=1759745702"></script>
+    <!-- PDF generation library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         .thumbnail-active {
             border: 2px solid #3b82f6;
@@ -201,6 +203,12 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                 </svg>
                                                 <span data-translate="btn.download_pdf">Скачать PDF</span>
+                                            </button>
+                                            <button onclick="nativeShare()" class="w-full flex items-center space-x-2 px-3 py-2 text-left hover:bg-gray-100 rounded" id="native-share-btn">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                                                </svg>
+                                                <span data-translate="btn.share_native">Поделиться в...</span>
                                             </button>
                                         </div>
                                     </div>
@@ -2551,16 +2559,138 @@
         });
         
         function shareLink() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('Ссылка скопирована в буфер обмена!');
+            const url = window.location.href;
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('Ссылка скопирована в буфер обмена!', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('Не удалось скопировать ссылку', 'error');
             });
             toggleShareMenu();
         }
         
         function downloadPDF() {
-            // PDF generation functionality would go here
-            alert('Функция скачивания PDF в разработке');
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const lang = getCurrentLanguage();
+                
+                const title = tourData.title || 'Tour';
+                const description = tourData.description || '';
+                const price = `${tourData.price} ${tourData.currency || 'TJS'}`;
+                const duration = tourData.duration || tourData.durationDays + ' days';
+                const location = tourData.location || '';
+                
+                doc.setFontSize(20);
+                doc.text(title, 20, 20);
+                
+                doc.setFontSize(12);
+                let y = 40;
+                
+                doc.text(`${lang === 'ru' ? 'Локация' : 'Location'}: ${location}`, 20, y);
+                y += 10;
+                doc.text(`${lang === 'ru' ? 'Цена' : 'Price'}: ${price}`, 20, y);
+                y += 10;
+                doc.text(`${lang === 'ru' ? 'Длительность' : 'Duration'}: ${duration}`, 20, y);
+                y += 15;
+                
+                doc.setFontSize(14);
+                doc.text(lang === 'ru' ? 'Описание:' : 'Description:', 20, y);
+                y += 10;
+                
+                doc.setFontSize(10);
+                const descLines = doc.splitTextToSize(description, 170);
+                doc.text(descLines, 20, y);
+                y += descLines.length * 7 + 10;
+                
+                if (tourData.itinerary && tourData.itinerary.length > 0) {
+                    doc.setFontSize(14);
+                    doc.text(lang === 'ru' ? 'Программа тура:' : 'Tour Program:', 20, y);
+                    y += 10;
+                    
+                    tourData.itinerary.forEach((day, index) => {
+                        if (y > 270) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        doc.setFontSize(12);
+                        const dayTitle = lang === 'ru' ? (day.dayTitleRu || day.day || `День ${index + 1}`) : (day.dayTitleEn || day.day || `Day ${index + 1}`);
+                        doc.text(dayTitle, 20, y);
+                        y += 7;
+                        
+                        if (day.events && day.events.length > 0) {
+                            doc.setFontSize(10);
+                            day.events.forEach(event => {
+                                if (y > 270) {
+                                    doc.addPage();
+                                    y = 20;
+                                }
+                                const eventText = lang === 'ru' ? (event.descriptionRu || event.description || '') : (event.descriptionEn || event.description || '');
+                                const eventLines = doc.splitTextToSize(`• ${eventText}`, 165);
+                                doc.text(eventLines, 25, y);
+                                y += eventLines.length * 5 + 3;
+                            });
+                        }
+                        y += 5;
+                    });
+                }
+                
+                const filename = `${title.replace(/[^a-z0-9]/gi, '_')}.pdf`;
+                doc.save(filename);
+                
+                showNotification('PDF успешно скачан!', 'success');
+            } catch (error) {
+                console.error('PDF generation error:', error);
+                showNotification('Ошибка при создании PDF', 'error');
+            }
             toggleShareMenu();
+        }
+        
+        async function nativeShare() {
+            if (navigator.share) {
+                try {
+                    const lang = getCurrentLanguage();
+                    await navigator.share({
+                        title: tourData.title || 'Tour',
+                        text: tourData.description || '',
+                        url: window.location.href
+                    });
+                    showNotification('Успешно поделились!', 'success');
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                        showNotification('Не удалось поделиться', 'error');
+                    }
+                }
+                toggleShareMenu();
+            } else {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    showNotification('Ссылка скопирована в буфер обмена!', 'success');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    showNotification('Не удалось скопировать ссылку', 'error');
+                });
+                toggleShareMenu();
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${colors[type] || colors.info} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
         }
         
         // Close share menu when clicking outside

@@ -13815,10 +13815,12 @@
             }
             
             try {
+                const token = localStorage.getItem('token');
                 const response = await fetch(`${getApiUrl()}/exchange-rates/base-currency-symbol`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify({ symbol: newSymbol.trim() })
                 });
