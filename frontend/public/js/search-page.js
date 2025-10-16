@@ -727,17 +727,17 @@ function createTourCard(tour) {
                     ${titleText}
                 </h3>
                 <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">${descriptionText}</p>
-                <div class="flex items-center justify-between mt-auto gap-3">
-                    <div class="flex-1">
+                <div class="flex items-start justify-between mt-auto gap-3">
+                    <div class="flex-1 flex flex-col justify-center">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-1"><span>${priceText}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
+                            <div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
                         ` : ''}
-                        <div class="text-lg font-bold text-gray-900">
+                        <div class="text-base font-bold text-gray-900 leading-tight">
                             <span>${priceText}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
-                        <div class="text-xs text-gray-500">${tour.priceType || (currentLang === 'en' ? 'per person' : 'за человека')}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">${tour.priceType || (currentLang === 'en' ? 'per person' : 'за человека')}</div>
                     </div>
-                    <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0" 
+                    <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 self-center" 
                             style="background-color: #6B7280;"
                             onclick="event.stopPropagation(); window.location.href='tour-template.html?tour=${tour.id}'">
                         ${currentLang === 'en' ? 'Book' : 'Бронировать'}
