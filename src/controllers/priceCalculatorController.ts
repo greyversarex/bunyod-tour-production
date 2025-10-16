@@ -246,8 +246,8 @@ async function ensureToursHaveAccommodation(): Promise<number> {
   try {
     const prisma = (await import('../config/database')).default;
     
-    // Получаем компонент проживания из базы
-    const accommodationComponent = await PriceCalculatorModel.findByKey('accommodation_std');
+    // Получаем компонент проживания из базы (используем новый ключ - Полупансион как стандарт)
+    const accommodationComponent = await PriceCalculatorModel.findByKey('accommodation_hb');
     if (!accommodationComponent) {
       console.log('⚠️ Accommodation component not found, skipping tour updates');
       return 0;
@@ -274,16 +274,15 @@ async function ensureToursHaveAccommodation(): Promise<number> {
           }
         }
         
-        // Проверяем, есть ли уже компонент проживания
+        // Проверяем, есть ли уже компонент проживания (любой из новых ключей)
         const hasAccommodation = services.some((service: any) => 
-          service.key === 'accommodation_std' || 
-          (service.key && service.key.includes('accommodation'))
+          service.key && service.key.includes('accommodation')
         );
         
         if (!hasAccommodation) {
-          // Добавляем компонент проживания
+          // Добавляем компонент проживания (Полупансион как стандарт)
           services.push({
-            key: 'accommodation_std',
+            key: 'accommodation_hb',
             name: accommodationComponent.name,
             price: accommodationComponent.price,
             unit: accommodationComponent.unit,
