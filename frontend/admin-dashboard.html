@@ -13822,19 +13822,26 @@
 
         // Редактирование символа базовой валюты
         async function editBaseCurrencySymbol(currentSymbol) {
+            console.log('🔧 editBaseCurrencySymbol called with:', currentSymbol);
             const newSymbol = prompt('Введите новый символ для базовой валюты (TJS):', currentSymbol);
+            console.log('👤 User entered:', newSymbol);
             
             if (!newSymbol || newSymbol.trim() === '') {
-                return; // Пользователь отменил или ввел пустое значение
+                console.log('❌ Empty or cancelled');
+                return;
             }
             
             if (newSymbol.trim() === currentSymbol) {
+                console.log('ℹ️ Symbol unchanged');
                 showNotification('Символ не изменен', 'info');
                 return;
             }
             
             try {
                 const token = localStorage.getItem('token');
+                console.log('🔑 Token:', token ? 'exists' : 'missing');
+                console.log('📡 Sending request to:', `${getApiUrl()}/exchange-rates/base-currency-symbol`);
+                
                 const response = await fetch(`${getApiUrl()}/exchange-rates/base-currency-symbol`, {
                     method: 'PUT',
                     headers: {
@@ -13844,7 +13851,9 @@
                     body: JSON.stringify({ symbol: newSymbol.trim() })
                 });
                 
+                console.log('📥 Response status:', response.status);
                 const data = await response.json();
+                console.log('📊 Response data:', data);
                 
                 if (data.success) {
                     showNotification('Символ базовой валюты обновлен', 'success');
@@ -13853,7 +13862,7 @@
                     showNotification(data.message || 'Ошибка при обновлении символа', 'error');
                 }
             } catch (error) {
-                console.error('Error updating base currency symbol:', error);
+                console.error('❌ Error updating base currency symbol:', error);
                 showNotification('Ошибка при обновлении символа', 'error');
             }
         }
