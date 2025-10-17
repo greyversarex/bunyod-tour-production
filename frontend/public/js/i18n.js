@@ -279,7 +279,7 @@ window.translations = window.translations || {
     'tour.meeting_point': { ru: 'Место сбора:', en: 'Meeting point:' },
     'tour.reviews': { ru: 'Отзывы', en: 'Reviews' },
     'tour.loading_reviews': { ru: 'Загрузка отзывов...', en: 'Loading reviews...' },
-    'tour.from': { ru: 'от', en: 'from' },
+    'tour.from': { ru: 'От', en: 'From' },
     'tour.price_per_person': { ru: 'за человека', en: 'per person' },
     'tour.price_per_group': { ru: 'за группу', en: 'per group' },
     'tour.included': { ru: 'Включено:', en: 'Included:' },

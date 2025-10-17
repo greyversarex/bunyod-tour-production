@@ -2768,7 +2768,6 @@
             
             if (priceType === 'per_person' || priceType === 'за человека') {
                 const totalPrice = Math.round(basePrice * totalTravelers);
-                const fromText = currentLang === 'en' ? 'From' : 'От';
                 
                 console.log(`✅ Цена "за человека": ${basePrice} × ${totalTravelers} = ${totalPrice}`);
                 
@@ -2776,7 +2775,6 @@
                 if (fromTextElement) {
                     if (totalTravelers === minPeople) {
                         fromTextElement.style.display = 'inline';
-                        fromTextElement.textContent = fromText + ' ';
                         console.log(`📌 Показываем "От" (начальная цена: ${minPeople} человек)`);
                     } else {
                         fromTextElement.style.display = 'none';
@@ -2787,14 +2785,11 @@
                 priceElement.setAttribute('data-original-price', basePrice);
                 priceElement.textContent = `${totalPrice.toLocaleString()} ${currencySymbol}`;
             } else {
-                const fromText = currentLang === 'en' ? 'From' : 'От';
-                
-                console.log(`✅ Цена "за группу": ${basePrice} (всегда с приставкой "${fromText}")`);
+                console.log(`✅ Цена "за группу": ${basePrice} (всегда с приставкой "От")`);
                 
                 // Для цены "за группу" всегда показываем "От"
                 if (fromTextElement) {
                     fromTextElement.style.display = 'inline';
-                    fromTextElement.textContent = fromText + ' ';
                 }
                 priceElement.setAttribute('data-original-price', basePrice);
                 priceElement.textContent = `${Math.round(basePrice).toLocaleString()} ${currencySymbol}`;
