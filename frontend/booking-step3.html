@@ -418,6 +418,9 @@
             // This ensures price consistency across all steps
             let totalAmount = booking.calculatedTotalPrice || 0;
             
+            // ✅ Define tourDuration outside if block (used in HTML template)
+            const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
+            
             // If calculated price is not available (legacy bookings), fall back to basic calculation
             if (!totalAmount) {
                 let tourBasePrice = parseFloat(booking.tour.price);
@@ -427,8 +430,6 @@
                 if (!isGroupShared && booking.tour.priceType === 'за человека') {
                     tourBasePrice *= booking.numberOfTourists;
                 }
-                
-                const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
                 
                 let roomCost = 0;
                 let mealCost = 0;
