@@ -414,39 +414,43 @@
                 }
             }
 
-            // Calculate breakdown based on tour type
-            let tourBasePrice = parseFloat(booking.tour.price);
-            const tourType = booking.tour.tourType || booking.tour.format;
+            // ✅ Use the calculated price from Step 2 instead of recalculating
+            // This ensures price consistency across all steps
+            let totalAmount = booking.calculatedTotalPrice || 0;
             
-            // ✅ Dynamic per-person pricing based on tour type:
-            // - "Персональный" (Personal) → multiply by tourists
-            // - "Групповой персональный" (Group Personal) → multiply by tourists
-            // - "Групповой общий" (Group Shared) → fixed price (do NOT multiply)
-            const isGroupShared = tourType === 'Групповой общий';
-            
-            if (!isGroupShared && booking.tour.priceType === 'за человека') {
-                tourBasePrice *= booking.numberOfTourists;
+            // If calculated price is not available (legacy bookings), fall back to basic calculation
+            if (!totalAmount) {
+                let tourBasePrice = parseFloat(booking.tour.price);
+                const tourType = booking.tour.tourType || booking.tour.format;
+                const isGroupShared = tourType === 'Групповой общий';
+                
+                if (!isGroupShared && booking.tour.priceType === 'за человека') {
+                    tourBasePrice *= booking.numberOfTourists;
+                }
+                
+                const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
+                
+                let roomCost = 0;
+                let mealCost = 0;
+                
+                // Calculate room costs
+                Object.entries(roomSelection).forEach(([roomType, quantity]) => {
+                    if (quantity > 0 && hotelRoomTypes[roomType]) {
+                        roomCost += hotelRoomTypes[roomType].price * quantity * tourDuration;
+                    }
+                });
+
+                // Calculate meal costs  
+                Object.entries(mealSelection).forEach(([mealType, price]) => {
+                    if (price > 0) {
+                        mealCost += price * booking.numberOfTourists * tourDuration;
+                    }
+                });
+                
+                totalAmount = tourBasePrice + roomCost + mealCost;
             }
             
-            console.log(`💰 Step 3 price calculated: ${tourBasePrice} TJS (${booking.numberOfTourists} tourists, type: ${tourType}, isGroupShared: ${isGroupShared})`);
-
-            let roomCost = 0;
-            let mealCost = 0;
-            const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
-
-            // Calculate room costs
-            Object.entries(roomSelection).forEach(([roomType, quantity]) => {
-                if (quantity > 0 && hotelRoomTypes[roomType]) {
-                    roomCost += hotelRoomTypes[roomType].price * quantity * tourDuration;
-                }
-            });
-
-            // Calculate meal costs  
-            Object.entries(mealSelection).forEach(([mealType, price]) => {
-                if (price > 0) {
-                    mealCost += price * booking.numberOfTourists * tourDuration;
-                }
-            });
+            console.log(`💰 Step 3 total amount: ${totalAmount} TJS (from Step 2 calculated price)`);
 
             // Generate booking reference number
             const bookingRef = `BT-${booking.id || 'XXXX'}${new Date().getFullYear()}`;
@@ -616,8 +620,8 @@
                             <!-- Amount -->
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.total_amount">Сумма к оплате:</h4>
-                                <p class="text-2xl font-bold text-gray-700">${window.bookingStateManager.state.pricing.grandTotal.toLocaleString()} TJS</p>
-                                <p class="text-sm text-gray-600">≈ ${Math.round(window.bookingStateManager.state.pricing.grandTotal * 0.091)} USD</p>
+                                <p class="text-2xl font-bold text-gray-700">${Math.round(totalAmount).toLocaleString()} TJS</p>
+                                <p class="text-sm text-gray-600">≈ ${Math.round(totalAmount * 0.091)} USD</p>
                             </div>
                         </div>
                     </div>
@@ -665,9 +669,9 @@
             
             summaryContainer.innerHTML = summaryHtml;
 
-            // Store total price for payment - use bookingStateManager
-            bookingState.finalTotalPrice = window.bookingStateManager.state.pricing.grandTotal;
-            console.log('💰 Final total price set:', bookingState.finalTotalPrice);
+            // Store total price for payment
+            bookingState.finalTotalPrice = totalAmount;
+            console.log('💰 Final total price set:', bookingState.finalTotalPrice, 'TJS');
         }
 
         function selectPaymentMethod(method) {

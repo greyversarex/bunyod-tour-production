@@ -338,8 +338,9 @@
             // Display tour details in sidebar
             displayTourDetailsInSidebar();
 
-            // Initialize with required number of tourists
+            // ✅ Initialize with required number of tourists AFTER loading booking data
             const numberOfTourists = getNumberOfTourists();
+            console.log('👥 Auto-creating tourist fields:', numberOfTourists, 'from bookingState:', bookingState.numberOfTourists);
             for (let i = 0; i < numberOfTourists; i++) {
                 addTourist();
             }
@@ -775,6 +776,13 @@
             // ✅ Цена уже рассчитана с учетом количества туристов выше (строка 570)
             // Не нужно умножать повторно - это делалось на странице тура
             console.log(`💰 Итоговая цена (без дополнительного умножения): ${finalTourPrice} TJS`);
+            
+            // ✅ Save calculated price to bookingState for use on step 3
+            if (window.bookingStateManager) {
+                window.bookingStateManager.state.calculatedTotalPrice = finalTourPrice;
+                window.bookingStateManager.persist();
+                console.log('💾 Saved calculated price to state:', finalTourPrice);
+            }
 
             const tourPriceCalc = document.getElementById('tour-price-calc');
             if (tourPriceCalc) {
@@ -850,7 +858,10 @@
         }
 
         function getNumberOfTourists() {
-            // This should come from the tour data or URL parameters
+            // ✅ Get from bookingState first, then fall back to URL parameters
+            if (bookingState && bookingState.numberOfTourists) {
+                return bookingState.numberOfTourists;
+            }
             const urlParams = new URLSearchParams(window.location.search);
             return parseInt(urlParams.get('tourists')) || 1;
         }
