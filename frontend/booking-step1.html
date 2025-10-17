@@ -778,10 +778,28 @@
         }
 
         function changeRoomQuantity(hotelId, roomType, change) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const numberOfTourists = parseInt(urlParams.get('tourists')) || 1;
+            
             // ✅ FIXED: Update through bookingStateManager
             const currentRooms = window.bookingStateManager.state.selections.rooms || {};
             const current = currentRooms[roomType] || 0;
             const newQuantity = Math.max(0, current + change);
+            
+            // ✅ ВАЛИДАЦИЯ: Проверяем вместимость номеров
+            if (change > 0) { // Только при добавлении номера
+                const updatedRooms = { ...currentRooms, [roomType]: newQuantity };
+                const totalCapacity = calculateTotalRoomCapacity(updatedRooms);
+                
+                if (totalCapacity > numberOfTourists) {
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? `Cannot add more rooms. Current capacity (${totalCapacity}) exceeds number of tourists (${numberOfTourists})`
+                        : `Невозможно добавить больше номеров. Текущая вместимость (${totalCapacity}) превышает количество туристов (${numberOfTourists})`;
+                    showNotification(message, 'warning');
+                    return;
+                }
+            }
             
             // Update in bookingStateManager
             const updatedRooms = { ...currentRooms, [roomType]: newQuantity };
@@ -795,6 +813,25 @@
             
             // 🎯 DEBOUNCING: Защита от rate limit (429 errors)
             debouncedPriceUpdate();
+        }
+        
+        // ✅ Функция расчета вместимости номеров
+        function calculateTotalRoomCapacity(rooms) {
+            let totalCapacity = 0;
+            const roomCapacities = {
+                'SGL': 1,  // Single
+                'TWL': 2,  // Twin
+                'DBL': 2,  // Double  
+                'TRP': 3,  // Triple
+                'QUD': 4,  // Quad
+            };
+            
+            for (const [roomType, quantity] of Object.entries(rooms)) {
+                const capacity = roomCapacities[roomType] || 2;
+                totalCapacity += capacity * quantity;
+            }
+            
+            return totalCapacity;
         }
         
         // ✅ NEW: Debounced price update to prevent rate limiting
