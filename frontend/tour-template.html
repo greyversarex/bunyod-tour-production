@@ -2010,9 +2010,10 @@
             // Store in localStorage for booking flow
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
             
-            const bookingUrl = `/booking/step1?tourId=${encodeURIComponent(tourData.id)}&date=${encodeURIComponent(selectedDate)}&tourists=1`;
+            const totalTourists = travelers.adults + travelers.children;
+            const bookingUrl = `/booking/step1?tourId=${encodeURIComponent(tourData.id)}&date=${encodeURIComponent(selectedDate)}&tourists=${totalTourists}`;
             console.log('Переход к бронированию:', bookingUrl);
-            console.log('Данные тура:', { id: tourData.id, date: selectedDate, tourists: 1 });
+            console.log('Данные тура:', { id: tourData.id, date: selectedDate, tourists: totalTourists, adults: travelers.adults, children: travelers.children });
             
             // Navigate to new 3-step booking system
             window.location.href = bookingUrl;
