@@ -228,7 +228,7 @@
             modal.innerHTML = `
                 <div class="text-center">
                     ${iconMap[type] || iconMap['info']}
-                    <p class="text-gray-800 text-base leading-snug mb-6">${message}</p>
+                    <p class="text-gray-800 text-base leading-snug">${message}</p>
                     <button 
                         onclick="this.closest('.fixed').remove()" 
                         class="bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm"
@@ -860,8 +860,8 @@
                 if (totalCapacity > numberOfTourists) {
                     const lang = window.currentLanguage || 'ru';
                     const message = lang === 'en' 
-                        ? `Cannot add more rooms.<div style="margin-top: 12px; line-height: 1.4;"><strong>Room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 12px; padding-top: 10px; border-top: 1px solid #E5E7EB; line-height: 1.5;">Capacity calculation:<br>SGL = 1 person, TWL/DBL = 2 people</div>`
-                        : `Невозможно добавить больше номеров.<div style="margin-top: 12px; line-height: 1.4;"><strong>Вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 12px; padding-top: 10px; border-top: 1px solid #E5E7EB; line-height: 1.5;">Расчет вместимости номеров:<br>SGL = 1 чел., TWL/DBL = 2 чел.</div>`;
+                        ? `Cannot add more rooms.<div style="margin-top: 8px; line-height: 1.3;"><strong>Room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Capacity calculation:<br>SGL = 1 person, TWL/DBL = 2 people</div>`
+                        : `Невозможно добавить больше номеров.<div style="margin-top: 8px; line-height: 1.3;"><strong>Вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Расчет вместимости номеров:<br>SGL = 1 чел., TWL/DBL = 2 чел.</div>`;
                     showCenterModal(message, 'warning');
                     return;
                 }
