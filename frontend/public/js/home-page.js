@@ -1880,7 +1880,7 @@ function renderTourCard(tour, blockId = null) {
                 </div>
                 <!-- Тип тура -->
                 <div class="text-xs text-blue-600 mb-1 sm:mb-2">
-                    🎯 <span class="font-medium tour-type-text" data-tour-type="${tour.format || tour.tourType || 'Групповой'}" data-translate="tour_type.${(tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')}">${currentLang === 'en' ? (getTranslation('tour_type.' + (tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')) || tour.format || tour.tourType || 'Group') : (tour.format || tour.tourType || 'Групповой')}</span>
+                    🎯 <span class="font-medium tour-type-text" data-tour-type="${tour.format || tour.tourType || 'Групповой'}" data-translate="tour_type.${(tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')}">${currentLang === 'en' ? (getTranslation('tour_type.' + (tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s/g, '_')) || tour.format || tour.tourType || 'Group') : (tour.format || tour.tourType || 'Групповой')}</span>${tour.tourType === 'Персональный' ? ` <span class="text-gray-600">(${currentLang === 'en' ? 'for 1 person' : 'для 1 человека'})</span>` : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `limit: ${tour.maxPeople} people` : `лимит: ${tour.maxPeople} чел.`})</span>` : '')}
                 </div>
                 <!-- Категория тура -->
                 <div class="text-xs mb-1 sm:mb-2" style="color: #3E3E3E;">
