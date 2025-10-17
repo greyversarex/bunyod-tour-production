@@ -14,11 +14,19 @@ export const getTourBlocks = async (req: Request, res: Response): Promise<Respon
 
     console.log('Found tour blocks:', tourBlocks.length);
     
-    // Parse multilingual fields safely
+    // Return multilingual fields as JSON objects for frontend to parse
     const parsedBlocks = tourBlocks.map((block: any) => {
+      // Try to parse title as JSON, if it fails return as string
+      let titleObj;
+      try {
+        titleObj = typeof block.title === 'string' ? JSON.parse(block.title) : block.title;
+      } catch {
+        titleObj = { ru: block.title, en: block.title };
+      }
+      
       return {
         ...block,
-        title: parseMultilingualField(block.title, language),
+        title: titleObj, // Return full JSON object with both languages
         description: block.description ? parseMultilingualField(block.description, language) : null
       };
     });
