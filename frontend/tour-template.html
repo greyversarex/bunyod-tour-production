@@ -1081,24 +1081,8 @@
                         maxDay = Math.max(maxDay, day);
                     });
                     
-                    // Если только один день, показываем как раньше
-                    if (maxDay === 1 && Object.keys(daysByProgram).length === 1) {
-                        programElement.innerHTML = `
-                            <div class="space-y-6">
-                                ${currentItinerary.map(item => `
-                                    <div class="flex items-start space-x-4">
-                                        <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">${item.time || 'Время'}</div>
-                                        <div>
-                                            <h4 class="font-semibold text-gray-900">${item.title || 'Название'}</h4>
-                                            <p class="text-gray-600 mt-1">${item.description || 'Описание'}</p>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        `;
-                    } else {
-                        // Многодневная программа - показываем с табами по дням
-                        const sortedDays = Object.keys(daysByProgram).sort((a, b) => parseInt(a) - parseInt(b));
+                    // Всегда показываем новый формат с днями и аккордеоном (даже для 1-дневных туров)
+                    const sortedDays = Object.keys(daysByProgram).sort((a, b) => parseInt(a) - parseInt(b));
                         
                         programElement.innerHTML = `
                             <!-- Многодневная программа тура - Аккордеон по дням -->
@@ -1199,7 +1183,6 @@
                                 }).join('')}
                             </div>
                         `;
-                    }
                 }
             }
             
