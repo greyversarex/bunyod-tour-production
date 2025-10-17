@@ -2735,6 +2735,7 @@
             const basePrice = parseFloat(tourData.price);
             const totalTravelers = travelers.adults + travelers.children;
             const priceType = tourData.priceType || 'за человека';
+            const minPeople = tourData.minPeople || 1;
             
             const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
             const currency = localStorage.getItem('selectedCurrency') || tourData.currency || 'TJS';
@@ -2742,8 +2743,10 @@
             console.log('💰 Расчет цены:', {
                 basePrice,
                 totalTravelers,
+                minPeople,
                 priceType,
-                isPerPerson: priceType === 'per_person' || priceType === 'за человека'
+                isPerPerson: priceType === 'per_person' || priceType === 'за человека',
+                isMinimum: totalTravelers === minPeople
             });
             
             // Получаем элементы
@@ -2757,24 +2760,33 @@
             
             if (priceType === 'per_person' || priceType === 'за человека') {
                 const totalPrice = Math.round(basePrice * totalTravelers);
+                const fromText = currentLang === 'en' ? 'From' : 'От';
                 
                 console.log(`✅ Цена "за человека": ${basePrice} × ${totalTravelers} = ${totalPrice}`);
                 
-                // Скрываем "От" и обновляем цену
+                // Показываем "От" только если количество туристов = минимуму (начальная цена)
                 if (fromTextElement) {
-                    fromTextElement.style.display = 'none';
+                    if (totalTravelers === minPeople) {
+                        fromTextElement.style.display = 'inline';
+                        fromTextElement.textContent = fromText + ' ';
+                        console.log(`📌 Показываем "От" (начальная цена: ${minPeople} человек)`);
+                    } else {
+                        fromTextElement.style.display = 'none';
+                        console.log(`📌 Скрываем "От" (выбрано ${totalTravelers} > ${minPeople})`);
+                    }
                 }
+                
                 priceElement.setAttribute('data-original-price', basePrice);
                 priceElement.textContent = `${totalPrice.toLocaleString()} ${currency.toLowerCase()}`;
             } else {
                 const fromText = currentLang === 'en' ? 'From' : 'От';
                 
-                console.log(`✅ Цена "за группу": ${basePrice} (с приставкой "${fromText}")`);
+                console.log(`✅ Цена "за группу": ${basePrice} (всегда с приставкой "${fromText}")`);
                 
-                // Показываем "От" и обновляем цену
+                // Для цены "за группу" всегда показываем "От"
                 if (fromTextElement) {
                     fromTextElement.style.display = 'inline';
-                    fromTextElement.textContent = fromText;
+                    fromTextElement.textContent = fromText + ' ';
                 }
                 priceElement.setAttribute('data-original-price', basePrice);
                 priceElement.textContent = `${Math.round(basePrice).toLocaleString()} ${currency.toLowerCase()}`;
