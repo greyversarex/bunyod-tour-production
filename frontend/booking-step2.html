@@ -708,19 +708,9 @@
             // Calculate final price
             let finalTourPrice = baseTourPrice - accommodationDeduction + totalRoomCost + totalMealCost;
             
-            // 🎯 ВАЖНО: Умножаем на количество туристов в списке, если тип тура НЕ "Групповой общий"
-            const tourType = tour.tourType || tour.format || '';
-            const touristsInList = document.querySelectorAll('.tourist-card').length;
-            
-            // Проверяем тип тура - НЕ умножаем только для "Групповой общий" 
-            const isGroupShared = tourType === 'Групповой общий' || tourType === 'Group Shared';
-            
-            if (!isGroupShared && touristsInList > 0) {
-                console.log(`💰 Умножаем цену на ${touristsInList} туристов (тип тура: "${tourType}")`);
-                finalTourPrice = finalTourPrice * touristsInList;
-            } else if (isGroupShared) {
-                console.log(`👥 Групповой тур - цена НЕ умножается на туристов (тип: "${tourType}")`);
-            }
+            // ✅ Цена уже рассчитана с учетом количества туристов выше (строка 570)
+            // Не нужно умножать повторно - это делалось на странице тура
+            console.log(`💰 Итоговая цена (без дополнительного умножения): ${finalTourPrice} TJS`);
 
             const tourPriceCalc = document.getElementById('tour-price-calc');
             if (tourPriceCalc) {
