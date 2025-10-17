@@ -299,7 +299,11 @@
             // Initialize bookingStateManager
             if (!window.bookingStateManager) {
                 console.error('❌ bookingStateManager not loaded!');
-                alert('Ошибка: система бронирования не инициализирована');
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? 'Error: Booking system not initialized'
+                    : 'Ошибка: система бронирования не инициализирована';
+                showCenterModal(message, 'error');
                 window.location.href = '/tours-search.html';
                 return;
             }
@@ -312,7 +316,11 @@
             
             if (!bookingId || !window.bookingStateManager.state.bookingId) {
                 console.error('❌ No booking ID found. URL:', bookingId, 'State:', window.bookingStateManager.state.bookingId);
-                alert('Ошибка: данные бронирования не найдены');
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? 'Error: Booking data not found'
+                    : 'Ошибка: данные бронирования не найдены';
+                showCenterModal(message, 'error');
                 window.location.href = '/tours-search.html';
                 return;
             }
@@ -764,6 +772,67 @@
             }
         }
 
+        // ✅ Красивое модальное уведомление по центру экрана (как на шаге 1)
+        function showCenterModal(message, type = 'warning') {
+            // Создаем overlay (затемненный фон)
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] transition-opacity';
+            overlay.style.opacity = '0';
+            
+            // Создаем модальное окно
+            const modal = document.createElement('div');
+            modal.className = 'bg-white rounded-lg shadow-2xl p-5 max-w-md mx-4 transform transition-all';
+            modal.style.transform = 'scale(0.9)';
+            
+            // Иконка в зависимости от типа
+            const iconMap = {
+                'warning': '<i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-3"></i>',
+                'error': '<i class="fas fa-times-circle text-red-500 text-4xl mb-3"></i>',
+                'success': '<i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>',
+                'info': '<i class="fas fa-info-circle text-blue-500 text-4xl mb-3"></i>'
+            };
+            
+            modal.innerHTML = `
+                <div class="text-center">
+                    ${iconMap[type] || iconMap['info']}
+                    <p class="text-gray-800 text-base leading-snug mb-4">${message}</p>
+                    <button 
+                        onclick="this.closest('.fixed').remove()" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm"
+                        data-translate="common.ok">
+                        Понятно
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Анимация появления
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            });
+            
+            // Закрытие по клику на overlay
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            });
+            
+            // Автоматическое закрытие через 5 секунд
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            }, 5000);
+        }
+
         function getNumberOfTourists() {
             // This should come from the tour data or URL parameters
             const urlParams = new URLSearchParams(window.location.search);
@@ -887,11 +956,19 @@
                     // Navigate to step 3
                     window.location.href = `/booking-step3.html?bookingId=${window.bookingStateManager.state.bookingId}`;
                 } else {
-                    alert('Ошибка: ' + data.message);
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? `Error: ${data.message}`
+                        : `Ошибка: ${data.message}`;
+                    showCenterModal(message, 'error');
                 }
             } catch (error) {
                 console.error('Error updating booking details:', error);
-                alert('Ошибка при сохранении данных');
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? 'Error saving data'
+                    : 'Ошибка при сохранении данных';
+                showCenterModal(message, 'error');
             }
         }
 
@@ -901,7 +978,12 @@
             for (const field of requiredFields) {
                 const element = document.getElementById(field);
                 if (!element.value.trim()) {
-                    alert(`Пожалуйста, заполните поле: ${element.previousElementSibling.textContent}`);
+                    const lang = window.currentLanguage || 'ru';
+                    const label = element.previousElementSibling?.textContent || field;
+                    const message = lang === 'en' 
+                        ? `Please fill in the field: ${label}`
+                        : `Пожалуйста, заполните поле: ${label}`;
+                    showCenterModal(message, 'warning');
                     element.focus();
                     return false;
                 }
@@ -914,9 +996,9 @@
             if (addedTourists < expectedTourists) {
                 const lang = window.currentLanguage || 'ru';
                 const message = lang === 'en' 
-                    ? `Please add all ${expectedTourists} tourists. Currently added: ${addedTourists}.`
-                    : `Пожалуйста, добавьте всех ${expectedTourists} туристов. Добавлено: ${addedTourists}.`;
-                alert(message);
+                    ? `Please add all <strong>${expectedTourists} tourists</strong>.<br>Currently added: <strong>${addedTourists}</strong>.`
+                    : `Пожалуйста, добавьте всех <strong>${expectedTourists} туристов</strong>.<br>Добавлено: <strong>${addedTourists}</strong>.`;
+                showCenterModal(message, 'warning');
                 document.getElementById('add-tourist').focus();
                 return false;
             }
@@ -929,7 +1011,7 @@
                     const message = lang === 'en' 
                         ? 'Please fill in the full name of all tourists'
                         : 'Пожалуйста, заполните ФИО всех туристов';
-                    alert(message);
+                    showCenterModal(message, 'warning');
                     nameInput.focus();
                     return false;
                 }
@@ -937,12 +1019,20 @@
             
             // Check checkboxes
             if (!document.getElementById('termsAccepted').checked) {
-                alert('Необходимо принять условия оферты');
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? 'You must accept the offer terms'
+                    : 'Необходимо принять условия оферты';
+                showCenterModal(message, 'warning');
                 return false;
             }
             
             if (!document.getElementById('paymentRulesAccepted').checked) {
-                alert('Необходимо ознакомиться с правилами оплаты');
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? 'You must familiarize yourself with the payment rules'
+                    : 'Необходимо ознакомиться с правилами оплаты';
+                showCenterModal(message, 'warning');
                 return false;
             }
             
