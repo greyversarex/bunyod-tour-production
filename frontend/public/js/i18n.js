@@ -447,6 +447,13 @@ window.translations = window.translations || {
     'language.chinese': { ru: 'Китайский', en: 'Chinese' },
     'language.spanish': { ru: 'Испанский', en: 'Spanish' },
     'language.italian': { ru: 'Итальянский', en: 'Italian' },
+    'language.french': { ru: 'Французский', en: 'French' },
+    'language.german': { ru: 'Немецкий', en: 'German' },
+    'language.japanese': { ru: 'Японский', en: 'Japanese' },
+    'language.korean': { ru: 'Корейский', en: 'Korean' },
+    'language.turkish': { ru: 'Турецкий', en: 'Turkish' },
+    'language.hindi': { ru: 'Хинди', en: 'Hindi' },
+    'language.urdu': { ru: 'Урду', en: 'Urdu' },
     
     // Дополнительные языки (для совместимости)
     'lang.russian': { ru: 'Русский', en: 'Russian' },
