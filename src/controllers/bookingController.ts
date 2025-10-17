@@ -638,7 +638,12 @@ export const bookingController = {
         include: {
           tour: {
             include: {
-              category: true
+              category: true,
+              tourHotels: {
+                include: {
+                  hotel: true
+                }
+              }
             }
           },
           hotel: true
@@ -852,7 +857,12 @@ export const bookingController = {
         include: {
           tour: {
             include: {
-              category: true
+              category: true,
+              tourHotels: {
+                include: {
+                  hotel: true
+                }
+              }
             }
           },
           hotel: true
