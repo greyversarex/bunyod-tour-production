@@ -14583,9 +14583,16 @@
                 const url = isEditing ? `${getApiUrl()}/city-card-photos/${photoId}` : `${getApiUrl()}/city-card-photos`;
                 const method = isEditing ? 'PUT' : 'POST';
                 
+                // For FormData, DON'T set Content-Type - browser will set it automatically with boundary
+                const token = localStorage.getItem('authToken');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+                
                 const response = await fetch(url, {
                     method: method,
-                    headers: getAuthHeaders(),
+                    headers: headers,
                     body: formData
                 });
                 
