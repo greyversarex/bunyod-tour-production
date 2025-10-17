@@ -860,8 +860,8 @@
                 if (totalCapacity > numberOfTourists) {
                     const lang = window.currentLanguage || 'ru';
                     const message = lang === 'en' 
-                        ? `Cannot add more rooms.<br><br><strong>Room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong><br><br><div style="font-size: 0.875rem; color: #6B7280; margin-top: 8px;">Room capacity calculation:<br>SGL = 1 person, TWL/DBL = 2 people</div>`
-                        : `Невозможно добавить больше номеров.<br><br><strong>Вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong><br><br><div style="font-size: 0.875rem; color: #6B7280; margin-top: 8px;">Расчет вместимости номеров:<br>SGL = 1 чел., TWL/DBL = 2 чел.</div>`;
+                        ? `Cannot add more rooms.<br><div style="margin-top: 16px; line-height: 1.5;"><strong>Room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 16px; padding-top: 12px; border-top: 1px solid #E5E7EB; line-height: 1.6;">Capacity calculation:<br>SGL = 1 person, TWL/DBL = 2 people</div>`
+                        : `Невозможно добавить больше номеров.<br><div style="margin-top: 16px; line-height: 1.5;"><strong>Вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 16px; padding-top: 12px; border-top: 1px solid #E5E7EB; line-height: 1.6;">Расчет вместимости номеров:<br>SGL = 1 чел., TWL/DBL = 2 чел.</div>`;
                     showCenterModal(message, 'warning');
                     return;
                 }
