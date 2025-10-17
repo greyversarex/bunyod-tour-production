@@ -907,11 +907,29 @@
                 }
             }
             
+            // ✅ Check that number of added tourists matches the selected number
+            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
+            const addedTourists = document.querySelectorAll('.tourist-card').length;
+            
+            if (addedTourists < expectedTourists) {
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? `Please add all ${expectedTourists} tourists. Currently added: ${addedTourists}.`
+                    : `Пожалуйста, добавьте всех ${expectedTourists} туристов. Добавлено: ${addedTourists}.`;
+                alert(message);
+                document.getElementById('add-tourist').focus();
+                return false;
+            }
+            
             // Check tourists
             const touristNames = document.querySelectorAll('.tourist-name');
             for (const nameInput of touristNames) {
                 if (!nameInput.value.trim()) {
-                    alert('Пожалуйста, заполните ФИО всех туристов');
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? 'Please fill in the full name of all tourists'
+                        : 'Пожалуйста, заполните ФИО всех туристов';
+                    alert(message);
                     nameInput.focus();
                     return false;
                 }

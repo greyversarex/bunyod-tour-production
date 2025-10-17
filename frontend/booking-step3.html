@@ -426,10 +426,13 @@
             const tourTitle = typeof booking.tour.title === 'object' ? 
                 (booking.tour.title[lang] || booking.tour.title.ru || booking.tour.title.en) : booking.tour.title;
             
-            // Localized tour type
+            // Localized tour type - using the same system as booking-step1.html
             let tourType = booking.tour.tourType || booking.tour.format;
-            if (tourType === 'Персональный') tourType = getTranslation('booking.voucher.personal');
-            else if (tourType === 'Групповой') tourType = getTranslation('booking.voucher.group');
+            // Convert tour type to translation key (e.g., "Групповой общий" → "tour_type.групповой_общий")
+            const tourTypeKey = `tour_type.${tourType.toLowerCase().replace(/\s+/g, '_')}`;
+            const translatedTourType = getTranslation(tourTypeKey, lang);
+            // Use translation if found, otherwise keep original value
+            tourType = translatedTourType || tourType;
             
             const daysText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
             
