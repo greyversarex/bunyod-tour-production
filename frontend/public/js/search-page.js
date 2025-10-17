@@ -53,18 +53,18 @@ function formatPrice(priceInTJS, currency = 'TJS') {
     
     if (!priceInTJS || !exchangeRates[currency]) {
         const fallbackSymbol = (exchangeRates && exchangeRates['TJS']) ? exchangeRates['TJS'].symbol : 'TJS';
-        return `${priceInTJS || 0} ${fallbackSymbol}`;
+        return `${Math.round(priceInTJS || 0)} ${fallbackSymbol}`;
     }
     
     const rate = exchangeRates[currency];
     
     if (currency === 'TJS') {
         // Для TJS показываем ТОЛЬКО символ, без текста валюты
-        return `${priceInTJS} ${rate.symbol}`;
+        return `${Math.round(priceInTJS)} ${rate.symbol}`;
     }
     
-    // Convert from TJS to selected currency
-    const convertedPrice = Math.round((priceInTJS / rate.rate) * 100) / 100;
+    // Convert from TJS to selected currency and round to whole number
+    const convertedPrice = Math.round(priceInTJS / rate.rate);
     return `${convertedPrice} ${rate.symbol}`;
 }
 

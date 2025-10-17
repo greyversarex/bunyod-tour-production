@@ -902,17 +902,17 @@ async function loadExchangeRates() {
 function formatPrice(priceInTJS, currency) {
     if (!priceInTJS || !exchangeRates[currency]) {
         const fallbackSymbol = (exchangeRates && exchangeRates['TJS']) ? exchangeRates['TJS'].symbol : 'TJS';
-        return `${priceInTJS || 0} ${fallbackSymbol}`;
+        return `${Math.round(priceInTJS || 0)} ${fallbackSymbol}`;
     }
     
     const rate = exchangeRates[currency];
     
     if (currency === 'TJS') {
-        return `${priceInTJS} ${rate.symbol}`;
+        return `${Math.round(priceInTJS)} ${rate.symbol}`;
     }
     
-    // Конвертируем из TJS в выбранную валюту
-    const convertedPrice = Math.round((priceInTJS / rate.rate) * 100) / 100;
+    // Конвертируем из TJS в выбранную валюту и округляем до целого числа
+    const convertedPrice = Math.round(priceInTJS / rate.rate);
     return `${convertedPrice} ${rate.symbol}`;
 }
 
