@@ -309,7 +309,7 @@
                     <div class="mb-4">
                         <div class="mb-2">
                             <span class="text-2xl font-bold text-gray-900">
-                                <span data-translate="tour.from">От</span> <span class="tour-price" id="tour-price" data-original-price="0"></span>
+                                <span id="price-from-text" data-translate="tour.from">От</span> <span class="tour-price" id="tour-price" data-original-price="0"></span>
                             </span>
                         </div>
                         <span class="text-sm text-gray-600" id="price-type-text" data-translate="tour.price_per_person">за человека</span>
@@ -2718,10 +2718,16 @@
         }
         
         function updatePriceDisplay() {
-            const priceElement = document.getElementById('tour-price');
-            const priceContainer = priceElement.parentElement;
+            console.log('💰 updatePriceDisplay вызвана:', {
+                tourDataPrice: tourData.price,
+                priceType: tourData.priceType,
+                travelers: travelers
+            });
             
-            if (!priceElement || !tourData.price) return;
+            if (!tourData.price) {
+                console.warn('⚠️ updatePriceDisplay: нет цены в tourData');
+                return;
+            }
             
             const basePrice = parseFloat(tourData.price);
             const totalTravelers = travelers.adults + travelers.children;
@@ -2730,21 +2736,45 @@
             const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
             const currency = localStorage.getItem('selectedCurrency') || tourData.currency || 'TJS';
             
+            console.log('💰 Расчет цены:', {
+                basePrice,
+                totalTravelers,
+                priceType,
+                isPerPerson: priceType === 'per_person' || priceType === 'за человека'
+            });
+            
+            // Получаем элементы
+            const priceElement = document.getElementById('tour-price');
+            const fromTextElement = document.getElementById('price-from-text');
+            
+            if (!priceElement) {
+                console.warn('⚠️ Элемент tour-price не найден');
+                return;
+            }
+            
             if (priceType === 'per_person' || priceType === 'за человека') {
                 const totalPrice = Math.round(basePrice * totalTravelers);
                 
-                priceContainer.innerHTML = `
-                    <span class="text-2xl font-bold text-gray-900">
-                        <span class="tour-price" id="tour-price" data-original-price="${basePrice}">${totalPrice.toLocaleString()} ${currency.toLowerCase()}</span>
-                    </span>
-                `;
+                console.log(`✅ Цена "за человека": ${basePrice} × ${totalTravelers} = ${totalPrice}`);
+                
+                // Скрываем "От" и обновляем цену
+                if (fromTextElement) {
+                    fromTextElement.style.display = 'none';
+                }
+                priceElement.setAttribute('data-original-price', basePrice);
+                priceElement.textContent = `${totalPrice.toLocaleString()} ${currency.toLowerCase()}`;
             } else {
                 const fromText = currentLang === 'en' ? 'From' : 'От';
-                priceContainer.innerHTML = `
-                    <span class="text-2xl font-bold text-gray-900">
-                        <span data-translate="tour.from">${fromText}</span> <span class="tour-price" id="tour-price" data-original-price="${basePrice}">${Math.round(basePrice).toLocaleString()} ${currency.toLowerCase()}</span>
-                    </span>
-                `;
+                
+                console.log(`✅ Цена "за группу": ${basePrice} (с приставкой "${fromText}")`);
+                
+                // Показываем "От" и обновляем цену
+                if (fromTextElement) {
+                    fromTextElement.style.display = 'inline';
+                    fromTextElement.textContent = fromText;
+                }
+                priceElement.setAttribute('data-original-price', basePrice);
+                priceElement.textContent = `${Math.round(basePrice).toLocaleString()} ${currency.toLowerCase()}`;
             }
         }
         
