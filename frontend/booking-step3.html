@@ -414,11 +414,21 @@
                 }
             }
 
-            // Calculate breakdown
+            // Calculate breakdown based on tour type
             let tourBasePrice = parseFloat(booking.tour.price);
-            if (booking.tour.priceType === 'за человека') {
+            const tourType = booking.tour.tourType || booking.tour.format;
+            
+            // ✅ Dynamic per-person pricing based on tour type:
+            // - "Персональный" (Personal) → multiply by tourists
+            // - "Групповой персональный" (Group Personal) → multiply by tourists
+            // - "Групповой общий" (Group Shared) → fixed price (do NOT multiply)
+            const isGroupShared = tourType === 'Групповой общий';
+            
+            if (!isGroupShared && booking.tour.priceType === 'за человека') {
                 tourBasePrice *= booking.numberOfTourists;
             }
+            
+            console.log(`💰 Step 3 price calculated: ${tourBasePrice} TJS (${booking.numberOfTourists} tourists, type: ${tourType}, isGroupShared: ${isGroupShared})`);
 
             let roomCost = 0;
             let mealCost = 0;

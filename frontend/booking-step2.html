@@ -343,6 +343,9 @@
             for (let i = 0; i < numberOfTourists; i++) {
                 addTourist();
             }
+            
+            // ✅ Update button state after initial tourists added
+            updateAddTouristButton();
         }
 
         // Currency functions
@@ -870,7 +873,41 @@
             });
         }
 
+        // Update "Add Tourist" button state
+        function updateAddTouristButton() {
+            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
+            const addedTourists = document.querySelectorAll('.tourist-card').length;
+            const addButton = document.getElementById('add-tourist');
+            
+            if (addButton) {
+                if (addedTourists >= expectedTourists) {
+                    // Disable button when limit reached
+                    addButton.disabled = true;
+                    addButton.classList.add('opacity-50', 'cursor-not-allowed');
+                    addButton.classList.remove('hover:bg-gray-700');
+                } else {
+                    // Enable button when under limit
+                    addButton.disabled = false;
+                    addButton.classList.remove('opacity-50', 'cursor-not-allowed');
+                    addButton.classList.add('hover:bg-gray-700');
+                }
+            }
+        }
+
         function addTourist() {
+            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
+            const currentCount = document.querySelectorAll('.tourist-card').length;
+            
+            // ✅ Check if limit reached
+            if (currentCount >= expectedTourists) {
+                const lang = window.currentLanguage || 'ru';
+                const message = lang === 'en' 
+                    ? `Maximum ${expectedTourists} tourists allowed.`
+                    : `Максимум ${expectedTourists} туристов.`;
+                showCenterModal(message, 'warning');
+                return;
+            }
+            
             touristCount++;
             const container = document.getElementById('tourists-container');
             
@@ -898,6 +935,9 @@
             
             // Пересчитываем цену при добавлении туриста
             displayPriceCalculation();
+            
+            // ✅ Update button state after adding tourist
+            updateAddTouristButton();
         }
 
         function removeTourist(button) {
@@ -906,6 +946,9 @@
             
             // Пересчитываем цену при удалении туриста
             displayPriceCalculation();
+            
+            // ✅ Update button state after removing tourist
+            updateAddTouristButton();
         }
 
         function updateTouristNumbers() {
