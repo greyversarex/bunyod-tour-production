@@ -1250,7 +1250,7 @@ window.translations = window.translations || {
     'booking.step2.title': { ru: 'Данные туриста', en: 'Tourist Information' },
     'booking.step3.title': { ru: 'Оплата', en: 'Payment' },
     'booking.choose_hotel': { ru: 'Выберите отель', en: 'Choose Hotel' },
-    'booking.continue_without_hotel': { ru: 'Продолжить без отеля', en: 'Continue Without Hotel' },
+    'booking.continue_with_base_hotel': { ru: 'Продолжить с базовым отелем', en: 'Continue with Base Hotel' },
     'booking.tour_details': { ru: 'Детали тура', en: 'Tour Details' },
     'booking.tour_date': { ru: 'Дата тура:', en: 'Tour Date:' },
     'booking.duration': { ru: 'Длительность:', en: 'Duration:' },
