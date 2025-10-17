@@ -475,10 +475,13 @@
             const tourTitle = typeof tour.title === 'object' ? 
                 (tour.title[lang] || tour.title.ru || tour.title.en) : tour.title;
             
-            // Get localized tour type
-            let tourType = tour.tourType || tour.format || getTranslation('booking.tour_type.group');
-            if (tourType === 'Персональный') tourType = getTranslation('booking.tour_type.personal');
-            if (tourType === 'Групповой') tourType = getTranslation('booking.tour_type.group');
+            // Get localized tour type - using the same system as booking-step1.html and booking-step3.html
+            let tourType = tour.tourType || tour.format;
+            // Convert tour type to translation key (e.g., "Групповой общий" → "tour_type.групповой_общий")
+            const tourTypeKey = `tour_type.${tourType.toLowerCase().replace(/\s+/g, '_')}`;
+            const translatedTourType = getTranslation(tourTypeKey, lang);
+            // Use translation if found, otherwise keep original value
+            tourType = translatedTourType || tourType;
             
             // Format date according to language
             const dateLocale = lang === 'en' ? 'en-US' : 'ru-RU';
@@ -612,11 +615,21 @@
             let totalMealCost = 0;
             let accommodationDeduction = 0;
             
-            // Calculate base tour price
+            // Calculate base tour price based on tour type
             let baseTourPrice = parseFloat(tour.price || tour.basePrice || 0);
-            if (tour.priceType === 'за человека') {
+            const tourType = tour.tourType || tour.format;
+            
+            // ✅ Dynamic per-person pricing based on tour type:
+            // - "Персональный" (Personal) → multiply by tourists
+            // - "Групповой персональный" (Group Personal) → multiply by tourists
+            // - "Групповой общий" (Group Shared) → fixed price (do NOT multiply)
+            const isGroupShared = tourType === 'Групповой общий';
+            
+            if (!isGroupShared && tour.priceType === 'за человека') {
                 baseTourPrice *= numberOfTourists;
             }
+            
+            console.log(`💰 Base tour price calculated: ${baseTourPrice} TJS (${numberOfTourists} tourists, type: ${tourType}, isGroupShared: ${isGroupShared})`);
             
             // Update tour price label
             const tourPriceLabel = document.getElementById('tour-price-label');

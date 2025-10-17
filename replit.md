@@ -9,61 +9,45 @@ Development approach: Improve existing files rather than creating new ones. User
 Frontend structure alignment: Admin panel must perfectly match the frontend homepage structure with exact block names and tour organization as shown in provided screenshots.
 System integration preference: User requires simplified and unified pricing systems with single source of truth. Eliminated complex manual categorization in favor of automatic detection.
 
-## Recent Changes (October 2025)
-- **Code Cleanup**: Removed 640+ unused files from attached_assets (screenshots, temporary HTML/PHP/text files), keeping only essential city-card-photos folder
-- **Routing Optimization**: Fixed conflicting /admin routes - moved tour history endpoints to `/admin/history/*` with cleaner paths (e.g., `/admin/history/tours/active`, `/admin/history/guides`)
-- **Admin Dashboard**: Removed non-functional Chart.js graphs, streamlined statistics to show only paid orders and hotel count
-- **Console Logs**: Retained debug console.log statements per architectural review - useful for development troubleshooting
-- **UI Bug Fixes**: Fixed pickup location icon (replaced people icon with map pin SVG) and participant count display logic (now uses proper i18n system with getTranslation() for singular/plural forms in both RU/EN)
-- **File Upload Fix**: Resolved "Internal server error" on file uploads by implementing conditional body parser middleware that correctly skips multipart/form-data requests, allowing multer to handle uploads properly for all routes (city card photos, slides, tour guide avatars, etc.)
-- **UI Improvements (Oct 16)**: Enhanced tour page display - removed "Место сбора:" label prefix (now shows pickup text directly), renamed "Что включено/Что не включено" to "Включено/Не включено", changed TJS currency symbol from "с." to "tjs" across all frontend/backend files and database
-- **Tour Program Display**: Added 2-line truncation for event descriptions with "Подробнее/Show less" toggle button, implemented accordion behavior that closes other days when one is expanded
-- **Price Calculator Components (Oct 16)**: Complete 26-component system across 7 categories: Accommodation (1: STD 250 TJS), Guides (3: local/VIP/regional), Local_transport (13: tickets & internal flights), Meals (2: HB/FB), Permits (2: GBAO/Nurek), Tour_transport (3: 4WD/sedan/van), Transfer (2: airport transfers). All components auto-seed on deployment with bilingual RU/EN names.
-- **Base Currency Symbol Editing (Oct 16)**: Added ability to edit TJS (base currency) symbol through admin panel. Admin can update only the symbol while keeping all other properties (rate, name) intact. Endpoint: PUT /api/exchange-rates/base-currency-symbol (admin-protected). Fixed authorization error by adding Bearer token to request headers.
-- **Tour Share Functionality (Oct 16)**: Fully implemented share button on tour pages with two options: (1) Copy link to clipboard with toast notifications, (2) Native share via Web Share API with fallback to clipboard copy for browsers without support (allows sharing to Telegram, WhatsApp, and other installed apps). All functions use modern UI notifications instead of alerts.
-- **Booking Page Layout (Oct 17)**: Expanded "Tour Details" sidebar from 33% to 40% width (lg:col-span-2 out of 5) on booking-step1.html and booking-step2.html for better text readability and reduced line wrapping. Previously long labels like "Accommodation Deduction (Base Option)" wrapped awkwardly on multiple lines.
-- **Currency Switching (Oct 17)**: Fixed instant currency switching on booking pages - added currencyChanged event dispatch in layout-loader.js selectCurrency() function. Currency now updates immediately without page refresh through updatePriceSummary() call, maintaining all price calculations (tour price, rooms, meals, total) in selected currency.
-- **Tour Type Translation (Oct 17)**: Fixed tour type translations for English language - added missing translations (tour_type.групповой_общий: "Group Shared"), implemented automatic translation logic in booking-step1.html and home-page.js that converts tour type values to translation keys (e.g., "Групповой общий" → "tour_type.групповой_общий" → "Group Shared"). Added common.ok translation ("Понятно"/"Got it") for modal buttons. All tour types now correctly translate on tour cards, booking details, and throughout the site.
-- **Conditional Booking Flow (Oct 17)**: Implemented smart booking flow that skips hotel selection step when tour has no attached hotels. When user clicks "Book Now" on tour page, system checks tourHotels array and auto-creates booking via API if no hotels exist, then redirects directly to booking-step2.html (Tourist Information) instead of booking-step1.html (Hotel Selection). Progress indicator automatically hides "Hotel Selection" step and renumbers remaining steps (Tourist Info becomes step 1, Payment becomes step 2) for clean UX. Backend updated to include tourHotels in booking API response for proper detection. Added async booking creation with error handling for seamless direct step 2 entry.
-- **Booking Validation & Translations (Oct 17)**: Fixed tour type translation in booking voucher (step 3) using automatic translation system (e.g., "Групповой общий" → "Group Shared"). Added mandatory validation on step 2: users must add all selected tourists (e.g., if 3 tourists selected, all 3 must be added via "Add Tourist" button) before proceeding to payment step. Validation shows bilingual error messages (RU/EN) with clear counts of expected vs. added tourists.
-
 ## System Architecture
 
 ### Backend
-The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints with clean routing structure - admin routes properly separated (`/admin/*` for general admin, `/admin/history/*` for tour history).
+The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints with clean routing structure.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourCategoryAssignment** (many-to-many junction table for tour categories), **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto** (independent photo system for city cards). The system features automatic database initialization, schema application, data seeding for reference data (15 categories, 7 blocks, 5 currencies, 5 countries, 12 cities), and a smart category migration system for a standardized 15-category structure. Tours now support multiple categories through the TourCategoryAssignment junction table with primary category designation, while maintaining backward compatibility with the legacy single category field. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users. Category names are consistent (singular in Russian, plural in English).
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourCategoryAssignment**, **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto**. The system features automatic database initialization, schema application, data seeding for reference data, and a smart category migration system for a standardized 15-category structure. Tours now support multiple categories through the TourCategoryAssignment junction table with primary category designation, while maintaining backward compatibility. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users.
 
 ### Key Features
 -   **Full CRUD Operations**: Implemented for all major entities.
 -   **Multilingual Support**: JSON-based content for Russian and English, with dynamic content updates and a unified language system.
 -   **Component-based Tour Pricing**: Dynamic pricing with inline editing and automatic category detection.
--   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management and debounced price recalculations. **All booking methods** (`startBooking`, `calculatePrice`, `updateBookingDetails`) now correctly handle both simple `{ HB: 30 }` and full `{ HB: { selected: true, price: 30 } }` mealSelection/roomSelection formats, retrieve stored selections from database when not provided in request, and preserve hotel/meal selections across step transitions without data loss. This ensures consistent price calculations across all three booking steps, eliminating meal cost omissions.
+-   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management and debounced price recalculations. All booking methods correctly handle various selection formats, retrieve stored selections, and preserve hotel/meal selections across step transitions without data loss. Implemented smart booking flow that skips hotel selection step when a tour has no attached hotels, redirecting directly to the tourist information step. Booking validation ensures all selected tourists are added before proceeding.
 -   **Payment Integration**: Multiple gateway integrations with full webhook support (Payler, AlifPay, Stripe). Includes payment failure handling and retry logic.
--   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management.
--   **Admin Panel Modules**: Fully implemented "Drivers", "Trips", and "Transfers" sections with CRUD functionality.
--   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management.
+-   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management. Admin panel includes "Drivers", "Trips", and "Transfers" sections with CRUD functionality.
+-   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management. Admin can edit the base currency symbol.
 -   **API Design**: RESTful endpoints with standardized responses and robust language parameter handling.
--   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation. Restricted `/uploads` access with granular middleware: `/uploads/guides` and `/uploads/slides` allow only image files (.jpg, .jpeg, .png, .webp, .gif), blocking documents and other file types for security.
--   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities.
+-   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation. Restricted `/uploads` access with granular middleware for specific file types.
+-   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities. Tour program display includes 2-line truncation for event descriptions with a "Подробнее/Show less" toggle and accordion behavior.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels.
--   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic.
--   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides` with full CRUD in admin panel), city reference data (`/api/cities`), and city card images (`/api/city-card-photos` with dedicated controller and multer upload), ensuring clean architecture and independent management. Banner system supports multilingual titles/descriptions/buttons, image uploads, ordering, and activation toggles. Secure static routes implemented for `/uploads/slides` (images only) with proper Express middleware restrictions.
+-   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic. Implemented instant currency switching on booking pages without page refresh.
+-   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides`), city reference data (`/api/cities`), and city card images (`/api/city-card-photos`), ensuring clean architecture and independent management. Banner system supports multilingual content, image uploads, ordering, and activation toggles.
+-   **Tour Share Functionality**: Implemented share button on tour pages with copy link to clipboard and native Web Share API options, using modern UI notifications.
 
 ### UI/UX
--   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality fully operational for tours, hotels, and guides with proper `isDraft/isActive` handling. Banner management (Слайдер) allows adding/editing homepage hero slides with multilingual content and image uploads.
--   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization (44x44px minimum for all interactive elements).
--   **Mobile Footer**: Optimized with collapsible accordion sections (Company, Contacts), always-visible social links with proper touch targets, and desktop-only map display.
--   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design with gradient backgrounds, backdrop-filter blur effects, smooth shadows, and hover transitions for premium UX.
+-   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality operational for tours, hotels, and guides. Banner management allows adding/editing homepage hero slides.
+-   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization.
+-   **Mobile Footer**: Optimized with collapsible accordion sections and always-visible social links.
+-   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design.
 -   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and tour blocks (renamed to "НАПРАВЛЕНИЯ").
 -   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
--   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API, renders checkboxes, and filters tours by their block assignments.
--   **Design**: Consistent color palette, Inter font family, unified component structures, gray button theme, and glassmorphism effects for modern visual appeal.
+-   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API and filters tours.
+-   **Design**: Consistent color palette, Inter font family, unified component structures, gray button theme, and glassmorphism effects.
 -   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format.
+-   **UI Improvements**: Fixed pickup location icon, participant count display logic, tour page display (removed label prefix, renamed "Что включено/Что не включено", changed TJS currency symbol), and tour type translations. Booking page layout adjusted for better readability. Replaced standard browser alerts with centered modal notifications.
+-   **Price Calculator Components**: Complete 26-component system across 7 categories (Accommodation, Guides, Local_transport, Meals, Permits, Tour_transport, Transfer) with auto-seeding and bilingual names.
 
 ### Production Deployment Infrastructure
--   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/` (requires `npm run build`), while development uses `ts-node`.
+-   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/`, while development uses `ts-node`.
 -   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management (2 instances, cluster mode), Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
 -   **Optional Startup Controls**: `NODE_ENV`, `RUN_MIGRATIONS_ON_BOOT`, `RUN_SEED_ON_BOOT`, `CORS_ORIGINS`.
 
@@ -76,9 +60,9 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Nodemailer**: Email sending.
 
 ### Payment Gateways
--   **AlifPay Legacy** (POST form to https://web.alif.tj/) - Fully configured with merchant credentials from original PHP site. Uses HMAC-SHA256 token generation matching legacy implementation.
--   **Payler API** - StartSession/Pay flow with production credentials (key: 1a92a7df-45d3-4fe7-8149-2fd0c7e8d366). Uses secure.payler.com endpoints.
--   **Stripe API** - Payment Intents integration (requires STRIPE_SECRET_KEY configuration)
+-   **AlifPay Legacy**: Fully configured with merchant credentials.
+-   **Payler API**: StartSession/Pay flow with production credentials.
+-   **Stripe API**: Payment Intents integration.
 
 ### Development Tools
 -   **TypeScript**: Static type checking.

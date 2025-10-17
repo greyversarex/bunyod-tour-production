@@ -51,8 +51,8 @@
     <!-- Progress Indicator -->
     <div class="bg-white border-b">
         <div class="max-w-6xl mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
+            <div id="progress-container" class="flex items-center justify-between">
+                <div id="hotel-step" class="flex items-center space-x-4">
                     <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
                         <i class="fas fa-check"></i>
                     </div>
@@ -65,7 +65,7 @@
                     <span class="font-medium text-gray-700" data-translate="booking.step2.title">Данные туриста</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">3</div>
+                    <div id="payment-step-number" class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">3</div>
                     <span class="font-medium text-gray-700" data-translate="booking.step3.title">Оплата</span>
                 </div>
             </div>
@@ -275,6 +275,33 @@
             return 'N/A';
         }
 
+        // ✅ Hide "Hotel Selection" step if tour has no hotels (same as step 2)
+        function hideHotelStepIfNoHotels() {
+            const booking = window.bookingStateManager?.state || bookingState;
+            const hasHotels = booking?.tour?.tourHotels && booking.tour.tourHotels.length > 0;
+            
+            console.log('🏨 Checking hotel step visibility:', {
+                hasHotels,
+                tourHotels: booking?.tour?.tourHotels
+            });
+            
+            if (!hasHotels) {
+                // Hide Hotel Selection step
+                const hotelStep = document.getElementById('hotel-step');
+                if (hotelStep) {
+                    hotelStep.style.display = 'none';
+                    console.log('✅ Hotel Selection step hidden (no hotels attached to tour)');
+                }
+                
+                // Renumber remaining steps
+                const paymentStepNumber = document.getElementById('payment-step-number');
+                if (paymentStepNumber) {
+                    paymentStepNumber.textContent = '2'; // Payment becomes step 2
+                    console.log('✅ Payment step renumbered to 2');
+                }
+            }
+        }
+
         function setupEventListeners() {
             document.getElementById('back-btn').addEventListener('click', goBack);
             document.getElementById('pay-btn').addEventListener('click', processPayment);
@@ -308,6 +335,9 @@
                     // Sync with server to get canonical pricing
                     await window.bookingStateManager.syncWithServer();
                     console.log('✅ State synced with server, pricing:', window.bookingStateManager.getPricing());
+                    
+                    // ✅ Hide hotel step if no hotels attached to tour
+                    hideHotelStepIfNoHotels();
                     
                     displayBookingSummary(data.data);
                 } else {
