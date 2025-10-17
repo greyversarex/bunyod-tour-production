@@ -80,10 +80,10 @@
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
             <!-- Hotels List -->
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-3">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold text-gray-800" data-translate="booking.choose_hotel">Выберите отель</h2>
                     <button 
@@ -103,7 +103,7 @@
             </div>
 
             <!-- Tour Details Sidebar -->
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-2">
                 <div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="booking.tour_details">Детали тура</h3>
                     
@@ -352,18 +352,11 @@
         });
 
         function updateAllPriceDisplays() {
-            // Update tour price
-            const tourPriceElement = document.getElementById('tour-price-calc');
-            if (tourPriceElement && tourPriceElement.dataset.originalPrice) {
-                tourPriceElement.textContent = formatCurrencyWithEquivalent(parseFloat(tourPriceElement.dataset.originalPrice));
-            }
-
-            // Update total price in sidebar
-            const sidebarTotalElement = document.getElementById('sidebar-total-amount');
-            if (sidebarTotalElement && sidebarTotalElement.dataset.originalPrice) {
-                sidebarTotalElement.textContent = formatCurrencyWithEquivalent(parseFloat(sidebarTotalElement.dataset.originalPrice));
-            }
-
+            console.log('💱 Updating all price displays to:', currencyState.selectedCurrency);
+            
+            // Update complete price summary (includes all calculations)
+            updatePriceSummary();
+            
             // Re-render hotel cards with updated currency
             if (bookingState.availableHotels && bookingState.availableHotels.length > 0) {
                 displayHotels(bookingState.availableHotels);

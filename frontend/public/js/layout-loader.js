@@ -211,6 +211,15 @@ class LayoutLoader {
             if (typeof window.updateCurrency === 'function') {
                 window.updateCurrency(currency);
             }
+            
+            // Отправляем событие для страниц бронирования и других страниц
+            const currencyChangedEvent = new CustomEvent('currencyChanged', {
+                detail: { currency: currency, symbol: symbol }
+            });
+            window.dispatchEvent(currencyChangedEvent);
+            document.dispatchEvent(currencyChangedEvent);
+            
+            console.log('💱 Currency changed to:', currency);
         };
     }
 
