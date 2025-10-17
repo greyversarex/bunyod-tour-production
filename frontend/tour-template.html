@@ -819,6 +819,7 @@
                         tourType: apiTour.tourType || apiTour.format || 'Персональный', // Тип тура
                         duration: apiTour.duration || '',
                         durationDays: apiTour.durationDays || null,
+                        durationType: apiTour.durationType || 'days', // Тип длительности: days или hours
                         description: getLocalizedText(descData, currentLang) || apiTour.description || '',
                         rating: apiTour.rating || 0,
                         reviews_count: apiTour.reviewsCount || 0,
@@ -878,17 +879,32 @@
                 tourReviews.textContent = `(${reviewCount} ${reviewText})`;
             }
             
-            // ✅ ДЛИТЕЛЬНОСТЬ ТУРА (объединенная логика)
+            // ✅ ДЛИТЕЛЬНОСТЬ ТУРА (объединенная логика с поддержкой дней/часов)
             const durationElement = document.getElementById('tour-duration');
             if (durationElement) {
                 let durationText = '';
-                const daysLabel = getTranslation('time.days');
-                if (tourData.durationDays && tourData.durationDays > 1) {
-                    durationText = `${tourData.durationDays} ${daysLabel}`;
+                const currentLang = getCurrentLanguage();
+                
+                if (tourData.durationDays) {
+                    // Определяем единицу измерения в зависимости от durationType
+                    if (tourData.durationType === 'hours') {
+                        const hoursLabel = currentLang === 'en' ? 
+                            (tourData.durationDays === 1 ? 'hour' : 'hours') : 
+                            (tourData.durationDays === 1 ? 'час' : tourData.durationDays < 5 ? 'часа' : 'часов');
+                        durationText = `${tourData.durationDays} ${hoursLabel}`;
+                    } else {
+                        // Для дней
+                        const daysLabel = currentLang === 'en' ? 
+                            (tourData.durationDays === 1 ? 'day' : 'days') : 
+                            (tourData.durationDays === 1 ? 'день' : tourData.durationDays < 5 ? 'дня' : 'дней');
+                        durationText = `${tourData.durationDays} ${daysLabel}`;
+                    }
                 } else if (tourData.duration) {
+                    // Fallback на старое поле duration
                     if (tourData.duration.includes('час') || tourData.duration.includes('дн') || tourData.duration.includes('hour') || tourData.duration.includes('day')) {
                         durationText = tourData.duration;
                     } else {
+                        const daysLabel = getTranslation('time.days');
                         durationText = `${tourData.duration} ${daysLabel}`;
                     }
                 } else {

@@ -56,6 +56,7 @@ model Tour {
   format             String?
   tourType           String?
   durationDays       Int?
+  durationType       String?                @default("days") // "days" или "hours"
   theme              String?
   startDate          String?
   endDate            String?

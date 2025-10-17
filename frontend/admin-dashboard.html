@@ -2362,11 +2362,24 @@
                     </div>
                     
                     <div class="form-group">
-                        <label class="form-label" id="durationLabel">Длительность (дней)</label>
-                        <input type="number" class="form-input" id="tourDurationDays" min="1" required>
-                        <div id="durationHoursField" style="display: none;">
-                            <label class="form-label mt-2">Длительность в часах</label>
-                            <input type="number" class="form-input" id="tourDurationHours" placeholder="8" min="1" max="24">
+                        <label class="form-label">Длительность тура</label>
+                        
+                        <!-- Переключатель типа длительности -->
+                        <div class="flex gap-4 mb-3">
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="durationType" value="days" id="durationTypeDays" checked class="mr-2">
+                                <span>Дни</span>
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="radio" name="durationType" value="hours" id="durationTypeHours" class="mr-2">
+                                <span>Часы</span>
+                            </label>
+                        </div>
+                        
+                        <!-- Поле для ввода количества -->
+                        <div class="flex items-center gap-2">
+                            <input type="number" class="form-input flex-1" id="tourDurationDays" min="1" required>
+                            <span id="durationUnit" class="text-gray-600 font-medium">дней</span>
                         </div>
                     </div>
                     
@@ -5704,6 +5717,16 @@
                             tourDurationDays.value = tour.durationDays || '';
                         }
                         
+                        // Установка типа длительности (дни или часы)
+                        const durationTypeDays = document.getElementById('durationTypeDays');
+                        const durationTypeHours = document.getElementById('durationTypeHours');
+                        if (tour.durationType === 'hours' && durationTypeHours) {
+                            durationTypeHours.checked = true;
+                        } else if (durationTypeDays) {
+                            durationTypeDays.checked = true;
+                        }
+                        updateDurationUnit(); // Обновляем отображение единицы измерения
+                        
                         // УДАЛЕНО: Заполнение eTourDurationDays (поле удалено)
                         
                         const tourPrice = document.getElementById('tourPrice');
@@ -6291,6 +6314,7 @@
                 })(),
                 durationDays: parseInt(durationDaysValue),
                 duration: durationDaysValue.toString(),
+                durationType: document.getElementById('durationTypeHours') && document.getElementById('durationTypeHours').checked ? 'hours' : 'days',
                 format: tourTypeEl ? tourTypeEl.value || '' : '',
                 tourType: tourTypeEl ? tourTypeEl.value || '' : '',
                 pickupInfo: tourPickupInfoEl ? tourPickupInfoEl.value || '' : '',
@@ -13151,18 +13175,16 @@
         // Функция для обработки логики однодневных туров
         function handleDayTourLogic(categoryId, categoryName) {
             const isDayTour = categoryId === 1; // "Однодневные туры" имеют ID = 1
-            const durationLabel = document.getElementById('durationLabel');
-            const durationDaysField = document.getElementById('tourDurationDays');
-            const durationHoursField = document.getElementById('durationHoursField');
             const hotelSection = document.getElementById('hotelSection');
+            const durationTypeHours = document.getElementById('durationTypeHours');
+            const durationTypeDays = document.getElementById('durationTypeDays');
             
             if (isDayTour) {
-                // Для однодневных туров
-                durationLabel.textContent = 'Длительность (часов)';
-                durationDaysField.placeholder = '8';
-                durationDaysField.min = '1';
-                durationDaysField.max = '24';
-                durationHoursField.style.display = 'block';
+                // Для однодневных туров автоматически переключаем на часы
+                if (durationTypeHours) {
+                    durationTypeHours.checked = true;
+                    updateDurationUnit();
+                }
                 
                 // Скрыть секцию отелей
                 if (hotelSection) {
@@ -13171,12 +13193,11 @@
                 
                 console.log('Переключен на режим однодневного тура');
             } else {
-                // Для многодневных туров
-                durationLabel.textContent = 'Длительность (дней)';
-                durationDaysField.placeholder = '';
-                durationDaysField.min = '1';
-                durationDaysField.max = '';
-                durationHoursField.style.display = 'none';
+                // Для многодневных туров переключаем на дни
+                if (durationTypeDays) {
+                    durationTypeDays.checked = true;
+                    updateDurationUnit();
+                }
                 
                 // Показать секцию отелей
                 if (hotelSection) {
@@ -13184,6 +13205,24 @@
                 }
                 
                 console.log('Переключен на режим многодневного тура');
+            }
+        }
+        
+        // Функция для обновления единицы измерения длительности
+        function updateDurationUnit() {
+            const durationTypeDays = document.getElementById('durationTypeDays');
+            const durationTypeHours = document.getElementById('durationTypeHours');
+            const durationUnit = document.getElementById('durationUnit');
+            const durationInput = document.getElementById('tourDurationDays');
+            
+            if (durationTypeHours && durationTypeHours.checked) {
+                durationUnit.textContent = 'часов';
+                durationInput.max = '24';
+                durationInput.placeholder = '8';
+            } else {
+                durationUnit.textContent = 'дней';
+                durationInput.max = '';
+                durationInput.placeholder = '';
             }
         }
 
@@ -15880,6 +15919,14 @@
                         document.getElementById('newsImagePreview').style.display = 'none';
                     }
                 });
+            }
+            
+            // Duration type switcher handler
+            const durationTypeDays = document.getElementById('durationTypeDays');
+            const durationTypeHours = document.getElementById('durationTypeHours');
+            if (durationTypeDays && durationTypeHours) {
+                durationTypeDays.addEventListener('change', updateDurationUnit);
+                durationTypeHours.addEventListener('change', updateDurationUnit);
             }
         });
 
