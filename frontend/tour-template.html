@@ -2740,11 +2740,19 @@
             const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
             const currency = localStorage.getItem('selectedCurrency') || tourData.currency || 'TJS';
             
+            // Получаем символ валюты из exchange rates
+            let currencySymbol = currency.toLowerCase();
+            if (window.exchangeRates && window.exchangeRates[currency]) {
+                currencySymbol = window.exchangeRates[currency].symbol;
+            }
+            
             console.log('💰 Расчет цены:', {
                 basePrice,
                 totalTravelers,
                 minPeople,
                 priceType,
+                currency,
+                currencySymbol,
                 isPerPerson: priceType === 'per_person' || priceType === 'за человека',
                 isMinimum: totalTravelers === minPeople
             });
@@ -2777,7 +2785,7 @@
                 }
                 
                 priceElement.setAttribute('data-original-price', basePrice);
-                priceElement.textContent = `${totalPrice.toLocaleString()} ${currency.toLowerCase()}`;
+                priceElement.textContent = `${totalPrice.toLocaleString()} ${currencySymbol}`;
             } else {
                 const fromText = currentLang === 'en' ? 'From' : 'От';
                 
@@ -2789,7 +2797,7 @@
                     fromTextElement.textContent = fromText + ' ';
                 }
                 priceElement.setAttribute('data-original-price', basePrice);
-                priceElement.textContent = `${Math.round(basePrice).toLocaleString()} ${currency.toLowerCase()}`;
+                priceElement.textContent = `${Math.round(basePrice).toLocaleString()} ${currencySymbol}`;
             }
         }
         
