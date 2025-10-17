@@ -2005,7 +2005,7 @@
         // Note: DOM initialization moved to API loading section below
 
         // Direct booking page navigation
-        function goToBookingPage() {
+        async function goToBookingPage() {
             const selectedDate = document.getElementById('tour-date').value;
             const tourTitle = document.querySelector('#tour-title')?.textContent || 'Неизвестный тур';
             
@@ -2031,26 +2031,57 @@
             localStorage.setItem('bookingData', JSON.stringify(bookingData));
             
             const totalTourists = travelers.adults + travelers.children;
-            
-            // ✅ Условный переход: если отелей нет, пропускаем step1 и идём сразу на step2
             const hasHotels = tourData.tourHotels && tourData.tourHotels.length > 0;
-            const bookingStep = hasHotels ? 'step1' : 'step2';
-            const bookingUrl = `/booking/${bookingStep}?tourId=${encodeURIComponent(tourData.id)}&date=${encodeURIComponent(selectedDate)}&tourists=${totalTourists}`;
             
             console.log('Переход к бронированию:', {
-                url: bookingUrl,
                 tourId: tourData.id,
                 hasHotels: hasHotels,
                 hotelCount: tourData.tourHotels?.length || 0,
-                step: bookingStep,
                 date: selectedDate,
                 tourists: totalTourists,
                 adults: travelers.adults,
                 children: travelers.children
             });
             
-            // Navigate to new 3-step booking system
-            window.location.href = bookingUrl;
+            // ✅ Если отелей нет, создаем бронирование сразу и переходим на step2
+            if (!hasHotels) {
+                try {
+                    console.log('🏨 Нет отелей - создаем бронирование автоматически...');
+                    
+                    const response = await fetch('/api/booking/start', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            tourId: tourData.id,
+                            tourDate: selectedDate,
+                            numberOfTourists: totalTourists
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success && result.data && result.data.bookingId) {
+                        const bookingId = result.data.bookingId;
+                        console.log('✅ Бронирование создано:', bookingId);
+                        
+                        // Переход на step2 с bookingId
+                        window.location.href = `/booking/step2?bookingId=${bookingId}`;
+                    } else {
+                        console.error('❌ Ошибка создания бронирования:', result);
+                        alert('Ошибка при создании бронирования. Попробуйте еще раз.');
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка при создании бронирования:', error);
+                    alert('Ошибка при создании бронирования. Попробуйте еще раз.');
+                }
+            } else {
+                // Стандартный переход на step1 если есть отели
+                const bookingUrl = `/booking/step1?tourId=${encodeURIComponent(tourData.id)}&date=${encodeURIComponent(selectedDate)}&tourists=${totalTourists}`;
+                console.log('🏨 Есть отели - переход на step1:', bookingUrl);
+                window.location.href = bookingUrl;
+            }
         }
 
         function closeHotelModal() {
