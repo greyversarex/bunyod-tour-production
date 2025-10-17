@@ -2412,23 +2412,30 @@ async function loadCityPhotosFromSlides() {
             const result = await response.json();
             if (result.success && result.data) {
                 const photos = result.data;
+                console.log('🖼️ Загружены фото городов:', photos);
                 
                 // Применяем фото к карточкам городов
                 photos.forEach(photo => {
                     if (photo.imageUrl && photo.cityId) {
-                        // Находим карточку города по cityId в onclick атрибуте
-                        const cityCards = document.querySelectorAll('.group.cursor-pointer.overflow-hidden.rounded-lg');
+                        // Находим ВСЕ карточки городов (с onclick содержащим cityId)
+                        const cityCards = document.querySelectorAll('[onclick*="cityId="]');
+                        console.log(`🔍 Найдено ${cityCards.length} карточек городов на странице`);
+                        
                         cityCards.forEach(card => {
                             const onclick = card.getAttribute('onclick');
                             if (onclick && onclick.includes(`cityId=${photo.cityId}`)) {
-                                // Находим фоновый div
+                                // Устанавливаем фото на РОДИТЕЛЬСКИЙ div (карточку)
+                                card.style.backgroundImage = `url(${photo.imageUrl})`;
+                                card.style.backgroundSize = 'cover';
+                                card.style.backgroundPosition = 'center';
+                                
+                                // Скрываем серый фоновый div (теперь фото на карточке будет видно)
                                 const bgDiv = card.querySelector('.bg-gray-200');
                                 if (bgDiv) {
-                                    bgDiv.style.backgroundImage = `url(${photo.imageUrl})`;
-                                    bgDiv.style.backgroundSize = 'cover';
-                                    bgDiv.style.backgroundPosition = 'center';
-                                    bgDiv.classList.remove('bg-gray-200');
+                                    bgDiv.style.display = 'none';
                                 }
+                                
+                                console.log(`✅ Фото установлено для города ID ${photo.cityId} (${photo.city?.nameRu || ''}): ${photo.imageUrl}`);
                             }
                         });
                     }

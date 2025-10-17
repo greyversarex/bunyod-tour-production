@@ -23,9 +23,15 @@ export class CityCardPhotoController {
         orderBy: { sortOrder: 'asc' }
       }));
 
+      // Add imageUrl field with absolute path
+      const photosWithUrl = photos.map(photo => ({
+        ...photo,
+        imageUrl: photo.image.startsWith('/') ? photo.image : `/${photo.image}`
+      }));
+
       const response: ApiResponse = {
         success: true,
-        data: photos,
+        data: photosWithUrl,
         message: 'City card photos retrieved successfully'
       };
 
