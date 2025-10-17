@@ -204,6 +204,67 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+        
+        // ✅ Красивое модальное уведомление по центру экрана
+        function showCenterModal(message, type = 'warning') {
+            // Создаем overlay (затемненный фон)
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] transition-opacity';
+            overlay.style.opacity = '0';
+            
+            // Создаем модальное окно
+            const modal = document.createElement('div');
+            modal.className = 'bg-white rounded-lg shadow-2xl p-8 max-w-md mx-4 transform transition-all';
+            modal.style.transform = 'scale(0.9)';
+            
+            // Иконка в зависимости от типа
+            const iconMap = {
+                'warning': '<i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>',
+                'error': '<i class="fas fa-times-circle text-red-500 text-5xl mb-4"></i>',
+                'success': '<i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>',
+                'info': '<i class="fas fa-info-circle text-blue-500 text-5xl mb-4"></i>'
+            };
+            
+            modal.innerHTML = `
+                <div class="text-center">
+                    ${iconMap[type] || iconMap['info']}
+                    <p class="text-gray-800 text-lg leading-relaxed mb-6">${message}</p>
+                    <button 
+                        onclick="this.closest('.fixed').remove()" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-medium px-8 py-3 rounded-lg transition-colors"
+                        data-translate="common.ok">
+                        Понятно
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Анимация появления
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            });
+            
+            // Закрытие по клику на overlay
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            });
+            
+            // Автоматическое закрытие через 5 секунд
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            }, 5000);
+        }
 
         // Currency management
         let currencyState = {
@@ -794,9 +855,9 @@
                 if (totalCapacity > numberOfTourists) {
                     const lang = window.currentLanguage || 'ru';
                     const message = lang === 'en' 
-                        ? `Cannot add more rooms. Current capacity (${totalCapacity}) exceeds number of tourists (${numberOfTourists})`
-                        : `Невозможно добавить больше номеров. Текущая вместимость (${totalCapacity}) превышает количество туристов (${numberOfTourists})`;
-                    showNotification(message, 'warning');
+                        ? `Cannot add more rooms.<br><br>Total room capacity: <strong>${totalCapacity} people</strong><br>Number of tourists: <strong>${numberOfTourists} people</strong><br><br>Please reduce the number of rooms or add more tourists.`
+                        : `Невозможно добавить больше номеров.<br><br>Общая вместимость номеров: <strong>${totalCapacity} чел.</strong><br>Количество туристов: <strong>${numberOfTourists} чел.</strong><br><br>Пожалуйста, уменьшите количество номеров или добавьте туристов.`;
+                    showCenterModal(message, 'warning');
                     return;
                 }
             }
