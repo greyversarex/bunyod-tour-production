@@ -2693,6 +2693,9 @@
             travelers[type] = newCount;
             document.getElementById(`${type}-count`).textContent = newCount;
             
+            // ✅ ОБНОВЛЯЕМ ЦЕНУ при изменении количества туристов
+            updatePriceDisplay();
+            
             // Check if we should show time selection now
             updateStartTimeOptions();
         }
