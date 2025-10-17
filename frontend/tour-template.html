@@ -1317,11 +1317,62 @@
             updateIncludedServices(currentLang);
             updateExcludedServices(currentLang);
             
+            // ✅ ИНИЦИАЛИЗАЦИЯ КОЛИЧЕСТВА ТУРИСТОВ И ЦЕНЫ
+            initializeTravelersAndPrice();
+            
             } catch (error) {
                 console.error('Error in updatePageContent:', error);
                 console.error('Error stack:', error.stack);
                 throw error;
             }
+        }
+        
+        // ✅ НОВАЯ ФУНКЦИЯ: Инициализация количества туристов и ценообразования
+        function initializeTravelersAndPrice() {
+            const minPeople = tourData.minPeople || 1;
+            const maxPeople = tourData.maxPeople || 15;
+            
+            // Обновляем переменную travelers
+            travelers.adults = minPeople;
+            travelers.children = 0;
+            
+            // Обновляем отображение счетчиков
+            const adultsCountElement = document.getElementById('adults-count');
+            const childrenCountElement = document.getElementById('children-count');
+            
+            if (adultsCountElement) {
+                adultsCountElement.textContent = minPeople;
+            }
+            if (childrenCountElement) {
+                childrenCountElement.textContent = 0;
+            }
+            
+            // Обновляем текст мин/макс в дропдауне
+            const maxTravelersNote = document.querySelector('[data-translate="form.max_travelers_note"]');
+            if (maxTravelersNote) {
+                const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                const youCanSelect = currentLang === 'en' ? 'You can select up to' : 'Вы можете выбрать до';
+                const total = currentLang === 'en' ? 'travelers total' : 'туристов всего';
+                maxTravelersNote.textContent = `${youCanSelect} ${maxPeople} ${total}`;
+            }
+            
+            // Обновляем минимум для взрослых
+            const adultsMinMaxText = document.querySelector('.font-medium.text-sm[data-translate="form.adults_age"]')?.nextElementSibling;
+            if (adultsMinMaxText) {
+                const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                const minText = currentLang === 'en' ? 'Minimum' : 'Минимум';
+                const maxText = currentLang === 'en' ? 'Maximum' : 'Максимум';
+                adultsMinMaxText.innerHTML = `
+                    <span data-translate="form.min">${minText}</span>: ${minPeople}, 
+                    <span data-translate="form.max">${maxText}</span>: ${maxPeople}
+                `;
+            }
+            
+            // Обновляем summary и цену
+            updateTravelerSummary();
+            updatePriceDisplay();
+            
+            console.log(`✅ Инициализированы туристы: минимум ${minPeople}, максимум ${maxPeople}`);
         }
         
         // Update start time options
@@ -2613,7 +2664,7 @@
         
         // ============ TRAVELERS SELECTOR FUNCTIONS ============
         let travelers = {
-            adults: 1,
+            adults: tourData.minPeople || 1,
             children: 0
         };
         
@@ -2626,15 +2677,18 @@
             const newCount = travelers[type] + delta;
             const totalTravelers = Object.values(travelers).reduce((sum, count) => sum + count, 0);
             
+            const minPeople = tourData.minPeople || 1;
+            const maxPeople = tourData.maxPeople || 15;
+            
             // Validation rules
             if (type === 'adults') {
-                if (newCount < 1 || newCount > 15) return;
+                if (newCount < minPeople || newCount > maxPeople) return;
             } else {
-                if (newCount < 0 || newCount > 15) return;
+                if (newCount < 0 || newCount > maxPeople) return;
             }
             
             // Check total limit
-            if (totalTravelers + delta > 15) return;
+            if (totalTravelers + delta > maxPeople) return;
             
             travelers[type] = newCount;
             document.getElementById(`${type}-count`).textContent = newCount;
@@ -2645,6 +2699,7 @@
         
         function applyTravelerSelection() {
             updateTravelerSummary();
+            updatePriceDisplay();
             toggleTravelersDropdown();
         }
         
@@ -2660,6 +2715,37 @@
             }
             
             document.getElementById('traveler-summary').textContent = summary.join(', ');
+        }
+        
+        function updatePriceDisplay() {
+            const priceElement = document.getElementById('tour-price');
+            const priceContainer = priceElement.parentElement;
+            
+            if (!priceElement || !tourData.price) return;
+            
+            const basePrice = parseFloat(tourData.price);
+            const totalTravelers = travelers.adults + travelers.children;
+            const priceType = tourData.priceType || 'за человека';
+            
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+            const currency = localStorage.getItem('selectedCurrency') || tourData.currency || 'TJS';
+            
+            if (priceType === 'per_person' || priceType === 'за человека') {
+                const totalPrice = Math.round(basePrice * totalTravelers);
+                
+                priceContainer.innerHTML = `
+                    <span class="text-2xl font-bold text-gray-900">
+                        <span class="tour-price" id="tour-price" data-original-price="${basePrice}">${totalPrice.toLocaleString()} ${currency.toLowerCase()}</span>
+                    </span>
+                `;
+            } else {
+                const fromText = currentLang === 'en' ? 'From' : 'От';
+                priceContainer.innerHTML = `
+                    <span class="text-2xl font-bold text-gray-900">
+                        <span data-translate="tour.from">${fromText}</span> <span class="tour-price" id="tour-price" data-original-price="${basePrice}">${Math.round(basePrice).toLocaleString()} ${currency.toLowerCase()}</span>
+                    </span>
+                `;
+            }
         }
         
         // ============ TIME SELECTION FUNCTIONS ============
