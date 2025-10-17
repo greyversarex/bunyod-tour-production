@@ -59,19 +59,19 @@
     <!-- Progress Indicator -->
     <div class="bg-white border-b">
         <div class="max-w-6xl mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
+            <div id="progress-container" class="flex items-center justify-between">
+                <div id="hotel-step" class="flex items-center space-x-4">
                     <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
                         <i class="fas fa-check"></i>
                     </div>
                     <span class="font-medium text-gray-700" data-translate="booking.step1.title">Выбор отеля</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">2</div>
+                    <div id="tourist-step-number" class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">2</div>
                     <span class="font-medium text-gray-700" data-translate="booking.step2.title">Данные туриста</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div class="progress-step w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-200">3</div>
+                    <div id="payment-step-number" class="progress-step w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-200">3</div>
                     <span class="font-medium text-gray-400" data-translate="booking.step3.title">Оплата</span>
                 </div>
             </div>
@@ -324,6 +324,9 @@
             // Load booking details from server
             await loadBookingDetails(bookingId);
             
+            // ✅ Скрыть шаг "Hotel Selection" если у тура нет отелей
+            hideHotelStepIfNoHotels();
+            
             // Display tour details in sidebar
             displayTourDetailsInSidebar();
 
@@ -405,6 +408,43 @@
                 }
             } catch (error) {
                 console.error('❌ Error loading booking details:', error);
+            }
+        }
+
+        // ✅ Скрыть шаг "Hotel Selection" если у тура нет привязанных отелей
+        function hideHotelStepIfNoHotels() {
+            const tour = bookingState?.tour;
+            const tourHotels = tour?.tourHotels || [];
+            const hasHotels = tourHotels.length > 0;
+            
+            console.log('🏨 Проверка наличия отелей:', {
+                hasTourData: !!tour,
+                tourHotels: tourHotels,
+                hasHotels: hasHotels
+            });
+            
+            // Если у тура нет отелей, скрываем шаг "Hotel Selection"
+            if (!hasHotels) {
+                const hotelStep = document.getElementById('hotel-step');
+                if (hotelStep) {
+                    hotelStep.style.display = 'none';
+                    console.log('✅ Шаг "Hotel Selection" скрыт (нет привязанных отелей)');
+                }
+                
+                // Обновляем номера шагов: Tourist Info становится шагом 1, Payment шагом 2
+                const touristStepNumber = document.getElementById('tourist-step-number');
+                const paymentStepNumber = document.getElementById('payment-step-number');
+                
+                if (touristStepNumber) {
+                    touristStepNumber.textContent = '1';
+                }
+                if (paymentStepNumber) {
+                    paymentStepNumber.textContent = '2';
+                }
+                
+                console.log('✅ Номера шагов обновлены (1: Данные туриста, 2: Оплата)');
+            } else {
+                console.log('✅ У тура есть отели, показываем все 3 шага');
             }
         }
 
