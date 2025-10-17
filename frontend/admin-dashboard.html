@@ -11609,8 +11609,14 @@
                 console.log('🔄 Processing', data.data.length, 'tour blocks');
                 
                 container.innerHTML = data.data.map(block => {
-                    // block.title is a plain string, not JSON
-                    const blockName = block.title || `Блок ${block.id}`;
+                    let blockName = `Блок ${block.id}`;
+                    try {
+                        const titleObj = typeof block.title === 'string' ? JSON.parse(block.title) : block.title;
+                        const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                        blockName = titleObj[currentLang] || titleObj.ru || titleObj.en || blockName;
+                    } catch (e) {
+                        blockName = block.title || blockName;
+                    }
                     console.log('📝 Block:', block.id, '- Name:', blockName);
                     return `
                         <label class="checkbox-item">
