@@ -467,12 +467,12 @@
                 (booking.tour.title[lang] || booking.tour.title.ru || booking.tour.title.en) : booking.tour.title;
             
             // Localized tour type - using the same system as booking-step1.html
-            let tourType = booking.tour.tourType || booking.tour.format;
+            const tourTypeRaw = booking.tour.tourType || booking.tour.format;
             // Convert tour type to translation key (e.g., "Групповой общий" → "tour_type.групповой_общий")
-            const tourTypeKey = `tour_type.${tourType.toLowerCase().replace(/\s+/g, '_')}`;
+            const tourTypeKey = `tour_type.${tourTypeRaw.toLowerCase().replace(/\s+/g, '_')}`;
             const translatedTourType = getTranslation(tourTypeKey, lang);
             // Use translation if found, otherwise keep original value
-            tourType = translatedTourType || tourType;
+            const tourTypeDisplay = translatedTourType || tourTypeRaw;
             
             const daysText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
             
@@ -504,7 +504,7 @@
                     <!-- Tour Title -->
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800 mb-2">${tourTitle}</h2>
-                        <p class="text-gray-600">${tourType} - ${tourDuration} ${daysText}</p>
+                        <p class="text-gray-600">${tourTypeDisplay} - ${tourDuration} ${daysText}</p>
                     </div>
 
                     <!-- Main Content Grid -->
