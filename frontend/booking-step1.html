@@ -514,9 +514,11 @@
                                         return tourTypeValue[lang] || tourTypeValue.ru || tourTypeValue.en || getTranslation('booking.tour_type.group');
                                     }
                                     // Translate common tour type values
-                                    if (tourTypeValue === 'Персональный') return getTranslation('booking.tour_type.personal');
-                                    if (tourTypeValue === 'Групповой') return getTranslation('booking.tour_type.group');
-                                    return tourTypeValue;
+                                    const normalizedType = tourTypeValue.toLowerCase().replace(/\s+/g, '_');
+                                    const translationKey = 'tour_type.' + normalizedType;
+                                    const translated = getTranslation(translationKey);
+                                    // If translation exists (not the same as key), use it, otherwise return original
+                                    return translated !== translationKey ? translated : tourTypeValue;
                                 })()}</span>
                             </div>
                         </div>

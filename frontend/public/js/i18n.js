@@ -213,6 +213,7 @@ window.translations = window.translations || {
     'common.delete': { ru: 'Удалить', en: 'Delete' },
     'common.add': { ru: 'Добавить', en: 'Add' },
     'common.create': { ru: 'Создать', en: 'Create' },
+    'common.ok': { ru: 'Понятно', en: 'Got it' },
     
     // Placeholders для форм и поиска
     'placeholder.search_tours': { ru: 'Поиск туров...', en: 'Search tours...' },
@@ -1233,6 +1234,7 @@ window.translations = window.translations || {
     'tour_type.персональный': { ru: 'Персональный', en: 'Private' },
     'tour_type.групповой': { ru: 'Групповой', en: 'Group' },
     'tour_type.групповой_персональный': { ru: 'Групповой персональный', en: 'Group Personal' },
+    'tour_type.групповой_общий': { ru: 'Групповой общий', en: 'Group Shared' },
     'tour_type.частный': { ru: 'Частный', en: 'Private' },
     'tour_type.индивидуальный': { ru: 'Индивидуальный', en: 'Individual' },
     'language.kyrgyz': { ru: 'Киргизский', en: 'Kyrgyz' },
