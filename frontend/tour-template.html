@@ -2095,7 +2095,8 @@
                             lastUpdated: Date.now()
                         };
                         
-                        sessionStorage.setItem('bookingState', JSON.stringify(bookingState));
+                        sessionStorage.setItem('bunyod_booking_state', JSON.stringify(bookingState));
+                        sessionStorage.setItem('bunyod_booking_timestamp', Date.now().toString());
                         console.log('💾 Booking state сохранён в sessionStorage:', bookingState);
                         
                         // Переход на step2 с bookingId
