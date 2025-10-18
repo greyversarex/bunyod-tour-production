@@ -479,7 +479,14 @@
             // Use translation if found, otherwise keep original value
             const tourTypeDisplay = translatedTourType || tourTypeRaw;
             
-            const daysText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
+            // Check durationType for correct unit display
+            const durationType = booking.tour.durationType || 'days';
+            let durationText;
+            if (durationType === 'hours') {
+                durationText = tourDuration > 1 ? getTranslation('booking.voucher.hours') : getTranslation('booking.voucher.hour');
+            } else {
+                durationText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
+            }
             
             // Create voucher in professional format
             let summaryHtml = `
@@ -509,7 +516,7 @@
                     <!-- Tour Title -->
                     <div class="mb-6">
                         <h2 class="text-2xl font-bold text-gray-800 mb-2">${tourTitle}</h2>
-                        <p class="text-gray-600">${tourTypeDisplay} - ${tourDuration} ${daysText}</p>
+                        <p class="text-gray-600">${tourTypeDisplay} - ${tourDuration} ${durationText}</p>
                     </div>
 
                     <!-- Main Content Grid -->

@@ -140,17 +140,28 @@
             // NOTE: selectedHotel setter removed - use setHotelInfo directly with full hotel data
             
             get roomSelection() { 
-                // Return room selections for all hotels in legacy format
-                const hotelId = this.selectedHotel;
-                if (!hotelId) return {};
-                return { [hotelId]: window.bookingStateManager.state.selections.rooms || {} };
+                // Return room selections - check all hotels from availableHotels
+                const result = {};
+                for (const hotel of this.availableHotels) {
+                    const rooms = window.bookingStateManager.state.selections.rooms || {};
+                    if (Object.keys(rooms).length > 0) {
+                        result[hotel.id] = rooms;
+                    }
+                }
+                return result;
             },
             // NOTE: roomSelection setter removed - use window.bookingStateManager.setRoomSelection() directly
             
             get mealSelection() {
-                const hotelId = this.selectedHotel;
-                if (!hotelId) return {};
-                return { [hotelId]: window.bookingStateManager.state.selections.meals || {} };
+                // Return meal selections - check all hotels from availableHotels
+                const result = {};
+                for (const hotel of this.availableHotels) {
+                    const meals = window.bookingStateManager.state.selections.meals || {};
+                    if (Object.keys(meals).length > 0) {
+                        result[hotel.id] = meals;
+                    }
+                }
+                return result;
             },
             // NOTE: mealSelection setter removed - use window.bookingStateManager.setMealSelection() directly
             
@@ -499,7 +510,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.duration">Длительность:</span>
-                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span data-translate="booking.days">дн.</span></span>
+                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span>${tour.durationType === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.tourists_count">Количество туристов:</span>

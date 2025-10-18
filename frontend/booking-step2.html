@@ -502,7 +502,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.duration_label">Продолжительность:</span>
-                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span data-translate="booking.days_short">дн.</span></span>
+                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span>${tour.durationType === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.tourists">Туристов:</span>
