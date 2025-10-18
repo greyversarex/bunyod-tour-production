@@ -395,6 +395,10 @@
                     // Load hotels and restore selections
                     await loadTourHotels(booking.tour.id, booking.roomSelection, booking.mealSelection);
                     
+                    // ✅ Update price summary AFTER hotels are loaded
+                    console.log('✅ Hotels loaded for existing booking, updating price summary...');
+                    updatePriceSummary();
+                    
                     console.log('✅ Successfully loaded existing booking');
                 } else {
                     throw new Error('Failed to load booking data');
@@ -549,8 +553,12 @@
                     // Display tour details
                     displayTourDetails();
                     
-                    // Load hotels for this tour
-                    loadTourHotels(tourId);
+                    // Load hotels for this tour (wait for completion)
+                    await loadTourHotels(tourId);
+                    
+                    // ✅ Update price summary AFTER hotels are loaded
+                    console.log('✅ Hotels loaded, updating price summary...');
+                    updatePriceSummary();
                 } else {
                     throw new Error(data.message || 'Неизвестная ошибка при создании бронирования');
                 }
