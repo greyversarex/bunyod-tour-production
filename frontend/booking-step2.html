@@ -972,7 +972,26 @@
         }
 
         function goBack() {
-            window.history.back();
+            // Get bookingId from current state
+            const bookingId = bookingState?.bookingId;
+            if (!bookingId) {
+                console.warn('⚠️ No booking ID found, going back with history.back()');
+                window.history.back();
+                return;
+            }
+            
+            // Redirect to step 1 with bookingId to reload saved data
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourId = bookingState?.tour?.id;
+            const tourDate = bookingState?.tour?.tourDate;
+            const numberOfTourists = bookingState?.selections?.numberOfTourists || 1;
+            
+            if (tourId && tourDate) {
+                window.location.href = `/booking/step1?tourId=${tourId}&date=${tourDate}&tourists=${numberOfTourists}&bookingId=${bookingId}`;
+            } else {
+                console.warn('⚠️ Missing tour data, using history.back()');
+                window.history.back();
+            }
         }
 
         async function submitForm(e) {

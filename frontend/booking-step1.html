@@ -302,9 +302,17 @@
             const tourId = urlParams.get('tourId');
             const tourDate = urlParams.get('date');
             const numberOfTourists = urlParams.get('tourists');
+            const bookingId = urlParams.get('bookingId'); // Check if returning from step 2
 
-            console.log('URL параметры:', { tourId, tourDate, numberOfTourists });
+            console.log('URL параметры:', { tourId, tourDate, numberOfTourists, bookingId });
             console.log('URL:', window.location.href);
+
+            // If bookingId exists, load existing booking instead of creating new
+            if (bookingId) {
+                console.log('📋 Loading existing booking:', bookingId);
+                await loadExistingBooking(bookingId);
+                return;
+            }
 
             if (!tourId || !tourDate || !numberOfTourists) {
                 console.error('Отсутствуют параметры:', { tourId, tourDate, numberOfTourists });
@@ -315,6 +323,87 @@
 
             // Start booking process
             startBooking(tourId, tourDate, numberOfTourists);
+        }
+        
+        async function loadExistingBooking(bookingId) {
+            try {
+                const lang = window.currentLanguage || 'ru';
+                const response = await fetch(`/api/booking/${bookingId}?lang=${lang}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('📋 Loaded existing booking:', data);
+                
+                if (data.success && data.data) {
+                    const booking = data.data;
+                    
+                    // Restore booking state
+                    window.bookingStateManager.setBookingId(booking.id);
+                    window.bookingStateManager.setTourInfo({
+                        id: booking.tour.id,
+                        title: booking.tour.title || {},
+                        currency: booking.tour.currency || 'TJS',
+                        price: booking.tour.price,
+                        durationDays: booking.tour.durationDays || parseInt(booking.tour.duration) || 1,
+                        tourDate: booking.tourDate
+                    });
+                    
+                    // Restore additional tour fields
+                    window.bookingStateManager.state.tour.price = booking.tour.price;
+                    window.bookingStateManager.state.tour.priceType = booking.tour.priceType || 'за человека';
+                    window.bookingStateManager.state.tour.format = booking.tour.format || booking.tour.tourType;
+                    window.bookingStateManager.state.tour.tourType = booking.tour.tourType || booking.tour.format;
+                    window.bookingStateManager.state.tour.services = booking.tour.services || '[]';
+                    window.bookingStateManager.state.tour.duration = booking.tour.duration || booking.tour.durationDays;
+                    window.bookingStateManager.state.tour.durationType = booking.tour.durationType || 'days';
+                    window.bookingStateManager.persist();
+                    
+                    // Restore selections
+                    window.bookingStateManager.setNumberOfTourists(booking.numberOfTourists);
+                    window.bookingStateManager.setTourDate(booking.tourDate);
+                    
+                    // Restore room and meal selections
+                    if (booking.roomSelection) {
+                        window.bookingStateManager.setRoomSelection(booking.roomSelection);
+                        console.log('✅ Restored room selection:', booking.roomSelection);
+                    }
+                    if (booking.mealSelection) {
+                        window.bookingStateManager.setMealSelection(booking.mealSelection);
+                        console.log('✅ Restored meal selection:', booking.mealSelection);
+                    }
+                    
+                    // Restore hotel info if selected
+                    if (booking.hotelId && booking.hotel) {
+                        window.bookingStateManager.setHotelInfo({
+                            id: booking.hotelId,
+                            name: booking.hotel.name || {}
+                        });
+                    }
+                    
+                    // Restore pricing
+                    if (booking.totalPrice) {
+                        window.bookingStateManager.state.pricing.grandTotal = booking.totalPrice;
+                        window.bookingStateManager.persist();
+                    }
+                    
+                    // Display tour details
+                    displayTourDetails();
+                    
+                    // Load hotels and restore selections
+                    await loadTourHotels(booking.tour.id, booking.roomSelection, booking.mealSelection);
+                    
+                    console.log('✅ Successfully loaded existing booking');
+                } else {
+                    throw new Error('Failed to load booking data');
+                }
+            } catch (error) {
+                console.error('❌ Error loading existing booking:', error);
+                showNotification('Ошибка загрузки бронирования', 'error');
+                setTimeout(() => window.location.href = '/tours-search.html', 2000);
+            }
         }
 
         // Currency functions
@@ -641,7 +730,7 @@
             console.log(`💰 Initial tour price calculated: ${tourPrice} TJS (${numberOfTourists} tourists, type: ${tourType}, isGroupShared: ${isGroupShared})`);
         }
 
-        async function loadTourHotels(tourId) {
+        async function loadTourHotels(tourId, savedRoomSelection = null, savedMealSelection = null) {
             try {
                 console.log('🏨 Loading hotels for tour ID:', tourId);
                 
@@ -657,6 +746,14 @@
                 
                 if (data.success) {
                     displayHotels(data.data);
+                    
+                    // Restore room and meal selections in UI after hotels are loaded
+                    if (savedRoomSelection || savedMealSelection) {
+                        console.log('🔄 Restoring selections in UI...', { savedRoomSelection, savedMealSelection });
+                        setTimeout(() => {
+                            restoreSelectionsInUI(savedRoomSelection, savedMealSelection);
+                        }, 500); // Small delay to ensure DOM is ready
+                    }
                 } else {
                     console.error('❌ API returned error:', data.message);
                     showNotification(getTranslation('booking.error.load_hotels') + ': ' + data.message, 'error');
@@ -671,6 +768,38 @@
                     </div>
                 `;
             }
+        }
+        
+        function restoreSelectionsInUI(savedRoomSelection, savedMealSelection) {
+            // Restore room counts in UI
+            if (savedRoomSelection && typeof savedRoomSelection === 'object') {
+                for (const [roomType, quantity] of Object.entries(savedRoomSelection)) {
+                    const roomElements = document.querySelectorAll(`[id^="room-"][id$="-${roomType}"]`);
+                    roomElements.forEach(element => {
+                        if (element && quantity > 0) {
+                            element.textContent = quantity;
+                            console.log(`✅ Restored UI for room ${roomType}: ${quantity}`);
+                        }
+                    });
+                }
+            }
+            
+            // Restore meal selections in UI (radio buttons)
+            if (savedMealSelection && typeof savedMealSelection === 'object') {
+                for (const [mealType, price] of Object.entries(savedMealSelection)) {
+                    const mealRadios = document.querySelectorAll(`input[name^="meal-"][value="${mealType}"]`);
+                    mealRadios.forEach(radio => {
+                        if (radio) {
+                            radio.checked = true;
+                            console.log(`✅ Restored UI for meal ${mealType}`);
+                        }
+                    });
+                }
+            }
+            
+            // Update price summary after restoring selections
+            updatePriceSummary();
+            console.log('✅ Selections restored in UI');
         }
 
         // Helper function to extract hotel name (string or object)

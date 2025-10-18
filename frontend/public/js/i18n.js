@@ -1631,6 +1631,8 @@ window.translations = window.translations || {
     'booking.voucher.group': { ru: 'Групповой', en: 'Group' },
     'booking.voucher.days': { ru: 'дней', en: 'days' },
     'booking.voucher.day': { ru: 'день', en: 'day' },
+    'booking.voucher.hours': { ru: 'часов', en: 'hours' },
+    'booking.voucher.hour': { ru: 'час', en: 'hour' },
     'booking.accommodation': { ru: 'Проживание в отеле', en: 'Hotel Accommodation' },
     'booking.accommodation_details': { ru: 'Детали проживания', en: 'Accommodation Details' },
     'booking.category': { ru: 'Категория', en: 'Category' },

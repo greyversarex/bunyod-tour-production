@@ -696,7 +696,18 @@
         }
 
         function goBack() {
-            window.history.back();
+            // Get bookingId from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId') || bookingState?.bookingId;
+            
+            if (!bookingId) {
+                console.warn('⚠️ No booking ID found, going back with history.back()');
+                window.history.back();
+                return;
+            }
+            
+            // Redirect to step 2 with bookingId to reload saved data
+            window.location.href = `/booking-step2.html?bookingId=${bookingId}`;
         }
 
         async function processPayment() {
