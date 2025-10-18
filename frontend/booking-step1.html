@@ -1324,12 +1324,23 @@
             
             // ✅ Calculate room costs ONLY for the selected hotel
             // Prevent duplicate calculations when tour has multiple hotels
-            if (bookingState.selectedHotel && bookingState.roomSelection[bookingState.selectedHotel]) {
+            console.log('🔍 Room calculation check:', {
+                selectedHotel: bookingState.selectedHotel,
+                hasRoomSelection: !!bookingState.roomSelection,
+                roomSelectionKeys: Object.keys(bookingState.roomSelection || {}),
+                roomSelectionData: bookingState.roomSelection
+            });
+            
+            if (bookingState.selectedHotel && bookingState.roomSelection && bookingState.roomSelection[bookingState.selectedHotel]) {
                 const hotelId = bookingState.selectedHotel;
                 const rooms = bookingState.roomSelection[hotelId];
                 
+                console.log('🏨 Processing rooms for hotel:', hotelId, 'Rooms:', rooms);
+                
                 // Find hotel data from bookingState
-                const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
+                const hotelData = bookingState.availableHotels?.find(h => h.id == hotelId);
+                console.log('🏨 Hotel data found:', !!hotelData, hotelData ? `(${hotelData.name})` : '(null)');
+                
                 if (hotelData) {
                     // Parse room types to get real price
                     let roomTypes = {};
@@ -1340,13 +1351,17 @@
                         roomTypes = {};
                     }
                     
+                    console.log('🏨 Room types available:', Object.keys(roomTypes));
+                    
                     for (const [roomType, quantity] of Object.entries(rooms)) {
+                        console.log(`🔍 Checking room: ${roomType}, quantity: ${quantity}, has price: ${!!roomTypes[roomType]}`);
+                        
                         if (quantity > 0 && roomTypes[roomType]) {
                             const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
                             const roomCost = roomPrice * quantity * tourDuration;
                             totalRoomCost += roomCost;
                             
-                            console.log(`🏨 Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${tourDuration} = ${roomCost} TJS`);
+                            console.log(`✅ Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${tourDuration} = ${roomCost} TJS`);
                             
                             if (roomCostsCalc) {
                                 // Get localized room name
@@ -1359,9 +1374,19 @@
                                     </div>
                                 `;
                             }
+                        } else {
+                            console.warn(`⚠️ Skipped room ${roomType}: quantity=${quantity}, hasPrice=${!!roomTypes[roomType]}`);
                         }
                     }
+                } else {
+                    console.error('❌ Hotel data NOT found for ID:', hotelId, 'Available hotels:', bookingState.availableHotels?.map(h => h.id));
                 }
+            } else {
+                console.warn('⚠️ Room cost calculation SKIPPED:', {
+                    hasSelectedHotel: !!bookingState.selectedHotel,
+                    hasRoomSelection: !!bookingState.roomSelection,
+                    hasRoomSelectionForHotel: bookingState.selectedHotel && bookingState.roomSelection ? !!bookingState.roomSelection[bookingState.selectedHotel] : false
+                });
             }
             
             // ✅ Calculate meal costs ONLY for the selected hotel
