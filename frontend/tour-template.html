@@ -1118,18 +1118,12 @@
                                     
                                     // Получаем название дня из первого события (все события одного дня имеют одинаковое название дня)
                                     const currentLang = getCurrentLanguage();
-                                    const dayTitle = currentLang === 'en' 
-                                        ? (dayPrograms[0]?.dayTitleEn || dayPrograms[0]?.dayTitleRu || `${programDayLabel} ${day}`)
-                                        : (dayPrograms[0]?.dayTitleRu || dayPrograms[0]?.dayTitleEn || `${programDayLabel} ${day}`);
+                                    const dayTitleRu = dayPrograms[0]?.dayTitleRu || '';
+                                    const dayTitleEn = dayPrograms[0]?.dayTitleEn || '';
+                                    const dayTitle = currentLang === 'en' ? dayTitleEn : dayTitleRu;
                                     
-                                    // Формируем метку для дня в зависимости от типа длительности
-                                    let dayBadgeLabel = `${dayLabel} ${day}`;
-                                    if (tourData.durationType === 'hours') {
-                                        // Если есть duration в каждом дне программы, используем его
-                                        const dayHours = dayPrograms[0]?.duration || Math.ceil(tourData.durationDays / sortedDays.length);
-                                        const hoursLabel = currentLang === 'en' ? 'hours' : 'часов';
-                                        dayBadgeLabel = `${dayHours} ${hoursLabel}`;
-                                    }
+                                    // Показываем название дня только если оно заполнено
+                                    const hasDayTitle = dayTitle && dayTitle.trim() !== '';
                                     
                                     return `
                                         <div class="itinerary-day border border-gray-200 rounded-lg overflow-hidden">
@@ -1140,11 +1134,11 @@
                                                 aria-expanded="${isFirstDay}">
                                                 <div class="flex items-center gap-4 flex-1">
                                                     <span class="inline-block px-3 py-1 bg-gray-600 text-white text-sm font-medium rounded-full whitespace-nowrap">
-                                                        ${dayBadgeLabel}
+                                                        ${dayLabel} ${day}
                                                     </span>
-                                                    <h3 class="text-base font-semibold text-gray-900">
+                                                    ${hasDayTitle ? `<h3 class="text-base font-semibold text-gray-900">
                                                         ${dayTitle}
-                                                    </h3>
+                                                    </h3>` : ''}
                                                     <p class="text-sm text-gray-500">
                                                         ${stopsCount} ${stopsLabel}
                                                     </p>
