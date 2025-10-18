@@ -257,6 +257,7 @@ export class TourModel {
     if (data.format !== undefined) updateData.format = data.format;
     if (data.tourType !== undefined) updateData.tourType = data.tourType;
     if (data.durationDays !== undefined) updateData.durationDays = data.durationDays;
+    if (data.durationType !== undefined) updateData.durationType = data.durationType;
     if (data.difficulty !== undefined) updateData.difficulty = data.difficulty;
     if (data.maxPeople !== undefined) updateData.maxPeople = data.maxPeople;
     if (data.minPeople !== undefined) updateData.minPeople = data.minPeople;
