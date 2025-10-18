@@ -990,6 +990,18 @@
             const urlParams = new URLSearchParams(window.location.search);
             const numberOfTourists = parseInt(urlParams.get('tourists')) || 1;
             
+            // ✅ CRITICAL: Set selected hotel when user selects a room
+            if (!bookingState.selectedHotel) {
+                const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
+                if (hotelData) {
+                    window.bookingStateManager.setHotelInfo({
+                        id: hotelData.id,
+                        name: hotelData.name || {}
+                    });
+                    console.log(`✅ Auto-selected hotel ${hotelId} when choosing room`);
+                }
+            }
+            
             // ✅ FIXED: Update through bookingStateManager
             const currentRooms = window.bookingStateManager.state.selections.rooms || {};
             const current = currentRooms[roomType] || 0;
