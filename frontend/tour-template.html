@@ -2076,6 +2076,28 @@
                         const bookingId = result.data.bookingId;
                         console.log('✅ Бронирование создано:', bookingId);
                         
+                        // Сохраняем bookingId в sessionStorage для bookingStateManager
+                        const bookingState = {
+                            bookingId: bookingId,
+                            tour: {
+                                id: tourData.id,
+                                title: tourData.title,
+                                currency: tourData.currency,
+                                basePrice: parseFloat(tourData.price),
+                                duration: tourData.durationDays || 1,
+                                tourDate: selectedDate
+                            },
+                            selections: {
+                                numberOfTourists: totalTourists
+                            },
+                            language: localStorage.getItem('selectedLanguage') || 'ru',
+                            selectedCurrency: localStorage.getItem('selectedCurrency') || tourData.currency,
+                            lastUpdated: Date.now()
+                        };
+                        
+                        sessionStorage.setItem('bookingState', JSON.stringify(bookingState));
+                        console.log('💾 Booking state сохранён в sessionStorage:', bookingState);
+                        
                         // Переход на step2 с bookingId
                         window.location.href = `/booking/step2?bookingId=${bookingId}`;
                     } else {
@@ -2888,6 +2910,32 @@
             
             priceElement.setAttribute('data-original-price', basePrice);
             priceElement.textContent = `${totalPrice.toLocaleString()} ${currencySymbol}`;
+            
+            // Обновляем текст "за человека" / "за группу"
+            const priceTypeTextElement = document.getElementById('price-type-text');
+            if (priceTypeTextElement) {
+                const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                
+                // Логика отображения текста:
+                // 1. Если туристов > 1 И это персональный тур → показываем "за группу"
+                // 2. Если "Групповой общий" → всегда "за группу" (фиксированная цена)
+                // 3. Иначе → "за человека"
+                let priceTypeText = '';
+                
+                if (isGroupShared) {
+                    // Групповой общий - всегда за группу
+                    priceTypeText = currentLang === 'en' ? 'per group' : 'за группу';
+                } else if (totalTravelers > 1 && (priceType === 'per_person' || priceType === 'за человека')) {
+                    // Персональные туры: если туристов > 1, показываем "за группу"
+                    priceTypeText = currentLang === 'en' ? 'for group' : 'за группу';
+                } else {
+                    // Один турист или базовая цена
+                    priceTypeText = currentLang === 'en' ? 'per person' : 'за человека';
+                }
+                
+                priceTypeTextElement.textContent = priceTypeText;
+                console.log(`💬 Обновлен текст цены: "${priceTypeText}" (туристов: ${totalTravelers}, тип: ${tourType})`);
+            }
         }
         
         // ============ TIME SELECTION FUNCTIONS ============
