@@ -1268,26 +1268,28 @@ export class PriceCalculatorModel {
     ];
 
     const results = [];
+    let createdCount = 0;
+    let skippedCount = 0;
+    
     for (const component of defaultComponents) {
       try {
         const existing = await this.findByKey(component.key);
         if (!existing) {
+          // ✅ Создаём новый компонент только если его нет
           const created = await this.create(component);
           results.push(created);
+          createdCount++;
         } else {
-          // Обновляем существующие компоненты с английскими названиями
-          const updated = await prisma.priceCalculatorComponent.update({
-            where: { key: component.key },
-            data: {
-              nameEn: component.nameEn
-            }
-          });
-          results.push(updated);
+          // ✅ Пропускаем существующие компоненты - НЕ обновляем их
+          results.push(existing);
+          skippedCount++;
         }
       } catch (error) {
-        console.error(`Error creating/updating component ${component.key}:`, error);
+        console.error(`Error creating component ${component.key}:`, error);
       }
     }
+    
+    console.log(`📊 Инициализация компонентов: создано ${createdCount}, пропущено ${skippedCount} (уже существуют)`);
     return results;
   }
 }
