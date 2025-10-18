@@ -414,44 +414,14 @@
                 }
             }
 
-            // ✅ Use the calculated price from Step 2 instead of recalculating
-            // This ensures price consistency across all steps
-            let totalAmount = booking.calculatedTotalPrice || 0;
+            // ✅ КРИТИЧНО: Используем УЖЕ РАССЧИТАННУЮ цену со step 1 (из БД), НЕ пересчитываем!
+            // Окончательные расчёты происходят на step 1, здесь только отображаем
+            const totalAmount = booking.totalPrice || booking.calculatedTotalPrice || 0;
             
             // ✅ Define tourDuration outside if block (used in HTML template)
             const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
             
-            // If calculated price is not available (legacy bookings), fall back to basic calculation
-            if (!totalAmount) {
-                let tourBasePrice = parseFloat(booking.tour.price);
-                const tourType = booking.tour.tourType || booking.tour.format;
-                const isGroupShared = tourType === 'Групповой общий';
-                
-                if (!isGroupShared && booking.tour.priceType === 'за человека') {
-                    tourBasePrice *= booking.numberOfTourists;
-                }
-                
-                let roomCost = 0;
-                let mealCost = 0;
-                
-                // Calculate room costs
-                Object.entries(roomSelection).forEach(([roomType, quantity]) => {
-                    if (quantity > 0 && hotelRoomTypes[roomType]) {
-                        roomCost += hotelRoomTypes[roomType].price * quantity * tourDuration;
-                    }
-                });
-
-                // Calculate meal costs  
-                Object.entries(mealSelection).forEach(([mealType, price]) => {
-                    if (price > 0) {
-                        mealCost += price * booking.numberOfTourists * tourDuration;
-                    }
-                });
-                
-                totalAmount = tourBasePrice + roomCost + mealCost;
-            }
-            
-            console.log(`💰 Step 3 total amount: ${totalAmount} TJS (from Step 2 calculated price)`);
+            console.log(`💰 Step 3 - Using final price from Step 1 (DB): ${totalAmount} TJS (NO recalculation)`);
 
             // Generate booking reference number
             const bookingRef = `BT-${booking.id || 'XXXX'}${new Date().getFullYear()}`;

@@ -608,191 +608,29 @@
         function displayPriceCalculation() {
             if (!bookingState.tour) return;
 
-            const tour = bookingState.tour;
-            const numberOfTourists = bookingState.numberOfTourists || 1;
-            const tourDuration = parseInt(tour.duration) || parseInt(tour.durationDays) || 1;
+            // ✅ КРИТИЧНО: Используем УЖЕ РАССЧИТАННУЮ цену со step 1, НЕ пересчитываем!
+            // Окончательные расчёты происходят на step 1, здесь только отображаем
+            const finalPrice = bookingState.totalPrice || bookingState.pricing?.grandTotal || 0;
             
-            const roomCostsCalc = document.getElementById('room-costs-calc');
-            const mealCostsCalc = document.getElementById('meal-costs-calc');
+            console.log(`💰 Step 2 - Using final price from Step 1: ${finalPrice} TJS (NO recalculation)`);
             
-            let totalRoomCost = 0;
-            let totalMealCost = 0;
-            let accommodationDeduction = 0;
-            
-            // Calculate base tour price based on tour type
-            let baseTourPrice = parseFloat(tour.price || tour.basePrice || 0);
-            const tourType = tour.tourType || tour.format;
-            
-            // ✅ Dynamic per-person pricing based on tour type:
-            // - "Персональный" (Personal) → multiply by tourists
-            // - "Групповой персональный" (Group Personal) → multiply by tourists
-            // - "Групповой общий" (Group Shared) → fixed price (do NOT multiply)
-            const isGroupShared = tourType === 'Групповой общий';
-            
-            if (!isGroupShared && tour.priceType === 'за человека') {
-                baseTourPrice *= numberOfTourists;
-            }
-            
-            console.log(`💰 Base tour price calculated: ${baseTourPrice} TJS (${numberOfTourists} tourists, type: ${tourType}, isGroupShared: ${isGroupShared})`);
-            
-            // Update tour price label
-            const tourPriceLabel = document.getElementById('tour-price-label');
-            if (tourPriceLabel) {
-                tourPriceLabel.textContent = tour.priceType === 'за группу' ? 
-                    'Цена тура (за группу):' : `Цена тура × ${numberOfTourists} чел.:`;
-            }
-
-            // Clear calculation areas
-            if (roomCostsCalc) roomCostsCalc.innerHTML = '';
-            if (mealCostsCalc) mealCostsCalc.innerHTML = '';
-            
-            // 🏨 Calculate accommodation deduction if rooms are selected
-            let roomSelection = {};
-            try {
-                roomSelection = typeof bookingState.roomSelection === 'string' ? 
-                    JSON.parse(bookingState.roomSelection) : (bookingState.roomSelection || {});
-            } catch (e) {}
-            
-            console.log('🔍 Step 2 - Room selection:', roomSelection);
-            
-            // Check for selected rooms - handle both flat and nested structures
-            const hasSelectedRooms = Object.values(roomSelection).some(value => {
-                // If value is a number, it's a flat structure
-                if (typeof value === 'number') return value > 0;
-                // If value is an object, it's nested {hotelId: {roomType: qty}}
-                if (typeof value === 'object' && value !== null) {
-                    return Object.values(value).some(qty => qty > 0);
-                }
-                return false;
-            });
-            
-            console.log('🔍 Step 2 - Has selected rooms:', hasSelectedRooms);
-            console.log('🔍 Step 2 - Tour services:', tour.services);
-            
-            if (hasSelectedRooms && tour.services) {
-                try {
-                    // 🔧 Поддержка обоих форматов: строка JSON или уже распарсенный массив
-                    const services = typeof tour.services === 'string' ? 
-                        JSON.parse(tour.services) : tour.services;
-                    
-                    const accommodationService = services.find(service => 
-                        service && service.key && (
-                            service.key === 'accommodation_std' ||
-                            service.key.includes('accommodation') ||
-                            service.key.includes('хостел') ||
-                            service.key.includes('гостиница') ||
-                            (service.name && service.name.toLowerCase().includes('проживан'))
-                        )
-                    );
-                    
-                    console.log('🔍 Step 2 - Found accommodation service:', accommodationService);
-                    
-                    if (accommodationService && accommodationService.price) {
-                        const accommodationPrice = parseFloat(accommodationService.price);
-                        
-                        // Компонент проживания уже включен в базовую цену тура за весь тур
-                        // Вычитаем только стоимость компонента БЕЗ умножения на дни
-                        if (tour.priceType === 'за человека') {
-                            accommodationDeduction = accommodationPrice * numberOfTourists;
-                        } else {
-                            accommodationDeduction = accommodationPrice;
-                        }
-                        
-                        console.log('🔍 Step 2 - Accommodation deduction:', accommodationDeduction);
-                        
-                        // Show accommodation deduction
-                        if (roomCostsCalc && accommodationDeduction > 0) {
-                            roomCostsCalc.innerHTML += `
-                                <div class="flex justify-between text-sm text-red-600">
-                                    <span><span data-translate="booking.accommodation_deduction">Вычет проживания</span>:</span>
-                                    <span>-${formatCurrencyWithEquivalent(accommodationDeduction)}</span>
-                                </div>
-                            `;
-                        }
-                    }
-                } catch (e) {}
-            }
-            
-            // Calculate room costs
-            if (hasSelectedRooms && bookingState.hotel) {
-                let roomTypes = {};
-                try {
-                    roomTypes = typeof bookingState.hotel.roomTypes === 'string' ? 
-                        JSON.parse(bookingState.hotel.roomTypes) : (bookingState.hotel.roomTypes || {});
-                } catch (e) {}
-                
-                for (const [roomType, quantity] of Object.entries(roomSelection)) {
-                    if (quantity > 0 && roomTypes[roomType]) {
-                        const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
-                        const roomCost = roomPrice * quantity * tourDuration;
-                        totalRoomCost += roomCost;
-                        
-                        if (roomCostsCalc) {
-                            const roomName = getLocalizedName(roomTypes[roomType]) || roomType;
-                            roomCostsCalc.innerHTML += `
-                                <div class="flex justify-between text-sm">
-                                    <span><span data-translate="booking.rooms">Номера</span> ${roomName} × ${quantity} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
-                                    <span>${formatCurrencyWithEquivalent(roomCost)}</span>
-                                </div>
-                            `;
-                        }
-                    }
-                }
-            }
-            
-            // Calculate meal costs
-            let mealSelection = {};
-            try {
-                mealSelection = typeof bookingState.mealSelection === 'string' ? 
-                    JSON.parse(bookingState.mealSelection) : (bookingState.mealSelection || {});
-            } catch (e) {}
-            
-            if (bookingState.hotel && Object.keys(mealSelection).length > 0) {
-                let mealTypes = {};
-                try {
-                    mealTypes = typeof bookingState.hotel.mealTypes === 'string' ? 
-                        JSON.parse(bookingState.hotel.mealTypes) : (bookingState.hotel.mealTypes || {});
-                } catch (e) {}
-                
-                for (const [mealType, price] of Object.entries(mealSelection)) {
-                    const mealCost = price * numberOfTourists * tourDuration;
-                    totalMealCost += mealCost;
-                    
-                    const mealName = getLocalizedName(mealTypes[mealType]) || mealType;
-                    if (mealCostsCalc) {
-                        mealCostsCalc.innerHTML += `
-                            <div class="flex justify-between text-sm">
-                                <span><span data-translate="booking.meals">Питание</span> ${mealName} × ${numberOfTourists} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
-                                <span>${formatCurrencyWithEquivalent(mealCost)}</span>
-                            </div>
-                        `;
-                    }
-                }
-            }
-            
-            // Calculate final price
-            let finalTourPrice = baseTourPrice - accommodationDeduction + totalRoomCost + totalMealCost;
-            
-            // ✅ Цена уже рассчитана с учетом количества туристов выше (строка 570)
-            // Не нужно умножать повторно - это делалось на странице тура
-            console.log(`💰 Итоговая цена (без дополнительного умножения): ${finalTourPrice} TJS`);
-            
-            // ✅ Save calculated price to bookingState for use on step 3
-            if (window.bookingStateManager) {
-                window.bookingStateManager.state.calculatedTotalPrice = finalTourPrice;
-                window.bookingStateManager.persist();
-                console.log('💾 Saved calculated price to state:', finalTourPrice);
-            }
-
-            const tourPriceCalc = document.getElementById('tour-price-calc');
-            if (tourPriceCalc) {
-                tourPriceCalc.textContent = formatCurrencyWithEquivalent(baseTourPrice);
-            }
-
             // Display final total price
             const totalPrice = document.getElementById('total-price');
             if (totalPrice) {
-                totalPrice.textContent = formatCurrencyWithEquivalent(finalTourPrice);
+                totalPrice.textContent = formatCurrencyWithEquivalent(finalPrice);
+            }
+            
+            // Update tour price in sidebar (just for display, not used in calculations)
+            const tourPriceCalc = document.getElementById('tour-price-calc');
+            if (tourPriceCalc) {
+                tourPriceCalc.textContent = formatCurrencyWithEquivalent(finalPrice);
+            }
+            
+            // Save to state for step 3
+            if (window.bookingStateManager) {
+                window.bookingStateManager.state.calculatedTotalPrice = finalPrice;
+                window.bookingStateManager.persist();
+                console.log('💾 Step 2 - Saved price to state:', finalPrice);
             }
         }
 
