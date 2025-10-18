@@ -110,12 +110,7 @@
 
                 <!-- Tourists -->
                 <div class="mb-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-semibold text-gray-800" data-translate="booking.step2.list_of_tourists">Список туристов</h3>
-                        <button type="button" id="add-tourist" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                            <i class="fas fa-plus mr-2"></i><span data-translate="booking.step2.add_tourist">Добавить туриста</span>
-                        </button>
-                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate="booking.step2.list_of_tourists">Список туристов</h3>
                     
                     <div id="tourists-container">
                         <!-- Tourists will be added here dynamically -->
@@ -341,12 +336,17 @@
             // ✅ Initialize with required number of tourists AFTER loading booking data
             const numberOfTourists = getNumberOfTourists();
             console.log('👥 Auto-creating tourist fields:', numberOfTourists, 'from bookingState:', bookingState.numberOfTourists);
-            for (let i = 0; i < numberOfTourists; i++) {
-                addTourist();
-            }
             
-            // ✅ Update button state after initial tourists added
-            updateAddTouristButton();
+            // ✅ Check if tourists already exist in booking (returning from step 3)
+            if (bookingState.tourists && Array.isArray(bookingState.tourists) && bookingState.tourists.length > 0) {
+                console.log('📋 Restoring tourists from booking state:', bookingState.tourists);
+                restoreTouristsFromBooking(bookingState.tourists);
+            } else {
+                // Create empty tourist fields
+                for (let i = 0; i < numberOfTourists; i++) {
+                    addTourist();
+                }
+            }
         }
 
         // Currency functions
@@ -705,7 +705,6 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('add-tourist').addEventListener('click', addTourist);
             document.getElementById('back-btn').addEventListener('click', goBack);
             document.getElementById('booking-form').addEventListener('submit', submitForm);
             
@@ -722,41 +721,7 @@
             });
         }
 
-        // Update "Add Tourist" button state
-        function updateAddTouristButton() {
-            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
-            const addedTourists = document.querySelectorAll('.tourist-card').length;
-            const addButton = document.getElementById('add-tourist');
-            
-            if (addButton) {
-                if (addedTourists >= expectedTourists) {
-                    // Disable button when limit reached
-                    addButton.disabled = true;
-                    addButton.classList.add('opacity-50', 'cursor-not-allowed');
-                    addButton.classList.remove('hover:bg-gray-700');
-                } else {
-                    // Enable button when under limit
-                    addButton.disabled = false;
-                    addButton.classList.remove('opacity-50', 'cursor-not-allowed');
-                    addButton.classList.add('hover:bg-gray-700');
-                }
-            }
-        }
-
         function addTourist() {
-            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
-            const currentCount = document.querySelectorAll('.tourist-card').length;
-            
-            // ✅ Check if limit reached
-            if (currentCount >= expectedTourists) {
-                const lang = window.currentLanguage || 'ru';
-                const message = lang === 'en' 
-                    ? `Maximum ${expectedTourists} tourists allowed.`
-                    : `Максимум ${expectedTourists} туристов.`;
-                showCenterModal(message, 'warning');
-                return;
-            }
-            
             touristCount++;
             const container = document.getElementById('tourists-container');
             
@@ -765,7 +730,7 @@
             touristCard.innerHTML = `
                 <div class="flex items-center justify-between mb-3">
                     <h4 class="font-medium text-gray-800"><span data-translate="booking.step2.tourist">Турист</span> ${touristCount}</h4>
-                    ${touristCount > getNumberOfTourists() ? `
+                    ${false ? `
                         <button type="button" class="text-red-500 hover:text-red-700" onclick="removeTourist(this)">
                             <i class="fas fa-trash"></i>
                         </button>
@@ -784,29 +749,45 @@
             
             // Пересчитываем цену при добавлении туриста
             displayPriceCalculation();
-            
-            // ✅ Update button state after adding tourist
-            updateAddTouristButton();
         }
 
-        function removeTourist(button) {
-            button.closest('.tourist-card').remove();
-            updateTouristNumbers();
+        // ✅ Restore tourist data from booking state (when returning from step 3)
+        function restoreTouristsFromBooking(tourists) {
+            const container = document.getElementById('tourists-container');
+            container.innerHTML = ''; // Clear existing
+            touristCount = 0;
             
-            // Пересчитываем цену при удалении туриста
-            displayPriceCalculation();
-            
-            // ✅ Update button state after removing tourist
-            updateAddTouristButton();
-        }
-
-        function updateTouristNumbers() {
-            const cards = document.querySelectorAll('.tourist-card');
-            cards.forEach((card, index) => {
-                const title = card.querySelector('h4');
-                title.innerHTML = `<span data-translate="booking.step2.tourist">Турист</span> ${index + 1}`;
+            tourists.forEach((tourist, index) => {
+                touristCount++;
+                const touristCard = document.createElement('div');
+                touristCard.className = 'tourist-card';
+                touristCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-medium text-gray-800"><span data-translate="booking.step2.tourist">Турист</span> ${touristCount}</h4>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" data-translate="booking.step2.tourist_fullname">ФИО туриста *</label>
+                            <input type="text" class="form-input tourist-name" value="${tourist.fullName || ''}" required>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(touristCard);
             });
-            touristCount = cards.length;
+            
+            console.log(`✅ Restored ${tourists.length} tourists from booking state`);
+            
+            // Also restore contact info
+            if (bookingState.contactName) {
+                document.getElementById('contactName').value = bookingState.contactName;
+            }
+            if (bookingState.contactPhone) {
+                document.getElementById('contactPhone').value = bookingState.contactPhone;
+            }
+            if (bookingState.contactEmail) {
+                document.getElementById('contactEmail').value = bookingState.contactEmail;
+            }
         }
 
         function goBack() {
@@ -920,10 +901,9 @@
             if (addedTourists < expectedTourists) {
                 const lang = window.currentLanguage || 'ru';
                 const message = lang === 'en' 
-                    ? `Please add all <strong>${expectedTourists} tourists</strong>.<br>Currently added: <strong>${addedTourists}</strong>.`
-                    : `Пожалуйста, добавьте всех <strong>${expectedTourists} туристов</strong>.<br>Добавлено: <strong>${addedTourists}</strong>.`;
+                    ? `Please fill in all <strong>${expectedTourists} tourists</strong>.<br>Currently filled: <strong>${addedTourists}</strong>.`
+                    : `Пожалуйста, заполните данные всех <strong>${expectedTourists} туристов</strong>.<br>Заполнено: <strong>${addedTourists}</strong>.`;
                 showCenterModal(message, 'warning');
-                document.getElementById('add-tourist').focus();
                 return false;
             }
             
