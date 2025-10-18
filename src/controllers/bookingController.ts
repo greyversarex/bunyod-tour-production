@@ -319,11 +319,17 @@ export const bookingController = {
       let totalPrice = 0;
       const tourPrice = parseFloat(tour.price);
       const tourPriceType = tour.priceType;
+      const tourType = tour.tourType || tour.format || '';
       
-      if (tourPriceType === 'за человека') {
+      // ✅ КРИТИЧЕСКАЯ ЛОГИКА: "Групповой общий" = фиксированная цена
+      const isGroupShared = tourType === 'Групповой общий' || tourType === 'Group Shared';
+      
+      if (!isGroupShared && tourPriceType === 'за человека') {
         totalPrice += tourPrice * parseInt(numberOfTourists.toString());
+        console.log(`💰 Price calculation: ${tourPrice} × ${numberOfTourists} tourists = ${totalPrice} TJS (${tourType})`);
       } else {
-        totalPrice += tourPrice; // За группу
+        totalPrice += tourPrice; // Фиксированная цена для группы
+        console.log(`💰 Price calculation: ${tourPrice} TJS (fixed for ${tourType}, ${numberOfTourists} tourists)`);
       }
 
       // ЛОГИКА ЗАМЕНЫ ПРОЖИВАНИЯ: Если выбран отель, вычесть компонент проживания тура и добавить отель
@@ -338,14 +344,15 @@ export const bookingController = {
         
         // Вычитаем стоимость компонента проживания из тура
         if (tourAccommodationPrice > 0) {
-          if (tourPriceType === 'за человека') {
-            // Для цены "за человека" вычитаем проживание на всех туристов
+          // ✅ Для "Групповой общий" не умножаем на количество туристов
+          if (!isGroupShared && tourPriceType === 'за человека') {
+            // Для персональных туров вычитаем проживание на всех туристов
             totalPrice -= tourAccommodationPrice * parseInt(numberOfTourists.toString());
             console.log(`➖ Subtracted accommodation (per person): ${tourAccommodationPrice} x ${numberOfTourists} = ${tourAccommodationPrice * parseInt(numberOfTourists.toString())} TJS`);
           } else {
-            // Для цены "за группу" вычитаем проживание один раз
+            // Для групповых туров вычитаем проживание один раз (фиксированная)
             totalPrice -= tourAccommodationPrice;
-            console.log(`➖ Subtracted accommodation (per group): ${tourAccommodationPrice} TJS`);
+            console.log(`➖ Subtracted accommodation (fixed): ${tourAccommodationPrice} TJS`);
           }
         }
         
