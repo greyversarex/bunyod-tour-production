@@ -1322,48 +1322,54 @@
                 }
             }
             
-            // Calculate room costs using real hotel data
-            for (const [hotelId, rooms] of Object.entries(bookingState.roomSelection)) {
-                for (const [roomType, quantity] of Object.entries(rooms)) {
-                    if (quantity > 0) {
-                        // Find hotel data from bookingState
-                        const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
-                        if (hotelData) {
-                            // Parse room types to get real price
-                            let roomTypes = {};
-                            try {
-                                roomTypes = typeof hotelData.roomTypes === 'string' ? JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
-                            } catch (e) {
-                                console.warn('Failed to parse room types for pricing:', hotelData.roomTypes);
-                                roomTypes = {};
-                            }
+            // ✅ Calculate room costs ONLY for the selected hotel
+            // Prevent duplicate calculations when tour has multiple hotels
+            if (bookingState.selectedHotel && bookingState.roomSelection[bookingState.selectedHotel]) {
+                const hotelId = bookingState.selectedHotel;
+                const rooms = bookingState.roomSelection[hotelId];
+                
+                // Find hotel data from bookingState
+                const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
+                if (hotelData) {
+                    // Parse room types to get real price
+                    let roomTypes = {};
+                    try {
+                        roomTypes = typeof hotelData.roomTypes === 'string' ? JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
+                    } catch (e) {
+                        console.warn('Failed to parse room types for pricing:', hotelData.roomTypes);
+                        roomTypes = {};
+                    }
+                    
+                    for (const [roomType, quantity] of Object.entries(rooms)) {
+                        if (quantity > 0 && roomTypes[roomType]) {
+                            const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
+                            const roomCost = roomPrice * quantity * tourDuration;
+                            totalRoomCost += roomCost;
                             
-                            if (roomTypes[roomType]) {
-                                const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
-                                const roomCost = roomPrice * quantity * tourDuration;
-                                totalRoomCost += roomCost;
+                            console.log(`🏨 Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${tourDuration} = ${roomCost} TJS`);
+                            
+                            if (roomCostsCalc) {
+                                // Get localized room name
+                                const roomName = getLocalizedName(roomTypes[roomType]) || roomType;
                                 
-                                console.log(`🏨 Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${tourDuration} = ${roomCost} TJS`);
-                                
-                                if (roomCostsCalc) {
-                                    // Get localized room name
-                                    const roomName = getLocalizedName(roomTypes[roomType]) || roomType;
-                                    
-                                    roomCostsCalc.innerHTML += `
-                                        <div class="flex justify-between text-sm">
-                                            <span>${roomName} × ${quantity} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
-                                            <span>${formatCurrencyWithEquivalent(roomCost)}</span>
-                                        </div>
-                                    `;
-                                }
+                                roomCostsCalc.innerHTML += `
+                                    <div class="flex justify-between text-sm">
+                                        <span>${roomName} × ${quantity} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
+                                        <span>${formatCurrencyWithEquivalent(roomCost)}</span>
+                                    </div>
+                                `;
                             }
                         }
                     }
                 }
             }
             
-            // Calculate meal costs using real hotel data
-            for (const [hotelId, meals] of Object.entries(bookingState.mealSelection)) {
+            // ✅ Calculate meal costs ONLY for the selected hotel
+            // Prevent duplicate calculations when tour has multiple hotels
+            if (bookingState.selectedHotel && bookingState.mealSelection[bookingState.selectedHotel]) {
+                const hotelId = bookingState.selectedHotel;
+                const meals = bookingState.mealSelection[hotelId];
+                
                 // Find hotel data to check if meals are included in room
                 const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
                 let mealTypes = {};
