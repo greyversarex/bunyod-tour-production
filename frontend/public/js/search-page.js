@@ -713,7 +713,7 @@ function createTourCard(tour) {
                     📍 ${getDisplayLocation(tour)}
                 </div>
                 <div class="text-xs text-blue-600 mb-2">
-                    🎯 <span class="font-medium">${tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой')}</span>${tour.tourType === 'Персональный' ? ` <span class="text-gray-600">(${currentLang === 'en' ? 'for 1 person' : 'для 1 человека'})</span>` : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `limit: ${tour.maxPeople} people` : `лимит: ${tour.maxPeople} чел.`})</span>` : '')}
+                    🎯 <span class="font-medium">${tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой')}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
                 </div>
                 <div class="text-xs mb-2" style="color: #3E3E3E;">
                     🏷️ <span class="font-medium">${categoryText}</span>

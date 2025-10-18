@@ -59,6 +59,7 @@ export interface CreateTourData {
   countriesIds?: number[];
   citiesIds?: number[];
   durationDays?: number;
+  durationType?: string;
   format?: string;
   tourType?: string;
   difficulty?: string;

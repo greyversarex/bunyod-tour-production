@@ -1892,7 +1892,7 @@ function renderTourCard(tour, blockId = null) {
                         const translationKey = 'tour_type.' + normalizedType;
                         const translated = getTranslation(translationKey);
                         return translated !== translationKey ? translated : tourType;
-                    })()}</span>${tour.tourType === 'Персональный' ? ` <span class="text-gray-600">(${currentLang === 'en' ? 'for 1 person' : 'для 1 человека'})</span>` : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `limit: ${tour.maxPeople} people` : `лимит: ${tour.maxPeople} чел.`})</span>` : '')}
+                    })()}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
                 </div>
                 <!-- Категория тура -->
                 <div class="text-xs mb-1 sm:mb-2" style="color: #3E3E3E;">
