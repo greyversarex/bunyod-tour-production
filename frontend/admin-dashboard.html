@@ -6314,7 +6314,19 @@
                 })(),
                 durationDays: parseInt(durationDaysValue),
                 duration: durationDaysValue.toString(),
-                durationType: document.getElementById('durationTypeHours') && document.getElementById('durationTypeHours').checked ? 'hours' : 'days',
+                durationType: (() => {
+                    const hoursRadio = document.getElementById('durationTypeHours');
+                    const daysRadio = document.getElementById('durationTypeDays');
+                    const durationType = hoursRadio && hoursRadio.checked ? 'hours' : 'days';
+                    console.log('🕐 Duration type check:', {
+                        hoursRadio: !!hoursRadio,
+                        daysRadio: !!daysRadio,
+                        hoursChecked: hoursRadio?.checked,
+                        daysChecked: daysRadio?.checked,
+                        durationType: durationType
+                    });
+                    return durationType;
+                })(),
                 format: tourTypeEl ? tourTypeEl.value || '' : '',
                 tourType: tourTypeEl ? tourTypeEl.value || '' : '',
                 pickupInfo: tourPickupInfoEl ? tourPickupInfoEl.value || '' : '',
