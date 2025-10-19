@@ -5620,42 +5620,7 @@
                         
                         // УДАЛЕНО: Заполнение eTourType (поле удалено)
                         
-                        const tourCategory = document.getElementById('tourCategory');
-                        if (tourCategory) {
-                            tourCategory.value = tour.categoryId || '';
-                        }
-                        
-                        // ИСПРАВЛЕНО: Загрузка категории в систему выбора с правильным форматом
-                        if (tour.categoryId) {
-                            // Нужно найти название категории по ID
-                            fetch(`${getApiUrl()}/categories`)
-                                .then(res => res.json())
-                                .then(data => {
-                                    const categories = data.data || data.categories || [];
-                                    const category = categories.find(cat => cat.id === tour.categoryId);
-                                    if (category) {
-                                        let categoryName;
-                                        if (typeof category.name === 'object' && category.name !== null) {
-                                            categoryName = category.name;
-                                        } else if (typeof category.name === 'string') {
-                                            try {
-                                                categoryName = JSON.parse(category.name);
-                                            } catch (e) {
-                                                console.warn('Failed to parse category name:', e);
-                                                categoryName = { ru: category.name, en: '' };
-                                            }
-                                        } else {
-                                            categoryName = { ru: 'Категория', en: 'Category' };
-                                        }
-                                        selectedCategories = [{
-                                            id: tour.categoryId, 
-                                            name: categoryName.ru || categoryName.en || 'Категория'
-                                        }];
-                                        updateSelectedCategoriesDisplay();
-                                    }
-                                })
-                                .catch(e => console.warn('Failed to load category for editing:', e));
-                        }
+                        // УДАЛЕНО: Legacy код одиночной категории (заменён на множественные категории)
                         
                         // 📦 Загружаем множественные категории из tourCategoryAssignments
                         if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
