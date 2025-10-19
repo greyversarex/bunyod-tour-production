@@ -1745,34 +1745,88 @@ function renderTourBlock(block, tours) {
     }
 }
 
+// Карта флагов стран
+const countryFlags = {
+    'Таджикистан': '🇹🇯',
+    'Tajikistan': '🇹🇯',
+    'Узбекистан': '🇺🇿',
+    'Uzbekistan': '🇺🇿',
+    'Казахстан': '🇰🇿',
+    'Kazakhstan': '🇰🇿',
+    'Кыргызстан': '🇰🇬',
+    'Kyrgyzstan': '🇰🇬',
+    'Туркменистан': '🇹🇲',
+    'Turkmenistan': '🇹🇲'
+};
+
 // Функция для получения отображаемого местоположения (поддерживает множественные страны и города)
-function getDisplayLocation(tour) {
+function getDisplayLocation(tour, compact = true) {
     const currentLang = getCurrentLanguage();
     const langField = currentLang === 'en' ? 'nameEn' : 'nameRu';
-    let locationParts = [];
     
-    // Проверяем наличие новых множественных связей
+    let countries = [];
+    let cities = [];
+    
+    // Получаем страны
     if (tour.tourCountries && tour.tourCountries.length > 0) {
-        const countries = tour.tourCountries.map(tc => tc.country?.[langField] || tc.country?.nameRu || tc.country?.name || '').filter(Boolean);
+        countries = tour.tourCountries.map(tc => tc.country?.[langField] || tc.country?.nameRu || tc.country?.name || '').filter(Boolean);
+    } else if (tour.country) {
+        countries = [tour.country];
+    }
+    
+    // Получаем города
+    if (tour.tourCities && tour.tourCities.length > 0) {
+        cities = tour.tourCities.map(tc => tc.city?.[langField] || tc.city?.nameRu || tc.city?.name || '').filter(Boolean);
+    } else if (tour.city) {
+        cities = [tour.city];
+    }
+    
+    if (!compact) {
+        // Полный вывод (для страницы тура)
+        const locationParts = [];
         if (countries.length > 0) {
             locationParts.push(countries.join(', '));
         }
-    } else if (tour.country) {
-        // Fallback на старое поле country
-        locationParts.push(tour.country);
-    }
-    
-    if (tour.tourCities && tour.tourCities.length > 0) {
-        const cities = tour.tourCities.map(tc => tc.city?.[langField] || tc.city?.nameRu || tc.city?.name || '').filter(Boolean);
         if (cities.length > 0) {
             locationParts.push(cities.join(', '));
         }
-    } else if (tour.city) {
-        // Fallback на старое поле city
-        locationParts.push(tour.city);
+        return locationParts.length > 0 ? locationParts.join(' • ') : (currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано');
     }
     
-    return locationParts.length > 0 ? locationParts.join(' • ') : (currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано');
+    // Компактный вывод для карточек
+    const maxVisible = 2;
+    let displayParts = [];
+    
+    // Добавляем страны с флагами
+    if (countries.length > 0) {
+        const visibleCountries = countries.slice(0, maxVisible);
+        const countriesWithFlags = visibleCountries.map(country => {
+            const flag = countryFlags[country] || '📍';
+            return `${flag} ${country}`;
+        });
+        
+        if (countries.length > maxVisible) {
+            const remaining = countries.length - maxVisible;
+            const moreText = currentLang === 'en' ? `+${remaining} more` : `ещё ${remaining}`;
+            displayParts.push(countriesWithFlags.join(', ') + `, ${moreText}`);
+        } else {
+            displayParts.push(countriesWithFlags.join(', '));
+        }
+    }
+    
+    // Добавляем города компактно
+    if (cities.length > 0) {
+        const visibleCities = cities.slice(0, maxVisible);
+        if (cities.length > maxVisible) {
+            const remaining = cities.length - maxVisible;
+            const moreText = currentLang === 'en' ? `+${remaining} more` : `ещё ${remaining}`;
+            displayParts.push(visibleCities.join(', ') + `, ${moreText}`);
+        } else {
+            displayParts.push(visibleCities.join(', '));
+        }
+    }
+    
+    return displayParts.length > 0 ? displayParts.join(' • ') : (currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано');
 }
 
 function renderTourCard(tour, blockId = null) {

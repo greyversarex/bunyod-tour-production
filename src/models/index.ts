@@ -36,6 +36,14 @@ export class TourModel {
         tourCountry: true,
         tourCity: true,
         // Новые множественные связи
+        tourCategoryAssignments: {
+          include: {
+            category: true
+          },
+          orderBy: {
+            isPrimary: 'desc' // Показываем основную категорию первой
+          }
+        },
         tourCountries: {
           include: {
             country: true
@@ -213,11 +221,43 @@ export class TourModel {
         });
       }
 
+      // Создаём связи с категориями (множественный выбор)
+      if (data.categoriesIds && data.categoriesIds.length > 0) {
+        await Promise.all(
+          data.categoriesIds.map((categoryId: number, index: number) =>
+            prisma.tourCategoryAssignment.create({
+              data: {
+                tourId: tour.id,
+                categoryId: categoryId,
+                isPrimary: index === 0 // Первая категория считается основной
+              }
+            })
+          )
+        );
+      } else {
+        // Если передана только одна категория (старый способ), создаём primary связь
+        await prisma.tourCategoryAssignment.create({
+          data: {
+            tourId: tour.id,
+            categoryId: data.categoryId,
+            isPrimary: true
+          }
+        });
+      }
+
       // Возвращаем тур с включёнными связями
       return await prisma.tour.findUnique({
         where: { id: tour.id },
         include: {
           category: true,
+          tourCategoryAssignments: {
+            include: {
+              category: true
+            },
+            orderBy: {
+              isPrimary: 'desc' // Показываем основную категорию первой
+            }
+          },
           tourCountries: {
             include: {
               country: true
