@@ -5154,6 +5154,7 @@
         function updateSelectedCategoriesDisplay() {
             const container = document.getElementById('selectedCategories');
             const categoryHiddenInput = document.getElementById('tourCategory');
+            const availableSelect = document.getElementById('availableCategories');
             
             if (selectedCategories.length === 0) {
                 container.innerHTML = '<small class="text-gray-500">Выбранные категории появятся здесь</small>';
@@ -5170,6 +5171,24 @@
                 
                 // Set first category as primary (for required field)
                 categoryHiddenInput.value = selectedCategories[0].id;
+            }
+            
+            // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Визуально помечаем выбранные категории в select
+            if (availableSelect) {
+                const selectedIds = selectedCategories.map(cat => cat.id);
+                Array.from(availableSelect.options).forEach(option => {
+                    if (option.value && selectedIds.includes(option.value)) {
+                        option.disabled = true;
+                        option.style.opacity = '0.5';
+                        if (!option.textContent.startsWith('✓ ')) {
+                            option.textContent = `✓ ${option.textContent}`;
+                        }
+                    } else {
+                        option.disabled = false;
+                        option.style.opacity = '1';
+                        option.textContent = option.textContent.replace('✓ ', '');
+                    }
+                });
             }
         }
 
