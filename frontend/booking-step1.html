@@ -990,12 +990,10 @@
             const urlParams = new URLSearchParams(window.location.search);
             const numberOfTourists = parseInt(urlParams.get('tourists')) || 1;
             
-            // ✅ КРИТИЧЕСКИ ВАЖНО: При выборе номера в НОВОМ отеле - очистить выборы других отелей
-            const allRoomSelections = window.bookingStateManager.state.selections.rooms || {};
-            
-            // Если выбирается другой отель - очистить старые выборы
+            // ✅ КРИТИЧЕСКИ ВАЖНО: При выборе номера в НОВОМ отеле - полностью очистить всё
             if (bookingState.selectedHotel && bookingState.selectedHotel != hotelId) {
-                console.log(`🔄 Switching from hotel ${bookingState.selectedHotel} to hotel ${hotelId} - clearing old selections`);
+                console.log(`🔄 Switching from hotel ${bookingState.selectedHotel} to hotel ${hotelId} - clearing ALL selections`);
+                // Полностью очищаем структуру
                 window.bookingStateManager.setRoomSelection({});
             }
             
@@ -1010,6 +1008,8 @@
             }
             
             // ✅ ПРАВИЛЬНАЯ СТРУКТУРА: rooms[hotelId][roomType] = quantity
+            // Получаем СВЕЖУЮ структуру после очистки
+            const allRoomSelections = window.bookingStateManager.state.selections.rooms || {};
             const currentHotelRooms = allRoomSelections[hotelId] || {};
             const current = currentHotelRooms[roomType] || 0;
             const newQuantity = Math.max(0, current + change);
@@ -1030,11 +1030,12 @@
                 }
             }
             
-            // Update in bookingStateManager - preserve other hotels' selections
-            const updatedAllRooms = { ...allRoomSelections, [hotelId]: updatedHotelRooms };
+            // ✅ ПРАВИЛЬНАЯ ДВОЙНАЯ ВЛОЖЕННОСТЬ: { hotelId: { roomType: quantity } }
+            const updatedAllRooms = { [hotelId]: updatedHotelRooms };
             window.bookingStateManager.setRoomSelection(updatedAllRooms);
             
             console.log(`🛏️ Room updated for hotel ${hotelId}:`, updatedHotelRooms);
+            console.log(`📊 Full room structure:`, updatedAllRooms);
             
             document.getElementById(`room-${hotelId}-${roomType}`).textContent = newQuantity;
             
