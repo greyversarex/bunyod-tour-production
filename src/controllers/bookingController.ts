@@ -487,112 +487,21 @@ export const bookingController = {
         });
       }
 
-      // Рассчитать общую стоимость
-      let totalPrice = 0;
+      // ✅ ARCHITECTURE: Step 1 calculates the final price, Step 2 preserves it
+      // Use existing totalPrice from database (calculated correctly on Step 1)
+      const totalPrice = existingBooking.totalPrice;
       
-      // Базовая стоимость тура
-      const tourPrice = parseFloat(existingBooking.tour.price);
-      const tourPriceType = existingBooking.tour.priceType;
+      console.log(`✅ Step 2 - Preserving final price from Step 1: ${totalPrice} TJS (NO recalculation)`);
       
-      if (tourPriceType === 'за человека') {
-        totalPrice += tourPrice * existingBooking.numberOfTourists;
-      } else {
-        totalPrice += tourPrice; // За группу
-      }
-
-      // НОВАЯ ЛОГИКА: Если выбран отель, вычесть хостел и добавить отель
-      // 🔧 ИСПРАВЛЕНО: Используем сохраненный roomSelection из БД, если не передан новый
+      // 🔧 Update room/meal selections if provided (but don't recalculate price)
       const finalRoomSelection = roomSelection || (existingBooking.roomSelection ? JSON.parse(existingBooking.roomSelection) : null);
-      
-      if (finalRoomSelection && existingBooking.hotel) {
-        const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
-        
-        // Получаем цену проживания из компонентов тура
-        const tourAccommodationPrice = await getAccommodationPriceFromTour(existingBooking.tour.services || '');
-        
-        console.log(`💰 Update - Tour base price: ${totalPrice} TJS`);
-        console.log(`🏨 Update - Tour accommodation component: ${tourAccommodationPrice} TJS`);
-        console.log(`🔍 Update - Room selection format:`, finalRoomSelection);
-        
-        // Вычитаем стоимость компонента проживания из тура
-        // ВАЖНО: Компонент проживания уже включен в базовую цену за весь тур, не умножаем на дни!
-        if (tourAccommodationPrice > 0) {
-          if (tourPriceType === 'за человека') {
-            // Для цены "за человека" вычитаем проживание на всех туристов
-            const accommodationDeduction = tourAccommodationPrice * existingBooking.numberOfTourists;
-            totalPrice -= accommodationDeduction;
-            console.log(`➖ Update - Subtracted accommodation (per person): ${tourAccommodationPrice} x ${existingBooking.numberOfTourists} = ${accommodationDeduction} TJS`);
-          } else {
-            // Для цены "за группу" вычитаем проживание один раз
-            const accommodationDeduction = tourAccommodationPrice;
-            totalPrice -= accommodationDeduction;
-            console.log(`➖ Update - Subtracted accommodation (per group): ${tourAccommodationPrice} TJS`);
-          }
-        }
-        
-        console.log(`💰 Update - Price after accommodation subtraction: ${totalPrice} TJS`);
-        
-        // Добавляем стоимость выбранных номеров отеля
-        // Получаем roomTypes отеля для цен
-        const hotelData = existingBooking.hotel.roomTypes ? JSON.parse(existingBooking.hotel.roomTypes) : {};
-        
-        let hotelRoomsCost = 0;
-        for (const [roomType, roomData] of Object.entries(finalRoomSelection as any)) {
-          // 🔧 Поддержка двух форматов: { SGL: 1 } или { SGL: { quantity: 1, price: 100 } }
-          let quantity = 0;
-          let price = 0;
-          
-          if (typeof roomData === 'number') {
-            // Простой формат: { SGL: 1 }
-            quantity = roomData;
-            price = hotelData[roomType]?.price || 0;
-          } else if (typeof roomData === 'object' && roomData !== null) {
-            // Полный формат: { SGL: { quantity: 1, price: 100 } }
-            const roomObj = roomData as any;
-            quantity = roomObj.quantity || 0;
-            price = roomObj.price || 0;
-          }
-          
-          if (quantity > 0 && price > 0) {
-            const roomCost = price * quantity * tourDuration;
-            totalPrice += roomCost;
-            hotelRoomsCost += roomCost;
-            console.log(`➕ Update - Added hotel room ${roomType}: ${quantity} x ${price} x ${tourDuration} days = ${roomCost} TJS`);
-          }
-        }
-        
-        console.log(`💰 Update - Final price: ${totalPrice} TJS (hotel rooms: ${hotelRoomsCost} TJS)`);
-      }
-
-      // Добавить стоимость питания (если выбрано)
-      // 🔧 ИСПРАВЛЕНО: Используем сохраненный mealSelection из БД, если не передан новый
       const finalMealSelection = mealSelection || (existingBooking.mealSelection ? JSON.parse(existingBooking.mealSelection) : null);
       
-      if (finalMealSelection && existingBooking.hotel) {
-        const tourDuration = parseInt(existingBooking.tour.duration.replace(/\D/g, '')) || 1;
-        
-        for (const [mealType, mealData] of Object.entries(finalMealSelection as any)) {
-          // 🔧 Поддержка двух форматов: { HB: 30 } или { HB: { selected: true, price: 30 } }
-          let price = 0;
-          let selected = false;
-          
-          if (typeof mealData === 'number') {
-            // Простой формат: { HB: 30 }
-            price = mealData;
-            selected = true; // Если цена указана, считаем что выбрано
-          } else if (typeof mealData === 'object' && mealData !== null) {
-            // Полный формат: { HB: { selected: true, price: 30 } }
-            const mealObj = mealData as any;
-            price = mealObj.price || 0;
-            selected = mealObj.selected || false;
-          }
-          
-          if (selected && price > 0) {
-            const mealCost = price * existingBooking.numberOfTourists * tourDuration;
-            totalPrice += mealCost;
-            console.log(`➕ Update - Added meal ${mealType}: ${price} x ${existingBooking.numberOfTourists} x ${tourDuration} days = ${mealCost} TJS`);
-          }
-        }
+      if (finalRoomSelection) {
+        console.log(`🔍 Step 2 - Room selection preserved:`, finalRoomSelection);
+      }
+      if (finalMealSelection) {
+        console.log(`🍽️ Step 2 - Meal selection preserved:`, finalMealSelection);
       }
 
       // Обновить бронирование
