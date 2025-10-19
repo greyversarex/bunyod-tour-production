@@ -634,6 +634,136 @@ function updateResultsCount() {
     }
 }
 
+// ============= ICON HELPERS =============
+// Функция для получения иконки типа тура
+function getTourTypeIcon(tourType) {
+    const type = (tourType || '').toLowerCase();
+    
+    // Персональный - один человечек
+    if (type.includes('персональн') || type.includes('personal')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Групповой - несколько человечков
+    return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+    </svg>`;
+}
+
+// Функция для получения иконки категории
+function getCategoryIcon(categoryName) {
+    const name = (categoryName || '').toLowerCase();
+    
+    // Городской
+    if (name.includes('городск') || name.includes('city') || name.includes('urban')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2h-3a1 1 0 01-1-1v-2a1 1 0 00-1-1H9a1 1 0 00-1 1v2a1 1 0 01-1 1H4a1 1 0 110-2V4zm3 1h2v2H7V5zm2 4H7v2h2V9zm2-4h2v2h-2V5zm2 4h-2v2h2V9z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Природа/экологический
+    if (name.includes('природ') || name.includes('эколог') || name.includes('nature') || name.includes('eco')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.5 2a3.5 3.5 0 101.665 6.58L8.585 10l-1.42 1.42a3.5 3.5 0 101.414 1.414l8.128-8.127a1 1 0 00-1.414-1.414L7.165 11.42A3.5 3.5 0 105.5 2z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Культурно познавательный, Исторический
+    if (name.includes('культур') || name.includes('историч') || name.includes('cultural') || name.includes('historical')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+        </svg>`;
+    }
+    
+    // Походы/треккинги
+    if (name.includes('поход') || name.includes('треккинг') || name.includes('hiking') || name.includes('trekking')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Горные/Озерные ландшафты
+    if (name.includes('горн') || name.includes('озер') || name.includes('mountain') || name.includes('lake')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M4.606 12.97a.75.75 0 01-.134 1.051 2.494 2.494 0 00-.93 2.437 2.494 2.494 0 002.437-.93.75.75 0 111.186.918 3.995 3.995 0 01-4.482 1.332.75.75 0 01-.461-.461 3.994 3.994 0 011.332-4.482.75.75 0 011.052.134z" clip-rule="evenodd"/>
+            <path fill-rule="evenodd" d="M5.752 12A13.07 13.07 0 008 14.248v4.002c0 .414.336.75.75.75a5 5 0 004.797-6.414 12.984 12.984 0 005.45-10.848.75.75 0 00-.735-.735 12.984 12.984 0 00-10.849 5.45A5 5 0 001 11.25c.001.414.337.75.751.75h4.002zM13 9a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Приключенческий
+    if (name.includes('приключ') || name.includes('adventure')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // Гастрономический
+    if (name.includes('гастроном') || name.includes('food') || name.includes('gastro')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+        </svg>`;
+    }
+    
+    // Авто/сафари/джип
+    if (name.includes('авто') || name.includes('сафари') || name.includes('джип') || name.includes('safari') || name.includes('jeep')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
+            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-2h3v2a1 1 0 001 1h.05a2.5 2.5 0 014.9 0H17a1 1 0 001-1V5a1 1 0 00-1-1H3zM15 7h2v2h-2V7zM5 7h2v2H5V7z"/>
+        </svg>`;
+    }
+    
+    // Агротуризм - растение/росток
+    if (name.includes('агро') || name.includes('agro') || name.includes('farm')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M19 11a7.5 7.5 0 01-7.5 7.5c-1.04 0-2.026-.209-2.926-.584A8.972 8.972 0 0110 18c0-4.97-4.03-9-9-9A8.973 8.973 0 011.584 6.926 7.496 7.496 0 019.5 3.5 7.5 7.5 0 0119 11z"/>
+        </svg>`;
+    }
+    
+    // Экскурсия
+    if (name.includes('экскурс') || name.includes('excursion') || name.includes('tour')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+        </svg>`;
+    }
+    
+    // Однодневный/Многодневный - календарь
+    if (name.includes('дневн') || name.includes('day')) {
+        return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+        </svg>`;
+    }
+    
+    // По умолчанию - тег
+    return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+    </svg>`;
+}
+
+// Функция для получения отображаемого местоположения (только страны)
+function getDisplayLocation(tour) {
+    const currentLang = state.currentLang;
+    const langField = currentLang === 'en' ? 'nameEn' : 'nameRu';
+    
+    let countries = [];
+    
+    // Получаем страны из tourCountries
+    if (tour.tourCountries && tour.tourCountries.length > 0) {
+        countries = tour.tourCountries.map(tc => tc.country?.[langField] || tc.country?.nameRu || tc.country?.name || '').filter(Boolean);
+    } else if (tour.country) {
+        const countryName = typeof tour.country === 'object' ? (tour.country[langField] || tour.country.nameRu || tour.country.name) : tour.country;
+        if (countryName) countries = [countryName];
+    }
+    
+    // Показываем все страны без ограничения
+    if (countries.length > 0) {
+        return countries.join(', ');
+    }
+    
+    return currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано';
+}
+
 // ============= CARD RENDERING =============
 function renderTourCards() {
     const container = document.getElementById('tours-results');
@@ -658,8 +788,31 @@ function createTourCard(tour) {
     const descriptionData = tour.description || {};
     const descriptionText = typeof descriptionData === 'object' ? (descriptionData[currentLang] || descriptionData.ru || descriptionData.en || '') : descriptionData;
     
-    const categoryData = tour.category?.name || '';
-    const categoryText = typeof categoryData === 'object' ? (categoryData[currentLang] || categoryData.ru || categoryData.en || '') : categoryData;
+    // Обработка множественных категорий
+    let categoryText = '';
+    let allCategories = [];
+    
+    if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
+        // Собираем все категории
+        allCategories = tour.tourCategoryAssignments.map(tca => {
+            const cat = tca.category;
+            let catName;
+            try {
+                const nameData = typeof cat.name === 'string' ? JSON.parse(cat.name) : cat.name;
+                catName = (typeof nameData === 'object' && nameData !== null) ? (nameData[currentLang] || nameData.ru || nameData.en || cat.name) : (cat.name || '');
+            } catch (e) {
+                catName = cat.name || '';
+            }
+            return catName;
+        }).filter(Boolean);
+        
+        // Для отображения берем первую категорию
+        categoryText = allCategories[0] || '';
+    } else if (tour.category && tour.category.name) {
+        // Fallback на старую одиночную категорию
+        const categoryData = tour.category?.name || '';
+        categoryText = typeof categoryData === 'object' ? (categoryData[currentLang] || categoryData.ru || categoryData.en || '') : categoryData;
+    }
     
     // Изображения
     const tourImages = [];
@@ -677,23 +830,9 @@ function createTourCard(tour) {
         tourImages.push('/placeholder-tour.jpg');
     }
     
-    // Локация
-    const getDisplayLocation = (tour) => {
-        const country = tour.country;
-        const city = tour.city;
-        
-        if (country && city) {
-            const countryName = typeof country === 'object' ? (country[`name${currentLang === 'en' ? 'En' : 'Ru'}`] || country.nameRu || country.name) : country;
-            const cityName = typeof city === 'object' ? (city[`name${currentLang === 'en' ? 'En' : 'Ru'}`] || city.nameRu || city.name) : city;
-            return `${cityName}, ${countryName}`;
-        }
-        if (city) return typeof city === 'object' ? (city[`name${currentLang === 'en' ? 'En' : 'Ru'}`] || city.nameRu || city.name) : city;
-        if (country) return typeof country === 'object' ? (country[`name${currentLang === 'en' ? 'En' : 'Ru'}`] || country.nameRu || country.name) : country;
-        return currentLang === 'en' ? 'Location not specified' : 'Локация не указана';
-    };
-    
     const uniqueCardId = `search-${tour.id}`;
     const priceText = currentLang === 'ru' ? 'от' : 'from';
+    const tourTypeText = tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой');
     
     return `
         <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
@@ -709,14 +848,31 @@ function createTourCard(tour) {
                 </div>
             </div>
             <div class="p-4 flex flex-col flex-grow">
-                <div class="text-xs text-gray-500 mb-2">
-                    📍 ${getDisplayLocation(tour)}
+                <!-- Локация (только страны, все показываем) -->
+                <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #6B7280;">
+                    <svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-medium">${getDisplayLocation(tour)}</span>
                 </div>
-                <div class="text-xs text-blue-600 mb-2">
-                    🎯 <span class="font-medium">${tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой')}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
+                <!-- Тип тура -->
+                <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3B82F6;">
+                    ${getTourTypeIcon(tourTypeText)}
+                    <span class="font-medium tour-type-text" data-tour-type="${tourTypeText}" data-translate="tour_type.${tourTypeText.toLowerCase().replace(/\s+/g, '_')}">${tourTypeText}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
                 </div>
+                <!-- Категория тура с множественными категориями -->
                 <div class="text-xs mb-2" style="color: #3E3E3E;">
-                    🏷️ <span class="font-medium">${categoryText}</span>
+                    ${getCategoryIcon(categoryText)}
+                    <span class="font-medium">${categoryText}</span>
+                    ${allCategories.length > 1 ? `
+                    <span class="relative group cursor-help">
+                        <span class="text-gray-400">...</span>
+                        <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
+                            ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
+                            <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                        </div>
+                    </span>
+                    ` : ''}
                 </div>
                 ${tour.rating ? `
                 <div class="text-xs text-green-600 mb-2">
