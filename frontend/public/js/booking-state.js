@@ -63,6 +63,37 @@ const bookingStateManager = {
             if (age < STATE_EXPIRY_MS) {
                 try {
                     this.state = JSON.parse(stored);
+                    
+                    // ✅ FIX: Remove corrupted triple-nested room structure
+                    if (this.state.selections && this.state.selections.rooms) {
+                        const rooms = this.state.selections.rooms;
+                        const fixedRooms = {};
+                        
+                        Object.keys(rooms).forEach(hotelId => {
+                            const hotelRooms = rooms[hotelId];
+                            
+                            // Check if it's triple-nested (corrupted)
+                            if (hotelRooms && typeof hotelRooms === 'object') {
+                                const firstKey = Object.keys(hotelRooms)[0];
+                                const firstValue = hotelRooms[firstKey];
+                                
+                                // If first value is an object with room types, it's triple-nested
+                                if (firstValue && typeof firstValue === 'object' && 
+                                    (firstValue.SGL !== undefined || firstValue.TWL !== undefined || firstValue.DBL !== undefined)) {
+                                    console.warn('⚠️ Found corrupted triple-nested structure, fixing...');
+                                    // Extract the inner object (correct structure)
+                                    fixedRooms[hotelId] = firstValue;
+                                } else {
+                                    // Already correct structure
+                                    fixedRooms[hotelId] = hotelRooms;
+                                }
+                            }
+                        });
+                        
+                        this.state.selections.rooms = fixedRooms;
+                        console.log('✅ Fixed room structure:', fixedRooms);
+                    }
+                    
                     console.log('📦 Booking state loaded from sessionStorage:', this.state);
                     return true;
                 } catch (e) {
