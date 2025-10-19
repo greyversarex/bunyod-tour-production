@@ -1745,13 +1745,12 @@ function renderTourBlock(block, tours) {
     }
 }
 
-// Функция для получения отображаемого местоположения (поддерживает множественные страны и города)
+// Функция для получения отображаемого местоположения (только страны)
 function getDisplayLocation(tour) {
     const currentLang = getCurrentLanguage();
     const langField = currentLang === 'en' ? 'nameEn' : 'nameRu';
     
     let countries = [];
-    let cities = [];
     
     // Получаем страны
     if (tour.tourCountries && tour.tourCountries.length > 0) {
@@ -1760,42 +1759,12 @@ function getDisplayLocation(tour) {
         countries = [tour.country];
     }
     
-    // Получаем города
-    if (tour.tourCities && tour.tourCities.length > 0) {
-        cities = tour.tourCities.map(tc => tc.city?.[langField] || tc.city?.nameRu || tc.city?.name || '').filter(Boolean);
-    } else if (tour.city) {
-        cities = [tour.city];
-    }
-    
-    // Компактный вывод - показываем первые 2 элемента + "ещё N"
-    const maxVisible = 2;
-    let displayParts = [];
-    
-    // Добавляем страны
+    // Показываем все страны без ограничения
     if (countries.length > 0) {
-        const visibleCountries = countries.slice(0, maxVisible);
-        if (countries.length > maxVisible) {
-            const remaining = countries.length - maxVisible;
-            const moreText = currentLang === 'en' ? `+${remaining} more` : `ещё ${remaining}`;
-            displayParts.push(visibleCountries.join(', ') + `, ${moreText}`);
-        } else {
-            displayParts.push(visibleCountries.join(', '));
-        }
+        return countries.join(', ');
     }
     
-    // Добавляем города
-    if (cities.length > 0) {
-        const visibleCities = cities.slice(0, maxVisible);
-        if (cities.length > maxVisible) {
-            const remaining = cities.length - maxVisible;
-            const moreText = currentLang === 'en' ? `+${remaining} more` : `ещё ${remaining}`;
-            displayParts.push(visibleCities.join(', ') + `, ${moreText}`);
-        } else {
-            displayParts.push(visibleCities.join(', '));
-        }
-    }
-    
-    return displayParts.length > 0 ? displayParts.join(' • ') : (currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано');
+    return currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано';
 }
 
 function renderTourCard(tour, blockId = null) {

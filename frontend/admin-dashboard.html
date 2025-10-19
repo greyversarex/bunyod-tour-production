@@ -6340,6 +6340,7 @@
                         return [];
                     }
                 })(),
+                categoriesIds: selectedCategories.map(cat => parseInt(cat.id)),
                 durationDays: parseInt(durationDaysValue),
                 duration: durationDaysValue.toString(),
                 durationType: document.getElementById('durationTypeHours')?.checked ? 'hours' : 'days',
