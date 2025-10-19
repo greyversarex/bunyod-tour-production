@@ -5175,14 +5175,20 @@
             
             // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Визуально помечаем выбранные категории в select
             if (availableSelect) {
-                const selectedIds = selectedCategories.map(cat => cat.id);
+                const selectedIds = selectedCategories.map(cat => String(cat.id)); // Приводим к строке
+                console.log('🔍 Отмечаем категории в select:', {
+                    selectedIds,
+                    optionsCount: availableSelect.options.length
+                });
+                
                 Array.from(availableSelect.options).forEach(option => {
-                    if (option.value && selectedIds.includes(option.value)) {
+                    if (option.value && selectedIds.includes(String(option.value))) {
                         option.disabled = true;
                         option.style.opacity = '0.5';
                         if (!option.textContent.startsWith('✓ ')) {
                             option.textContent = `✓ ${option.textContent}`;
                         }
+                        console.log('✓ Отмечена категория:', option.value, option.textContent);
                     } else {
                         option.disabled = false;
                         option.style.opacity = '1';
