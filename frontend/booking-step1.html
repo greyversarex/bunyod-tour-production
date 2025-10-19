@@ -140,28 +140,14 @@
             // NOTE: selectedHotel setter removed - use setHotelInfo directly with full hotel data
             
             get roomSelection() { 
-                // Return room selections - check all hotels from availableHotels
-                const result = {};
-                for (const hotel of this.availableHotels) {
-                    const rooms = window.bookingStateManager.state.selections.rooms || {};
-                    if (Object.keys(rooms).length > 0) {
-                        result[hotel.id] = rooms;
-                    }
-                }
-                return result;
+                // ✅ FIXED: Return room selections directly (already in correct format)
+                return window.bookingStateManager.state.selections.rooms || {};
             },
             // NOTE: roomSelection setter removed - use window.bookingStateManager.setRoomSelection() directly
             
             get mealSelection() {
-                // Return meal selections - check all hotels from availableHotels
-                const result = {};
-                for (const hotel of this.availableHotels) {
-                    const meals = window.bookingStateManager.state.selections.meals || {};
-                    if (Object.keys(meals).length > 0) {
-                        result[hotel.id] = meals;
-                    }
-                }
-                return result;
+                // ✅ FIXED: Return meal selections directly (already in correct format)
+                return window.bookingStateManager.state.selections.meals || {};
             },
             // NOTE: mealSelection setter removed - use window.bookingStateManager.setMealSelection() directly
             
