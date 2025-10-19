@@ -990,27 +990,35 @@
             const urlParams = new URLSearchParams(window.location.search);
             const numberOfTourists = parseInt(urlParams.get('tourists')) || 1;
             
-            // ✅ CRITICAL: Set selected hotel when user selects a room
-            if (!bookingState.selectedHotel) {
-                const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
-                if (hotelData) {
-                    window.bookingStateManager.setHotelInfo({
-                        id: hotelData.id,
-                        name: hotelData.name || {}
-                    });
-                    console.log(`✅ Auto-selected hotel ${hotelId} when choosing room`);
-                }
+            // ✅ КРИТИЧЕСКИ ВАЖНО: При выборе номера в НОВОМ отеле - очистить выборы других отелей
+            const allRoomSelections = window.bookingStateManager.state.selections.rooms || {};
+            
+            // Если выбирается другой отель - очистить старые выборы
+            if (bookingState.selectedHotel && bookingState.selectedHotel != hotelId) {
+                console.log(`🔄 Switching from hotel ${bookingState.selectedHotel} to hotel ${hotelId} - clearing old selections`);
+                window.bookingStateManager.setRoomSelection({});
             }
             
-            // ✅ FIXED: Update through bookingStateManager
-            const currentRooms = window.bookingStateManager.state.selections.rooms || {};
-            const current = currentRooms[roomType] || 0;
+            // Установить выбранный отель
+            const hotelData = bookingState.availableHotels.find(h => h.id == hotelId);
+            if (hotelData) {
+                window.bookingStateManager.setHotelInfo({
+                    id: hotelData.id,
+                    name: hotelData.name || {}
+                });
+                console.log(`✅ Selected hotel ${hotelId} (${hotelData.name?.ru || hotelData.name})`);
+            }
+            
+            // ✅ ПРАВИЛЬНАЯ СТРУКТУРА: rooms[hotelId][roomType] = quantity
+            const currentHotelRooms = allRoomSelections[hotelId] || {};
+            const current = currentHotelRooms[roomType] || 0;
             const newQuantity = Math.max(0, current + change);
             
             // ✅ ВАЛИДАЦИЯ: Проверяем вместимость номеров
+            const updatedHotelRooms = { ...currentHotelRooms, [roomType]: newQuantity };
+            
             if (change > 0) { // Только при добавлении номера
-                const updatedRooms = { ...currentRooms, [roomType]: newQuantity };
-                const totalCapacity = calculateTotalRoomCapacity(updatedRooms);
+                const totalCapacity = calculateTotalRoomCapacity(updatedHotelRooms);
                 
                 if (totalCapacity > numberOfTourists) {
                     const lang = window.currentLanguage || 'ru';
@@ -1022,11 +1030,11 @@
                 }
             }
             
-            // Update in bookingStateManager
-            const updatedRooms = { ...currentRooms, [roomType]: newQuantity };
-            window.bookingStateManager.setRoomSelection(updatedRooms);
+            // Update in bookingStateManager with correct nested structure
+            const updatedAllRooms = { [hotelId]: updatedHotelRooms };
+            window.bookingStateManager.setRoomSelection(updatedAllRooms);
             
-            console.log(`🛏️ Room updated:`, updatedRooms);
+            console.log(`🛏️ Room updated for hotel ${hotelId}:`, updatedHotelRooms);
             
             document.getElementById(`room-${hotelId}-${roomType}`).textContent = newQuantity;
             
