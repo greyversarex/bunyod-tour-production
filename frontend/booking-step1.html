@@ -1030,8 +1030,8 @@
                 }
             }
             
-            // Update in bookingStateManager with correct nested structure
-            const updatedAllRooms = { [hotelId]: updatedHotelRooms };
+            // Update in bookingStateManager - preserve other hotels' selections
+            const updatedAllRooms = { ...allRoomSelections, [hotelId]: updatedHotelRooms };
             window.bookingStateManager.setRoomSelection(updatedAllRooms);
             
             console.log(`🛏️ Room updated for hotel ${hotelId}:`, updatedHotelRooms);
