@@ -931,6 +931,35 @@ export class TourController {
         }
       }
 
+      // 🎯 Update category associations if provided
+      if (categoriesIdsNumbers !== undefined) {
+        console.log('🏷️ Updating category associations:', categoriesIdsNumbers);
+        
+        // Delete existing category associations
+        await prisma.tourCategoryAssignment.deleteMany({
+          where: { tourId: id }
+        });
+        
+        // Create new category associations
+        if (categoriesIdsNumbers.length > 0) {
+          const tourCategoryData = categoriesIdsNumbers.map((catId: number, index: number) => ({
+            tourId: id,
+            categoryId: catId,
+            isPrimary: index === 0 // Первая категория считается основной
+          }));
+          
+          console.log('🏷️ TourCategoryAssignment data to create:', tourCategoryData);
+          
+          await prisma.tourCategoryAssignment.createMany({
+            data: tourCategoryData
+          });
+          
+          console.log('✅ Category associations updated successfully');
+        } else {
+          console.log('🏷️ No categories to assign, existing associations cleared');
+        }
+      }
+
       // Parse JSON fields for response with safe parsing
       let parsedTour;
       try {
