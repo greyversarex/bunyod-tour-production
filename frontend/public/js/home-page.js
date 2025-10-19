@@ -1846,10 +1846,10 @@ function getCategoryIcon(categoryName) {
         </svg>`;
     }
     
-    // Агротуризм
+    // Агротуризм - растение/росток
     if (name.includes('агро') || name.includes('agro') || name.includes('farm')) {
         return `<svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+            <path d="M19 11a7.5 7.5 0 01-7.5 7.5c-1.04 0-2.026-.209-2.926-.584A8.972 8.972 0 0110 18c0-4.97-4.03-9-9-9A8.973 8.973 0 011.584 6.926 7.496 7.496 0 019.5 3.5 7.5 7.5 0 0119 11z"/>
         </svg>`;
     }
     
@@ -1900,9 +1900,29 @@ function renderTourCard(tour, blockId = null) {
         descriptionText = tour.description || descFallback;
     }
     
-    // Обрабатываем название категории
-    let categoryData, categoryText;
-    if (tour.category && tour.category.name) {
+    // Обрабатываем категории (поддержка множественных категорий)
+    let categoryData, categoryText, allCategories = [];
+    
+    // Проверяем множественные категории через tourCategoryAssignments
+    if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
+        // Собираем все категории
+        allCategories = tour.tourCategoryAssignments.map(tca => {
+            const cat = tca.category;
+            let catName;
+            try {
+                const nameData = typeof cat.name === 'string' ? JSON.parse(cat.name) : cat.name;
+                catName = getLocalizedText(nameData, currentLang) || categoryFallback;
+            } catch (e) {
+                catName = cat.name || categoryFallback;
+            }
+            return catName;
+        });
+        
+        // Для отображения берем первую категорию
+        categoryText = allCategories[0];
+        categoryData = { ru: categoryText, en: categoryText };
+    } else if (tour.category && tour.category.name) {
+        // Fallback на старую одиночную категорию
         try {
             categoryData = typeof tour.category.name === 'string' ? JSON.parse(tour.category.name) : tour.category.name;
             categoryText = getLocalizedText(categoryData, currentLang) || categoryFallback;
@@ -1910,9 +1930,11 @@ function renderTourCard(tour, blockId = null) {
             categoryData = { ru: tour.category.name || categoryFallback, en: tour.category.name || categoryFallback };
             categoryText = tour.category.name || categoryFallback;
         }
+        allCategories = [categoryText];
     } else {
         categoryData = { ru: categoryFallback, en: categoryFallback };
         categoryText = categoryFallback;
+        allCategories = [categoryText];
     }
     
     const shortDesc = tour.shortDesc || null;
@@ -2000,6 +2022,15 @@ function renderTourCard(tour, blockId = null) {
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
                     <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}</span>
+                    ${allCategories.length > 1 ? `
+                    <span class="relative group cursor-help">
+                        <span class="text-gray-400">...</span>
+                        <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
+                            ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
+                            <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                        </div>
+                    </span>
+                    ` : ''}
                 </div>
                 ${tour.rating ? `
                 <div class="text-xs text-green-600 mb-1 sm:mb-2">
