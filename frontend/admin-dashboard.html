@@ -4319,6 +4319,7 @@
                 country: safeGetValue('tourCountry', ''),
                 city: safeGetValue('tourCity', ''),
                 categoryId: safeGetValue('tourCategory', null, 'int'),
+                categoriesIds: selectedCategories.map(cat => parseInt(cat.id)),
                 tourBlockIds: Array.from(document.querySelectorAll('input[name="tourBlocks"]:checked')).map(cb => parseInt(cb.value)),
                 
                 // Информация о туре
@@ -4432,6 +4433,7 @@
                 availableMonths: JSON.stringify(getSelectedCheckboxValues('month-')),
                 availableDays: JSON.stringify(getSelectedCheckboxValues('day-')),
                 categoryId: selectedCategories.length > 0 ? selectedCategories[0].id : null,
+                categoriesIds: selectedCategories.map(cat => parseInt(cat.id)),
                 tourBlockIds: Array.from(document.querySelectorAll('input[name="tourBlocks"]:checked')).map(cb => parseInt(cb.value)),
                 isFeatured: safeGetValue('tourIsFeatured', false, 'checkbox'),
                 isActive: true,

@@ -442,6 +442,7 @@ export class TourController {
         // Новые массивы для множественного выбора
         countriesIds: countriesIdsNumbers,
         citiesIds: citiesIdsNumbers,
+        categoriesIds: categoriesIdsNumbers,
         format: format || null,
         tourType: tourType || null,
         durationDays: durationDaysNumber,
