@@ -5632,6 +5632,32 @@
                                 .catch(e => console.warn('Failed to load category for editing:', e));
                         }
                         
+                        // 📦 Загружаем множественные категории из tourCategoryAssignments
+                        if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
+                            selectedCategories = tour.tourCategoryAssignments.map(tca => {
+                                const category = tca.category;
+                                let categoryName = '';
+                                if (typeof category.name === 'object' && category.name.ru) {
+                                    categoryName = category.name.ru;
+                                } else if (typeof category.name === 'string') {
+                                    try {
+                                        const parsed = JSON.parse(category.name);
+                                        categoryName = parsed.ru || parsed.en || category.name;
+                                    } catch (e) {
+                                        categoryName = category.name;
+                                    }
+                                } else {
+                                    categoryName = 'Категория';
+                                }
+                                return {
+                                    id: category.id.toString(),
+                                    name: categoryName
+                                };
+                            });
+                            updateSelectedCategoriesDisplay();
+                            console.log('✅ Множественные категории загружены:', selectedCategories);
+                        }
+                        
                         // УДАЛЕНО: Заполнение eTourCategoryId (поле удалено)
                         
                         const tourBlockIdElement = document.getElementById('tourBlockId');

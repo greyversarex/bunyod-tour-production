@@ -1745,22 +1745,8 @@ function renderTourBlock(block, tours) {
     }
 }
 
-// Карта флагов стран
-const countryFlags = {
-    'Таджикистан': '🇹🇯',
-    'Tajikistan': '🇹🇯',
-    'Узбекистан': '🇺🇿',
-    'Uzbekistan': '🇺🇿',
-    'Казахстан': '🇰🇿',
-    'Kazakhstan': '🇰🇿',
-    'Кыргызстан': '🇰🇬',
-    'Kyrgyzstan': '🇰🇬',
-    'Туркменистан': '🇹🇲',
-    'Turkmenistan': '🇹🇲'
-};
-
 // Функция для получения отображаемого местоположения (поддерживает множественные страны и города)
-function getDisplayLocation(tour, compact = true) {
+function getDisplayLocation(tour) {
     const currentLang = getCurrentLanguage();
     const langField = currentLang === 'en' ? 'nameEn' : 'nameRu';
     
@@ -1781,40 +1767,23 @@ function getDisplayLocation(tour, compact = true) {
         cities = [tour.city];
     }
     
-    if (!compact) {
-        // Полный вывод (для страницы тура)
-        const locationParts = [];
-        if (countries.length > 0) {
-            locationParts.push(countries.join(', '));
-        }
-        if (cities.length > 0) {
-            locationParts.push(cities.join(', '));
-        }
-        return locationParts.length > 0 ? locationParts.join(' • ') : (currentLang === 'en' ? 'Location not specified' : 'Местоположение не указано');
-    }
-    
-    // Компактный вывод для карточек
+    // Компактный вывод - показываем первые 2 элемента + "ещё N"
     const maxVisible = 2;
     let displayParts = [];
     
-    // Добавляем страны с флагами
+    // Добавляем страны
     if (countries.length > 0) {
         const visibleCountries = countries.slice(0, maxVisible);
-        const countriesWithFlags = visibleCountries.map(country => {
-            const flag = countryFlags[country] || '📍';
-            return `${flag} ${country}`;
-        });
-        
         if (countries.length > maxVisible) {
             const remaining = countries.length - maxVisible;
             const moreText = currentLang === 'en' ? `+${remaining} more` : `ещё ${remaining}`;
-            displayParts.push(countriesWithFlags.join(', ') + `, ${moreText}`);
+            displayParts.push(visibleCountries.join(', ') + `, ${moreText}`);
         } else {
-            displayParts.push(countriesWithFlags.join(', '));
+            displayParts.push(visibleCountries.join(', '));
         }
     }
     
-    // Добавляем города компактно
+    // Добавляем города
     if (cities.length > 0) {
         const visibleCities = cities.slice(0, maxVisible);
         if (cities.length > maxVisible) {

@@ -660,7 +660,7 @@ export class TourController {
         });
       }
 
-      let { title, description, duration, price, categoryId, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
+      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
 
       // Parse JSON strings if needed (same as createTour)
       if (typeof title === 'string') {
@@ -722,9 +722,10 @@ export class TourController {
       const ratingNumber = rating ? parseFloat(rating) : undefined;
       const reviewsCountNumber = reviewsCount ? parseInt(reviewsCount) : undefined;
 
-      // Parse arrays for multiple countries and cities
+      // Parse arrays for multiple countries, cities, and categories
       let countriesIdsNumbers: number[] | undefined;
       let citiesIdsNumbers: number[] | undefined;
+      let categoriesIdsNumbers: number[] | undefined;
 
       if (countriesIds !== undefined) {
         if (Array.isArray(countriesIds) && countriesIds.length > 0) {
@@ -754,6 +755,20 @@ export class TourController {
         }
       }
 
+      if (categoriesIds !== undefined) {
+        if (Array.isArray(categoriesIds) && categoriesIds.length > 0) {
+          categoriesIdsNumbers = categoriesIds.map(id => parseInt(id)).filter(id => !isNaN(id));
+          if (categoriesIdsNumbers.length === 0) {
+            return res.status(400).json({
+              success: false,
+              error: 'Invalid categories IDs format'
+            });
+          }
+        } else {
+          categoriesIdsNumbers = []; // Empty array to clear existing relations
+        }
+      }
+
       const updateData: Partial<CreateTourData> = {};
       if (title) updateData.title = title;
       if (description) updateData.description = description;
@@ -768,6 +783,7 @@ export class TourController {
       // Новые поля для множественного выбора
       if (countriesIdsNumbers !== undefined) updateData.countriesIds = countriesIdsNumbers;
       if (citiesIdsNumbers !== undefined) updateData.citiesIds = citiesIdsNumbers;
+      if (categoriesIdsNumbers !== undefined) updateData.categoriesIds = categoriesIdsNumbers;
       if (durationDaysNumber !== undefined) updateData.durationDays = durationDaysNumber;
       if (durationType !== undefined) updateData.durationType = durationType;
       if (format !== undefined) updateData.format = format;

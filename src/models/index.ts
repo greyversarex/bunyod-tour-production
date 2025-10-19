@@ -467,11 +467,64 @@ export class TourModel {
         }
       }
 
+      // Обновляем связи с категориями, если переданы новые массивы
+      if (data.categoriesIds !== undefined) {
+        // Удаляем старые связи
+        await prisma.tourCategoryAssignment.deleteMany({
+          where: { tourId: id }
+        });
+
+        // Создаём новые связи
+        if (data.categoriesIds.length > 0) {
+          await Promise.all(
+            data.categoriesIds.map((categoryId: number, index: number) =>
+              prisma.tourCategoryAssignment.create({
+                data: {
+                  tourId: id,
+                  categoryId: categoryId,
+                  isPrimary: index === 0 // Первая категория считается основной
+                }
+              })
+            )
+          );
+        }
+      } else if (data.categoryId !== undefined && data.categoryId !== null) {
+        // Если передана только одна категория (старый способ), обновляем/создаём primary связь
+        const existingCategoryLink = await prisma.tourCategoryAssignment.findFirst({
+          where: { tourId: id, isPrimary: true }
+        });
+
+        if (existingCategoryLink && existingCategoryLink.categoryId !== data.categoryId) {
+          // Обновляем существующую primary связь
+          await prisma.tourCategoryAssignment.update({
+            where: { id: existingCategoryLink.id },
+            data: { categoryId: data.categoryId }
+          });
+        } else if (!existingCategoryLink) {
+          // Создаём новую primary связь
+          await prisma.tourCategoryAssignment.create({
+            data: {
+              tourId: id,
+              categoryId: data.categoryId,
+              isPrimary: true
+            }
+          });
+        }
+      }
+
       // Возвращаем обновлённый тур с включёнными связями
       return await prisma.tour.findUnique({
         where: { id },
         include: {
           category: true,
+          tourCategoryAssignments: {
+            include: {
+              category: true
+            },
+            orderBy: {
+              isPrimary: 'desc'
+            }
+          },
           tourCountries: {
             include: {
               country: true
