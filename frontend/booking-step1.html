@@ -1076,9 +1076,18 @@
         }
 
         function selectHotel(hotelId) {
-            // ✅ FIXED: Check rooms from bookingStateManager
+            // ✅ FIXED: Check rooms from bookingStateManager with correct structure
             const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
-            const hasRoomsSelected = Object.values(selectedRooms).some(quantity => quantity > 0);
+            
+            // Check if there are any rooms selected for THIS hotel with quantity > 0
+            const hotelRooms = selectedRooms[hotelId] || {};
+            const hasRoomsSelected = Object.values(hotelRooms).some(quantity => parseInt(quantity) > 0);
+            
+            console.log('🔍 selectHotel validation:', {
+                hotelId,
+                hotelRooms,
+                hasRoomsSelected
+            });
             
             if (!hasRoomsSelected) {
                 showNotification(getTranslation('booking.error.select_room'), 'warning');
