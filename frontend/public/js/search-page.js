@@ -1207,6 +1207,28 @@ function checkUrlParams() {
     }
 }
 
+// ============= LANGUAGE HANDLING =============
+function updateLanguageOnSearchPage() {
+    // Обновляем язык в state
+    state.currentLang = window.currentLanguage || 'ru';
+    
+    // Перерисовываем результаты с новым языком
+    renderTourCards();
+    
+    // Переводим статические элементы через i18n систему
+    if (typeof translateAllDynamicContent === 'function') {
+        translateAllDynamicContent(state.currentLang);
+    }
+    
+    console.log(`🌐 Язык страницы поиска обновлен на: ${state.currentLang}`);
+}
+
+// Слушаем изменения языка
+document.addEventListener('languageChanged', (e) => {
+    console.log('🔄 Language changed event received:', e.detail);
+    updateLanguageOnSearchPage();
+});
+
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', async () => {
     await loadAllData();
@@ -1215,4 +1237,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     initializeAccordions();
     setupEventListeners();
     performSearch();
+    
+    // Инициализируем переводы
+    if (typeof translateAllDynamicContent === 'function') {
+        translateAllDynamicContent(state.currentLang);
+    }
 });

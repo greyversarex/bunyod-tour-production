@@ -576,6 +576,26 @@ export class TourModel {
           orderBy: {
             isPrimary: 'desc'
           }
+        },
+        tourCountries: {
+          include: {
+            country: true
+          },
+          orderBy: {
+            isPrimary: 'desc'
+          }
+        },
+        tourCities: {
+          include: {
+            city: {
+              include: {
+                country: true
+              }
+            }
+          },
+          orderBy: {
+            isPrimary: 'desc'
+          }
         }
       },
       orderBy: {

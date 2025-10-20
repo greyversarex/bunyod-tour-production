@@ -1245,7 +1245,15 @@ export class TourController {
         category: tour.category ? {
           ...tour.category,
           name: safeJsonParse(tour.category.name)
-        } : null
+        } : null,
+        // Парсим множественные категории
+        tourCategoryAssignments: tour.tourCategoryAssignments ? tour.tourCategoryAssignments.map((tca: any) => ({
+          ...tca,
+          category: tca.category ? {
+            ...tca.category,
+            name: safeJsonParse(tca.category.name)
+          } : null
+        })) : []
       }));
 
       const response: ApiResponse = {
