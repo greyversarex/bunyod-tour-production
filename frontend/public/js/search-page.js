@@ -940,8 +940,8 @@ function createTourCard(tour) {
                     ${getCategoryIcon(categoryText)}
                     <span class="font-medium">${categoryText}</span>
                     ${allCategories.length > 1 ? `
-                    <span class="relative group cursor-help">
-                        <span class="text-gray-400">...</span>
+                    <span class="relative group cursor-help ml-0.5">
+                        <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
                         <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
                             ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
                             <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
