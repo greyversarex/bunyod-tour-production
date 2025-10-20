@@ -457,16 +457,15 @@
             const selectedCurrency = currencyState.selectedCurrency;
             const rates = currencyState.rates;
             
-            // Always show TJS first
-            let display = `${Math.round(amountTJS)} TJS`;
-            
-            if (showEquivalent && selectedCurrency !== 'TJS' && rates[selectedCurrency]) {
+            // ✅ Показываем цену в выбранной валюте
+            if (selectedCurrency === 'TJS' || !rates[selectedCurrency]) {
+                return `${Math.round(amountTJS)} TJS`;
+            } else {
+                // Конвертируем в выбранную валюту
                 const convertedAmount = Math.round((amountTJS / rates[selectedCurrency].rate) * 100) / 100;
                 const symbol = rates[selectedCurrency].symbol;
-                display += ` (${convertedAmount} ${symbol})`;
+                return `${convertedAmount} ${symbol}`;
             }
-            
-            return display;
         }
 
         async function startBooking(tourId, tourDate, numberOfTourists) {

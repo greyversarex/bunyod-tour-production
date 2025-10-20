@@ -383,6 +383,7 @@
             const selectedCurrency = currencyState.selectedCurrency;
             const rate = currencyState.rates[selectedCurrency];
             
+            // ✅ Показываем цену в выбранной валюте
             if (!rate || selectedCurrency === 'TJS') {
                 return `${Math.round(amountTJS)} TJS`;
             }
@@ -391,11 +392,7 @@
             const formattedAmount = convertedAmount < 1 ? 
                 convertedAmount.toFixed(2) : Math.round(convertedAmount);
             
-            if (showEquivalent) {
-                return `${formattedAmount} ${rate.symbol} (${Math.round(amountTJS)} TJS)`;
-            } else {
-                return `${formattedAmount} ${rate.symbol}`;
-            }
+            return `${formattedAmount} ${rate.symbol}`;
         }
 
         // Load booking details from server
