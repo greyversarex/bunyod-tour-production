@@ -1158,6 +1158,24 @@ function setupEventListeners() {
         });
     }
     
+    // Price range inputs
+    const priceMinInput = document.getElementById('price-min');
+    const priceMaxInput = document.getElementById('price-max');
+    
+    if (priceMinInput) {
+        priceMinInput.addEventListener('input', (e) => {
+            state.filters.priceMin = parseFloat(e.target.value) || 0;
+            performSearch();
+        });
+    }
+    
+    if (priceMaxInput) {
+        priceMaxInput.addEventListener('input', (e) => {
+            state.filters.priceMax = parseFloat(e.target.value) || 100000;
+            performSearch();
+        });
+    }
+    
     // Tab switching
     const tourTab = document.querySelector('[data-tab="tours"]');
     const hotelTab = document.querySelector('[data-tab="hotels"]');
