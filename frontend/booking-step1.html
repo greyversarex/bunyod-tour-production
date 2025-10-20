@@ -1376,10 +1376,11 @@
                         
                         if (quantity > 0 && roomTypes[roomType]) {
                             const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
-                            const roomCost = roomPrice * quantity * tourDuration;
+                            const nightsCount = Math.max(1, tourDuration - 1); // 7 дней = 6 ночей, минимум 1 ночь
+                            const roomCost = roomPrice * quantity * nightsCount;
                             totalRoomCost += roomCost;
                             
-                            console.log(`✅ Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${tourDuration} = ${roomCost} TJS`);
+                            console.log(`✅ Room calculation: ${roomType} = ${roomPrice} × ${quantity} × ${nightsCount} ночей (${tourDuration} дней) = ${roomCost} TJS`);
                             
                             if (roomCostsCalc) {
                                 // Get localized room name
@@ -1387,7 +1388,7 @@
                                 
                                 roomCostsCalc.innerHTML += `
                                     <div class="flex justify-between text-sm">
-                                        <span>${roomName} × ${quantity} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
+                                        <span>${roomName} × ${quantity} × ${nightsCount} <span data-translate="booking.nights_short">ноч.</span>:</span>
                                         <span>${formatCurrencyWithEquivalent(roomCost)}</span>
                                     </div>
                                 `;
@@ -1431,10 +1432,11 @@
                     const isMealIncludedInRoom = checkIfMealIncludedInRoom(hotelId, mealType);
                     
                     if (!isMealIncludedInRoom) {
-                        const mealCost = price * numberOfTourists * tourDuration;
+                        const nightsCount = Math.max(1, tourDuration - 1); // 7 дней = 6 ночей, минимум 1 ночь
+                        const mealCost = price * numberOfTourists * nightsCount;
                         totalMealCost += mealCost;
                         
-                        console.log(`🍽️ Meal calculation: ${mealType} = ${price} × ${numberOfTourists} × ${tourDuration} = ${mealCost} TJS`);
+                        console.log(`🍽️ Meal calculation: ${mealType} = ${price} × ${numberOfTourists} × ${nightsCount} ночей (${tourDuration} дней) = ${mealCost} TJS`);
                         
                         // Get localized meal name
                         const mealName = getLocalizedName(mealTypes[mealType]) || mealType;
@@ -1442,7 +1444,7 @@
                         if (mealCostsCalc) {
                             mealCostsCalc.innerHTML += `
                                 <div class="flex justify-between text-sm">
-                                    <span>${mealName} × ${numberOfTourists} × ${tourDuration} <span data-translate="booking.days_short">дн.</span>:</span>
+                                    <span>${mealName} × ${numberOfTourists} × ${nightsCount} <span data-translate="booking.nights_short">ноч.</span>:</span>
                                     <span>${formatCurrencyWithEquivalent(mealCost)}</span>
                                 </div>
                             `;

@@ -1579,6 +1579,7 @@ window.translations = window.translations || {
     'booking.person_short': { ru: 'чел.', en: 'pax' },
     'booking.day': { ru: 'дн.', en: 'day' },
     'booking.days_short': { ru: 'дн.', en: 'days' },
+    'booking.nights_short': { ru: 'ноч.', en: 'nights' },
     
     // Capacity text
     'booking.total_capacity': { ru: 'Общая вместимость:', en: 'Total capacity:' },
