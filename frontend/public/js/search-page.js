@@ -27,7 +27,8 @@ const state = {
         query: '',
         country: '',
         city: '',
-        tourBlocks: [],
+        countries: [],
+        cities: [],
         categories: [],
         tourTypes: [],
         priceMin: 0,
@@ -190,7 +191,8 @@ function extractHotelFilterData() {
 
 // ============= FILTER RENDERING =============
 function renderFilters() {
-    renderTourBlocksFilter();
+    renderCountriesFilter();
+    renderCitiesFilter();
     renderCategoryFilters();
     renderCountryFilter();
     renderCityFilter();
@@ -202,35 +204,66 @@ function renderFilters() {
     }
 }
 
-function renderTourBlocksFilter() {
-    const container = document.getElementById('block-checkboxes');
+function renderCountriesFilter() {
+    const container = document.getElementById('countries-checkboxes');
     if (!container) return;
     
     const currentLang = state.currentLang;
     
-    container.innerHTML = state.tourBlocks.map(block => {
-        let blockTitle = block.title;
-        try {
-            const titleObj = typeof blockTitle === 'string' ? JSON.parse(blockTitle) : blockTitle;
-            blockTitle = titleObj[currentLang] || titleObj.ru || block.title;
-        } catch (e) {
-            blockTitle = block.title;
-        }
+    container.innerHTML = state.countries.map(country => {
+        const countryName = currentLang === 'ru' ? country.nameRu : country.nameEn;
+        const isChecked = state.filters.countries?.includes(country.id) || false;
         
         return `
             <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
                 <input type="checkbox" 
-                       value="${block.id}" 
-                       data-block-id="${block.id}"
-                       ${state.filters.tourBlocks?.includes(block.id) ? 'checked' : ''}
-                       onchange="handleBlockChange(this)"
+                       value="${country.id}" 
+                       data-country-id="${country.id}"
+                       ${isChecked ? 'checked' : ''}
+                       onchange="handleCountryFilterChange(this)"
                        class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-                <span>${escapeHtml(blockTitle)}</span>
+                <span>${escapeHtml(countryName)}</span>
             </label>
         `;
     }).join('');
     
-    console.log('📦 Tour blocks filter updated with', state.tourBlocks.length, 'blocks');
+    console.log('🌍 Countries filter updated with', state.countries.length, 'countries');
+}
+
+function renderCitiesFilter() {
+    const container = document.getElementById('cities-checkboxes');
+    if (!container) return;
+    
+    const currentLang = state.currentLang;
+    
+    // Filter cities by selected countries (if any)
+    const citiesToShow = state.filters.countries?.length > 0
+        ? state.cities.filter(city => state.filters.countries.includes(city.countryId))
+        : state.cities;
+    
+    if (citiesToShow.length === 0) {
+        container.innerHTML = '<div class="text-sm text-gray-500 py-2">Сначала выберите страну</div>';
+        return;
+    }
+    
+    container.innerHTML = citiesToShow.map(city => {
+        const cityName = currentLang === 'ru' ? city.nameRu : city.nameEn;
+        const isChecked = state.filters.cities?.includes(city.id) || false;
+        
+        return `
+            <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
+                <input type="checkbox" 
+                       value="${city.id}" 
+                       data-city-id="${city.id}"
+                       ${isChecked ? 'checked' : ''}
+                       onchange="handleCityFilterChange(this)"
+                       class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
+                <span>${escapeHtml(cityName)}</span>
+            </label>
+        `;
+    }).join('');
+    
+    console.log('🏙️ Cities filter updated with', citiesToShow.length, 'cities');
 }
 
 function renderCategoryFilters() {
@@ -434,16 +467,36 @@ function initializeAccordions() {
 }
 
 // ============= FILTER HANDLERS =============
-function handleBlockChange(checkbox) {
-    const blockId = parseInt(checkbox.value);
-    if (!state.filters.tourBlocks) state.filters.tourBlocks = [];
+function handleCountryFilterChange(checkbox) {
+    const countryId = parseInt(checkbox.value);
+    if (!state.filters.countries) state.filters.countries = [];
     
     if (checkbox.checked) {
-        if (!state.filters.tourBlocks.includes(blockId)) {
-            state.filters.tourBlocks.push(blockId);
+        if (!state.filters.countries.includes(countryId)) {
+            state.filters.countries.push(countryId);
         }
     } else {
-        state.filters.tourBlocks = state.filters.tourBlocks.filter(id => id !== blockId);
+        state.filters.countries = state.filters.countries.filter(id => id !== countryId);
+        // Clear city filters for this country
+        const citiesToRemove = state.cities.filter(city => city.countryId === countryId).map(c => c.id);
+        state.filters.cities = state.filters.cities.filter(id => !citiesToRemove.includes(id));
+    }
+    
+    // Re-render cities filter when countries change
+    renderCitiesFilter();
+    performSearch();
+}
+
+function handleCityFilterChange(checkbox) {
+    const cityId = parseInt(checkbox.value);
+    if (!state.filters.cities) state.filters.cities = [];
+    
+    if (checkbox.checked) {
+        if (!state.filters.cities.includes(cityId)) {
+            state.filters.cities.push(cityId);
+        }
+    } else {
+        state.filters.cities = state.filters.cities.filter(id => id !== cityId);
     }
     performSearch();
 }
