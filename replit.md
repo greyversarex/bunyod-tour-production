@@ -8,6 +8,7 @@ Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.
 Frontend structure alignment: Admin panel must perfectly match the frontend homepage structure with exact block names and tour organization as shown in provided screenshots.
 System integration preference: User requires simplified and unified pricing systems with single source of truth. Eliminated complex manual categorization in favor of automatic detection.
+Pricing logic: All tour types (including "Групповой общий") use the same per-person multiplication when priceType is "за человека".
 
 ## System Architecture
 
