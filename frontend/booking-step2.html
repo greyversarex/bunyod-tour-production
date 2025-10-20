@@ -388,11 +388,10 @@
                 return `${Math.round(amountTJS)} TJS`;
             }
             
-            const convertedAmount = amountTJS / rate.rate;
-            const formattedAmount = convertedAmount < 1 ? 
-                convertedAmount.toFixed(2) : Math.round(convertedAmount);
+            // ✅ ВСЕГДА округляем до целого (как на странице тура и карточках)
+            const convertedAmount = Math.round(amountTJS / rate.rate);
             
-            return `${formattedAmount} ${rate.symbol}`;
+            return `${convertedAmount} ${rate.symbol}`;
         }
 
         // Load booking details from server

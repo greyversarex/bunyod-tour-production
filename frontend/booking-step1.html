@@ -461,8 +461,8 @@
             if (selectedCurrency === 'TJS' || !rates[selectedCurrency]) {
                 return `${Math.round(amountTJS)} TJS`;
             } else {
-                // Конвертируем в выбранную валюту
-                const convertedAmount = Math.round((amountTJS / rates[selectedCurrency].rate) * 100) / 100;
+                // ✅ Конвертируем в выбранную валюту и ОКРУГЛЯЕМ до целого (как на странице тура)
+                const convertedAmount = Math.round(amountTJS / rates[selectedCurrency].rate);
                 const symbol = rates[selectedCurrency].symbol;
                 return `${convertedAmount} ${symbol}`;
             }
