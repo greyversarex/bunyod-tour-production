@@ -340,14 +340,25 @@
                 <div class="filter-sidebar">
                     <h3 class="text-lg font-bold mb-4" data-translate="search.filters">Фильтры</h3>
                     
-                    <!-- Блоки туров -->
-                    <div class="filter-section open" id="filter-section-blocks">
-                        <div class="filter-header" onclick="toggleFilter('blocks')">
-                            <div class="filter-title" data-translate="search.tour_blocks">БЛОКИ ТУРОВ</div>
+                    <!-- Страны -->
+                    <div class="filter-section open" id="filter-section-countries">
+                        <div class="filter-header" onclick="toggleFilter('countries')">
+                            <div class="filter-title" data-translate="search.filter_countries">СТРАНЫ</div>
                             <i class="fas fa-chevron-down filter-arrow chevron"></i>
                         </div>
-                        <div class="filter-content" id="blocks-content">
-                            <div class="filter-options-wrapper" id="block-checkboxes"></div>
+                        <div class="filter-content" id="countries-content">
+                            <div class="filter-options-wrapper" id="countries-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Города -->
+                    <div class="filter-section open" id="filter-section-cities">
+                        <div class="filter-header" onclick="toggleFilter('cities')">
+                            <div class="filter-title" data-translate="search.filter_cities">ГОРОДА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="cities-content">
+                            <div class="filter-options-wrapper" id="cities-checkboxes"></div>
                         </div>
                     </div>
                     
@@ -389,15 +400,15 @@
                                 <!-- Типы туров из модального окна -->
                                 <div class="filter-option">
                                     <input type="checkbox" id="tourtype-personal" value="Персональный" onchange="applyFilters()">
-                                    <label for="tourtype-personal">Персональный</label>
+                                    <label for="tourtype-personal" data-translate="tour.type_personal">Персональный</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="tourtype-group-personal" value="Групповой персональный" onchange="applyFilters()">
-                                    <label for="tourtype-group-personal">Групповой персональный</label>
+                                    <label for="tourtype-group-personal" data-translate="tour.type_group_personal">Групповой персональный</label>
                                 </div>
                                 <div class="filter-option">
                                     <input type="checkbox" id="tourtype-group-common" value="Групповой общий" onchange="applyFilters()">
-                                    <label for="tourtype-group-common">Групповой общий</label>
+                                    <label for="tourtype-group-common" data-translate="tour.type_group_common">Групповой общий</label>
                                 </div>
                             </div>
                         </div>
