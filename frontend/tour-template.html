@@ -2849,12 +2849,8 @@
                 currencyRate = window.exchangeRates[currency].rate;
             }
             
-            // ✅ КОНВЕРТИРУЕМ базовую цену в выбранную валюту
-            const basePrice = currency === 'TJS' ? basePriceInTJS : Math.round(basePriceInTJS / currencyRate);
-            
             console.log('💰 Расчет цены:', {
                 basePriceInTJS,
-                basePrice,
                 totalTravelers,
                 minPeople,
                 priceType,
@@ -2879,10 +2875,10 @@
             let totalPrice, totalPriceInTJS;
             
             if (priceType === 'per_person' || priceType === 'за человека') {
-                // ✅ Для "за человека" - умножаем на количество туристов (для ВСЕХ типов туров)
-                totalPrice = Math.round(basePrice * totalTravelers);
-                totalPriceInTJS = Math.round(basePriceInTJS * totalTravelers);
-                console.log(`✅ Цена "за человека": ${basePrice} × ${totalTravelers} = ${totalPrice} ${currencySymbol}`);
+                // ✅ ПРАВИЛЬНАЯ ЛОГИКА: Сначала умножаем в TJS, потом конвертируем (как в бронировании)
+                totalPriceInTJS = basePriceInTJS * totalTravelers;
+                totalPrice = currency === 'TJS' ? totalPriceInTJS : Math.round(totalPriceInTJS / currencyRate);
+                console.log(`✅ Цена "за человека": ${basePriceInTJS} TJS × ${totalTravelers} = ${totalPriceInTJS} TJS → ${totalPrice} ${currencySymbol}`);
                 
                 // Показываем "от" только при минимальном количестве туристов
                 if (fromTextElement) {
@@ -2895,10 +2891,10 @@
                     }
                 }
             } else {
-                // Для "за группу" - фиксированная цена
-                totalPrice = Math.round(basePrice);
-                totalPriceInTJS = Math.round(basePriceInTJS);
-                console.log(`✅ Цена "за группу": ${totalPrice} ${currencySymbol} (фиксированная)`);
+                // ✅ Для "за группу" - фиксированная цена (сначала берем TJS, потом конвертируем)
+                totalPriceInTJS = basePriceInTJS;
+                totalPrice = currency === 'TJS' ? totalPriceInTJS : Math.round(totalPriceInTJS / currencyRate);
+                console.log(`✅ Цена "за группу": ${totalPriceInTJS} TJS → ${totalPrice} ${currencySymbol} (фиксированная)`);
                 
                 if (fromTextElement) {
                     fromTextElement.style.display = 'inline';
