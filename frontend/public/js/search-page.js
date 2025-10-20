@@ -576,29 +576,51 @@ function searchTours() {
         });
     }
     
-    // Apply tour blocks filter
-    if (state.filters.tourBlocks && state.filters.tourBlocks.length > 0) {
+    // Apply countries filter (sidebar checkboxes)
+    if (state.filters.countries && state.filters.countries.length > 0) {
         results = results.filter(tour => {
-            if (!tour.tourBlockAssignments || tour.tourBlockAssignments.length === 0) return false;
-            return tour.tourBlockAssignments.some(tba => 
-                state.filters.tourBlocks.includes(tba.tourBlockId)
+            if (!tour.tourCountries || tour.tourCountries.length === 0) return false;
+            return tour.tourCountries.some(tc => 
+                state.filters.countries.includes(tc.countryId)
+            );
+        });
+    }
+    
+    // Apply cities filter (sidebar checkboxes)
+    if (state.filters.cities && state.filters.cities.length > 0) {
+        results = results.filter(tour => {
+            if (!tour.tourCities || tour.tourCities.length === 0) return false;
+            return tour.tourCities.some(tc => 
+                state.filters.cities.includes(tc.cityId)
             );
         });
     }
     
     // Apply category filter
     if (state.filters.categories.length > 0) {
-        results = results.filter(tour => state.filters.categories.includes(tour.categoryId));
+        results = results.filter(tour => {
+            // Check if tour has any of the selected categories
+            if (!tour.tourCategoryAssignments || tour.tourCategoryAssignments.length === 0) return false;
+            return tour.tourCategoryAssignments.some(tca => 
+                state.filters.categories.includes(tca.categoryId)
+            );
+        });
     }
     
-    // Apply country filter
+    // Apply country filter (top search bar dropdown)
     if (state.filters.country) {
-        results = results.filter(tour => tour.countryId == state.filters.country);
+        results = results.filter(tour => {
+            if (!tour.tourCountries || tour.tourCountries.length === 0) return false;
+            return tour.tourCountries.some(tc => tc.countryId == state.filters.country);
+        });
     }
     
-    // Apply city filter
+    // Apply city filter (top search bar dropdown)
     if (state.filters.city) {
-        results = results.filter(tour => tour.cityId == state.filters.city);
+        results = results.filter(tour => {
+            if (!tour.tourCities || tour.tourCities.length === 0) return false;
+            return tour.tourCities.some(tc => tc.cityId == state.filters.city);
+        });
     }
     
     // Apply tour type filter
