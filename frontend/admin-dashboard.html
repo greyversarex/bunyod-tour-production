@@ -8621,6 +8621,21 @@
             });
         }
         
+        // ✅ Автоматическая установка priceType для "Групповой общий"
+        const tourTypeSelect = document.getElementById('tourType');
+        const priceTypeSelect = document.getElementById('tourPriceType');
+        if (tourTypeSelect && priceTypeSelect) {
+            tourTypeSelect.addEventListener('change', function() {
+                const selectedTourType = this.value;
+                
+                // Для "Групповой общий" автоматически устанавливаем "за человека"
+                if (selectedTourType === 'Групповой общий') {
+                    priceTypeSelect.value = 'за человека';
+                    console.log('✅ Автоматически установлен priceType = "за человека" для типа "Групповой общий"');
+                }
+            });
+        }
+        
         // Additional functions
         function editTour(id) {
             // Очищаем все чекбоксы перед загрузкой новых данных
