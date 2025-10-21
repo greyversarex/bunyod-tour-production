@@ -5613,9 +5613,24 @@
                         
                         const tourType = document.getElementById('tourType');
                         if (tourType) {
-                            // ИСПРАВЛЕНО: Улучшенная загрузка типа тура из разных полей
+                            // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Денормализация английских enum в русские labels
+                            const denormalizeTourType = (value) => {
+                                if (!value) return '';
+                                const reverseMap = {
+                                    'individual': 'Персональный',
+                                    'group_private': 'Групповой персональный',
+                                    'group_shared': 'Групповой общий',
+                                    // Если уже русское значение - возвращаем как есть
+                                    'Персональный': 'Персональный',
+                                    'Групповой персональный': 'Групповой персональный',
+                                    'Групповой общий': 'Групповой общий'
+                                };
+                                return reverseMap[value] || value;
+                            };
+                            
                             const typeValue = tour.tourType || tour.format || '';
-                            tourType.value = typeValue;
+                            tourType.value = denormalizeTourType(typeValue);
+                            console.log('🔄 Тип тура загружен:', typeValue, '→', denormalizeTourType(typeValue));
                         }
                         
                         // УДАЛЕНО: Заполнение eTourType (поле удалено)
@@ -5774,7 +5789,21 @@
                         
                         const tourPriceTypeElement = document.getElementById('tourPriceType');
                         if (tourPriceTypeElement) {
-                            tourPriceTypeElement.value = tour.priceType || 'за человека';
+                            // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Денормализация английских enum в русские labels
+                            const denormalizePriceType = (value) => {
+                                if (!value) return 'за человека';
+                                const reverseMap = {
+                                    'per_person': 'за человека',
+                                    'per_group': 'за группу',
+                                    // Если уже русское значение - возвращаем как есть
+                                    'за человека': 'за человека',
+                                    'за группу': 'за группу'
+                                };
+                                return reverseMap[value] || 'за человека';
+                            };
+                            
+                            tourPriceTypeElement.value = denormalizePriceType(tour.priceType);
+                            console.log('🔄 Тип цены загружен:', tour.priceType, '→', denormalizePriceType(tour.priceType));
                         }
                         
                         const tourPickupInfoElement = document.getElementById('tourPickupInfo');
