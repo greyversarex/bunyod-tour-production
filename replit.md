@@ -13,46 +13,41 @@ Pricing logic: All tour types (including "Групповой общий") use th
 ## System Architecture
 
 ### Backend
-The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles. The backend correctly handles Prisma relations and ensures robust API endpoints with clean routing structure.
+The backend utilizes **Express.js and TypeScript** with a **modular architecture** following an **MVC pattern**. It supports full CRUD operations, multilingual content (Russian, English), and robust JWT authentication for Admin, Tour Guide, and Driver roles.
 
 ### Database
-**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourCategoryAssignment**, **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto**. The system features automatic database initialization, schema application, data seeding for reference data, and a smart category migration system for a standardized 15-category structure. Tours now support **multiple categories** through the TourCategoryAssignment junction table with primary category designation (first selected category is primary), while maintaining backward compatibility with single categoryId field. Multiple countries and cities are also fully supported through TourCountry and TourCity junction tables. Seeding is idempotent and safe to run multiple times, creating only reference data and never demo tours, test bookings, or fake users.
+**PostgreSQL with Prisma ORM** is used for data management. The schema includes entities like **Tours**, **Categories**, **TourBlocks**, **TourCategoryAssignment**, **TourGuideProfile**, **DriverProfile**, **Countries**, **Cities**, and **CityCardPhoto**. The system features automatic database initialization, schema application, data seeding for reference data, and a smart category migration system for a standardized 15-category structure. Tours now support **multiple categories** and **multiple countries/cities** through junction tables.
 
 ### Key Features
--   **Full CRUD Operations**: Implemented for all major entities with robust enum value normalization to handle both Russian and English inputs seamlessly.
--   **Multilingual Support**: JSON-based content for Russian and English, with dynamic content updates and a unified language system.
--   **Component-based Tour Pricing**: Dynamic pricing with inline editing and automatic category detection.
--   **Critical Fix (Oct 21, 2025)**: Resolved HTTP 400 and 500 errors when saving tours from admin panel, form loading, and frontend display inconsistencies. **400 error**: Implemented bidirectional enum normalization (frontend maps Russian labels to English enum values before API submission; backend defensively normalizes incoming values for backward compatibility). **500 error**: Fixed duplicate category creation bug where TourController attempted to create category associations that TourModel.create() had already created in its transaction, causing unique constraint violations. Removed duplicate code from both createTour and updateTour endpoints. **Form loading fix**: Added denormalization (reverse mapping) to convert English enum values back to Russian labels when loading tour for editing - tourType (individual→Персональный, group_shared→Групповой общий) and priceType (per_person→за человека, per_group→за группу). **Frontend display fix**: Implemented mapTour denormalization in API responses (getAllTours, getTourBlock, tour-blocks/:id/tours) to ensure ALL tours display with Russian enum values on frontend, maintaining consistency between legacy tours (stored with Russian values) and new tours (stored with English enums). Fixed logic ensures partial updates don't overwrite existing priceType/tourType with defaults. **Booking fix**: Updated booking-step1.html price calculation to check both Russian ('за человека') and English ('per_person') priceType values via isPerPersonPricing() helper function. **Booking Page Tour Type Display Fix**: Added missing i18n translations for English enum values ('individual', 'group_shared') in tour type display on all booking pages (step1, step2, step3). Now correctly translates 'individual' → 'Персональный' and 'group_shared' → 'Групповой общий' instead of showing raw enum values like "tour_type.individual".
--   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management and debounced price recalculations. All booking methods correctly handle various selection formats, retrieve stored selections, and preserve hotel/meal selections across step transitions without data loss. Implemented smart booking flow that skips hotel selection step when a tour has no attached hotels, redirecting directly to the tourist information step. Booking validation ensures all selected tourists are added before proceeding.
--   **Payment Integration**: Multiple gateway integrations with full webhook support (Payler, AlifPay, Stripe). Includes payment failure handling and retry logic.
--   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management. Admin panel includes "Drivers", "Trips", and "Transfers" sections with CRUD functionality.
--   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management. Admin can edit the base currency symbol. Currency conversion properly handles per-person pricing with tourist count multiplication, converting base price first then multiplying. Tour page automatically updates prices when currency changes via global selector.
+-   **Full CRUD Operations**: Implemented for all major entities with robust enum value normalization.
+-   **Multilingual Support**: JSON-based content for Russian and English.
+-   **Component-based Tour Pricing**: Dynamic pricing with inline editing, automatic category detection, and profit margin calculation. Profit margin percentage input is included in the admin panel, calculating `Components Sum` → `Profit Margin` → `Final Tour Price`.
+-   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management. Smart booking flow skips hotel selection if not applicable.
+-   **Payment Integration**: Multiple gateway integrations with full webhook support.
+-   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management.
+-   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management.
 -   **API Design**: RESTful endpoints with standardized responses and robust language parameter handling.
--   **Security Hardening**: Implemented rate limiting, XSS protection, and mandatory JWT_SECRET environment validation. Restricted `/uploads` access with granular middleware for specific file types.
--   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities. Tour program display includes 2-line truncation for event descriptions with a "Подробнее/Show less" toggle and accordion behavior.
--   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering, component integration, and dual search capabilities for tours and hotels. Replaced tour blocks filter with countries filter, added cities filter, implemented price range filtering with real-time updates, and added full translation support for all filter labels.
--   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Includes detailed price breakdown and correct accommodation logic. Implemented instant currency switching on booking pages without page refresh. **Hotel Room Pricing**: Room and meal costs now calculate based on nights (days - 1) instead of total days (e.g., 7-day tour = 6 nights, 2-day tour = 1 night). **Hotel Switching**: When user switches between hotels, visual room counters and meal selections for previous hotel automatically reset to zero. **Price Rounding**: All prices consistently rounded to whole numbers across tour pages, cards, and booking details (no decimals).
--   **Banner & City Images System**: Completely separated systems - banner slider management (`/api/slides`), city reference data (`/api/cities`), and city card images (`/api/city-card-photos`), ensuring clean architecture and independent management. Banner system supports multilingual content, image uploads, ordering, and activation toggles.
--   **Tour Share Functionality**: Implemented share button on tour pages with copy link to clipboard and native Web Share API options, using modern UI notifications.
+-   **Security Hardening**: Implemented rate limiting, XSS protection, and JWT_SECRET environment validation.
+-   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities and dynamic display.
+-   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering by country, city, type, category, price range, and full translation support.
+-   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Hotel room pricing is based on nights (days - 1).
+-   **Banner & City Images System**: Separated systems for banner slider management, city reference data, and city card images.
+-   **Tour Share Functionality**: Share button on tour pages with copy link and native Web Share API options.
 
 ### UI/UX
--   **Admin Dashboard**: Comprehensive management for all core entities, including enhanced booking table with guide assignment and tour status. Draft functionality operational for tours, hotels, and guides. Banner management allows adding/editing homepage hero slides.
--   **Responsive Design**: Mobile-first approach with comprehensive touch target optimization.
--   **Mobile Footer**: Optimized with collapsible accordion sections and always-visible social links.
+-   **Admin Dashboard**: Comprehensive management for all core entities, including booking table with guide assignment and tour status. Banner management is integrated.
+-   **Responsive Design**: Mobile-first approach.
 -   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design.
 -   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and tour blocks (renamed to "НАПРАВЛЕНИЯ").
--   **Category System**: 15 specific tourism categories and a frontend-aligned tour block system (7 blocks: Popular, Combined, + 5 Central Asian countries).
--   **Tour Block Filter**: Fully functional filter on search page that loads blocks from API and filters tours.
+-   **Category System**: 15 specific tourism categories and 7 frontend-aligned tour blocks (Popular, Combined, + 5 Central Asian countries).
 -   **Design**: Consistent color palette, Inter font family, unified component structures, gray button theme, and glassmorphism effects.
--   **Guide Dashboard Tour Program**: Redesigned itinerary display to match tour page format.
--   **UI Improvements**: Fixed pickup location icon, participant count display logic, tour page display (removed label prefix, renamed "Что включено/Что не включено", changed TJS currency symbol), and tour type translations. Booking page layout adjusted for better readability. Replaced standard browser alerts with centered modal notifications. **Compact Location Display**: Tour cards show only countries (no cities), all countries displayed without truncation. **Icon System**: Tour cards use SVG icons instead of emoji - geolocation pin for countries, single person icon for Персональный tour type, group icon for other types, and category-specific icons (city buildings, nature leaf/moon, cultural book, hiking marker, mountains, adventure lightning, food cart, car, calendar, plant sprout for agrotourism, etc.). **Multiple Categories Display**: When a tour has multiple categories, the card shows the primary category with a prominent ellipsis (...) indicator in darker gray with hover effect that reveals all categories in a tooltip. **Unified Tour Cards (Oct 21, 2025)**: Tour card display is now fully unified between homepage (`home-page.js`) and search page (`search-page.js`) with identical styling - same image height (h-48), button color (#6B7280), URL parameter (tour=), and dynamic button text with translations. Fixed priceType enum display issue where "per_person" was shown instead of human-readable "per person" / "за человека" by implementing proper enum-to-translation mapping in both files. **Country Display Fix (Oct 21, 2025)**: Fixed `getDisplayLocation()` function in `home-page.js` to properly extract country names from tour.country objects instead of displaying "[object Object]" or "Местоположение не указано". The function now uses the same localized extraction logic as `search-page.js` with fallback chain: `tour.country[langField]` → `tour.country.nameRu` → `tour.country.name`. **Search Page Language Switch Fix (Oct 21, 2025)**: Fixed critical JavaScript error where `loadToursData()`, `loadHotelsData()`, `loadCountries()`, and `loadCities()` functions were called but not defined; replaced with correct `loadAllData()` function call in language change event handler.
--   **Price Calculator Components**: Complete 26-component system across 7 categories (Accommodation, Guides, Local_transport, Meals, Permits, Tour_transport, Transfer) with auto-seeding and bilingual names.
--   **Multiple Category Selection**: Admin panel supports selecting multiple categories for each tour, with automatic primary category designation and junction table management through TourCategoryAssignment.
+-   **UI Improvements**: Fixed pickup location icon, participant count display, tour page display adjustments, and booking page layout. Replaced standard alerts with modal notifications. Tour cards show compact country display, SVG icons, and primary category with a tooltip for multiple categories. Tour card display is unified across homepage and search page, including dynamic button text and correct priceType enum display.
+-   **Price Calculator Components**: Complete 26-component system across 7 categories with auto-seeding and bilingual names.
+-   **Multiple Category Selection**: Admin panel supports selecting multiple categories for each tour.
 
 ### Production Deployment Infrastructure
--   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/`, while development uses `ts-node`.
--   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management (2 instances, cluster mode), Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
--   **Optional Startup Controls**: `NODE_ENV`, `RUN_MIGRATIONS_ON_BOOT`, `RUN_SEED_ON_BOOT`, `CORS_ORIGINS`.
+-   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/`.
+-   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management, Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
 
 ## External Dependencies
 
@@ -63,8 +58,8 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Nodemailer**: Email sending.
 
 ### Payment Gateways
--   **AlifPay Legacy**: Fully configured with merchant credentials.
--   **Payler API**: StartSession/Pay flow with production credentials.
+-   **AlifPay Legacy**: Fully configured.
+-   **Payler API**: StartSession/Pay flow.
 -   **Stripe API**: Payment Intents integration.
 
 ### Development Tools
