@@ -618,28 +618,9 @@ export class TourController {
         }
       }
 
-      // Create category associations if provided
-      if (categoriesIdsNumbers && categoriesIdsNumbers.length > 0) {
-        console.log('🏷️ Creating category associations:', categoriesIdsNumbers);
-        try {
-          const tourCategoryData = categoriesIdsNumbers.map((catId: number, index: number) => ({
-            tourId: tour.id,
-            categoryId: catId,
-            isPrimary: index === 0 // Первая категория считается основной
-          }));
-          
-          console.log('🏷️ TourCategoryAssignment data to create:', tourCategoryData);
-          
-          await prisma.tourCategoryAssignment.createMany({
-            data: tourCategoryData
-          });
-          
-          console.log('✅ Category associations created successfully');
-        } catch (categoryError) {
-          console.error('❌ Error creating category associations:', categoryError);
-          throw categoryError;
-        }
-      }
+      // ✅ ИСПРАВЛЕНО: Категории уже созданы в TourModel.create() - не дублируем
+      // TourModel.create() внутри транзакции создаёт связи категорий из categoriesIds
+      console.log('✅ Category associations created by TourModel.create()')
 
       // Parse JSON fields for response with safe parsing
       let parsedTour;
@@ -1022,34 +1003,9 @@ export class TourController {
         }
       }
 
-      // 🎯 Update category associations if provided
-      if (categoriesIdsNumbers !== undefined) {
-        console.log('🏷️ Updating category associations:', categoriesIdsNumbers);
-        
-        // Delete existing category associations
-        await prisma.tourCategoryAssignment.deleteMany({
-          where: { tourId: id }
-        });
-        
-        // Create new category associations
-        if (categoriesIdsNumbers.length > 0) {
-          const tourCategoryData = categoriesIdsNumbers.map((catId: number, index: number) => ({
-            tourId: id,
-            categoryId: catId,
-            isPrimary: index === 0 // Первая категория считается основной
-          }));
-          
-          console.log('🏷️ TourCategoryAssignment data to create:', tourCategoryData);
-          
-          await prisma.tourCategoryAssignment.createMany({
-            data: tourCategoryData
-          });
-          
-          console.log('✅ Category associations updated successfully');
-        } else {
-          console.log('🏷️ No categories to assign, existing associations cleared');
-        }
-      }
+      // ✅ ИСПРАВЛЕНО: Категории уже обновлены в TourModel.update() - не дублируем
+      // TourModel.update() внутри транзакции обновляет связи категорий из categoriesIds
+      console.log('✅ Category associations updated by TourModel.update()')
 
       // Parse JSON fields for response with safe parsing
       let parsedTour;
