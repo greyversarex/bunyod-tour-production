@@ -4469,6 +4469,12 @@
                 profitMargin: safeGetValue('profitMargin', 0, 'float')
             };
             
+            console.log('💰 DEBUG profitMargin:', {
+                elementExists: !!document.getElementById('profitMargin'),
+                elementValue: document.getElementById('profitMargin')?.value,
+                safeGetValue: safeGetValue('profitMargin', 0, 'float'),
+                inFormData: formData.profitMargin
+            });
             console.log('📤 Sending tour data:', formData);
             
             const apiUrl = getApiUrl();
