@@ -261,18 +261,23 @@ export class TourController {
 
       // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
       const normalizePriceType = (value: string | undefined): string => {
-        if (!value) return 'per_person';
+        if (!value) return 'per_person'; // Дефолт для create
         const map: Record<string, string> = {
           'за человека': 'per_person',
           'за группу': 'per_group',
           'per_person': 'per_person',
           'per_group': 'per_group'
         };
-        return map[value] || 'per_person';
+        const normalized = map[value];
+        if (!normalized) {
+          console.warn(`⚠️ Unknown priceType value: "${value}", using default: per_person`);
+          return 'per_person';
+        }
+        return normalized;
       };
       
       const normalizeTourType = (value: string | undefined): string => {
-        if (!value) return 'individual';
+        if (!value) return 'individual'; // Дефолт для create
         const map: Record<string, string> = {
           'Персональный': 'individual',
           'Групповой приватный': 'group_private',
@@ -281,7 +286,12 @@ export class TourController {
           'group_private': 'group_private',
           'group_shared': 'group_shared'
         };
-        return map[value] || 'individual';
+        const normalized = map[value];
+        if (!normalized) {
+          console.warn(`⚠️ Unknown tourType/format value: "${value}", using default: individual`);
+          return 'individual';
+        }
+        return normalized;
       };
       
       // Применяем нормализацию
@@ -695,19 +705,25 @@ export class TourController {
       let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
 
       // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
+      // ВАЖНО: Для update возвращаем undefined если значение не передано (частичное обновление)
       const normalizePriceType = (value: string | undefined): string | undefined => {
-        if (!value) return undefined;
+        if (value === undefined || value === null || value === '') return undefined;
         const map: Record<string, string> = {
           'за человека': 'per_person',
           'за группу': 'per_group',
           'per_person': 'per_person',
           'per_group': 'per_group'
         };
-        return map[value] || value;
+        const normalized = map[value];
+        if (!normalized) {
+          console.warn(`⚠️ Unknown priceType value: "${value}", keeping as-is`);
+          return value;
+        }
+        return normalized;
       };
       
       const normalizeTourType = (value: string | undefined): string | undefined => {
-        if (!value) return undefined;
+        if (value === undefined || value === null || value === '') return undefined;
         const map: Record<string, string> = {
           'Персональный': 'individual',
           'Групповой приватный': 'group_private',
@@ -716,13 +732,24 @@ export class TourController {
           'group_private': 'group_private',
           'group_shared': 'group_shared'
         };
-        return map[value] || value;
+        const normalized = map[value];
+        if (!normalized) {
+          console.warn(`⚠️ Unknown tourType/format value: "${value}", keeping as-is`);
+          return value;
+        }
+        return normalized;
       };
       
-      // Применяем нормализацию только если значения присутствуют
-      if (priceType !== undefined) priceType = normalizePriceType(priceType);
-      if (tourType !== undefined) tourType = normalizeTourType(tourType);
-      if (format !== undefined) format = normalizeTourType(format);
+      // Применяем нормализацию только если значения явно переданы (не undefined)
+      if (priceType !== undefined) {
+        priceType = normalizePriceType(priceType);
+      }
+      if (tourType !== undefined) {
+        tourType = normalizeTourType(tourType);
+      }
+      if (format !== undefined) {
+        format = normalizeTourType(format);
+      }
       
       console.log('✅ Normalized (update) priceType:', priceType, 'tourType:', tourType, 'format:', format);
 
