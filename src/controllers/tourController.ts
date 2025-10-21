@@ -259,6 +259,38 @@ export class TourController {
       console.log('Creating tour with data:', req.body);
       let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
 
+      // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
+      const normalizePriceType = (value: string | undefined): string => {
+        if (!value) return 'per_person';
+        const map: Record<string, string> = {
+          'за человека': 'per_person',
+          'за группу': 'per_group',
+          'per_person': 'per_person',
+          'per_group': 'per_group'
+        };
+        return map[value] || 'per_person';
+      };
+      
+      const normalizeTourType = (value: string | undefined): string => {
+        if (!value) return 'individual';
+        const map: Record<string, string> = {
+          'Персональный': 'individual',
+          'Групповой приватный': 'group_private',
+          'Групповой общий': 'group_shared',
+          'individual': 'individual',
+          'group_private': 'group_private',
+          'group_shared': 'group_shared'
+        };
+        return map[value] || 'individual';
+      };
+      
+      // Применяем нормализацию
+      priceType = normalizePriceType(priceType);
+      tourType = normalizeTourType(tourType);
+      format = normalizeTourType(format);
+      
+      console.log('✅ Normalized priceType:', priceType, 'tourType:', tourType, 'format:', format);
+
       // Parse JSON strings if needed
       if (typeof title === 'string') {
         try {
@@ -661,6 +693,38 @@ export class TourController {
       }
 
       let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
+
+      // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
+      const normalizePriceType = (value: string | undefined): string | undefined => {
+        if (!value) return undefined;
+        const map: Record<string, string> = {
+          'за человека': 'per_person',
+          'за группу': 'per_group',
+          'per_person': 'per_person',
+          'per_group': 'per_group'
+        };
+        return map[value] || value;
+      };
+      
+      const normalizeTourType = (value: string | undefined): string | undefined => {
+        if (!value) return undefined;
+        const map: Record<string, string> = {
+          'Персональный': 'individual',
+          'Групповой приватный': 'group_private',
+          'Групповой общий': 'group_shared',
+          'individual': 'individual',
+          'group_private': 'group_private',
+          'group_shared': 'group_shared'
+        };
+        return map[value] || value;
+      };
+      
+      // Применяем нормализацию только если значения присутствуют
+      if (priceType !== undefined) priceType = normalizePriceType(priceType);
+      if (tourType !== undefined) tourType = normalizeTourType(tourType);
+      if (format !== undefined) format = normalizeTourType(format);
+      
+      console.log('✅ Normalized (update) priceType:', priceType, 'tourType:', tourType, 'format:', format);
 
       // Parse JSON strings if needed (same as createTour)
       if (typeof title === 'string') {
