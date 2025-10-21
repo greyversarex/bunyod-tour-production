@@ -966,7 +966,17 @@ function createTourCard(tour) {
                         <div class="text-base font-bold text-gray-900 leading-tight">
                             <span>${priceText}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
-                        <div class="text-xs text-gray-500 mt-0.5">${tour.priceType || (currentLang === 'en' ? 'per person' : 'за человека')}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">${(() => {
+                            const priceType = tour.priceType || '';
+                            // Обработка enum значений
+                            if (priceType === 'per_person' || priceType === 'за человека') {
+                                return currentLang === 'en' ? 'per person' : 'за человека';
+                            } else if (priceType === 'per_group' || priceType === 'за группу') {
+                                return currentLang === 'en' ? 'per group' : 'за группу';
+                            }
+                            // Fallback на дефолтное значение
+                            return priceType || (currentLang === 'en' ? 'per person' : 'за человека');
+                        })()}</div>
                     </div>
                     <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 self-center" 
                             style="background-color: #6B7280;"
@@ -1198,13 +1208,8 @@ function setupEventListeners() {
     document.addEventListener('languageChanged', (e) => {
         state.currentLang = e.detail.language;
         
-        // Reload data with new language but keep it fast
-        Promise.all([
-            loadToursData(),
-            loadHotelsData(),
-            loadCountries(),
-            loadCities()
-        ]).then(() => {
+        // Reload all data with new language
+        loadAllData().then(() => {
             // Re-render filters with new language
             renderFilters();
             

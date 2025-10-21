@@ -1971,7 +1971,7 @@ function renderTourCard(tour, blockId = null) {
              data-tour-id="${tour.id}"
              data-unique-card-id="${uniqueCardId}">
             <div class="relative overflow-hidden rounded-t-lg">
-                <div class="w-full h-44 sm:h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
+                <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
                     ${tourImages.length > 0 ? 
                         tourImages.map((imgSrc, index) => `
                             <img src="${imgSrc}" 
@@ -2054,13 +2054,23 @@ function renderTourCard(tour, blockId = null) {
                             <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
                         <div class="converted-price text-xs text-gray-600 mt-0.5" style="display: none;"></div>
-                        <div class="text-xs text-gray-500 mt-0.5" data-translate="price.${(tour.priceType || 'за человека').replace(/\s/g, '_')}">${tour.priceType}</div>
+                        <div class="text-xs text-gray-500 mt-0.5">${(() => {
+                            const priceType = tour.priceType || '';
+                            // Обработка enum значений
+                            if (priceType === 'per_person' || priceType === 'за человека') {
+                                return currentLang === 'en' ? 'per person' : 'за человека';
+                            } else if (priceType === 'per_group' || priceType === 'за группу') {
+                                return currentLang === 'en' ? 'per group' : 'за группу';
+                            }
+                            // Fallback на дефолтное значение
+                            return priceType || (currentLang === 'en' ? 'per person' : 'за человека');
+                        })()}</div>
                     </div>
                     <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap w-full sm:w-auto sm:flex-shrink-0 sm:self-center" 
-                            style="background-color: #3E3E3E;"
-                            onclick="event.stopPropagation(); window.location.href='tour-template.html?id=${tour.id}'"
+                            style="background-color: #6B7280;"
+                            onclick="event.stopPropagation(); window.location.href='tour-template.html?tour=${tour.id}'"
                             data-translate="btn.book">
-                        Бронировать
+                        ${currentLang === 'en' ? 'Book' : 'Бронировать'}
                     </button>
                 </div>
             </div>
