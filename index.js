@@ -230,9 +230,10 @@ app.get('/hotels-catalog.html', (req, res) => {
 
 // Admin dashboard - explicit route with no-cache headers
 app.get('/admin-dashboard.html', (req, res) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
   res.setHeader('Pragma', 'no-cache');
   res.setHeader('Expires', '0');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
   res.sendFile(path.join(__dirname, 'frontend', 'admin-dashboard.html'));
 });
 
