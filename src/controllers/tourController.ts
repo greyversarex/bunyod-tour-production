@@ -687,9 +687,12 @@ export class TourController {
         });
       }
 
+      console.log('🔍 FULL REQUEST BODY:', JSON.stringify(req.body, null, 2));
+      
       let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
 
       console.log('💰 UPDATE: Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
+      console.log('📊 All keys in req.body:', Object.keys(req.body));
 
       // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
       // ВАЖНО: Для update возвращаем undefined если значение не передано (частичное обновление)
