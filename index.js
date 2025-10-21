@@ -230,6 +230,16 @@ app.get('/hotels-catalog.html', (req, res) => {
 
 // HTML files will be served by express.static
 
+// Prevent caching of HTML files to ensure users always get fresh content
+app.use((req, res, next) => {
+  if (req.path.endsWith('.html')) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+  next();
+});
+
 // Обслуживать статические файлы из папки frontend
 app.use(express.static(path.join(__dirname, 'frontend')));
 
