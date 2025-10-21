@@ -473,7 +473,7 @@ export class TourController {
         shortDescription: shortDescription || null,
         duration: String(finalDuration), // Convert to string for Prisma
         price: String(price),
-        priceType: priceType || 'за человека',
+        priceType: priceType || 'per_person', // 🎯 ИСПРАВЛЕНО: дефолт теперь английский enum
         originalPrice: originalPrice || null,
         categoryId: categoryIdNumber,
         // Старые одиночные поля для совместимости
@@ -1074,13 +1074,33 @@ export class TourController {
 
       return res.status(200).json(response);
     } catch (error) {
+      console.error('❌ Error updating tour:', error);
+      
+      // Detailed error logging
+      if (error instanceof Error) {
+        console.error('❌ Error name:', error.name);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error stack:', error.stack);
+      }
+      
       if (error instanceof Error && error.message === 'Category not found') {
         return res.status(400).json({
           success: false,
           error: 'Invalid category ID'
         });
       }
-      return next(error);
+      
+      if (error instanceof Error && error.message === 'Tour not found') {
+        return res.status(404).json({
+          success: false,
+          error: 'Tour not found'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Database error: ' + (error instanceof Error ? error.message : 'Unknown error')
+      });
     }
   }
 
