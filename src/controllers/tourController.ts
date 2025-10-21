@@ -257,7 +257,9 @@ export class TourController {
   static async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating tour with data:', req.body);
-      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
+      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+
+      console.log('💰 Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
 
       // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
       const normalizePriceType = (value: string | undefined): string => {
@@ -444,6 +446,7 @@ export class TourController {
       const minPeopleNumber = minPeople ? parseInt(minPeople) : undefined;
       const ratingNumber = rating ? parseFloat(rating) : undefined;
       const reviewsCountNumber = reviewsCount ? parseInt(reviewsCount) : undefined;
+      const profitMarginNumber = profitMargin !== undefined ? parseFloat(profitMargin) : 0;
       
       if (isNaN(categoryIdNumber)) {
         return res.status(400).json({
@@ -513,7 +516,8 @@ export class TourController {
         endDate: endDate || null,
         rating: ratingNumber,
         reviewsCount: reviewsCountNumber,
-        pricingComponents: pricingComponents || null
+        pricingComponents: pricingComponents || null,
+        profitMargin: profitMarginNumber
       });
       } catch (createError) {
         console.error('❌ Error in TourModel.create:', createError);
@@ -683,7 +687,9 @@ export class TourController {
         });
       }
 
-      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents } = req.body;
+      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+
+      console.log('💰 UPDATE: Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
 
       // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Нормализация русских значений в английские enum
       // ВАЖНО: Для update возвращаем undefined если значение не передано (частичное обновление)
@@ -793,6 +799,8 @@ export class TourController {
       const minPeopleNumber = minPeople ? parseInt(minPeople) : undefined;
       const ratingNumber = rating ? parseFloat(rating) : undefined;
       const reviewsCountNumber = reviewsCount ? parseInt(reviewsCount) : undefined;
+      const profitMarginNumber = profitMargin !== undefined ? parseFloat(profitMargin) : undefined;
+      console.log('💰 UPDATE: Parsed profitMarginNumber:', profitMarginNumber, 'Will update:', profitMarginNumber !== undefined);
 
       // Parse arrays for multiple countries, cities, and categories
       let countriesIdsNumbers: number[] | undefined;
@@ -889,6 +897,7 @@ export class TourController {
         updateData.isActive = !isSavingDraft; // 📝 Черновики неактивны
       }
       if (pricingComponents !== undefined) updateData.pricingComponents = pricingComponents;
+      if (profitMarginNumber !== undefined) updateData.profitMargin = profitMarginNumber;
       
       // Add support for assignedGuideId
       if (req.body.assignedGuideId !== undefined) {
