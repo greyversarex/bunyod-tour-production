@@ -424,11 +424,19 @@ window.translations = window.translations || {
     'tour.agro': { ru: 'Агротуризм', en: 'Agrotourism' },
     'tour.vip': { ru: 'VIP', en: 'VIP' },
 
-    // Типы туров по формату
+    // Типы туров по формату (русские значения)
     'tour_type.personal': { ru: 'Персональный', en: 'Personal' },
+    'tour_type.персональный': { ru: 'Персональный', en: 'Personal' },
     'tour_type.group_personal': { ru: 'Групповой персональный', en: 'Group Personal' },
+    'tour_type.групповой_персональный': { ru: 'Групповой персональный', en: 'Group Personal' },
     'tour_type.group_general': { ru: 'Групповой общий', en: 'Group General' },
+    'tour_type.групповой_общий': { ru: 'Групповой общий', en: 'Group General' },
     'tour_type.special': { ru: 'Специальный', en: 'Special' },
+    'tour_type.специальный': { ru: 'Специальный', en: 'Special' },
+    
+    // Английские enum значения из базы данных
+    'tour_type.individual': { ru: 'Персональный', en: 'Personal' },
+    'tour_type.group_shared': { ru: 'Групповой общий', en: 'Group General' },
     
     'footer.public_offer': { ru: 'Публичная Оферта-Договор', en: 'Public Offer Agreement' },
     'footer.payment_rules': { ru: 'Правила оплаты и возврата средств', en: 'Payment and Refund Rules' },
