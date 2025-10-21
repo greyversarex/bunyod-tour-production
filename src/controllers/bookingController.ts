@@ -158,7 +158,10 @@ export const bookingController = {
       const tourPrice = parseFloat(existingBooking.tour.price);
       const tourPriceType = existingBooking.tour.priceType;
       
-      if (tourPriceType === 'за человека') {
+      // ✅ Поддержка обоих форматов: 'за человека' (старые) и 'per_person' (новые)
+      const isPerPerson = tourPriceType === 'за человека' || tourPriceType === 'per_person';
+      
+      if (isPerPerson) {
         totalPrice += tourPrice * existingBooking.numberOfTourists;
       } else {
         totalPrice += tourPrice; // За группу
@@ -177,7 +180,10 @@ export const bookingController = {
         // Вычитаем стоимость компонента проживания из тура
         // ВАЖНО: Компонент проживания уже включен в базовую цену за весь тур, не умножаем на дни!
         if (tourAccommodationPrice > 0) {
-          if (tourPriceType === 'за человека') {
+          // ✅ Поддержка обоих форматов: 'за человека' (старые) и 'per_person' (новые)
+          const isPerPerson = tourPriceType === 'за человека' || tourPriceType === 'per_person';
+          
+          if (isPerPerson) {
             // Для цены "за человека" вычитаем проживание на всех туристов
             const accommodationDeduction = tourAccommodationPrice * existingBooking.numberOfTourists;
             totalPrice -= accommodationDeduction;
@@ -321,14 +327,16 @@ export const bookingController = {
       const tourPriceType = tour.priceType;
       const tourType = tour.tourType || tour.format || '';
       
-      // ✅ ИСПРАВЛЕНО: Умножаем на туристов ТОЛЬКО если priceType = "за человека"
-      // Независимо от tourType (включая "Групповой общий", "Персональный" и др.)
-      if (tourPriceType === 'за человека') {
+      // ✅ ИСПРАВЛЕНО: Поддержка ОБОИХ форматов priceType (Russian + English enum)
+      // Проверяем как 'за человека' (старые туры), так и 'per_person' (новые туры)
+      const isPerPerson = tourPriceType === 'за человека' || tourPriceType === 'per_person';
+      
+      if (isPerPerson) {
         totalPrice += tourPrice * parseInt(numberOfTourists.toString());
-        console.log(`💰 Price calculation: ${tourPrice} × ${numberOfTourists} tourists = ${totalPrice} TJS (${tourType}, за человека)`);
+        console.log(`💰 Price calculation: ${tourPrice} × ${numberOfTourists} tourists = ${totalPrice} TJS (${tourType}, ${tourPriceType})`);
       } else {
         totalPrice += tourPrice; // Фиксированная цена для группы
-        console.log(`💰 Price calculation: ${tourPrice} TJS (fixed, ${tourType}, за группу)`);
+        console.log(`💰 Price calculation: ${tourPrice} TJS (fixed, ${tourType}, ${tourPriceType})`);
       }
 
       // ЛОГИКА ЗАМЕНЫ ПРОЖИВАНИЯ: Если выбран отель, вычесть компонент проживания тура и добавить отель
@@ -343,8 +351,10 @@ export const bookingController = {
         
         // Вычитаем стоимость компонента проживания из тура
         if (tourAccommodationPrice > 0) {
-          // ✅ ИСПРАВЛЕНО: Вычитаем умножая на туристов, если priceType = "за человека"
-          if (tourPriceType === 'за человека') {
+          // ✅ ИСПРАВЛЕНО: Поддержка обоих форматов - 'за человека' и 'per_person'
+          const isPerPerson = tourPriceType === 'за человека' || tourPriceType === 'per_person';
+          
+          if (isPerPerson) {
             totalPrice -= tourAccommodationPrice * parseInt(numberOfTourists.toString());
             console.log(`➖ Subtracted accommodation (per person): ${tourAccommodationPrice} x ${numberOfTourists} = ${tourAccommodationPrice * parseInt(numberOfTourists.toString())} TJS`);
           } else {
