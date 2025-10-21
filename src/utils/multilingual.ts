@@ -176,6 +176,57 @@ export function createLocalizedResponse(
 }
 
 /**
+ * Denormalize enum values to localized labels
+ */
+function denormalizeTourType(value: string | null | undefined, language: SupportedLanguage = 'ru'): string {
+  if (!value) return '';
+  
+  const ruMap: Record<string, string> = {
+    'individual': 'Персональный',
+    'group_private': 'Групповой персональный',
+    'group_shared': 'Групповой общий',
+    // Keep Russian values as-is (for legacy tours)
+    'Персональный': 'Персональный',
+    'Групповой персональный': 'Групповой персональный',
+    'Групповой общий': 'Групповой общий'
+  };
+  
+  const enMap: Record<string, string> = {
+    'individual': 'Individual',
+    'group_private': 'Private Group',
+    'group_shared': 'Shared Group',
+    'Персональный': 'Individual',
+    'Групповой персональный': 'Private Group',
+    'Групповой общий': 'Shared Group'
+  };
+  
+  const map = language === 'en' ? enMap : ruMap;
+  return map[value] || value;
+}
+
+function denormalizePriceType(value: string | null | undefined, language: SupportedLanguage = 'ru'): string {
+  if (!value) return language === 'ru' ? 'за человека' : 'per person';
+  
+  const ruMap: Record<string, string> = {
+    'per_person': 'за человека',
+    'per_group': 'за группу',
+    // Keep Russian values as-is (for legacy tours)
+    'за человека': 'за человека',
+    'за группу': 'за группу'
+  };
+  
+  const enMap: Record<string, string> = {
+    'per_person': 'per person',
+    'per_group': 'per group',
+    'за человека': 'per person',
+    'за группу': 'per group'
+  };
+  
+  const map = language === 'en' ? enMap : ruMap;
+  return map[value] || value;
+}
+
+/**
  * Centralized tour mapper - eliminates direct tour.category references
  * Maps tour data with proper localization and safe category handling
  */
@@ -200,6 +251,10 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       }];
     }
     
+    // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Денормализация enum значений для отображения на фронтенде
+    const localizedTourType = denormalizeTourType(tour.tourType || tour.format, language);
+    const localizedPriceType = denormalizePriceType(tour.priceType, language);
+    
     const mappedTour = {
       ...tour,
       title: parseMultilingualField(tour.title, language),
@@ -214,6 +269,12 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       country: tour.tourCountry ? parseMultilingualField(tour.tourCountry.name, language) : null,
       city: tour.tourCity ? parseMultilingualField(tour.tourCity.name, language) : null
     };
+    
+    // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ПЕРЕЗАПИСЫВАЕМ enum значения денормализованными
+    // Важно делать это ПОСЛЕ spread оператора, чтобы точно перезаписать значения
+    mappedTour.tourType = localizedTourType;
+    mappedTour.format = localizedTourType; // Keep both for backward compatibility
+    mappedTour.priceType = localizedPriceType;
 
     // Remove images for performance if requested
     if (removeImages) {

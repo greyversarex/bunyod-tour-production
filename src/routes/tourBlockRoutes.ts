@@ -10,6 +10,7 @@ import {
   removeTourFromBlock
 } from '../controllers/tourBlockController';
 import { authenticateJWT } from '../middleware/auth';
+import { mapTour, getLanguageFromRequest } from '../utils/multilingual';
 
 const prisma = new PrismaClient();
 
@@ -76,15 +77,24 @@ router.get('/:id/tours', async (req, res) => {
     });
 
     // Извлекаем туры из связей и фильтруем активные
-    const tours = tourAssignments
+    const activeTours = tourAssignments
       .map(assignment => assignment.tour)
       .filter(tour => tour.isActive);
+    
+    // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Применяем mapTour для денормализации enum значений
+    const language = getLanguageFromRequest(req);
+    const mappedTours = activeTours.map(tour => 
+      mapTour(tour, language, {
+        includeRaw: false,
+        removeImages: false
+      })
+    );
 
-    console.log(`📋 Found ${tours.length} tours for block ${blockId} (via new assignment system)`);
+    console.log(`📋 Found ${mappedTours.length} tours for block ${blockId} (via new assignment system)`);
 
     res.json({
       success: true,
-      data: tours
+      data: mappedTours
     });
 
   } catch (error) {

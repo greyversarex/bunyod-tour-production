@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { parseMultilingualField, getLanguageFromRequest } from '../utils/multilingual';
+import { parseMultilingualField, getLanguageFromRequest, mapTour } from '../utils/multilingual';
 import prisma from '../config/database';
 
 // Get all tour blocks
@@ -101,11 +101,19 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
       });
     }
 
+    // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Применяем mapTour для денормализации enum значений
+    const language = getLanguageFromRequest(req);
+    
     // Transform data to maintain API compatibility
     const transformedTourBlock = {
       ...tourBlock,
-      // Extract tours from assignments and flatten them
-      tours: tourBlock.tourBlocks?.map(assignment => assignment.tour) || [],
+      // Extract tours from assignments and flatten them WITH mapTour normalization
+      tours: tourBlock.tourBlocks?.map(assignment => 
+        mapTour(assignment.tour, language, {
+          includeRaw: false,
+          removeImages: false
+        })
+      ) || [],
       // Remove the tourBlocks field from response to avoid confusion
       tourBlocks: undefined
     };

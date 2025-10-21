@@ -270,6 +270,11 @@
             baseCurrency: 'TJS'
         };
 
+        // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Универсальная проверка priceType (поддержка русских и английских enum)
+        function isPerPersonPricing(priceType) {
+            return priceType === 'за человека' || priceType === 'per_person';
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function() {
             initializePage();
@@ -637,7 +642,7 @@
                         <h5 class="font-medium text-gray-800" data-translate="booking.price_calculation">Расчёт стоимости</h5>
                         <div class="text-sm text-gray-600 space-y-1">
                             <div class="flex justify-between">
-                                <span><span data-translate="booking.tour_price">Цена тура</span> ${tour.priceType === 'за группу' ? '(<span data-translate="booking.per_group">за группу</span>)' : '× ' + numberOfTourists + ' <span data-translate="booking.person_short">чел.</span>'}:</span>
+                                <span><span data-translate="booking.tour_price">Цена тура</span> ${isPerPersonPricing(tour.priceType) ? '× ' + numberOfTourists + ' <span data-translate="booking.person_short">чел.</span>' : '(<span data-translate="booking.per_group">за группу</span>)'}:</span>
                                 <span id="tour-price-calc" class="price-display" data-original-price="0">0 TJS</span>
                             </div>
                             <div id="room-costs-calc" class="space-y-1">
@@ -694,8 +699,8 @@
             let tourPrice = parseFloat(tour.price || tour.basePrice || 0);
             const tourType = tour.tourType || tour.format || '';
             
-            // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека'
-            if (tour.priceType === 'за человека') {
+            // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека' или 'per_person'
+            if (isPerPersonPricing(tour.priceType)) {
                 tourPrice *= numberOfTourists;
             }
 
@@ -1304,8 +1309,8 @@
             // Calculate base tour price
             let baseTourPrice = parseFloat(tour.price || tour.basePrice || 0);
             
-            // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека'
-            if (tour.priceType === 'за человека') {
+            // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека' или 'per_person'
+            if (isPerPersonPricing(tour.priceType)) {
                 baseTourPrice *= numberOfTourists;
             }
             
@@ -1339,8 +1344,8 @@
                         
                         // Компонент проживания уже включен в базовую цену тура за весь тур
                         // Вычитаем только стоимость компонента БЕЗ умножения на дни
-                        // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека'
-                        if (tour.priceType === 'за человека') {
+                        // ✅ Умножаем на количество туристов для всех типов туров, если priceType === 'за человека' или 'per_person'
+                        if (isPerPersonPricing(tour.priceType)) {
                             accommodationDeduction = accommodationPrice * numberOfTourists;
                         } else {
                             accommodationDeduction = accommodationPrice;
@@ -1735,7 +1740,7 @@
                 const numberOfTourists = parseInt(urlParams.get('tourists')) || 1;
                 
                 let baseTourPrice = parseFloat(tour.price);
-                if (tour.priceType === 'за человека') {
+                if (isPerPersonPricing(tour.priceType)) {
                     baseTourPrice *= numberOfTourists;
                 }
                 
