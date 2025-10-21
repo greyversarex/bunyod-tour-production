@@ -2415,7 +2415,7 @@
                                 <div class="p-3 bg-green-50 border border-green-200 rounded">
                                     <div class="flex items-center justify-between mb-2">
                                         <label class="font-semibold">Процент прибыли (%):</label>
-                                        <input type="number" class="form-input w-24" id="profitMargin" min="0" max="100" step="1" value="0" oninput="calculateTourTotalPrice()">
+                                        <input type="number" class="form-input w-24" id="profitMargin" name="profitMargin" min="0" max="100" step="1" value="0" oninput="calculateTourTotalPrice()">
                                     </div>
                                     <div class="flex justify-between items-center">
                                         <span class="text-sm text-gray-600">Сумма прибыли:</span>
@@ -4469,11 +4469,16 @@
                 profitMargin: safeGetValue('profitMargin', 0, 'float')
             };
             
-            console.log('💰 DEBUG profitMargin:', {
-                elementExists: !!document.getElementById('profitMargin'),
-                elementValue: document.getElementById('profitMargin')?.value,
-                safeGetValue: safeGetValue('profitMargin', 0, 'float'),
-                inFormData: formData.profitMargin
+            // 🔍 DEBUG: Проверка profitMargin перед отправкой
+            const profitMarginElement = document.getElementById('profitMargin');
+            const profitMarginValue = profitMarginElement ? profitMarginElement.value : 'ELEMENT_NOT_FOUND';
+            const profitMarginSafeGet = safeGetValue('profitMargin', 0, 'float');
+            console.log('💰 ОТЛАДКА profitMargin:', {
+                'Элемент существует': !!profitMarginElement,
+                'Значение из DOM': profitMarginValue,
+                'safeGetValue результат': profitMarginSafeGet,
+                'В formData': formData.profitMargin,
+                'Тип': typeof formData.profitMargin
             });
             console.log('📤 Sending tour data:', formData);
             
