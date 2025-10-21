@@ -2401,18 +2401,41 @@
                                 </div>
                             </div>
                             
-                            <!-- Calculated Total -->
-                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                                <div class="flex justify-between items-center">
-                                    <span class="font-semibold">Общая стоимость:</span>
-                                    <span class="text-xl font-bold text-blue-600" id="calculatedTotalPrice">0 TJS</span>
+                            <!-- Price Calculation Breakdown -->
+                            <div class="mt-4 space-y-3">
+                                <!-- Components Sum -->
+                                <div class="p-3 bg-gray-50 border border-gray-200 rounded">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-semibold">Сумма компонентов:</span>
+                                        <span class="text-lg font-bold text-gray-700" id="componentsSum">0 TJS</span>
+                                    </div>
                                 </div>
-                                <div class="mt-2">
-                                    <label class="form-label">Тип цены</label>
-                                    <select class="form-input" id="tourPriceType" required>
-                                        <option value="за человека">За человека</option>
-                                        <option value="за группу">За группу</option>
-                                    </select>
+                                
+                                <!-- Profit Margin -->
+                                <div class="p-3 bg-green-50 border border-green-200 rounded">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <label class="font-semibold">Процент прибыли (%):</label>
+                                        <input type="number" class="form-input w-24" id="profitMargin" min="0" max="100" step="1" value="0" oninput="calculateTourTotalPrice()">
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Сумма прибыли:</span>
+                                        <span class="text-lg font-bold text-green-600" id="profitAmount">0 TJS</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Final Tour Total -->
+                                <div class="p-3 bg-blue-50 border border-blue-200 rounded">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-semibold">Итоговая сумма тура:</span>
+                                        <span class="text-xl font-bold text-blue-600" id="calculatedTotalPrice">0 TJS</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <label class="form-label">Тип цены</label>
+                                        <select class="form-input" id="tourPriceType" required>
+                                            <option value="за человека">За человека</option>
+                                            <option value="за группу">За группу</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -4442,7 +4465,8 @@
                 // Собираем выбранных гидов 
                 guideIds: Array.from(document.querySelectorAll('input[name="selectedGuides"]:checked')).map(cb => parseInt(cb.value)),
                 // Компоненты цены (новая система ценообразования)
-                pricingComponents: safeGetValue('tourPricingData', '[]')
+                pricingComponents: safeGetValue('tourPricingData', '[]'),
+                profitMargin: safeGetValue('profitMargin', 0, 'float')
             };
             
             console.log('📤 Sending tour data:', formData);
@@ -4487,6 +4511,11 @@
             selectedTourComponents = [];
             document.getElementById('tourPricingData').value = '';
             document.getElementById('tourPrice').value = '0';
+            
+            // Сбрасываем все поля ценообразования
+            document.getElementById('componentsSum').textContent = '0 TJS';
+            document.getElementById('profitMargin').value = '0';
+            document.getElementById('profitAmount').textContent = '0 TJS';
             document.getElementById('calculatedTotalPrice').textContent = '0 TJS';
             
             // Сбрасываем чекбоксы компонентов и цены
@@ -5785,6 +5814,13 @@
                             } catch (e) {
                                 console.warn('Failed to parse pricing components:', e);
                             }
+                        }
+                        
+                        // Load profit margin
+                        const profitMarginElement = document.getElementById('profitMargin');
+                        if (profitMarginElement) {
+                            profitMarginElement.value = tour.profitMargin || 0;
+                            console.log('💰 Процент прибыли загружен:', tour.profitMargin || 0);
                         }
                         
                         const tourPriceTypeElement = document.getElementById('tourPriceType');
@@ -13536,18 +13572,34 @@
         }
 
         function calculateTourTotalPrice() {
-            let totalPrice = 0;
-            
+            // 1. Calculate components sum
+            let componentsSum = 0;
             selectedTourComponents.forEach(component => {
-                totalPrice += component.price * component.quantity;
+                componentsSum += component.price * component.quantity;
             });
             
-            // Update display
-            document.getElementById('calculatedTotalPrice').textContent = `${totalPrice.toFixed(2)} TJS`;
-            // Update hidden field for form submission
-            document.getElementById('tourPrice').value = totalPrice.toFixed(2);
-            // Save selected components data
+            // 2. Get profit margin percentage
+            const profitMarginInput = document.getElementById('profitMargin');
+            const profitMarginPercent = parseFloat(profitMarginInput?.value || 0);
+            
+            // 3. Calculate profit amount
+            const profitAmount = (componentsSum * profitMarginPercent) / 100;
+            
+            // 4. Calculate final tour total
+            const finalTotal = componentsSum + profitAmount;
+            
+            // 5. Update all display elements (rounded to whole numbers)
+            document.getElementById('componentsSum').textContent = `${Math.round(componentsSum)} TJS`;
+            document.getElementById('profitAmount').textContent = `${Math.round(profitAmount)} TJS`;
+            document.getElementById('calculatedTotalPrice').textContent = `${Math.round(finalTotal)} TJS`;
+            
+            // 6. Update hidden field for form submission (final total becomes tour price)
+            document.getElementById('tourPrice').value = Math.round(finalTotal);
+            
+            // 7. Save selected components data
             document.getElementById('tourPricingData').value = JSON.stringify(selectedTourComponents);
+            
+            console.log(`💰 Расчет цены: Компоненты ${Math.round(componentsSum)} + Прибыль ${profitMarginPercent}% (${Math.round(profitAmount)}) = Итого ${Math.round(finalTotal)} TJS`);
         }
 
         // ✨ НОВАЯ ФУНКЦИЯ: Автоматическая синхронизация услуг
