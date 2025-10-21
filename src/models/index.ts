@@ -169,7 +169,8 @@ export class TourModel {
           isFeatured: data.isFeatured || false,
           startDate: data.startDate,
           endDate: data.endDate,
-          pricingData: data.pricingComponents || null
+          pricingData: data.pricingComponents || null,
+          profitMargin: data.profitMargin || 0
         }
       });
 
@@ -328,6 +329,7 @@ export class TourModel {
     if (data.startDate !== undefined) updateData.startDate = data.startDate;
     if (data.endDate !== undefined) updateData.endDate = data.endDate;
     if (data.pricingComponents !== undefined) updateData.pricingData = data.pricingComponents;
+    if (data.profitMargin !== undefined) updateData.profitMargin = data.profitMargin;
     if (data.assignedGuideId !== undefined) updateData.assignedGuideId = data.assignedGuideId;
 
     // Валидация городов относительно стран (мягкая валидация)

@@ -81,6 +81,7 @@ model Tour {
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   pricingData             String?
+  profitMargin            Float?                   @default(0) @map("profit_margin")
   assignedGuideId         Int?                     @map("assigned_guide_id")
   scheduledEndDate        DateTime?
   scheduledStartDate      DateTime?
