@@ -1752,11 +1752,12 @@ function getDisplayLocation(tour) {
     
     let countries = [];
     
-    // Получаем страны
+    // Получаем страны из tourCountries
     if (tour.tourCountries && tour.tourCountries.length > 0) {
         countries = tour.tourCountries.map(tc => tc.country?.[langField] || tc.country?.nameRu || tc.country?.name || '').filter(Boolean);
     } else if (tour.country) {
-        countries = [tour.country];
+        const countryName = typeof tour.country === 'object' ? (tour.country[langField] || tour.country.nameRu || tour.country.name) : tour.country;
+        if (countryName) countries = [countryName];
     }
     
     // Показываем все страны без ограничения
