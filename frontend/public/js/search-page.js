@@ -331,27 +331,56 @@ function renderTourFilters() {
     renderLanguagesFilter();
 }
 
+// Language name translations
+const languageTranslations = {
+    'Английский': { ru: 'Английский', en: 'English' },
+    'Русский': { ru: 'Русский', en: 'Russian' },
+    'Французский': { ru: 'Французский', en: 'French' },
+    'Немецкий': { ru: 'Немецкий', en: 'German' },
+    'Испанский': { ru: 'Испанский', en: 'Spanish' },
+    'Итальянский': { ru: 'Итальянский', en: 'Italian' },
+    'Китайский': { ru: 'Китайский', en: 'Chinese' },
+    'Арабский': { ru: 'Арабский', en: 'Arabic' },
+    'Персидский': { ru: 'Персидский', en: 'Persian' },
+    'Таджикский': { ru: 'Таджикский', en: 'Tajik' },
+    'Узбекский': { ru: 'Узбекский', en: 'Uzbek' },
+    'Туркменский': { ru: 'Туркменский', en: 'Turkmen' },
+    'Казахский': { ru: 'Казахский', en: 'Kazakh' },
+    'Киргизский': { ru: 'Киргизский', en: 'Kyrgyz' }
+};
+
 function renderLanguagesFilter() {
     const container = document.getElementById('languages-checkboxes');
     if (!container) return;
     
     const languages = Array.from(state.languages).sort();
+    const currentLang = state.currentLang;
     
     if (languages.length === 0) {
-        container.innerHTML = '<div class="text-sm text-gray-500 py-2">Языки появятся после добавления туров</div>';
+        const emptyMessage = currentLang === 'ru' 
+            ? 'Языки появятся после добавления туров' 
+            : 'Languages will appear after adding tours';
+        container.innerHTML = `<div class="text-sm text-gray-500 py-2">${emptyMessage}</div>`;
         return;
     }
     
-    container.innerHTML = languages.map(lang => `
+    container.innerHTML = languages.map(lang => {
+        // Get translated language name
+        const translatedName = languageTranslations[lang] 
+            ? languageTranslations[lang][currentLang] 
+            : lang;
+        
+        return `
         <div class="filter-option">
             <input type="checkbox" 
                    id="lang-${escapeHtml(lang)}"
                    value="${escapeHtml(lang)}" 
                    ${state.filters.languages.includes(lang) ? 'checked' : ''}
                    onchange="applyFilters()">
-            <label for="lang-${escapeHtml(lang)}">${escapeHtml(lang)}</label>
+            <label for="lang-${escapeHtml(lang)}">${escapeHtml(translatedName)}</label>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function renderHotelFilters() {
@@ -1309,6 +1338,9 @@ function checkUrlParams() {
 function updateLanguageOnSearchPage() {
     // Обновляем язык в state
     state.currentLang = window.currentLanguage || 'ru';
+    
+    // Перерисовываем фильтры с новым языком (включая языковой фильтр)
+    renderFilters();
     
     // Перерисовываем результаты с новым языком
     renderTourCards();
