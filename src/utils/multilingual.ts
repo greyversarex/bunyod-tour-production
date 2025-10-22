@@ -239,14 +239,14 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
     if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
       categories = tour.tourCategoryAssignments.map((assignment: any) => ({
         id: assignment.category.id,
-        name: parseMultilingualField(assignment.category.name, language),
+        name: safeJsonParse(assignment.category.name),
         isPrimary: assignment.isPrimary
       }));
     } else if (tour.category) {
       // Fallback to single category for backward compatibility
       categories = [{
         id: tour.category.id,
-        name: parseMultilingualField(tour.category.name, language),
+        name: safeJsonParse(tour.category.name),
         isPrimary: true
       }];
     }
@@ -257,9 +257,9 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
     
     const mappedTour = {
       ...tour,
-      title: parseMultilingualField(tour.title, language),
-      description: parseMultilingualField(tour.description, language),
-      shortDesc: tour.shortDesc ? parseMultilingualField(tour.shortDesc, language) : null,
+      title: safeJsonParse(tour.title),
+      description: safeJsonParse(tour.description),
+      shortDesc: tour.shortDesc ? safeJsonParse(tour.shortDesc) : null,
       hasImages: !!(tour.mainImage || tour.images),
       // Primary category for backward compatibility
       category: categories.find((c: any) => c.isPrimary) || categories[0] || null,
