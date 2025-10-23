@@ -5481,9 +5481,35 @@
                     }
                     
                     tbody.innerHTML = tours.map(tour => {
-                        // API возвращает локализованные строки
-                        const tourTitle = tour.title || 'Без названия';
-                        const categoryName = tour.category ? tour.category.name || 'Без категории' : 'Без категории';
+                        // API возвращает локализованные объекты {ru, en}
+                        let tourTitle = 'Без названия';
+                        if (tour.title) {
+                            if (typeof tour.title === 'object') {
+                                tourTitle = tour.title.ru || tour.title.en || 'Без названия';
+                            } else if (typeof tour.title === 'string') {
+                                try {
+                                    const parsed = JSON.parse(tour.title);
+                                    tourTitle = parsed.ru || parsed.en || tour.title;
+                                } catch (e) {
+                                    tourTitle = tour.title;
+                                }
+                            }
+                        }
+                        
+                        let categoryName = 'Без категории';
+                        if (tour.category && tour.category.name) {
+                            if (typeof tour.category.name === 'object') {
+                                categoryName = tour.category.name.ru || tour.category.name.en || 'Без категории';
+                            } else if (typeof tour.category.name === 'string') {
+                                try {
+                                    const parsed = JSON.parse(tour.category.name);
+                                    categoryName = parsed.ru || parsed.en || tour.category.name;
+                                } catch (e) {
+                                    categoryName = tour.category.name;
+                                }
+                            }
+                        }
+                        
                         const countryName = tour.country || '-';
                         const cityName = tour.city || '-';
                         
@@ -6384,15 +6410,30 @@
             };
             
             const normalizeTourType = (value) => {
+                if (!value) return 'individual';
+                
+                // Normalize: trim and convert to lowercase for comparison
+                const normalized = value.toString().trim().toLowerCase();
+                
                 const map = {
-                    'Персональный': 'individual',
-                    'Групповой приватный': 'group_private',
-                    'Групповой общий': 'group_shared',
+                    // Русские варианты (разные регистры)
+                    'персональный': 'individual',
+                    'групповой персональный': 'group_private',
+                    'групповой приватный': 'group_private',
+                    'групповой общий': 'group_shared',
+                    // Английские варианты
                     'individual': 'individual',
                     'group_private': 'group_private',
-                    'group_shared': 'group_shared'
+                    'group_private_tour': 'group_private',
+                    'group_shared': 'group_shared',
+                    'group_shared_tour': 'group_shared',
+                    // Старые варианты
+                    'private': 'individual',
+                    'group private': 'group_private',
+                    'group shared': 'group_shared'
                 };
-                return map[value] || 'individual';
+                
+                return map[normalized] || 'individual';
             };
             
             const formData = {
