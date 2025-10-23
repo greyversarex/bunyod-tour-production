@@ -802,7 +802,7 @@
             const numberOfTourists = bookingState?.selections?.numberOfTourists || 1;
             
             if (tourId && tourDate) {
-                window.location.href = `/booking/step1?tourId=${tourId}&date=${tourDate}&tourists=${numberOfTourists}&bookingId=${bookingId}`;
+                window.location.href = `/booking-step1.html?tourId=${tourId}&date=${tourDate}&tourists=${numberOfTourists}&bookingId=${bookingId}`;
             } else {
                 console.warn('⚠️ Missing tour data, using history.back()');
                 window.history.back();
