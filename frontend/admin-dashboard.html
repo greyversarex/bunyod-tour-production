@@ -6221,41 +6221,45 @@
                             console.error('❌ Failed to update gallery images list:', e);
                         }
                         
-                        // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дождаться загрузки отелей и гидов перед установкой галочек
+                        // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дождаться загрузки отелей и гидов + автоматической перезагрузки
                         Promise.all([hotelsPromise, guidesPromise]).then(() => {
-                            console.log('✅ Отели и гиды загружены, устанавливаем галочки...');
-                            
-                            // Загрузка выбранных отелей
-                            if (tour.tourHotels && Array.isArray(tour.tourHotels)) {
-                                tour.tourHotels.forEach(tourHotel => {
-                                    const hotelId = tourHotel.hotelId;
-                                    const checkbox = document.querySelector(`input[name="selectedHotels"][value="${hotelId}"]`);
-                                    if (checkbox) {
-                                        checkbox.checked = true;
-                                        console.log('✅ Галочка установлена для отеля:', hotelId);
-                                    } else {
-                                        console.warn('❌ Hotel checkbox not found for:', hotelId);
-                                    }
-                                });
-                            } else {
-                                console.log('❌ No tourHotels found or not array:', tour.tourHotels);
-                            }
-                            
-                            // Загрузка выбранных гидов
-                            if (tour.tourGuides && Array.isArray(tour.tourGuides)) {
-                                tour.tourGuides.forEach(tourGuide => {
-                                    const guideId = tourGuide.guideId;
-                                    const checkbox = document.querySelector(`input[name="selectedGuides"][value="${guideId}"]`);
-                                    if (checkbox) {
-                                        checkbox.checked = true;
-                                        console.log('✅ Галочка установлена для гида:', guideId);
-                                    } else {
-                                        console.warn('❌ Guide checkbox not found for:', guideId);
-                                    }
-                                });
-                            } else {
-                                console.log('❌ No tourGuides found or not array:', tour.tourGuides);
-                            }
+                            // ВАЖНО: Дополнительная задержка, чтобы дождаться срабатывания updateSelectedCitiesDisplay()
+                            // которая вызывается при установке городов и перезагружает список отелей
+                            setTimeout(() => {
+                                console.log('✅ Отели и гиды загружены, устанавливаем галочки...');
+                                
+                                // Загрузка выбранных отелей
+                                if (tour.tourHotels && Array.isArray(tour.tourHotels)) {
+                                    tour.tourHotels.forEach(tourHotel => {
+                                        const hotelId = tourHotel.hotelId;
+                                        const checkbox = document.querySelector(`input[name="selectedHotels"][value="${hotelId}"]`);
+                                        if (checkbox) {
+                                            checkbox.checked = true;
+                                            console.log('✅ Галочка установлена для отеля:', hotelId);
+                                        } else {
+                                            console.warn('❌ Hotel checkbox not found for:', hotelId);
+                                        }
+                                    });
+                                } else {
+                                    console.log('❌ No tourHotels found or not array:', tour.tourHotels);
+                                }
+                                
+                                // Загрузка выбранных гидов
+                                if (tour.tourGuides && Array.isArray(tour.tourGuides)) {
+                                    tour.tourGuides.forEach(tourGuide => {
+                                        const guideId = tourGuide.guideId;
+                                        const checkbox = document.querySelector(`input[name="selectedGuides"][value="${guideId}"]`);
+                                        if (checkbox) {
+                                            checkbox.checked = true;
+                                            console.log('✅ Галочка установлена для гида:', guideId);
+                                        } else {
+                                            console.warn('❌ Guide checkbox not found for:', guideId);
+                                        }
+                                    });
+                                } else {
+                                    console.log('❌ No tourGuides found or not array:', tour.tourGuides);
+                                }
+                            }, 500); // Задержка 500ms для ожидания автоматической перезагрузки отелей
                         }).catch(error => {
                             console.error('❌ Ошибка при загрузке отелей/гидов:', error);
                         });
