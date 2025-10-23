@@ -35,7 +35,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Tour Share Functionality**: Share button on tour pages with copy link and native Web Share API options.
 
 ### UI/UX
--   **Admin Dashboard**: Comprehensive management for all core entities, including booking table with guide assignment and tour status. Banner management is integrated.
+-   **Admin Dashboard**: Comprehensive management for all core entities, including booking table with guide assignment and tour status. Banner management is integrated. Smart hotel filtering in tour modal - displays only hotels from selected cities with automatic list updates when cities change.
 -   **Responsive Design**: Mobile-first approach.
 -   **Enhanced Selectors**: Language and currency selectors feature modern glassmorphism design.
 -   **Toggle Filter System**: Modern filter for tours by country, city, type, category, and tour blocks (renamed to "НАПРАВЛЕНИЯ").
