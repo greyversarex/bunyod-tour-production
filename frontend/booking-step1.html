@@ -493,7 +493,13 @@
                 // ✅ Конвертируем в выбранную валюту и ОКРУГЛЯЕМ до целого (как на странице тура)
                 const convertedAmount = Math.round(amountTJS / rates[selectedCurrency].rate);
                 const symbol = rates[selectedCurrency].symbol;
-                return `${convertedAmount} ${symbol}`;
+                
+                // ✅ НОВОЕ: Показываем цену в TJS в скобках при выборе другой валюты
+                if (showEquivalent) {
+                    return `${convertedAmount} ${symbol} (${Math.round(amountTJS)} TJS)`;
+                } else {
+                    return `${convertedAmount} ${symbol}`;
+                }
             }
         }
 
@@ -722,6 +728,12 @@
             `;
 
             calculateTourPrice();
+            
+            // ✅ ВАЖНО: Вызываем updateContinueButton() после создания DOM элементов
+            // чтобы кнопка могла быть найдена и обновлена
+            setTimeout(() => {
+                updateContinueButton();
+            }, 100);
         }
 
         function calculateTourPrice() {
