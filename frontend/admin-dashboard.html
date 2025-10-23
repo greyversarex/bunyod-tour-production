@@ -5513,6 +5513,16 @@
                         const countryName = tour.country || '-';
                         const cityName = tour.city || '-';
                         
+                        // Формируем отображение длительности с учетом типа
+                        let durationDisplay = '-';
+                        if (tour.duration || tour.durationDays) {
+                            const durationValue = tour.duration || tour.durationDays;
+                            const durationType = tour.durationType || 'days';
+                            durationDisplay = durationType === 'hours' 
+                                ? `${durationValue} часов` 
+                                : `${durationValue} дней`;
+                        }
+                        
                         return `
                             <tr>
                                 <td>${tour.id}</td>
@@ -5520,7 +5530,7 @@
                                 <td>${categoryName}</td>
                                 <td>${countryName}</td>
                                 <td>${cityName}</td>
-                                <td>${tour.duration || tour.durationDays || '-'} дней</td>
+                                <td>${durationDisplay}</td>
                                 <td class="font-semibold">${tour.price} сом.</td>
                                 <td>
                                     ${tour.isDraft ? 
