@@ -5357,6 +5357,9 @@
                 // Set data for legacy system (first city name)
                 legacyCityInput.value = selectedCities[0].name;
             }
+            
+            // ✅ Автоматически обновляем список доступных отелей при изменении городов
+            loadHotelsForCheckboxes();
         }
 
         // Update available cities based on selected countries
@@ -6648,6 +6651,11 @@
         }
         
         function loadHotelsForCheckboxes() {
+            // Сохраняем текущие выбранные отели перед перезагрузкой
+            const currentlySelectedHotels = Array.from(
+                document.querySelectorAll('input[name="selectedHotels"]:checked')
+            ).map(cb => cb.value);
+            
             fetch(`${getApiUrl()}/hotels?includeRaw=true`, {
                 headers: getAuthHeaders()
             })
@@ -6664,7 +6672,33 @@
                         return;
                     }
                     
-                    const hotels = data.data || data.hotels || [];
+                    let hotels = data.data || data.hotels || [];
+                    
+                    // ✅ ФИЛЬТРАЦИЯ: Показываем только отели из выбранных городов
+                    if (selectedCities && selectedCities.length > 0) {
+                        const selectedCityIds = selectedCities.map(c => String(c.id));
+                        hotels = hotels.filter(hotel => {
+                            const hotelCityId = String(hotel.cityId);
+                            return selectedCityIds.includes(hotelCityId);
+                        });
+                        
+                        console.log(`🏨 Фильтрация отелей: выбрано городов ${selectedCities.length}, найдено отелей ${hotels.length}`);
+                    }
+                    
+                    // Если нет выбранных городов, показываем сообщение
+                    if (!selectedCities || selectedCities.length === 0) {
+                        container.innerHTML = '<small class="text-gray-500">Сначала выберите города для тура, чтобы увидеть доступные отели</small>';
+                        return;
+                    }
+                    
+                    // Если выбраны города, но нет отелей в этих городах
+                    if (hotels.length === 0) {
+                        const cityNames = selectedCities.map(c => c.name).join(', ');
+                        container.innerHTML = `<small class="text-gray-500">В выбранных городах (${cityNames}) пока нет добавленных отелей</small>`;
+                        return;
+                    }
+                    
+                    // Отображаем отфильтрованные отели
                     container.innerHTML = hotels.map(hotel => {
                         let name;
                         // Используем _localized данные для checkboxes
@@ -6678,9 +6712,13 @@
                                 name = hotel.name || {};
                             }
                         }
+                        
+                        // Восстанавливаем состояние выбранности
+                        const isChecked = currentlySelectedHotels.includes(String(hotel.id));
+                        
                         return `
                             <label class="checkbox-item">
-                                <input type="checkbox" name="selectedHotels" value="${hotel.id}"> ${name.ru || name.en || 'Отель'}
+                                <input type="checkbox" name="selectedHotels" value="${hotel.id}" ${isChecked ? 'checked' : ''}> ${name.ru || name.en || 'Отель'}
                             </label>
                         `;
                     }).join('');
