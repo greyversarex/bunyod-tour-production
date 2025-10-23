@@ -22,7 +22,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Full CRUD Operations**: Implemented for all major entities with robust enum value normalization.
 -   **Multilingual Support**: JSON-based content for Russian and English.
 -   **Component-based Tour Pricing**: Dynamic pricing with inline editing, automatic category detection, and profit margin calculation. Profit margin percentage input is included in the admin panel, calculating `Components Sum` → `Profit Margin` → `Final Tour Price`.
--   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management. Smart booking flow skips hotel selection if not applicable.
+-   **Booking & Order System**: Seamless flow from draft bookings to payment-ready orders, including a 3-step localized booking process with unified state management. Smart booking flow skips hotel selection if not applicable. Step 1 features a "Continue" button that appears only when rooms are selected, with green highlighting for selected room counters.
 -   **Payment Integration**: Multiple gateway integrations with full webhook support.
 -   **Management Systems**: Comprehensive systems for Tour Guides, Drivers, Countries, and Cities, including profiles, reviews, and vehicle management.
 -   **Currency System**: Supports TJS, USD, EUR, RUB, CNY with real-time conversion and admin management.
