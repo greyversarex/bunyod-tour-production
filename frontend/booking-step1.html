@@ -1168,7 +1168,7 @@
         }
         
         // ✅ Функция перехода на второй этап бронирования
-        function proceedToStep2() {
+        async function proceedToStep2() {
             const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
             let hasAnyRoomsSelected = false;
             
@@ -1186,18 +1186,9 @@
                 return;
             }
             
-            // Сохраняем состояние и переходим на второй этап
-            window.bookingStateManager.persist();
-            
-            // Получаем текущие параметры URL и bookingId из состояния
-            const urlParams = new URLSearchParams(window.location.search);
-            const tourId = urlParams.get('tourId');
-            const date = urlParams.get('date');
-            const tourists = urlParams.get('tourists');
-            const bookingId = window.bookingStateManager.state.bookingId;
-            
-            // Переходим на второй этап с сохранением параметров включая bookingId
-            window.location.href = `/booking-step2.html?tourId=${tourId}&date=${date}&tourists=${tourists}&bookingId=${bookingId}`;
+            // ✅ Сохраняем детали бронирования (номера, питание, итоговую цену) в БД
+            await saveBookingDraft();
+            // Примечание: saveBookingDraft() уже выполняет переход на step2
         }
 
         function selectHotel(hotelId) {
