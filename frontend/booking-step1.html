@@ -54,6 +54,30 @@
             background: #cbd5e0;
             cursor: not-allowed;
         }
+        .btn-counter.selected {
+            background: #10b981;
+        }
+        .btn-counter.selected:hover {
+            background: #059669;
+        }
+        .btn-continue {
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            transition: background 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-continue:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        .btn-continue:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -684,6 +708,16 @@
                         </div>
                     </div>
                     
+                    <!-- Кнопка "Продолжить" (показывается только при выбранных номерах) -->
+                    <div id="continue-button-container" style="display: none;">
+                        <div class="border-t border-gray-200 pt-4">
+                            <button onclick="proceedToStep2()" class="btn-continue">
+                                <i class="fas fa-arrow-right mr-2"></i>
+                                <span data-translate="booking.continue_to_step2">Продолжить</span>
+                            </button>
+                        </div>
+                    </div>
+                    
                 </div>
             `;
 
@@ -795,6 +829,11 @@
             
             // Update price summary after restoring selections
             updatePriceSummary();
+            
+            // ✅ Обновляем видимость кнопки "Продолжить" и стили кнопок счётчиков
+            updateContinueButton();
+            updateRoomCounterButtons();
+            
             console.log('✅ Selections restored in UI');
         }
 
@@ -1012,6 +1051,10 @@
             
             // 🎯 DEBOUNCING: Защита от rate limit (429 errors)
             debouncedPriceUpdate();
+            
+            // ✅ Обновляем видимость кнопки "Продолжить" и стили кнопок счётчиков
+            updateContinueButton();
+            updateRoomCounterButtons();
         }
         
         // ✅ Функция расчета вместимости номеров одного отеля
@@ -1067,6 +1110,81 @@
             
             // 🎯 DEBOUNCING: Защита от rate limit (429 errors)
             debouncedPriceUpdate();
+        }
+        
+        // ✅ Функция обновления видимости кнопки "Продолжить"
+        function updateContinueButton() {
+            const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
+            let hasAnyRoomsSelected = false;
+            
+            // Проверяем есть ли хотя бы один выбранный номер в любом отеле
+            for (const hotelId in selectedRooms) {
+                const hotelRooms = selectedRooms[hotelId] || {};
+                if (Object.values(hotelRooms).some(quantity => parseInt(quantity) > 0)) {
+                    hasAnyRoomsSelected = true;
+                    break;
+                }
+            }
+            
+            const continueButtonContainer = document.getElementById('continue-button-container');
+            if (continueButtonContainer) {
+                continueButtonContainer.style.display = hasAnyRoomsSelected ? 'block' : 'none';
+            }
+        }
+        
+        // ✅ Функция обновления стилей кнопок счётчиков (зелёные при выборе)
+        function updateRoomCounterButtons() {
+            const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
+            
+            // Проходим по всем отелям и их номерам
+            for (const hotelId in selectedRooms) {
+                const hotelRooms = selectedRooms[hotelId] || {};
+                
+                for (const roomType in hotelRooms) {
+                    const quantity = parseInt(hotelRooms[roomType]) || 0;
+                    const addButton = document.querySelector(`button[onclick*="changeRoomQuantity('${hotelId}', '${roomType}', 1)"]`);
+                    
+                    if (addButton) {
+                        if (quantity > 0) {
+                            addButton.classList.add('selected');
+                        } else {
+                            addButton.classList.remove('selected');
+                        }
+                    }
+                }
+            }
+        }
+        
+        // ✅ Функция перехода на второй этап бронирования
+        function proceedToStep2() {
+            const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
+            let hasAnyRoomsSelected = false;
+            
+            // Проверяем есть ли хотя бы один выбранный номер
+            for (const hotelId in selectedRooms) {
+                const hotelRooms = selectedRooms[hotelId] || {};
+                if (Object.values(hotelRooms).some(quantity => parseInt(quantity) > 0)) {
+                    hasAnyRoomsSelected = true;
+                    break;
+                }
+            }
+            
+            if (!hasAnyRoomsSelected) {
+                showNotification(getTranslation('booking.error.select_room'), 'warning');
+                return;
+            }
+            
+            // Сохраняем состояние и переходим на второй этап
+            window.bookingStateManager.persist();
+            
+            // Получаем текущие параметры URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourId = urlParams.get('tourId');
+            const date = urlParams.get('date');
+            const tourists = urlParams.get('tourists');
+            
+            // Переходим на второй этап с сохранением параметров
+            window.location.href = `booking-step2.html?tourId=${tourId}&date=${date}&tourists=${tourists}`;
         }
 
         function selectHotel(hotelId) {
