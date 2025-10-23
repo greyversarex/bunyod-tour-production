@@ -1889,20 +1889,29 @@
             // Client can proceed with just base tour price
             
             try {
-                const selectedHotel = bookingState.selectedHotel;
                 const roomSelection = window.bookingStateManager.state.selections.rooms || {};
                 const mealSelection = window.bookingStateManager.state.selections.meals || {};
                 
+                // ✅ Определяем hotelId из выбранных номеров (первый отель с номерами)
+                let hotelId = null;
+                for (const hId in roomSelection) {
+                    const hotelRooms = roomSelection[hId] || {};
+                    if (Object.values(hotelRooms).some(qty => parseInt(qty) > 0)) {
+                        hotelId = parseInt(hId);
+                        break;
+                    }
+                }
+                
                 // Update booking with selections in database as draft
                 const updateData = {
-                    hotelId: selectedHotel ? parseInt(selectedHotel) : null,
-                    roomSelection: selectedHotel ? roomSelection : {},
-                    mealSelection: selectedHotel ? mealSelection : {},
+                    hotelId: hotelId,
+                    roomSelection: roomSelection,
+                    mealSelection: mealSelection,
                     totalPrice: bookingState.totalPrice,
                     status: 'draft'
                 };
                 
-                console.log('🔄 Saving booking draft (hotel/rooms optional):', updateData);
+                console.log('🔄 Saving booking draft with room selections:', updateData);
                 
                 const updateResponse = await fetch(`/api/booking/${bookingState.bookingId}/step1`, {
                     method: 'PUT',
