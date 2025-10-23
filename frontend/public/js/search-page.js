@@ -1235,6 +1235,7 @@ function setupEventListeners() {
     
     // Language change event - reload data for new language
     document.addEventListener('languageChanged', (e) => {
+        console.log('🔄 Language changed event received:', e.detail);
         state.currentLang = e.detail.language;
         
         // Reload all data with new language
@@ -1244,6 +1245,13 @@ function setupEventListeners() {
             
             // Re-apply current search with new language
             performSearch();
+            
+            // Переводим статические элементы через i18n систему
+            if (typeof translateAllDynamicContent === 'function') {
+                translateAllDynamicContent(state.currentLang);
+            }
+            
+            console.log(`✅ Язык страницы поиска обновлен на: ${state.currentLang}`);
         });
     });
     
@@ -1335,29 +1343,8 @@ function checkUrlParams() {
 }
 
 // ============= LANGUAGE HANDLING =============
-function updateLanguageOnSearchPage() {
-    // Обновляем язык в state
-    state.currentLang = window.currentLanguage || 'ru';
-    
-    // Перерисовываем фильтры с новым языком (включая языковой фильтр)
-    renderFilters();
-    
-    // Перерисовываем результаты с новым языком
-    renderTourCards();
-    
-    // Переводим статические элементы через i18n систему
-    if (typeof translateAllDynamicContent === 'function') {
-        translateAllDynamicContent(state.currentLang);
-    }
-    
-    console.log(`🌐 Язык страницы поиска обновлен на: ${state.currentLang}`);
-}
-
-// Слушаем изменения языка
-document.addEventListener('languageChanged', (e) => {
-    console.log('🔄 Language changed event received:', e.detail);
-    updateLanguageOnSearchPage();
-});
+// ПРИМЕЧАНИЕ: Обработчик languageChanged теперь находится в setupEventListeners() (строки 1237-1248)
+// Он правильно перезагружает данные с API с новым языком параметром
 
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', async () => {
