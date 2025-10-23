@@ -649,7 +649,12 @@
             
             if (hasSelectedRooms && tour.services) {
                 try {
-                    const services = JSON.parse(tour.services);
+                    console.log('🔍 Step 2 - tour.services type:', typeof tour.services);
+                    console.log('🔍 Step 2 - tour.services value:', tour.services);
+                    
+                    const services = typeof tour.services === 'string' ? JSON.parse(tour.services) : tour.services;
+                    console.log('✅ Step 2 - Parsed services:', services);
+                    
                     const accommodationService = services.find(service => 
                         service && service.key && (
                             service.key === 'accommodation_std' ||
@@ -660,13 +665,22 @@
                         )
                     );
                     
+                    console.log('🏨 Step 2 - Found accommodation service:', accommodationService);
+                    
                     if (accommodationService && accommodationService.price) {
                         const accommodationPrice = parseFloat(accommodationService.price);
                         accommodationDeduction = isPerPerson ? accommodationPrice * numberOfTourists : accommodationPrice;
+                        console.log(`💰 Step 2 - Accommodation deduction: ${accommodationPrice} × ${numberOfTourists} = ${accommodationDeduction} TJS`);
                     }
                 } catch (e) {
                     console.warn('Failed to parse services:', e);
+                    console.warn('tour.services was:', tour.services);
                 }
+            } else {
+                console.warn('⚠️ Step 2 - Skipping accommodation deduction:', {
+                    hasSelectedRooms,
+                    hasTourServices: !!tour.services
+                });
             }
             
             // Calculate room costs
