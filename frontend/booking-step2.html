@@ -498,7 +498,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.duration_label">Продолжительность:</span>
-                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span>${tour.durationType === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
+                                <span class="font-medium">${tour.durationDays || tour.duration || 1} <span>${(tour.durationType || 'days') === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.tourists">Туристов:</span>
@@ -620,9 +620,26 @@
                 baseTourPrice *= numberOfTourists;
             }
             
-            // Get room and meal selections from state
-            const roomSelection = window.bookingStateManager?.state?.selections?.rooms || {};
-            const mealSelection = window.bookingStateManager?.state?.selections?.meals || {};
+            // ✅ Get room and meal selections from bookingState (NOT from state manager selections)
+            let roomSelection = {};
+            try {
+                if (bookingState.roomSelection) {
+                    roomSelection = typeof bookingState.roomSelection === 'string' ? 
+                        JSON.parse(bookingState.roomSelection) : bookingState.roomSelection;
+                }
+            } catch (e) {
+                console.warn('Failed to parse roomSelection:', e);
+            }
+            
+            let mealSelection = {};
+            try {
+                if (bookingState.mealSelection) {
+                    mealSelection = typeof bookingState.mealSelection === 'string' ? 
+                        JSON.parse(bookingState.mealSelection) : bookingState.mealSelection;
+                }
+            } catch (e) {
+                console.warn('Failed to parse mealSelection:', e);
+            }
             
             // Calculate accommodation deduction
             let accommodationDeduction = 0;
@@ -671,9 +688,15 @@
             }
             
             // Display room costs
+            // ✅ Get hotels from tour.tourHotels (на step2 нет bookingState.availableHotels)
+            const availableHotels = tour.tourHotels?.map(th => th.hotel) || [];
+            
             for (const [hotelId, rooms] of Object.entries(roomSelection)) {
-                const hotelData = bookingState.availableHotels?.find(h => h.id == hotelId);
-                if (!hotelData) continue;
+                const hotelData = availableHotels.find(h => h.id == hotelId);
+                if (!hotelData) {
+                    console.warn(`⚠️ Hotel ${hotelId} not found in tour hotels`);
+                    continue;
+                }
                 
                 let roomTypes = {};
                 try {
