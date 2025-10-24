@@ -977,7 +977,14 @@ function createTourCard(tour) {
     // ИСПРАВЛЕНО: Нормализуем тип тура в стандартный формат для переводов
     const rawTourType = tour.format || tour.tourType || 'group_general';
     const normalizedTourType = normalizeTourType(rawTourType);
-    const tourTypeText = getTranslation(`tour_type.${normalizedTourType}`) || rawTourType;
+    
+    // Прямой перевод без использования getTranslation (которая возвращает ключ если нет перевода)
+    const tourTypeTranslations = {
+        'group_private': { ru: 'Групповой персональный', en: 'Group Personal' },
+        'group_general': { ru: 'Групповой общий', en: 'Group General' },
+        'individual': { ru: 'Индивидуальный', en: 'Individual' }
+    };
+    const tourTypeText = tourTypeTranslations[normalizedTourType]?.[currentLang] || rawTourType;
     
     const currentCurrency = window.currentCurrency || 'TJS';
     
@@ -1310,12 +1317,22 @@ function setupEventListeners() {
     // Currency change event - re-render cards with new currency
     document.addEventListener('currencyChanged', (e) => {
         console.log('💱 Currency changed event received:', e.detail);
+        
+        // Обновляем глобальную валюту для formatPrice
+        if (e.detail && e.detail.currency) {
+            window.currentCurrency = e.detail.currency;
+        }
+        
+        console.log('💱 Currency changed to:', window.currentCurrency);
+        
         // Re-render tour/hotel cards to show new currency
         if (state.currentTab === 'tours') {
             renderTourCards();
         } else {
             renderHotelCards();
         }
+        
+        console.log('✅ Cards re-rendered with new currency');
     });
     
     // Search button
