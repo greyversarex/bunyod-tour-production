@@ -392,6 +392,7 @@ window.translations = window.translations || {
     'city.bishkek': { ru: 'Бишкек', en: 'Bishkek' },
     'city.astana': { ru: 'Астана', en: 'Astana' },
     'city.almaty': { ru: 'Алматы', en: 'Almaty' },
+    'city.osh': { ru: 'Ош', en: 'Osh' },
     'city.ashgabat': { ru: 'Ашхабад', en: 'Ashgabat' },
     
     // Расширенная навигация и услуги
@@ -798,6 +799,7 @@ window.translations = window.translations || {
     'city.bishkek': { ru: 'Бишкек', en: 'Bishkek' },
     'city.astana': { ru: 'Астана', en: 'Astana' },
     'city.almaty': { ru: 'Алматы', en: 'Almaty' },
+    'city.osh': { ru: 'Ош', en: 'Osh' },
     'city.ashgabat': { ru: 'Ашхабад', en: 'Ashgabat' },
 
     // Подвал (без дублирования)
