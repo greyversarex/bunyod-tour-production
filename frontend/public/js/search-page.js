@@ -46,13 +46,14 @@ const state = {
 function formatPrice(priceInTJS, currency = 'TJS') {
     const exchangeRates = window.exchangeRates || {
         'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
-        'USD': { rate: 11.0, symbol: '$', name: 'Доллар США' },
-        'EUR': { rate: 12.0, symbol: '€', name: 'Евро' },
-        'RUB': { rate: 0.12, symbol: '₽', name: 'Российский рубль' },
-        'CNY': { rate: 1.5, symbol: '¥', name: 'Китайский юань' }
+        'USD': { rate: 0.094, symbol: '$', name: 'Доллар США' },
+        'EUR': { rate: 0.086, symbol: '€', name: 'Евро' },
+        'RUB': { rate: 9.2, symbol: '₽', name: 'Российский рубль' },
+        'CNY': { rate: 0.65, symbol: '¥', name: 'Китайский юань' }
     };
     
     if (!priceInTJS || !exchangeRates[currency]) {
+        console.warn('❌ Currency not found:', currency);
         const fallbackSymbol = (exchangeRates && exchangeRates['TJS']) ? exchangeRates['TJS'].symbol : 'TJS';
         return `${Math.round(priceInTJS || 0)} ${fallbackSymbol}`;
     }
@@ -64,8 +65,8 @@ function formatPrice(priceInTJS, currency = 'TJS') {
         return `${Math.round(priceInTJS)} ${rate.symbol}`;
     }
     
-    // Convert from TJS to selected currency and round to whole number
-    const convertedPrice = Math.round(priceInTJS / rate.rate);
+    // ИСПРАВЛЕНО: Умножаем вместо деления! 1 TJS = 0.086 EUR, значит 100 TJS = 100 * 0.086 = 8.6 EUR
+    const convertedPrice = Math.round(priceInTJS * rate.rate);
     return `${convertedPrice} ${rate.symbol}`;
 }
 
@@ -242,7 +243,8 @@ function renderCitiesFilter() {
         : state.cities;
     
     if (citiesToShow.length === 0) {
-        container.innerHTML = '<div class="text-sm text-gray-500 py-2">Сначала выберите страну</div>';
+        const emptyText = currentLang === 'en' ? 'Select a country first' : 'Сначала выберите страну';
+        container.innerHTML = `<div class="text-sm text-gray-500 py-2">${emptyText}</div>`;
         return;
     }
     
@@ -747,6 +749,32 @@ function updateResultsCount() {
     }
 }
 
+// ============= TOUR TYPE NORMALIZATION =============
+// Нормализует тип тура в стандартный enum формат для переводов
+function normalizeTourType(tourType) {
+    if (!tourType) return 'group_general';
+    
+    const type = tourType.toLowerCase();
+    
+    // Групповой персональный / Group Private
+    if (type.includes('персональн') || type.includes('personal') || type === 'group_private') {
+        return 'group_private';
+    }
+    
+    // Групповой общий / Group General
+    if (type.includes('общий') || type.includes('general') || type === 'group_general') {
+        return 'group_general';
+    }
+    
+    // Индивидуальный / Individual
+    if (type.includes('индивидуальн') || type.includes('individual')) {
+        return 'individual';
+    }
+    
+    // Default: групповой общий
+    return 'group_general';
+}
+
 // ============= ICON HELPERS =============
 // Функция для получения иконки типа тура
 function getTourTypeIcon(tourType) {
@@ -945,7 +973,12 @@ function createTourCard(tour) {
     
     const uniqueCardId = `search-${tour.id}`;
     const priceText = currentLang === 'ru' ? 'от' : 'from';
-    const tourTypeText = tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой');
+    
+    // ИСПРАВЛЕНО: Нормализуем тип тура в стандартный формат для переводов
+    const rawTourType = tour.format || tour.tourType || 'group_general';
+    const normalizedTourType = normalizeTourType(rawTourType);
+    const tourTypeText = getTranslation(`tour_type.${normalizedTourType}`) || rawTourType;
+    
     const currentCurrency = window.currentCurrency || 'TJS';
     
     return `
@@ -971,8 +1004,8 @@ function createTourCard(tour) {
                 </div>
                 <!-- Тип тура -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3B82F6;">
-                    ${getTourTypeIcon(tourTypeText)}
-                    <span class="font-medium tour-type-text" data-tour-type="${tourTypeText}" data-translate="tour_type.${tourTypeText.toLowerCase().replace(/\s+/g, '_')}">${tourTypeText}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
+                    ${getTourTypeIcon(normalizedTourType)}
+                    <span class="font-medium">${tourTypeText}</span>${normalizedTourType !== 'individual' && tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : ''}
                 </div>
                 <!-- Категория тура с множественными категориями -->
                 <div class="text-xs mb-2" style="color: #3E3E3E;">
@@ -1044,7 +1077,7 @@ function renderHotelCards() {
 function createHotelCard(hotel) {
     const currentLang = state.currentLang;
     
-    // Используем новые поля nameRu/nameEn с fallback
+    // Используем новые поля nameRu/nameEn с fallback на старый формат - ТОЧНО КАК В hotels-catalog.html
     const hotelName = currentLang === 'en' 
         ? (hotel.nameEn || hotel.name || '')
         : (hotel.nameRu || hotel.name || '');
@@ -1057,30 +1090,22 @@ function createHotelCard(hotel) {
     const firstImage = hotel.images && hotel.images.length > 0 ? hotel.images[0] : null;
     const imageUrl = firstImage || '/placeholder-hotel.jpg';
     
-    // Generate stars as compact text
-    const starsCount = hotel.stars || 3;
-    const starsText = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
+    // Generate stars ТОЧНО КАК В hotels-catalog.html - Font Awesome иконки!
+    const stars = Array.from({length: 5}, (_, i) => 
+        `<i class="fas fa-star ${i < (hotel.stars || 3) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
+    ).join('');
     
-    // Format amenities - translate common ones
+    // Format amenities with translation - ТОЧНО КАК В hotels-catalog.html - цветные бейджи!
     const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
-    const amenitiesText = amenities.slice(0, 3).map(amenity => {
-        // Simple translation for common amenities
-        if (currentLang === 'en') {
-            const translations = {
-                'Парковка': 'Parking',
-                'Wi-Fi': 'Wi-Fi',
-                'Бассейн': 'Pool',
-                'Ресторан': 'Restaurant',
-                'Спа': 'Spa',
-                'Фитнес': 'Fitness',
-                'Завтрак': 'Breakfast'
-            };
-            return translations[amenity] || amenity;
-        }
-        return amenity;
-    }).join(' • ');
+    const amenitiesHtml = amenities.slice(0, 3).map(amenity => {
+        const amenityKey = 'amenity.' + amenity;
+        const translated = getTranslation(amenityKey);
+        // Если getTranslation вернул ключ обратно, значит перевода нет - используем оригинальный текст
+        const translatedAmenity = (translated === amenityKey) ? amenity : translated;
+        return `<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${translatedAmenity}</span>`;
+    }).join('');
     
-    // Получаем данные о стране и городе
+    // Получаем данные о стране и городе с учетом текущего языка
     const countryName = currentLang === 'en' 
         ? (hotel.country?.nameEn || hotel.country?.nameRu || '')
         : (hotel.country?.nameRu || hotel.country?.nameEn || '');
@@ -1088,7 +1113,7 @@ function createHotelCard(hotel) {
         ? (hotel.city?.nameEn || hotel.city?.nameRu || '')
         : (hotel.city?.nameRu || hotel.city?.nameEn || '');
     
-    // Формируем локацию
+    // Формируем строку локации
     let locationText = '';
     if (cityName && countryName) {
         locationText = `${cityName}, ${countryName}`;
@@ -1098,54 +1123,64 @@ function createHotelCard(hotel) {
         locationText = countryName;
     }
     
-    const detailsText = currentLang === 'en' ? 'View Details' : 'Подробнее';
+    // Безопасный парсинг адреса (строка, JSON-строка или объект)
+    const addressData = safeJsonParse(hotel.address, { ru: '', en: '' });
+    const hotelAddress = getLocalizedText(addressData, currentLang) || '';
     
+    // ТОЧНАЯ КОПИЯ карточки из hotels-catalog.html - БЕЗ ИЗМЕНЕНИЙ!
     return `
-        <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
-             onclick="window.location.href='/hotel-template.html?hotel=${hotel.id}'">
-            <div class="relative overflow-hidden rounded-t-lg">
-                <img src="${imageUrl}" alt="${hotelName}" 
-                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
-                     onerror="this.src='/placeholder-hotel.jpg'">
-                <div class="absolute top-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded shadow text-yellow-500 text-xs font-semibold">
-                    ${starsText}
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+            <div class="relative">
+                <img src="${getAbsoluteImageUrl(imageUrl)}" alt="${hotelName}" 
+                     class="w-full h-48 object-cover" 
+                     onerror="this.src='${getAbsoluteImageUrl('/placeholder-hotel.jpg')}'">
+                <div class="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded">
+                    ${stars}
                 </div>
             </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <!-- Location -->
+            <div class="p-4">
+                <h3 class="font-bold text-lg text-gray-900 mb-1 line-clamp-1">${hotelName}</h3>
+                
                 ${locationText ? `
-                <div class="text-xs mb-2 flex items-center gap-1" style="color: #6B7280;">
-                    <svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium">${locationText}</span>
-                </div>
+                <p class="text-blue-600 text-sm mb-2">
+                    <i class="fas fa-map-marker-alt mr-1"></i>
+                    ${locationText}
+                </p>
                 ` : ''}
                 
-                <!-- Hotel Name -->
-                <h3 class="text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-tight line-clamp-1">
-                    ${hotelName}
-                </h3>
+                ${hotelAddress ? `
+                <p class="text-gray-600 text-sm mb-2">
+                    <i class="fas fa-map text-gray-400 mr-1"></i>
+                    <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelAddress + (cityName ? ', ' + cityName : '') + (countryName ? ', ' + countryName : ''))}" 
+                       target="_blank" 
+                       rel="noopener noreferrer"
+                       class="hover:text-blue-600 transition-colors">
+                        ${hotelAddress}
+                        <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                    </a>
+                </p>
+                ` : ''}
                 
-                <!-- Description -->
                 ${hotelDesc ? `
-                <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">${hotelDesc}</p>
+                <div class="text-gray-600 text-sm mb-3 line-clamp-2">${hotelDesc}</div>
                 ` : ''}
                 
-                <!-- Amenities -->
-                ${amenitiesText ? `
-                <div class="text-xs text-gray-500 mb-3">
-                    ${amenitiesText}
+                <div class="flex flex-wrap gap-1 mb-3">
+                    ${amenitiesHtml}
                 </div>
-                ` : ''}
                 
-                <!-- CTA Button -->
-                <div class="mt-auto pt-2">
-                    <button class="w-full hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors" 
-                            style="background-color: #6B7280;"
-                            onclick="event.stopPropagation(); window.location.href='/hotel-template.html?hotel=${hotel.id}'">
-                        ${detailsText}
-                    </button>
+                <div class="flex items-center justify-between">
+                    <div class="text-sm text-gray-500">
+                        ${hotel.brand ? `<span class="font-medium">${hotel.brand}</span>` : ''}
+                        ${hotel.category ? `<span class="ml-2">${hotel.category}</span>` : ''}
+                    </div>
+                    <a href="/hotel-template.html?hotel=${hotel.id}" 
+                       class="text-white px-4 py-2 rounded-lg text-sm font-medium transition-all" 
+                       style="background: #6B7280; box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);"
+                       onmouseover="this.style.background='#4B5563'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(107, 114, 128, 0.4)'"
+                       onmouseout="this.style.background='#6B7280'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(107, 114, 128, 0.3)'">
+                        ${getTranslation('btn.more_details')}
+                    </a>
                 </div>
             </div>
         </div>
