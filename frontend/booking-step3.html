@@ -637,6 +637,17 @@
                                 console.warn('Error parsing room types:', e);
                             }
                             
+                            // ✅ FIX: Parse amenities (can be string or array)
+                            let amenities = [];
+                            try {
+                                if (hotelData.amenities) {
+                                    amenities = typeof hotelData.amenities === 'string' ? 
+                                        JSON.parse(hotelData.amenities) : hotelData.amenities;
+                                }
+                            } catch (e) {
+                                console.warn('Error parsing amenities:', e);
+                            }
+                            
                             // Get localized hotel name
                             const hotelName = typeof hotelData.name === 'object' ? 
                                 (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : hotelData.name;
@@ -661,11 +672,11 @@
                                             <p class="text-sm text-gray-600">${hotelData.address || ''}</p>
                                             ${hotelData.stars ? `<div class="text-yellow-500 mt-1">${'★'.repeat(hotelData.stars)}</div>` : ''}
                                             ${hotelData.category ? `<p class="text-sm text-purple-600 font-medium mt-1"><span data-translate="booking.category">Категория</span>: ${hotelData.category}</p>` : ''}
-                                            ${hotelData.amenities && hotelData.amenities.length > 0 ? `
+                                            ${amenities && amenities.length > 0 ? `
                                                 <div class="mt-2">
                                                     <p class="text-sm text-gray-700 font-medium mb-1" data-translate="booking.amenities">Удобства:</p>
                                                     <div class="flex flex-wrap gap-1">
-                                                        ${hotelData.amenities.map(amenity => `
+                                                        ${amenities.map(amenity => `
                                                             <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">${getTranslation('amenity.' + amenity) || amenity}</span>
                                                         `).join('')}
                                                     </div>
