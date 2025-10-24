@@ -598,6 +598,14 @@ export class TourModel {
           orderBy: {
             isPrimary: 'desc'
           }
+        },
+        tourBlockAssignments: {
+          include: {
+            tourBlock: true
+          },
+          orderBy: {
+            isPrimary: 'desc'
+          }
         }
       },
       orderBy: {
