@@ -1461,8 +1461,19 @@ function checkUrlParams() {
         console.log(`✅ Applied category filter from URL: ${catIdNum}`);
     }
     
+    // Обработка параметра cityId - применяем к обоим фильтрам
     if (cityId) {
+        const cityIdNum = parseInt(cityId);
+        
+        // Устанавливаем для верхнего селектора города
         state.filters.city = cityId;
+        
+        // Добавляем в массив для боковых чекбоксов (если еще нет)
+        if (!isNaN(cityIdNum) && !state.filters.cities.includes(cityIdNum)) {
+            state.filters.cities.push(cityIdNum);
+        }
+        
+        console.log(`✅ Applied city filter from URL: cityId=${cityId} (added to sidebar checkboxes)`);
     }
     
     if (blockId || categoryId || category || cityId) {
