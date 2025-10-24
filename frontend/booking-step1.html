@@ -411,6 +411,10 @@
                     // Load hotels and restore selections
                     await loadTourHotels(booking.tour.id, booking.roomSelection, booking.mealSelection);
                     
+                    // ✅ Update ALL room counters after hotels are loaded and selections restored
+                    console.log('🔄 Restoring room counters after loading existing booking...');
+                    updateAllRoomCounters();
+                    
                     // ✅ Update price summary AFTER hotels are loaded
                     console.log('✅ Hotels loaded for existing booking, updating price summary...');
                     updatePriceSummary();
@@ -577,6 +581,10 @@
                     
                     // Load hotels for this tour (wait for completion)
                     await loadTourHotels(tourId);
+                    
+                    // ✅ Update ALL room counters after hotels are loaded (for fresh booking, counters will be 0)
+                    console.log('🔄 Initializing room counters after loading hotels...');
+                    updateAllRoomCounters();
                     
                     // ✅ Update price summary AFTER hotels are loaded
                     console.log('✅ Hotels loaded, updating price summary...');
@@ -1245,6 +1253,30 @@
             }
         }
         
+        // ✅ Функция обновления ВСЕХ счетчиков номеров из bookingStateManager
+        function updateAllRoomCounters() {
+            const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
+            
+            console.log('🔄 Updating all room counters from state:', selectedRooms);
+            
+            // Проходим по всем отелям и их номерам
+            for (const hotelId in selectedRooms) {
+                const hotelRooms = selectedRooms[hotelId] || {};
+                
+                for (const roomType in hotelRooms) {
+                    const quantity = parseInt(hotelRooms[roomType]) || 0;
+                    const counterElement = document.getElementById(`room-${hotelId}-${roomType}`);
+                    
+                    if (counterElement) {
+                        counterElement.textContent = quantity;
+                        console.log(`✅ Updated counter room-${hotelId}-${roomType} to ${quantity}`);
+                    } else {
+                        console.warn(`⚠️ Counter element not found: room-${hotelId}-${roomType}`);
+                    }
+                }
+            }
+        }
+        
         // ✅ Функция перехода на второй этап бронирования
         async function proceedToStep2() {
             const selectedRooms = window.bookingStateManager.state.selections.rooms || {};
@@ -1695,30 +1727,52 @@
             const hotelDetailsContent = document.getElementById('hotel-details-content');
             const hotelSeparator = document.getElementById('hotel-separator');
             
-            if (!bookingState.selectedHotel || !selectedHotelInfo || !hotelDetailsContent) {
-                if (selectedHotelInfo) selectedHotelInfo.style.display = 'none';
+            if (!selectedHotelInfo || !hotelDetailsContent) return;
+            
+            // ✅ FIX: Get ALL hotels with selected rooms, not just one
+            const selectedRooms = bookingState.roomSelection || {};
+            const hotelsWithRooms = [];
+            
+            // Find all hotels that have selected rooms
+            for (const [hotelId, rooms] of Object.entries(selectedRooms)) {
+                const hasRooms = Object.values(rooms).some(qty => qty > 0);
+                if (hasRooms) {
+                    const hotelData = bookingState.availableHotels?.find(h => h.id == hotelId);
+                    if (hotelData) {
+                        hotelsWithRooms.push(hotelData);
+                    }
+                }
+            }
+            
+            // If no hotels with rooms, hide the section
+            if (hotelsWithRooms.length === 0) {
+                selectedHotelInfo.style.display = 'none';
                 if (hotelSeparator) hotelSeparator.style.display = 'none';
                 return;
             }
             
-            // Find selected hotel data
-            const hotelData = bookingState.availableHotels.find(h => h.id == bookingState.selectedHotel);
-            if (hotelData) {
-                // Show hotel information
-                selectedHotelInfo.style.display = 'block';
-                hotelSeparator.style.display = 'block';
-                
-                // Get hotel stars display
+            // Show hotel information section
+            selectedHotelInfo.style.display = 'block';
+            if (hotelSeparator) hotelSeparator.style.display = 'block';
+            
+            // ✅ Display ALL hotels with selected rooms
+            let hotelsHtml = '';
+            hotelsWithRooms.forEach((hotelData, index) => {
                 const starsDisplay = hotelData.stars ? '★'.repeat(hotelData.stars) : '';
+                const marginClass = index > 0 ? 'mt-3 pt-3 border-t border-gray-200' : '';
                 
-                hotelDetailsContent.innerHTML = `
-                    <div class="space-y-1">
+                hotelsHtml += `
+                    <div class="space-y-1 ${marginClass}">
                         <div class="font-medium">${getHotelName(hotelData)}</div>
                         <div class="text-xs text-gray-500">${hotelData.address || ''}</div>
                         ${starsDisplay ? `<div class="text-yellow-500 text-sm">${starsDisplay}</div>` : ''}
                     </div>
                 `;
-            }
+            });
+            
+            hotelDetailsContent.innerHTML = hotelsHtml;
+            
+            console.log(`✅ Displaying ${hotelsWithRooms.length} hotel(s) with selected rooms`);
         }
 
         function updateRoomMealDisplay() {
