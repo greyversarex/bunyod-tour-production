@@ -10,7 +10,7 @@ const state = {
     allHotels: [],
     filteredResults: [],
     currentTab: 'tours',
-    currentLang: window.currentLanguage || 'ru',
+    currentLang: 'ru', // Будет обновлено при инициализации из localStorage
     
     // Dynamic filter data
     tourBlocks: [],
@@ -1428,6 +1428,19 @@ function checkUrlParams() {
 
 // ============= INITIALIZATION =============
 document.addEventListener('DOMContentLoaded', async () => {
+    // 🔥 КРИТИЧНО: СНАЧАЛА читаем сохраненные настройки языка и валюты из localStorage
+    // Это исправляет проблему когда страница не подхватывает текущий язык/валюту при переходе с других страниц
+    const savedLanguage = localStorage.getItem('selectedLanguage') || window.currentLanguage || 'ru';
+    const savedCurrency = localStorage.getItem('selectedCurrency') || window.currentCurrency || 'TJS';
+    
+    // Устанавливаем в state и window ДО загрузки данных
+    state.currentLang = savedLanguage;
+    window.currentLanguage = savedLanguage;
+    window.currentCurrency = savedCurrency;
+    
+    console.log(`🌍 Инициализация страницы поиска: язык=${savedLanguage}, валюта=${savedCurrency}`);
+    
+    // ТЕПЕРЬ загружаем данные с правильным языком
     await loadAllData();
     checkUrlParams(); // Check URL parameters
     renderFilters();
