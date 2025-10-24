@@ -391,6 +391,11 @@
             // ✅ ВСЕГДА округляем до целого (как на странице тура и карточках)
             const convertedAmount = Math.round(amountTJS / rate.rate);
             
+            // ✅ Показываем конвертированную цену + базовую валюту в скобках
+            if (showEquivalent && selectedCurrency !== 'TJS') {
+                return `${convertedAmount} ${rate.symbol} <span class="text-xs text-gray-500">(${Math.round(amountTJS)} TJS)</span>`;
+            }
+            
             return `${convertedAmount} ${rate.symbol}`;
         }
 
@@ -839,12 +844,23 @@
         }
 
         function getNumberOfTourists() {
-            // ✅ Get from bookingState first, then fall back to URL parameters
+            // ✅ Check multiple sources in priority order
+            // 1. From loaded booking data (when returning from Step 3 or refreshing)
             if (bookingState && bookingState.numberOfTourists) {
-                return bookingState.numberOfTourists;
+                return parseInt(bookingState.numberOfTourists);
             }
+            // 2. From bookingStateManager selections
+            if (window.bookingStateManager?.state?.selections?.numberOfTourists) {
+                return parseInt(window.bookingStateManager.state.selections.numberOfTourists);
+            }
+            // 3. From URL parameters (initial load)
             const urlParams = new URLSearchParams(window.location.search);
-            return parseInt(urlParams.get('tourists')) || 1;
+            const tourists = urlParams.get('tourists');
+            if (tourists) {
+                return parseInt(tourists);
+            }
+            // 4. Default fallback
+            return 1;
         }
 
         function setupEventListeners() {
