@@ -363,6 +363,7 @@
                         currency: booking.tour.currency || 'TJS',
                         price: booking.tour.price,
                         durationDays: booking.tour.durationDays || parseInt(booking.tour.duration) || 1,
+                        durationType: booking.tour.durationType || 'days',
                         tourDate: booking.tourDate
                     });
                     
@@ -549,6 +550,7 @@
                         currency: tourData.currency || 'TJS',
                         price: tourData.price,
                         durationDays: tourData.durationDays || parseInt(tourData.duration) || 1,
+                        durationType: tourData.durationType || 'days',
                         tourDate: tourDate
                     });
                     
@@ -627,7 +629,7 @@
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.duration">Длительность:</span>
-                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span>${tour.durationType === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
+                                <span class="font-medium">${tour.duration || tour.durationDays || 1} <span>${(tour.durationType || 'days') === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
                             </div>
                             <div class="flex justify-between">
                                 <span data-translate="booking.tourists_count">Количество туристов:</span>

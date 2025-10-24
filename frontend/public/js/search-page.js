@@ -30,6 +30,7 @@ const state = {
         countries: [],
         cities: [],
         categories: [],
+        tourBlocks: [],
         tourTypes: [],
         priceMin: 0,
         priceMax: 100000,
@@ -195,6 +196,7 @@ function renderFilters() {
     renderCountriesFilter();
     renderCitiesFilter();
     renderCategoryFilters();
+    renderTourBlocksFilter();
     renderCountryFilter();
     renderCityFilter();
     
@@ -284,6 +286,29 @@ function renderCategoryFilters() {
     `).join('');
     
     console.log('🏷️ Category filter updated with', state.categories.length, 'categories');
+}
+
+function renderTourBlocksFilter() {
+    const container = document.getElementById('tourblocks-checkboxes');
+    if (!container) return;
+    
+    const currentLang = state.currentLang;
+    
+    container.innerHTML = state.tourBlocks.map(block => {
+        const blockName = currentLang === 'ru' ? block.nameRu : block.nameEn;
+        return `
+        <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
+            <input type="checkbox" 
+                   value="${block.id}" 
+                   ${state.filters.tourBlocks.includes(block.id) ? 'checked' : ''}
+                   onchange="handleTourBlockChange(this)"
+                   class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
+            <span>${escapeHtml(blockName)}</span>
+        </label>
+        `;
+    }).join('');
+    
+    console.log('📍 Tour blocks filter updated with', state.tourBlocks.length, 'blocks');
 }
 
 function renderCountryFilter() {
@@ -544,6 +569,18 @@ function handleCategoryChange(checkbox) {
     performSearch();
 }
 
+function handleTourBlockChange(checkbox) {
+    const blockId = parseInt(checkbox.value);
+    if (checkbox.checked) {
+        if (!state.filters.tourBlocks.includes(blockId)) {
+            state.filters.tourBlocks.push(blockId);
+        }
+    } else {
+        state.filters.tourBlocks = state.filters.tourBlocks.filter(id => id !== blockId);
+    }
+    performSearch();
+}
+
 // Apply all filters (called from filter UI)
 function applyFilters() {
     // Collect tour types
@@ -634,6 +671,17 @@ function searchTours() {
             if (!tour.tourCategoryAssignments || tour.tourCategoryAssignments.length === 0) return false;
             return tour.tourCategoryAssignments.some(tca => 
                 state.filters.categories.includes(tca.categoryId)
+            );
+        });
+    }
+    
+    // Apply tour blocks filter
+    if (state.filters.tourBlocks.length > 0) {
+        results = results.filter(tour => {
+            // Check if tour has any of the selected tour blocks
+            if (!tour.tourBlockAssignments || tour.tourBlockAssignments.length === 0) return false;
+            return tour.tourBlockAssignments.some(tba => 
+                state.filters.tourBlocks.includes(tba.tourBlockId)
             );
         });
     }

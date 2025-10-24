@@ -197,6 +197,7 @@ const bookingStateManager = {
             currency: tourData.currency || 'TJS',
             basePrice: parseFloat(tourData.price) || 0,
             duration: tourData.durationDays || parseInt(tourData.duration) || 1,
+            durationType: tourData.durationType || 'days',
             tourDate: tourData.tourDate || this.state.tour.tourDate
         };
         this.computeTotals();

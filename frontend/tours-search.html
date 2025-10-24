@@ -373,6 +373,17 @@
                         </div>
                     </div>
                     
+                    <!-- Блоки туров -->
+                    <div class="filter-section" id="filter-section-tourblocks">
+                        <div class="filter-header" onclick="toggleFilter('tourblocks')">
+                            <div class="filter-title" data-translate="search.tour_blocks">НАПРАВЛЕНИЯ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="tourblocks-content">
+                            <div class="filter-options-wrapper" id="tourblocks-checkboxes"></div>
+                        </div>
+                    </div>
+                    
                     <!-- Ценовой диапазон -->
                     <div class="filter-section open" id="filter-section-price">
                         <div class="filter-header" onclick="toggleFilter('price')">
@@ -495,6 +506,6 @@
     <!-- Динамический футер -->
     <div id="footer-container"></div>
 
-    <script src="/public/js/search-page.js?v=4.2"></script>
+    <script src="/public/js/search-page.js?v=4.4"></script>
 </body>
 </html>

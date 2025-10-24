@@ -961,25 +961,30 @@
         }
 
         function goBack() {
-            // Get bookingId from current state
-            const bookingId = bookingState?.bookingId;
+            // Get bookingId from current state or URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = bookingState?.bookingId || urlParams.get('bookingId');
+            
             if (!bookingId) {
-                console.warn('⚠️ No booking ID found, going back with history.back()');
-                window.history.back();
+                console.warn('⚠️ No booking ID found, going back to tours search');
+                window.location.href = '/tours-search.html';
                 return;
             }
             
-            // Redirect to step 1 with bookingId to reload saved data
-            const urlParams = new URLSearchParams(window.location.search);
+            // Get tour info - check both locations where it might be stored
             const tourId = bookingState?.tour?.id;
-            const tourDate = bookingState?.tour?.tourDate;
+            const tourDate = bookingState?.tourDate || bookingState?.tour?.tourDate;
             const numberOfTourists = bookingState?.selections?.numberOfTourists || 1;
             
+            console.log('🔙 Going back to step 1 with:', { tourId, tourDate, numberOfTourists, bookingId });
+            
+            // Always go back to step 1 with bookingId - step 1 will restore all data
             if (tourId && tourDate) {
                 window.location.href = `/booking-step1.html?tourId=${tourId}&date=${tourDate}&tourists=${numberOfTourists}&bookingId=${bookingId}`;
             } else {
-                console.warn('⚠️ Missing tour data, using history.back()');
-                window.history.back();
+                // Even without tour data, try to go to step 1 with just bookingId
+                console.warn('⚠️ Missing tour data, redirecting with bookingId only');
+                window.location.href = `/booking-step1.html?bookingId=${bookingId}`;
             }
         }
 
