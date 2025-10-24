@@ -30,7 +30,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Security Hardening**: Implemented rate limiting, XSS protection, and JWT_SECRET environment validation.
 -   **Tour Itinerary Enhancement**: Supports custom day titles in Russian and English with structured activities and dynamic display.
 -   **Advanced Search Page System**: Rebuilt `tours-search.html` with dynamic filtering by country, city, type, category, price range, and full translation support.
--   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Hotel room pricing is based on nights (days - 1).
+-   **Booking Page Enhancements**: Comprehensive localization, dynamic hotel data localization, accurate total price calculation including meal costs, and graceful error handling. Hotel room pricing is based on nights (days - 1). Multi-hotel selection is fully supported across all 3 booking steps - step 1 displays all selected hotels in sidebar with room counters, step 2 shows detailed hotel info and pricing breakdown for each hotel, step 3 (tour voucher) lists all hotels with selected rooms and amenities. The accommodation deduction logic correctly handles `tour.services` as both object and string formats.
 -   **Banner & City Images System**: Separated systems for banner slider management, city reference data, and city card images.
 -   **Tour Share Functionality**: Share button on tour pages with copy link and native Web Share API options.
 
