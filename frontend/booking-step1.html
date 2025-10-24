@@ -1535,9 +1535,17 @@
             if (mealCostsCalc) mealCostsCalc.innerHTML = '';
             
             // 🏨 Calculate accommodation deduction if rooms are selected
-            const hasSelectedRooms = Object.values(bookingState.roomSelection || {}).some(rooms => 
+            // ✅ FIX: Use bookingStateManager as source of truth instead of bookingState
+            const selectedRooms = window.bookingStateManager?.state?.selections?.rooms || bookingState.roomSelection || {};
+            const hasSelectedRooms = Object.values(selectedRooms).some(rooms => 
                 Object.values(rooms).some(quantity => quantity > 0)
             );
+            
+            console.log('🔍 Checking accommodation deduction:', {
+                hasSelectedRooms,
+                selectedRooms,
+                tourServices: !!tour.services
+            });
             
             if (hasSelectedRooms && tour.services) {
                 try {
