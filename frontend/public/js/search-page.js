@@ -1497,6 +1497,8 @@ function checkUrlParams() {
     
     if (blockId || categoryId || category || cityId) {
         renderFilters(); // Re-render to show checked boxes
+        searchTours(); // Apply filters and show results
+        searchHotels(); // Also update hotels
     }
 }
 
