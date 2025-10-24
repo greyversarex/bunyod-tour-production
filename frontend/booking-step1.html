@@ -415,6 +415,11 @@
                     console.log('🔄 Restoring room counters after loading existing booking...');
                     updateAllRoomCounters();
                     
+                    // ✅ Update hotel display and room/meal display in sidebar
+                    console.log('🔄 Updating hotel and room/meal displays...');
+                    updateSelectedHotelDisplay();
+                    updateRoomMealDisplay();
+                    
                     // ✅ Update price summary AFTER hotels are loaded
                     console.log('✅ Hotels loaded for existing booking, updating price summary...');
                     updatePriceSummary();
@@ -585,6 +590,11 @@
                     // ✅ Update ALL room counters after hotels are loaded (for fresh booking, counters will be 0)
                     console.log('🔄 Initializing room counters after loading hotels...');
                     updateAllRoomCounters();
+                    
+                    // ✅ Update hotel display and room/meal display in sidebar (will be empty for fresh booking)
+                    console.log('🔄 Updating hotel and room/meal displays...');
+                    updateSelectedHotelDisplay();
+                    updateRoomMealDisplay();
                     
                     // ✅ Update price summary AFTER hotels are loaded
                     console.log('✅ Hotels loaded, updating price summary...');
