@@ -4,6 +4,7 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes (October 24, 2025)
+-   **Tour Blocks Filter Fix**: Fixed empty "НАПРАВЛЕНИЯ" (Directions) filter on search page by correcting title field parsing in `renderTourBlocksFilter()`. Function now properly extracts tour block names from `title.ru`/`title.en` JSON fields instead of non-existent `nameRu`/`nameEn` fields.
 -   **City Card Photo System Fix**: Corrected all cityId mappings in `frontend/index.html` to match database IDs. Fixed Almaty photo display issue (was showing on wrong card due to ID mismatch).
 -   **Search Page URL Filter Enhancement**: Fixed cityId URL parameter handling to apply filters to both top selector and sidebar checkboxes for proper city-based tour filtering.
 -   **Tour Type Translation**: Added missing `tour_type.group_private` translation key to prevent display of raw enum values on booking pages.
