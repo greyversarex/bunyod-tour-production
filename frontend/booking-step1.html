@@ -1549,7 +1549,14 @@
             
             if (hasSelectedRooms && tour.services) {
                 try {
-                    const services = JSON.parse(tour.services);
+                    // ✅ FIX: tour.services может быть уже объектом или строкой
+                    let services = tour.services;
+                    if (typeof services === 'string') {
+                        services = JSON.parse(services);
+                    }
+                    
+                    console.log('🔍 Parsed services for accommodation deduction:', services);
+                    
                     const accommodationService = services.find(service => 
                         service && service.key && (
                             service.key === 'accommodation_std' ||
@@ -1559,6 +1566,8 @@
                             (service.name && service.name.toLowerCase().includes('проживан'))
                         )
                     );
+                    
+                    console.log('🏨 Found accommodation service:', accommodationService);
                     
                     if (accommodationService && accommodationService.price) {
                         const accommodationPrice = parseFloat(accommodationService.price);
@@ -1572,6 +1581,8 @@
                             accommodationDeduction = accommodationPrice;
                         }
                         
+                        console.log('💰 Calculated accommodation deduction:', accommodationDeduction);
+                        
                         // Show accommodation deduction in price calculation
                         if (roomCostsCalc && accommodationDeduction > 0) {
                             roomCostsCalc.innerHTML += `
@@ -1583,7 +1594,7 @@
                         }
                     }
                 } catch (e) {
-                    console.warn('Не удалось распарсить услуги тура:', e);
+                    console.warn('Не удалось обработать услуги тура:', e);
                 }
             }
             

@@ -535,28 +535,61 @@
             const hotelDetailsContent = document.getElementById('hotel-details-content');
             const hotelSeparator = document.getElementById('hotel-separator');
             
-            if (!hotelInfoSection || !hotelDetailsContent || !bookingState.hotel) return;
-
+            if (!hotelInfoSection || !hotelDetailsContent) return;
+            
+            // ✅ FIX: Get ALL hotels with selected rooms from bookingStateManager
+            const selectedRooms = window.bookingStateManager?.state?.selections?.rooms || bookingState.roomSelection || {};
+            const hotelsWithRooms = [];
+            
+            // Find all hotels that have selected rooms
+            for (const [hotelId, rooms] of Object.entries(selectedRooms)) {
+                const hasRooms = Object.values(rooms).some(qty => parseInt(qty) > 0);
+                if (hasRooms) {
+                    // Try to find hotel in tour.hotels or bookingState
+                    const hotelData = bookingState.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                    bookingState.availableHotels?.find(h => h.id == hotelId);
+                    if (hotelData) {
+                        hotelsWithRooms.push(hotelData);
+                    }
+                }
+            }
+            
+            // If no hotels with rooms, hide the section
+            if (hotelsWithRooms.length === 0) {
+                hotelInfoSection.style.display = 'none';
+                if (hotelSeparator) hotelSeparator.style.display = 'none';
+                return;
+            }
+            
+            // Show hotel information section
             hotelInfoSection.style.display = 'block';
-            hotelSeparator.style.display = 'block';
-
-            const hotel = bookingState.hotel;
-            const starsDisplay = hotel.stars ? '★'.repeat(hotel.stars) : '';
+            if (hotelSeparator) hotelSeparator.style.display = 'block';
             
             // Get current language
             const lang = window.currentLanguage || 'ru';
             
-            // Get localized hotel name
-            const hotelName = typeof hotel.name === 'object' ? 
-                (hotel.name[lang] || hotel.name.ru || hotel.name.en) : hotel.name;
-
-            hotelDetailsContent.innerHTML = `
-                <div class="space-y-1">
-                    <div class="font-medium text-gray-800">${hotelName || getTranslation('booking.hotel')}</div>
-                    <div class="text-xs text-gray-500">${hotel.address || ''}</div>
-                    ${starsDisplay ? `<div class="text-yellow-500 text-sm">${starsDisplay}</div>` : ''}
-                </div>
-            `;
+            // ✅ Display ALL hotels with selected rooms
+            let hotelsHtml = '';
+            hotelsWithRooms.forEach((hotel, index) => {
+                const starsDisplay = hotel.stars ? '★'.repeat(hotel.stars) : '';
+                const marginClass = index > 0 ? 'mt-3 pt-3 border-t border-gray-200' : '';
+                
+                // Get localized hotel name
+                const hotelName = typeof hotel.name === 'object' ? 
+                    (hotel.name[lang] || hotel.name.ru || hotel.name.en) : hotel.name;
+                
+                hotelsHtml += `
+                    <div class="space-y-1 ${marginClass}">
+                        <div class="font-medium text-gray-800">${hotelName || getTranslation('booking.hotel')}</div>
+                        <div class="text-xs text-gray-500">${hotel.address || ''}</div>
+                        ${starsDisplay ? `<div class="text-yellow-500 text-sm">${starsDisplay}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            hotelDetailsContent.innerHTML = hotelsHtml;
+            
+            console.log(`✅ Step 2: Displaying ${hotelsWithRooms.length} hotel(s) with selected rooms`);
         }
 
         function displayRoomMealInfo() {
@@ -565,45 +598,61 @@
             
             if (!roomMealInfo || !roomDetailsContent) return;
 
-            let roomSelection = {};
-            try {
-                if (bookingState.roomSelection) {
-                    roomSelection = typeof bookingState.roomSelection === 'string' ? 
-                        JSON.parse(bookingState.roomSelection) : bookingState.roomSelection;
-                }
-            } catch (e) {
-                console.warn('Failed to parse room selection:', e);
-            }
-
-            const hasSelectedRooms = Object.values(roomSelection).some(quantity => quantity > 0);
+            // ✅ FIX: Get room selection from bookingStateManager (nested structure)
+            const roomSelection = window.bookingStateManager?.state?.selections?.rooms || bookingState.roomSelection || {};
             
-            if (hasSelectedRooms && bookingState.hotel) {
-                roomMealInfo.style.display = 'block';
+            // Check if there are any selected rooms (nested structure: {hotelId: {roomType: quantity}})
+            const hasSelectedRooms = Object.values(roomSelection).some(rooms => 
+                Object.values(rooms).some(qty => parseInt(qty) > 0)
+            );
+            
+            if (!hasSelectedRooms) {
+                roomMealInfo.style.display = 'none';
+                return;
+            }
+            
+            roomMealInfo.style.display = 'block';
+            
+            let roomsHtml = '';
+            
+            // ✅ Iterate through all hotels with selected rooms
+            for (const [hotelId, rooms] of Object.entries(roomSelection)) {
+                // Find hotel data
+                const hotelData = bookingState.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                bookingState.availableHotels?.find(h => h.id == hotelId);
+                
+                if (!hotelData) continue;
                 
                 let roomTypes = {};
                 try {
-                    roomTypes = typeof bookingState.hotel.roomTypes === 'string' ? 
-                        JSON.parse(bookingState.hotel.roomTypes) : (bookingState.hotel.roomTypes || {});
+                    roomTypes = typeof hotelData.roomTypes === 'string' ? 
+                        JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
                 } catch (e) {
                     console.warn('Failed to parse room types:', e);
                 }
-
-                let roomsHtml = '';
-                for (const [roomType, quantity] of Object.entries(roomSelection)) {
-                    if (quantity > 0 && roomTypes[roomType]) {
+                
+                // Get localized hotel name
+                const lang = window.currentLanguage || 'ru';
+                const hotelName = typeof hotelData.name === 'object' ? 
+                    (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : hotelData.name;
+                
+                // Display rooms for this hotel
+                for (const [roomType, quantity] of Object.entries(rooms)) {
+                    if (parseInt(quantity) > 0 && roomTypes[roomType]) {
                         const roomInfo = roomTypes[roomType];
                         const roomName = getLocalizedName(roomInfo) || roomType;
+                        
                         roomsHtml += `
                             <div class="flex justify-between items-center">
-                                <span>${roomName} × ${quantity}</span>
+                                <span>${hotelName}: ${roomName} × ${quantity}</span>
                                 <span class="text-green-600 font-medium">${Math.round(roomInfo.price)} TJS<span data-translate="booking.per_day_short">/сутки</span></span>
                             </div>
                         `;
                     }
                 }
-                
-                roomDetailsContent.innerHTML = roomsHtml || '<div class="text-gray-500 text-xs">Номера не выбраны</div>';
             }
+            
+            roomDetailsContent.innerHTML = roomsHtml || '<div class="text-gray-500 text-xs">Номера не выбраны</div>';
         }
 
         function displayPriceCalculation() {

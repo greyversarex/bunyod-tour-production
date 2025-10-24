@@ -604,43 +604,92 @@
                         </div>
                     </div>
 
-                    <!-- Hotel Details (if selected) -->
-                    ${booking.hotel ? `
-                        <div class="border-t pt-6 mb-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="booking.accommodation_details">Детали проживания</h3>
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.hotel">Отель:</h5>
-                                        <p class="text-gray-800">${typeof booking.hotel.name === 'object' ? (booking.hotel.name[lang] || booking.hotel.name.ru || booking.hotel.name.en) : booking.hotel.name}</p>
-                                        <p class="text-sm text-gray-600">${booking.hotel.address}</p>
-                                        ${booking.hotel.stars ? `<div class="text-yellow-500 mt-1">${'★'.repeat(booking.hotel.stars)}</div>` : ''}
-                                        ${booking.hotel.category ? `<p class="text-sm text-purple-600 font-medium mt-1"><span data-translate="booking.category">Категория</span>: ${booking.hotel.category}</p>` : ''}
-                                        ${booking.hotel.amenities && booking.hotel.amenities.length > 0 ? `
-                                            <div class="mt-2">
-                                                <p class="text-sm text-gray-700 font-medium mb-1" data-translate="booking.amenities">Удобства:</p>
-                                                <div class="flex flex-wrap gap-1">
-                                                    ${booking.hotel.amenities.map(amenity => `
-                                                        <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">${getTranslation('amenity.' + amenity) || amenity}</span>
-                                                    `).join('')}
+                    <!-- Hotel Details (if selected rooms) -->
+                    ${(() => {
+                        // ✅ FIX: Check if any rooms are selected (nested structure)
+                        const hasSelectedRooms = Object.values(roomSelection).some(rooms => 
+                            typeof rooms === 'object' && Object.values(rooms).some(qty => parseInt(qty) > 0)
+                        );
+                        
+                        if (!hasSelectedRooms) return '';
+                        
+                        // ✅ Build hotels HTML for all selected hotels
+                        let hotelsHtml = '';
+                        
+                        for (const [hotelId, rooms] of Object.entries(roomSelection)) {
+                            if (typeof rooms !== 'object') continue;
+                            
+                            const hasRooms = Object.values(rooms).some(qty => parseInt(qty) > 0);
+                            if (!hasRooms) continue;
+                            
+                            // Find hotel data
+                            const hotelData = booking.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                            booking.tour?.tourHotels?.find(h => h.hotel?.id == hotelId)?.hotel;
+                            
+                            if (!hotelData) continue;
+                            
+                            // Parse room types for this hotel
+                            let roomTypes = {};
+                            try {
+                                roomTypes = typeof hotelData.roomTypes === 'string' ? 
+                                    JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
+                            } catch (e) {
+                                console.warn('Error parsing room types:', e);
+                            }
+                            
+                            // Get localized hotel name
+                            const hotelName = typeof hotelData.name === 'object' ? 
+                                (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : hotelData.name;
+                            
+                            // Build rooms HTML for this hotel
+                            let roomsHtml = '';
+                            for (const [roomType, quantity] of Object.entries(rooms)) {
+                                if (parseInt(quantity) > 0 && roomTypes[roomType]) {
+                                    const roomName = getLocalizedName(roomTypes[roomType].name);
+                                    roomsHtml += `<p class="text-sm text-gray-600">${roomName} × ${quantity}</p>`;
+                                }
+                            }
+                            
+                            if (!roomsHtml) continue;
+                            
+                            hotelsHtml += `
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.hotel">Отель:</h5>
+                                            <p class="text-gray-800">${hotelName}</p>
+                                            <p class="text-sm text-gray-600">${hotelData.address || ''}</p>
+                                            ${hotelData.stars ? `<div class="text-yellow-500 mt-1">${'★'.repeat(hotelData.stars)}</div>` : ''}
+                                            ${hotelData.category ? `<p class="text-sm text-purple-600 font-medium mt-1"><span data-translate="booking.category">Категория</span>: ${hotelData.category}</p>` : ''}
+                                            ${hotelData.amenities && hotelData.amenities.length > 0 ? `
+                                                <div class="mt-2">
+                                                    <p class="text-sm text-gray-700 font-medium mb-1" data-translate="booking.amenities">Удобства:</p>
+                                                    <div class="flex flex-wrap gap-1">
+                                                        ${hotelData.amenities.map(amenity => `
+                                                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">${getTranslation('amenity.' + amenity) || amenity}</span>
+                                                        `).join('')}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ` : ''}
-                                    </div>
-                                    <div>
-                                        <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.rooms">Номера:</h5>
-                                        ${Object.entries(roomSelection).map(([roomType, quantity]) => {
-                                            if (quantity > 0 && hotelRoomTypes[roomType]) {
-                                                const roomName = getLocalizedName(hotelRoomTypes[roomType].name);
-                                                return `<p class="text-sm text-gray-600">${roomName} × ${quantity}</p>`;
-                                            }
-                                            return '';
-                                        }).join('')}
+                                            ` : ''}
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.rooms">Номера:</h5>
+                                            ${roomsHtml}
+                                        </div>
                                     </div>
                                 </div>
+                            `;
+                        }
+                        
+                        if (!hotelsHtml) return '';
+                        
+                        return `
+                            <div class="border-t pt-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="booking.accommodation_details">Детали проживания</h3>
+                                ${hotelsHtml}
                             </div>
-                        </div>
-                    ` : ''}
+                        `;
+                    })()}
 
                 </div>
             `;
