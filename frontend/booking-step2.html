@@ -762,12 +762,12 @@
             
             const tourPriceCalc = document.getElementById('tour-price-calc');
             if (tourPriceCalc) {
-                tourPriceCalc.textContent = formatCurrencyWithEquivalent(finalTourPrice);
+                tourPriceCalc.innerHTML = formatCurrencyWithEquivalent(finalTourPrice);
             }
             
             const totalPrice = document.getElementById('total-price');
             if (totalPrice) {
-                totalPrice.textContent = formatCurrencyWithEquivalent(finalTotalPrice);
+                totalPrice.innerHTML = formatCurrencyWithEquivalent(finalTotalPrice);
             }
             
             // Save to state
