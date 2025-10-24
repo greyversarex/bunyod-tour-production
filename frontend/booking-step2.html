@@ -772,6 +772,17 @@
             
             // Save to state
             if (window.bookingStateManager) {
+                // ✅ Ensure pricing object exists before writing to it
+                if (!window.bookingStateManager.state.pricing) {
+                    window.bookingStateManager.state.pricing = {
+                        tourBasePrice: 0,
+                        roomSurcharge: 0,
+                        mealSurcharge: 0,
+                        grandTotal: 0,
+                        currency: 'TJS'
+                    };
+                }
+                
                 window.bookingStateManager.state.pricing.tourBasePrice = finalTourPrice;
                 window.bookingStateManager.state.pricing.roomSurcharge = totalRoomCost;
                 window.bookingStateManager.state.pricing.grandTotal = finalTotalPrice;

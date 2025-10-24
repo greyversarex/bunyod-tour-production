@@ -94,6 +94,18 @@ const bookingStateManager = {
                         console.log('✅ Fixed room structure:', fixedRooms);
                     }
                     
+                    // ✅ Ensure pricing object exists (fix for old sessionStorage data)
+                    if (!this.state.pricing) {
+                        console.warn('⚠️ pricing object missing in loaded state, initializing...');
+                        this.state.pricing = {
+                            tourBasePrice: 0,
+                            roomSurcharge: 0,
+                            mealSurcharge: 0,
+                            grandTotal: 0,
+                            currency: 'TJS'
+                        };
+                    }
+                    
                     console.log('📦 Booking state loaded from sessionStorage:', this.state);
                     return true;
                 } catch (e) {
