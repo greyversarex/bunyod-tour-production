@@ -697,12 +697,21 @@ function searchHotels() {
         });
     }
     
-    // Apply country filter
+    // Apply country filter (from sidebar checkboxes)
+    if (state.filters.countries && state.filters.countries.length > 0) {
+        results = results.filter(hotel => state.filters.countries.includes(hotel.countryId));
+    }
+    
+    // Apply city filter (from sidebar checkboxes)
+    if (state.filters.cities && state.filters.cities.length > 0) {
+        results = results.filter(hotel => state.filters.cities.includes(hotel.cityId));
+    }
+    
+    // Also apply top search bar filters
     if (state.filters.country) {
         results = results.filter(hotel => hotel.countryId == state.filters.country);
     }
     
-    // Apply city filter
     if (state.filters.city) {
         results = results.filter(hotel => hotel.cityId == state.filters.city);
     }
@@ -937,6 +946,7 @@ function createTourCard(tour) {
     const uniqueCardId = `search-${tour.id}`;
     const priceText = currentLang === 'ru' ? 'от' : 'from';
     const tourTypeText = tour.format || tour.tourType || (currentLang === 'en' ? 'Group' : 'Групповой');
+    const currentCurrency = window.currentCurrency || 'TJS';
     
     return `
         <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
@@ -990,10 +1000,10 @@ function createTourCard(tour) {
                 <div class="flex items-start justify-between mt-auto gap-3">
                     <div class="flex-1 flex flex-col justify-center">
                         ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
+                            <div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, currentCurrency)}</div>
                         ` : ''}
                         <div class="text-base font-bold text-gray-900 leading-tight">
-                            <span>${priceText}</span> ${formatPrice(tour.price, 'TJS')}
+                            <span>${priceText}</span> ${formatPrice(tour.price, currentCurrency)}
                         </div>
                         <div class="text-xs text-gray-500 mt-0.5">${(() => {
                             const priceType = tour.priceType || '';
@@ -1253,6 +1263,17 @@ function setupEventListeners() {
             
             console.log(`✅ Язык страницы поиска обновлен на: ${state.currentLang}`);
         });
+    });
+    
+    // Currency change event - re-render cards with new currency
+    document.addEventListener('currencyChanged', (e) => {
+        console.log('💱 Currency changed event received:', e.detail);
+        // Re-render tour/hotel cards to show new currency
+        if (state.currentTab === 'tours') {
+            renderTourCards();
+        } else {
+            renderHotelCards();
+        }
     });
     
     // Search button

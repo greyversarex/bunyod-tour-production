@@ -925,13 +925,38 @@ export const bookingController = {
         }
       });
 
-      const hotels = tourHotels.map((th: any) => ({
-        ...th.hotel,
-        name: parseMultilingualField(th.hotel.name, language),
-        description: th.hotel.description ? parseMultilingualField(th.hotel.description, language) : null,
-        amenities: th.hotel.amenities ? JSON.parse(th.hotel.amenities) : [],
-        images: th.hotel.images ? JSON.parse(th.hotel.images) : []
-      }));
+      // Fetch cities and countries for all hotels
+      const hotelIds = tourHotels.map((th: any) => th.hotel.id);
+      const hotelsWithRelations: any[] = await prisma.hotel.findMany({
+        where: { id: { in: hotelIds } },
+        include: {
+          city: {
+            include: {
+              country: true
+            }
+          },
+          country: true
+        }
+      });
+
+      // Create a map for quick lookup
+      const hotelRelationsMap = new Map();
+      hotelsWithRelations.forEach((h: any) => {
+        hotelRelationsMap.set(h.id, { city: h.city, country: h.country });
+      });
+
+      const hotels = tourHotels.map((th: any) => {
+        const relations = hotelRelationsMap.get(th.hotel.id) || {};
+        return {
+          ...th.hotel,
+          name: parseMultilingualField(th.hotel.name, language),
+          description: th.hotel.description ? parseMultilingualField(th.hotel.description, language) : null,
+          amenities: th.hotel.amenities ? JSON.parse(th.hotel.amenities) : [],
+          images: th.hotel.images ? JSON.parse(th.hotel.images) : [],
+          city: relations.city,
+          country: relations.country
+        };
+      });
 
       return res.json({
         success: true,
