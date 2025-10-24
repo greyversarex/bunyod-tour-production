@@ -927,22 +927,22 @@ export const bookingController = {
 
       // Fetch cities and countries for all hotels
       const hotelIds = tourHotels.map((th: any) => th.hotel.id);
-      const hotelsWithRelations: any[] = await prisma.hotel.findMany({
+      const hotelsWithRelations = await prisma.hotel.findMany({
         where: { id: { in: hotelIds } },
         include: {
-          city: {
+          hotelCity: {
             include: {
               country: true
             }
           },
-          country: true
+          hotelCountry: true
         }
       });
 
       // Create a map for quick lookup
       const hotelRelationsMap = new Map();
       hotelsWithRelations.forEach((h: any) => {
-        hotelRelationsMap.set(h.id, { city: h.city, country: h.country });
+        hotelRelationsMap.set(h.id, { city: h.hotelCity, country: h.hotelCountry });
       });
 
       const hotels = tourHotels.map((th: any) => {
