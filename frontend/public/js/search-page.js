@@ -295,7 +295,26 @@ function renderTourBlocksFilter() {
     const currentLang = state.currentLang;
     
     container.innerHTML = state.tourBlocks.map(block => {
-        const blockName = currentLang === 'ru' ? block.nameRu : block.nameEn;
+        // Parse title field (can be JSON string or object)
+        let blockName = '';
+        if (block.title) {
+            if (typeof block.title === 'string') {
+                try {
+                    const titleObj = JSON.parse(block.title);
+                    blockName = currentLang === 'en' ? titleObj.en : titleObj.ru;
+                } catch (e) {
+                    blockName = block.title;
+                }
+            } else if (typeof block.title === 'object') {
+                blockName = currentLang === 'en' ? block.title.en : block.title.ru;
+            }
+        }
+        
+        // Fallback to legacy fields if title not found
+        if (!blockName) {
+            blockName = currentLang === 'ru' ? block.nameRu : block.nameEn;
+        }
+        
         return `
         <label class="flex items-center gap-2 cursor-pointer hover:text-gray-700 transition-colors">
             <input type="checkbox" 
@@ -303,7 +322,7 @@ function renderTourBlocksFilter() {
                    ${state.filters.tourBlocks.includes(block.id) ? 'checked' : ''}
                    onchange="handleTourBlockChange(this)"
                    class="w-4 h-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
-            <span>${escapeHtml(blockName)}</span>
+            <span>${escapeHtml(blockName || 'Unknown')}</span>
         </label>
         `;
     }).join('');
