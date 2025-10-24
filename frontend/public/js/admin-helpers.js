@@ -235,7 +235,7 @@ function collectFormData(config) {
  * Сбор чекбоксов с ценами (roomTypes/mealTypes)
  * @param {Object} config - Конфигурация группы
  * @param {string} config.prefix - Префикс ID ('room', 'meal')
- * @param {Array<string>} config.types - Типы для проверки (['SGL', 'TWL', 'DBL'])
+ * @param {Array<string>} config.types - Типы для проверки (['SGL', 'TWN', 'DBL'])
  * @returns {string} - JSON строка с объектом типов и цен
  */
 function collectCheckboxGroupWithPrices(config) {
@@ -268,7 +268,7 @@ function getTypeName(prefix, type) {
     const names = {
         room: {
             SGL: 'Одноместный',
-            TWL: 'Двухместный',
+            TWN: 'Двухместный',
             DBL: 'Двухспальный'
         },
         meal: {

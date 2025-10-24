@@ -2016,15 +2016,15 @@
                                 </div>
                             </div>
                             
-                            <!-- TWL - Двухместный -->
+                            <!-- TWN - Двухместный -->
                             <div class="flex items-center justify-between py-2 border-b border-gray-200">
                                 <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="roomTWL" class="rounded">
-                                    <label for="roomTWL" class="font-medium">TWL - Двухместный</label>
+                                    <input type="checkbox" id="roomTWN" class="rounded">
+                                    <label for="roomTWN" class="font-medium">TWN - Двухместный</label>
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span>$</span>
-                                    <input type="number" id="priceTWL" class="form-input w-20" placeholder="150" min="0" step="1" disabled>
+                                    <input type="number" id="priceTWN" class="form-input w-20" placeholder="150" min="0" step="1" disabled>
                                     <span class="text-sm text-gray-500">/ ночь</span>
                                 </div>
                             </div>
@@ -7314,13 +7314,13 @@
         // НОВОЕ: Функция очистки полей категорий номеров
         function clearRoomTypeFields() {
             document.getElementById('roomSGL').checked = false;
-            document.getElementById('roomTWL').checked = false;
+            document.getElementById('roomTWN').checked = false;
             document.getElementById('roomDBL').checked = false;
             document.getElementById('priceSGL').value = '';
-            document.getElementById('priceTWL').value = '';
+            document.getElementById('priceTWN').value = '';
             document.getElementById('priceDBL').value = '';
             document.getElementById('priceSGL').disabled = true;
-            document.getElementById('priceTWL').disabled = true;
+            document.getElementById('priceTWN').disabled = true;
             document.getElementById('priceDBL').disabled = true;
         }
         
@@ -7832,7 +7832,7 @@
             const roomTypes = {};
             const roomTypesData = [
                 { type: 'SGL', name: { ru: 'Одноместный', en: 'Single' } },
-                { type: 'TWL', name: { ru: 'Двухместный', en: 'Twin/Double' } },
+                { type: 'TWN', name: { ru: 'Двухместный', en: 'Twin/Double' } },
                 { type: 'DBL', name: { ru: 'Двухспальный', en: 'Double Room' } }
             ];
             
@@ -8000,9 +8000,9 @@
                 if (!this.checked) document.getElementById('priceSGL').value = '';
             });
             
-            document.getElementById('roomTWL').addEventListener('change', function() {
-                document.getElementById('priceTWL').disabled = !this.checked;
-                if (!this.checked) document.getElementById('priceTWL').value = '';
+            document.getElementById('roomTWN').addEventListener('change', function() {
+                document.getElementById('priceTWN').disabled = !this.checked;
+                if (!this.checked) document.getElementById('priceTWN').value = '';
             });
             
             document.getElementById('roomDBL').addEventListener('change', function() {

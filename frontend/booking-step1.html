@@ -932,22 +932,10 @@
             let htmlContent = '';
             
             hotelsByCity.forEach((cityData, cityId) => {
-                // Добавляем заголовок "Страны и города"
-                const lang = window.currentLanguage || 'ru';
-                const cityCountryHeader = lang === 'en' 
-                    ? 'Countries and Cities' 
-                    : lang === 'tj'
-                    ? 'Мамлакатҳо ва шаҳрҳо'
-                    : 'Страны и города';
-                
                 htmlContent += `
                     <div class="mb-6">
-                        <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-lg shadow-md mb-4">
-                            <h3 class="text-lg font-bold mb-1">${cityCountryHeader}</h3>
-                            <p class="text-sm opacity-90">
-                                <i class="fas fa-globe mr-2"></i>${cityData.countryName}
-                                <i class="fas fa-map-marker-alt ml-4 mr-2"></i>${cityData.cityName}
-                            </p>
+                        <div class="bg-gray-600 text-white px-6 py-4 rounded-lg shadow-md mb-4 text-center" style="background-color: #6B7280;">
+                            <h3 class="text-lg font-semibold">${cityData.countryName} - ${cityData.cityName}</h3>
                         </div>
                         
                         <div class="space-y-6">
@@ -1131,8 +1119,8 @@
                 if (totalCapacity > numberOfTourists) {
                     const lang = window.currentLanguage || 'ru';
                     const message = lang === 'en' 
-                        ? `Cannot add more rooms.<div style="margin-top: 8px; line-height: 1.3;"><strong>Total room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Capacity calculation:<br>SGL = 1 person, TWL/DBL = 2 people</div>`
-                        : `Невозможно добавить больше номеров.<div style="margin-top: 8px; line-height: 1.3;"><strong>Общая вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Расчет вместимости номеров:<br>SGL = 1 чел., TWL/DBL = 2 чел.</div>`;
+                        ? `Cannot add more rooms.<div style="margin-top: 8px; line-height: 1.3;"><strong>Total room capacity: ${totalCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Capacity calculation:<br>SGL = 1 person, TWN/DBL = 2 people</div>`
+                        : `Невозможно добавить больше номеров.<div style="margin-top: 8px; line-height: 1.3;"><strong>Общая вместимость: ${totalCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Расчет вместимости номеров:<br>SGL = 1 чел., TWN/DBL = 2 чел.</div>`;
                     showCenterModal(message, 'warning');
                     return;
                 }
@@ -1162,7 +1150,7 @@
             let totalCapacity = 0;
             const roomCapacities = {
                 'SGL': 1,  // Single
-                'TWL': 2,  // Twin
+                'TWN': 2,  // Twin
                 'DBL': 2,  // Double  
                 'TRP': 3,  // Triple
                 'QUD': 4,  // Quad
@@ -1460,7 +1448,7 @@
             // Standard room capacity based on room type
             const capacities = {
                 'SGL': 1,  // Single
-                'TWL': 2,  // Twin
+                'TWN': 2,  // Twin
                 'DBL': 2,  // Double  
                 'TRP': 3,  // Triple
                 'QUD': 4,  // Quad

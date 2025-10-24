@@ -79,7 +79,7 @@ const bookingStateManager = {
                                 
                                 // If first value is an object with room types, it's triple-nested
                                 if (firstValue && typeof firstValue === 'object' && 
-                                    (firstValue.SGL !== undefined || firstValue.TWL !== undefined || firstValue.DBL !== undefined)) {
+                                    (firstValue.SGL !== undefined || firstValue.TWN !== undefined || firstValue.DBL !== undefined)) {
                                     console.warn('⚠️ Found corrupted triple-nested structure, fixing...');
                                     // Extract the inner object (correct structure)
                                     fixedRooms[hotelId] = firstValue;
@@ -379,7 +379,7 @@ const bookingStateManager = {
     getRoomPrice(roomType) {
         const prices = {
             'SGL': 800,
-            'TWL': 1200,
+            'TWN': 1200,
             'DBL': 1000,
             'TRPL': 1500
         };
