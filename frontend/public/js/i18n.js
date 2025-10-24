@@ -436,6 +436,7 @@ window.translations = window.translations || {
     
     // Английские enum значения из базы данных
     'tour_type.individual': { ru: 'Персональный', en: 'Personal' },
+    'tour_type.group_private': { ru: 'Групповой персональный', en: 'Group Personal' },
     'tour_type.group_shared': { ru: 'Групповой общий', en: 'Group General' },
     
     'footer.public_offer': { ru: 'Публичная Оферта-Договор', en: 'Public Offer Agreement' },
