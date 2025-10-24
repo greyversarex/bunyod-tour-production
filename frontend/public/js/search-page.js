@@ -1057,16 +1057,28 @@ function createHotelCard(hotel) {
     const firstImage = hotel.images && hotel.images.length > 0 ? hotel.images[0] : null;
     const imageUrl = firstImage || '/placeholder-hotel.jpg';
     
-    // Generate stars
-    const stars = Array.from({length: 5}, (_, i) => 
-        `<i class="fas fa-star ${i < (hotel.stars || 3) ? 'text-yellow-400' : 'text-gray-300'}"></i>`
-    ).join('');
+    // Generate stars as compact text
+    const starsCount = hotel.stars || 3;
+    const starsText = '★'.repeat(starsCount) + '☆'.repeat(5 - starsCount);
     
-    // Format amenities
+    // Format amenities - translate common ones
     const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
-    const amenitiesHtml = amenities.slice(0, 3).map(amenity => {
-        return `<span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${amenity}</span>`;
-    }).join('');
+    const amenitiesText = amenities.slice(0, 3).map(amenity => {
+        // Simple translation for common amenities
+        if (currentLang === 'en') {
+            const translations = {
+                'Парковка': 'Parking',
+                'Wi-Fi': 'Wi-Fi',
+                'Бассейн': 'Pool',
+                'Ресторан': 'Restaurant',
+                'Спа': 'Spa',
+                'Фитнес': 'Fitness',
+                'Завтрак': 'Breakfast'
+            };
+            return translations[amenity] || amenity;
+        }
+        return amenity;
+    }).join(' • ');
     
     // Получаем данные о стране и городе
     const countryName = currentLang === 'en' 
@@ -1086,59 +1098,54 @@ function createHotelCard(hotel) {
         locationText = countryName;
     }
     
-    // Адрес
-    const addressData = typeof hotel.address === 'string' ? hotel.address : '';
-    const hotelAddress = addressData;
-    
-    const detailsText = currentLang === 'en' ? 'More Details' : 'Подробнее';
+    const detailsText = currentLang === 'en' ? 'View Details' : 'Подробнее';
     
     return `
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
-            <div class="relative">
+        <div class="group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
+             onclick="window.location.href='/hotel-template.html?hotel=${hotel.id}'">
+            <div class="relative overflow-hidden rounded-t-lg">
                 <img src="${imageUrl}" alt="${hotelName}" 
-                     class="w-full h-48 object-cover" 
+                     class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300" 
                      onerror="this.src='/placeholder-hotel.jpg'">
-                <div class="absolute top-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded">
-                    ${stars}
+                <div class="absolute top-2 right-2 bg-white bg-opacity-90 px-2 py-1 rounded shadow text-yellow-500 text-xs font-semibold">
+                    ${starsText}
                 </div>
             </div>
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-gray-900 mb-1 line-clamp-1">${hotelName}</h3>
-                
+            <div class="p-4 flex flex-col flex-grow">
+                <!-- Location -->
                 ${locationText ? `
-                <p class="text-blue-600 text-sm mb-2">
-                    <i class="fas fa-map-marker-alt mr-1"></i>
-                    ${locationText}
-                </p>
-                ` : ''}
-                
-                ${hotelAddress ? `
-                <p class="text-gray-600 text-sm mb-2">
-                    <i class="fas fa-map text-gray-400 mr-1"></i>
-                    ${hotelAddress}
-                </p>
-                ` : ''}
-                
-                ${hotelDesc ? `
-                <div class="text-gray-600 text-sm mb-3 line-clamp-2">${hotelDesc}</div>
-                ` : ''}
-                
-                <div class="flex flex-wrap gap-1 mb-3">
-                    ${amenitiesHtml}
+                <div class="text-xs mb-2 flex items-center gap-1" style="color: #6B7280;">
+                    <svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="font-medium">${locationText}</span>
                 </div>
+                ` : ''}
                 
-                <div class="flex items-center justify-between">
-                    <div class="text-sm text-gray-500">
-                        ${hotel.brand ? `<span class="font-medium">${hotel.brand}</span>` : ''}
-                        ${hotel.category ? `<span class="ml-2">${hotel.category}</span>` : ''}
-                    </div>
-                    <a href="/hotel-template.html?hotel=${hotel.id}" 
-                       class="text-white px-4 py-2 rounded-lg text-sm font-medium transition-all" 
-                       style="background: #6B7280;"
-                       onmouseover="this.style.background='#4B5563'"
-                       onmouseout="this.style.background='#6B7280'">
+                <!-- Hotel Name -->
+                <h3 class="text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-tight line-clamp-1">
+                    ${hotelName}
+                </h3>
+                
+                <!-- Description -->
+                ${hotelDesc ? `
+                <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">${hotelDesc}</p>
+                ` : ''}
+                
+                <!-- Amenities -->
+                ${amenitiesText ? `
+                <div class="text-xs text-gray-500 mb-3">
+                    ${amenitiesText}
+                </div>
+                ` : ''}
+                
+                <!-- CTA Button -->
+                <div class="mt-auto pt-2">
+                    <button class="w-full hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors" 
+                            style="background-color: #6B7280;"
+                            onclick="event.stopPropagation(); window.location.href='/hotel-template.html?hotel=${hotel.id}'">
                         ${detailsText}
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
