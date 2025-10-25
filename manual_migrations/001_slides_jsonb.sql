@@ -1,29 +1,13 @@
--- Миграция: Конвертация slides.title и slides.description из TEXT в JSONB
--- Эта миграция автоматически применяется через update.sh если колонки еще TEXT
+-- 001_slides_jsonb.sql
+-- Цель: после подготовки из 000_... меняем тип колонок с TEXT на JSONB.
 
--- Безопасная конвертация TEXT → JSONB
--- Если данные уже валидный JSON, просто меняем тип
--- Если нет - они будут обернуты в JSON строку
+-- Важно: запускается ПОСЛЕ 000_slides_prepare.sql, который уже подготовил данные
+-- Теперь просто меняем типы, все данные уже в формате {"ru":"...","en":"..."}
 
 ALTER TABLE slides
-  ALTER COLUMN title TYPE JSONB USING 
-    CASE 
-      WHEN title IS NULL THEN '{"ru":"","en":""}'::jsonb
-      WHEN title::text ~ '^\s*\{.*\}\s*$' THEN title::jsonb
-      ELSE jsonb_build_object('ru', title, 'en', '')
-    END,
-  ALTER COLUMN description TYPE JSONB USING 
-    CASE 
-      WHEN description IS NULL THEN '{"ru":"","en":""}'::jsonb
-      WHEN description::text ~ '^\s*\{.*\}\s*$' THEN description::jsonb
-      ELSE jsonb_build_object('ru', description, 'en', '')
-    END,
-  ALTER COLUMN "buttonText" TYPE JSONB USING 
-    CASE 
-      WHEN "buttonText" IS NULL THEN NULL
-      WHEN "buttonText"::text ~ '^\s*\{.*\}\s*$' THEN "buttonText"::jsonb
-      ELSE jsonb_build_object('ru', "buttonText", 'en', '')
-    END;
+  ALTER COLUMN title TYPE JSONB USING title::jsonb,
+  ALTER COLUMN description TYPE JSONB USING description::jsonb,
+  ALTER COLUMN "buttonText" TYPE JSONB USING "buttonText"::jsonb;
 
 -- Добавляем комментарии для документации
 COMMENT ON COLUMN slides.title IS 'Multilingual title (JSON: {ru, en})';

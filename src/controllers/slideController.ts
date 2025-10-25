@@ -3,29 +3,47 @@ import { Prisma } from '@prisma/client';
 import { safeJsonParse } from '../utils/multilingual';
 import prisma from '../config/database';
 
-// 🛡️ SAFE JSON PARSER: Never throws, always returns valid multilingual object
+// 🔧 NORMALIZE MULTILINGUAL: Ensures {ru, en} structure with both fields present
+// Handles: strings, objects {ru}, objects {ru, en}, null/undefined
+// This prevents any 500 errors and ensures consistency across the API
+function normalizeML(input: any): { ru: string; en: string } {
+  try {
+    // Handle null/undefined
+    if (!input) return { ru: "", en: "" };
+
+    // Handle plain string - treat as Russian text
+    if (typeof input === "string") {
+      return { ru: input, en: "" };
+    }
+
+    // Handle object
+    if (typeof input === "object") {
+      return {
+        ru: typeof input.ru === "string" ? input.ru : "",
+        en: typeof input.en === "string" ? input.en : "",
+      };
+    }
+
+    // Fallback for any other type
+    return { ru: "", en: "" };
+  } catch {
+    return { ru: "", en: "" };
+  }
+}
+
+// 🛡️ SAFE JSON PARSER for reading from DB: Never throws, always returns valid multilingual object
 const parseML = (v: any) => {
   try {
     if (v == null) return { ru: "", en: "" };
     const obj = typeof v === "string" ? JSON.parse(v) : v;
-    if (obj && typeof obj === "object") return obj;
-    return { ru: String(v ?? ""), en: String(v ?? "") };
+    if (obj && typeof obj === "object") {
+      // Ensure both keys exist
+      return normalizeML(obj);
+    }
+    return { ru: String(v ?? ""), en: "" };
   } catch {
-    return { ru: String(v ?? ""), en: String(v ?? "") };
+    return { ru: "", en: "" };
   }
-};
-
-// 🔧 NORMALIZE MULTILINGUAL OBJECT: Ensures {ru, en} structure with both fields present
-// This prevents any 500 errors and ensures consistency across the API
-const normalizeLangObj = (input: any): { ru: string; en: string } => {
-  if (!input || typeof input !== 'object') {
-    return { ru: '', en: '' };
-  }
-  
-  return {
-    ru: typeof input.ru === 'string' ? input.ru : (input.ru || ''),
-    en: typeof input.en === 'string' ? input.en : (input.en || '')
-  };
 };
 
 // Get all slides - BULLETPROOF: Never throws on malformed data
@@ -144,9 +162,9 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
     const buttonTextRaw = req.body.buttonText ? safeJsonParse(req.body.buttonText) : null;
     
     // ✅ GUARANTEE: Always {ru, en} even if en is missing
-    const title = normalizeLangObj(titleRaw);
-    const description = normalizeLangObj(descriptionRaw);
-    const buttonText = buttonTextRaw ? normalizeLangObj(buttonTextRaw) : null;
+    const title = normalizeML(titleRaw);
+    const description = normalizeML(descriptionRaw);
+    const buttonText = buttonTextRaw ? normalizeML(buttonTextRaw) : null;
     
     const link = req.body.link || '';
     const order = parseInt(req.body.order) || 0;
@@ -270,15 +288,15 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
     
     // ✅ GUARANTEE: Always {ru, en} structure when saving
     if (parsedData.title !== undefined) {
-      updateData.title = normalizeLangObj(parsedData.title) as Prisma.InputJsonValue;
+      updateData.title = normalizeML(parsedData.title) as Prisma.InputJsonValue;
     }
     if (parsedData.description !== undefined) {
-      updateData.description = normalizeLangObj(parsedData.description) as Prisma.InputJsonValue;
+      updateData.description = normalizeML(parsedData.description) as Prisma.InputJsonValue;
     }
     if (parsedData.link !== undefined) updateData.link = parsedData.link;
     if (parsedData.buttonText !== undefined) {
       updateData.buttonText = parsedData.buttonText 
-        ? (normalizeLangObj(parsedData.buttonText) as Prisma.InputJsonValue)
+        ? (normalizeML(parsedData.buttonText) as Prisma.InputJsonValue)
         : Prisma.DbNull;
     }
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
