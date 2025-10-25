@@ -13004,9 +13004,10 @@
             if (!container) return;
 
             container.innerHTML = slides.map(slide => {
-                const title = JSON.parse(slide.title || '{}');
-                const description = JSON.parse(slide.description || '{}');
-                const buttonText = JSON.parse(slide.buttonText || '{}');
+                // API already returns parsed objects {ru, en}, no need to JSON.parse
+                const title = slide.title || {ru: '', en: ''};
+                const description = slide.description || {ru: '', en: ''};
+                const buttonText = slide.buttonText || {ru: '', en: ''};
                 
                 return `
                     <div class="border rounded-lg p-4 bg-white">
@@ -13151,8 +13152,8 @@
             if (slideId) {
                 modalTitle.textContent = 'Редактировать слайд';
                 
-                // Load slide data for editing with includeRaw=true (like categories)
-                fetch(`${getApiUrl()}/slides/${slideId}?includeRaw=true`, {
+                // Load slide data for editing
+                fetch(`${getApiUrl()}/slides/${slideId}`, {
                     headers: getAuthHeaders()
                 })
                     .then(res => res.json())
@@ -13161,51 +13162,18 @@
                         if (slide) {
                             document.getElementById('editSlideId').value = slideId;
                             
-                            // 🔧 MULTILINGUAL PARSING (robust like categories)
-                            // Parse title (RU and EN)
-                            if (slide._raw && slide._raw.title) {
-                                document.getElementById('editSlideTitleRu').value = slide._raw.title.ru || '';
-                                document.getElementById('editSlideTitleEn').value = slide._raw.title.en || '';
-                            } else if (slide.title) {
-                                try {
-                                    const titleParsed = JSON.parse(slide.title);
-                                    document.getElementById('editSlideTitleRu').value = titleParsed.ru || '';
-                                    document.getElementById('editSlideTitleEn').value = titleParsed.en || '';
-                                } catch (e) {
-                                    document.getElementById('editSlideTitleRu').value = slide.title || '';
-                                    document.getElementById('editSlideTitleEn').value = '';
-                                }
-                            }
+                            // API already returns parsed objects {ru, en}, no need to JSON.parse
+                            const title = slide.title || {ru: '', en: ''};
+                            const description = slide.description || {ru: '', en: ''};
+                            const buttonText = slide.buttonText || {ru: '', en: ''};
                             
-                            // Parse description (RU and EN)
-                            if (slide._raw && slide._raw.description) {
-                                document.getElementById('editSlideDescRu').value = slide._raw.description.ru || '';
-                                document.getElementById('editSlideDescEn').value = slide._raw.description.en || '';
-                            } else if (slide.description) {
-                                try {
-                                    const descParsed = JSON.parse(slide.description);
-                                    document.getElementById('editSlideDescRu').value = descParsed.ru || '';
-                                    document.getElementById('editSlideDescEn').value = descParsed.en || '';
-                                } catch (e) {
-                                    document.getElementById('editSlideDescRu').value = slide.description || '';
-                                    document.getElementById('editSlideDescEn').value = '';
-                                }
-                            }
-                            
-                            // Parse button text (RU and EN)
-                            if (slide._raw && slide._raw.buttonText) {
-                                document.getElementById('editSlideButtonTextRu').value = slide._raw.buttonText.ru || '';
-                                document.getElementById('editSlideButtonTextEn').value = slide._raw.buttonText.en || '';
-                            } else if (slide.buttonText) {
-                                try {
-                                    const btnParsed = JSON.parse(slide.buttonText);
-                                    document.getElementById('editSlideButtonTextRu').value = btnParsed.ru || '';
-                                    document.getElementById('editSlideButtonTextEn').value = btnParsed.en || '';
-                                } catch (e) {
-                                    document.getElementById('editSlideButtonTextRu').value = slide.buttonText || '';
-                                    document.getElementById('editSlideButtonTextEn').value = '';
-                                }
-                            }
+                            // Fill form fields
+                            document.getElementById('editSlideTitleRu').value = title.ru || '';
+                            document.getElementById('editSlideTitleEn').value = title.en || '';
+                            document.getElementById('editSlideDescRu').value = description.ru || '';
+                            document.getElementById('editSlideDescEn').value = description.en || '';
+                            document.getElementById('editSlideButtonTextRu').value = buttonText.ru || '';
+                            document.getElementById('editSlideButtonTextEn').value = buttonText.en || '';
                             
                             // Simple fields
                             document.getElementById('editSlideLink').value = slide.link || '';
