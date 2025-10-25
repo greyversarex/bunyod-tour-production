@@ -1889,6 +1889,13 @@
                 </div>
                 
                 <div class="form-group">
+                    <label class="form-label">Город (необязательно)</label>
+                    <select class="form-input" id="editSlideCity">
+                        <option value="">Не привязан к городу</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label class="checkbox-item">
                         <input type="checkbox" id="editSlideActive"> Активный
                     </label>
@@ -13145,10 +13152,13 @@
         }
 
         // 📝 SLIDE EDITING FUNCTIONS (by pattern of categoryController)
-        function openSlideEditModal(slideId = null) {
+        async function openSlideEditModal(slideId = null) {
             const modal = document.getElementById('slideEditModal');
             const modalTitle = document.getElementById('slideEditModalTitle');
             const form = document.getElementById('slideEditForm');
+            
+            // Load cities for the select dropdown
+            await loadCitiesForSlideModal();
             
             if (slideId) {
                 modalTitle.textContent = 'Редактировать слайд';
@@ -14424,6 +14434,30 @@
         }
         
         // Загрузка городов
+        // Load cities for slide modal
+        async function loadCitiesForSlideModal() {
+            try {
+                const response = await fetch(`${getApiUrl()}/cities`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('editSlideCity');
+                    if (select) {
+                        const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                        select.innerHTML = '<option value="">Не привязан к городу</option>';
+                        data.data.forEach(city => {
+                            const name = city.name?.[lang] || city.name?.ru || city.name;
+                            select.innerHTML += `<option value="${city.id}">${name}</option>`;
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading cities for slide:', error);
+            }
+        }
+        
         async function loadCities() {
             try {
                 const response = await fetch(`${getApiUrl()}/cities`, {
