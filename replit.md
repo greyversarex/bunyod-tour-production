@@ -3,7 +3,10 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
-## Recent Changes (October 24, 2025)
+## Recent Changes (October 25, 2025)
+-   **Admin Hotel Display Enhancement**: Improved hotel presentation in tour creation/editing modal with city-based grouping. Hotels now display under section headers "Связанные отели по г.{cityName}" (Related Hotels in {cityName}). Modified `loadHotelsForCheckboxes()` to accept `preselectedHotelIds` parameter, enabling reliable restoration of selected hotels when editing existing tours. This eliminates "Hotel checkbox not found" warnings and ensures proper checkbox state across modal lifecycle.
+
+## Previous Changes (October 24, 2025)
 -   **Search Page URL Initialization Fix**: Fixed search page not displaying tours when navigating from city cards with URL parameters (e.g., `?cityId=11`). Added `searchTours()` and `searchHotels()` calls after applying URL filters in initialization. Previously, filters were applied but search was not triggered, causing empty results despite correct filter state.
 -   **Tour Blocks API Integration Fix**: Fixed tour blocks filtering on search page by adding `tourBlockAssignments` to `TourModel.search()` include statement in `src/models/index.ts`. Previously, API was not returning tour block assignment data, causing all tours to be filtered out when tour blocks filter was applied. Now API returns complete assignment records with `tourBlockId` field, enabling proper client-side filtering.
 -   **Tour Blocks Filter Fix**: Fixed empty "НАПРАВЛЕНИЯ" (Directions) filter on search page by correcting title field parsing in `renderTourBlocksFilter()`. Function now properly extracts tour block names from `title.ru`/`title.en` JSON fields instead of non-existent `nameRu`/`nameEn` fields.
