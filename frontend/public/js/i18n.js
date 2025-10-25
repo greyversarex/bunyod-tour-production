@@ -1406,6 +1406,7 @@ window.translations = window.translations || {
     'search.price_from': { ru: 'От', en: 'From' },
     'search.price_to': { ru: 'До', en: 'To' },
     'search.tour_blocks': { ru: 'Направления', en: 'Directions' },
+    'search.tour_date': { ru: 'Дата тура', en: 'Tour Date' },
     'search.filter_countries': { ru: 'Страны', en: 'Countries' },
     'search.filter_cities': { ru: 'Города', en: 'Cities' },
     'search.tour_format': { ru: 'Формат тура', en: 'Tour Format' },
