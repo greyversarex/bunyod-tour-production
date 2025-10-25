@@ -6221,33 +6221,30 @@
                             console.error('❌ Failed to update gallery images list:', e);
                         }
                         
-                        // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дождаться загрузки отелей и гидов + автоматической перезагрузки
+                        // ✅ Сохраняем выбранные отели и гиды из тура
+                        const selectedHotelIds = tour.tourHotels && Array.isArray(tour.tourHotels) 
+                            ? tour.tourHotels.map(th => th.hotelId) 
+                            : [];
+                        const selectedGuideIds = tour.tourGuides && Array.isArray(tour.tourGuides)
+                            ? tour.tourGuides.map(tg => tg.guideId)
+                            : [];
+                        
+                        console.log('✅ Отели и гиды будут загружены с предвыбранными значениями:', {
+                            hotels: selectedHotelIds,
+                            guides: selectedGuideIds
+                        });
+                        
+                        // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Дождаться загрузки городов, затем перезагрузить отели с правильными ID
                         Promise.all([hotelsPromise, guidesPromise]).then(() => {
                             // ВАЖНО: Дополнительная задержка, чтобы дождаться срабатывания updateSelectedCitiesDisplay()
                             // которая вызывается при установке городов и перезагружает список отелей
                             setTimeout(() => {
-                                console.log('✅ Отели и гиды загружены, устанавливаем галочки...');
+                                // Перезагружаем отели с правильными предвыбранными ID
+                                loadHotelsForCheckboxes(selectedHotelIds);
                                 
-                                // Загрузка выбранных отелей
-                                if (tour.tourHotels && Array.isArray(tour.tourHotels)) {
-                                    tour.tourHotels.forEach(tourHotel => {
-                                        const hotelId = tourHotel.hotelId;
-                                        const checkbox = document.querySelector(`input[name="selectedHotels"][value="${hotelId}"]`);
-                                        if (checkbox) {
-                                            checkbox.checked = true;
-                                            console.log('✅ Галочка установлена для отеля:', hotelId);
-                                        } else {
-                                            console.warn('❌ Hotel checkbox not found for:', hotelId);
-                                        }
-                                    });
-                                } else {
-                                    console.log('❌ No tourHotels found or not array:', tour.tourHotels);
-                                }
-                                
-                                // Загрузка выбранных гидов
-                                if (tour.tourGuides && Array.isArray(tour.tourGuides)) {
-                                    tour.tourGuides.forEach(tourGuide => {
-                                        const guideId = tourGuide.guideId;
+                                // Отмечаем выбранных гидов
+                                if (selectedGuideIds.length > 0) {
+                                    selectedGuideIds.forEach(guideId => {
                                         const checkbox = document.querySelector(`input[name="selectedGuides"][value="${guideId}"]`);
                                         if (checkbox) {
                                             checkbox.checked = true;
@@ -6256,8 +6253,6 @@
                                             console.warn('❌ Guide checkbox not found for:', guideId);
                                         }
                                     });
-                                } else {
-                                    console.log('❌ No tourGuides found or not array:', tour.tourGuides);
                                 }
                             }, 500); // Задержка 500ms для ожидания автоматической перезагрузки отелей
                         }).catch(error => {
@@ -6713,11 +6708,12 @@
             updateSelectedLanguages();
         }
         
-        function loadHotelsForCheckboxes() {
+        function loadHotelsForCheckboxes(preselectedHotelIds = null) {
             // Сохраняем текущие выбранные отели перед перезагрузкой
-            const currentlySelectedHotels = Array.from(
-                document.querySelectorAll('input[name="selectedHotels"]:checked')
-            ).map(cb => cb.value);
+            // Если передан список preselectedHotelIds, используем его, иначе берем из текущего состояния
+            const currentlySelectedHotels = preselectedHotelIds 
+                ? preselectedHotelIds.map(id => String(id))
+                : Array.from(document.querySelectorAll('input[name="selectedHotels"]:checked')).map(cb => cb.value);
             
             return fetch(`${getApiUrl()}/hotels?includeRaw=true`, {
                 headers: getAuthHeaders()
@@ -6761,30 +6757,63 @@
                         return;
                     }
                     
-                    // Отображаем отфильтрованные отели
-                    container.innerHTML = hotels.map(hotel => {
-                        let name;
-                        // Используем _localized данные для checkboxes
-                        if (hotel._localized && hotel._localized.name) {
-                            name = { ru: hotel._localized.name, en: hotel._localized.name };
-                        } else {
-                            try {
-                                name = typeof hotel.name === 'string' ? JSON.parse(hotel.name) : (hotel.name || {});
-                            } catch (e) {
-                                console.warn('Failed to parse hotel name in checkboxes:', hotel.name);
-                                name = hotel.name || {};
-                            }
+                    // 🏙️ ГРУППИРОВКА ОТЕЛЕЙ ПО ГОРОДАМ
+                    const hotelsByCity = {};
+                    
+                    // Группируем отели по cityId
+                    hotels.forEach(hotel => {
+                        const cityId = String(hotel.cityId);
+                        if (!hotelsByCity[cityId]) {
+                            hotelsByCity[cityId] = [];
                         }
+                        hotelsByCity[cityId].push(hotel);
+                    });
+                    
+                    // Формируем HTML с группировкой по городам
+                    let htmlContent = '';
+                    
+                    selectedCities.forEach(city => {
+                        const cityId = String(city.id);
+                        const cityHotels = hotelsByCity[cityId] || [];
                         
-                        // Восстанавливаем состояние выбранности
-                        const isChecked = currentlySelectedHotels.includes(String(hotel.id));
-                        
-                        return `
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="selectedHotels" value="${hotel.id}" ${isChecked ? 'checked' : ''}> ${name.ru || name.en || 'Отель'}
-                            </label>
-                        `;
-                    }).join('');
+                        if (cityHotels.length > 0) {
+                            // Заголовок города
+                            htmlContent += `
+                                <div style="margin-top: 16px; margin-bottom: 8px;">
+                                    <h4 style="font-size: 14px; font-weight: 600; color: #374151; margin: 0;">
+                                        Связанные отели по г.${city.name}
+                                    </h4>
+                                </div>
+                            `;
+                            
+                            // Отели этого города
+                            htmlContent += cityHotels.map(hotel => {
+                                let name;
+                                // Используем _localized данные для checkboxes
+                                if (hotel._localized && hotel._localized.name) {
+                                    name = { ru: hotel._localized.name, en: hotel._localized.name };
+                                } else {
+                                    try {
+                                        name = typeof hotel.name === 'string' ? JSON.parse(hotel.name) : (hotel.name || {});
+                                    } catch (e) {
+                                        console.warn('Failed to parse hotel name in checkboxes:', hotel.name);
+                                        name = hotel.name || {};
+                                    }
+                                }
+                                
+                                // Восстанавливаем состояние выбранности
+                                const isChecked = currentlySelectedHotels.includes(String(hotel.id));
+                                
+                                return `
+                                    <label class="checkbox-item">
+                                        <input type="checkbox" name="selectedHotels" value="${hotel.id}" ${isChecked ? 'checked' : ''}> ${name.ru || name.en || 'Отель'}
+                                    </label>
+                                `;
+                            }).join('');
+                        }
+                    });
+                    
+                    container.innerHTML = htmlContent;
                 })
                 .catch(error => {
                     console.error('Ошибка загрузки отелей для чекбоксов:', error);
