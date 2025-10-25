@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import { safeJsonParse } from '../utils/multilingual';
 import prisma from '../config/database';
 
@@ -140,7 +141,7 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
         description: JSON.stringify(description),
         image: imagePath,
         link,
-        buttonText: buttonText ? JSON.stringify(buttonText) : null,
+        buttonText: buttonText ? JSON.stringify(buttonText) : Prisma.DbNull,
         order,
         isActive,
         ...(cityId ? { city: { connect: { id: cityId } } } : {})
@@ -249,7 +250,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
     if (parsedData.title !== undefined) updateData.title = JSON.stringify(parsedData.title);
     if (parsedData.description !== undefined) updateData.description = JSON.stringify(parsedData.description);
     if (parsedData.link !== undefined) updateData.link = parsedData.link;
-    if (parsedData.buttonText !== undefined) updateData.buttonText = parsedData.buttonText ? JSON.stringify(parsedData.buttonText) : null;
+    if (parsedData.buttonText !== undefined) updateData.buttonText = parsedData.buttonText ? JSON.stringify(parsedData.buttonText) : Prisma.DbNull;
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
     if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
     if (parsedData.cityId !== undefined) {
