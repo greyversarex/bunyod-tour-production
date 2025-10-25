@@ -2125,6 +2125,9 @@ function renderSlides() {
     // Очищаем контейнер (удаляем плейсхолдер)
     container.innerHTML = '';
     
+    // Получаем текущий язык из localStorage
+    const currentLang = getCurrentLanguage();
+    
     // Создаем слайды
     const slidesHTML = slides.map((slide, index) => {
         // Данные уже десериализованы из API, не нужен JSON.parse
@@ -2133,6 +2136,11 @@ function renderSlides() {
         const buttonText = slide.buttonText || null;
         const imageUrl = slide.image ? getAbsoluteImageUrl(slide.image) : '';
         
+        // Используем текущий язык, fallback на другой язык или дефолтный текст
+        const titleText = title[currentLang] || title.ru || title.en || (currentLang === 'en' ? 'Discover Tajikistan' : 'Откройте красоту Таджикистана');
+        const descText = description[currentLang] || description.ru || description.en || (currentLang === 'en' ? 'Explore the stunning Pamir Mountains, ancient Silk Road cities and rich culture of this amazing country' : 'Исследуйте захватывающие горы Памира, древние города Шёлкового пути и богатую культуру этой удивительной страны');
+        const btnText = buttonText ? (buttonText[currentLang] || buttonText.ru || buttonText.en || (currentLang === 'en' ? 'Learn more' : 'Узнать больше')) : null;
+        
         return `
             <div class="hero-slide ${index === 0 ? 'active' : ''}" data-slide="${index}"
                  style="background-image: url('${imageUrl}'); ${!imageUrl ? 'background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);' : ''}">
@@ -2140,14 +2148,14 @@ function renderSlides() {
                 <div class="relative z-10 text-center max-w-4xl mx-auto px-6 flex items-center justify-center h-full">
                     <div>
                         <h1 class="text-6xl font-bold mb-6 text-white">
-                            ${title.ru || title.en || 'Откройте красоту Таджикистана'}
+                            ${titleText}
                         </h1>
                         <p class="text-xl mb-8 max-w-2xl mx-auto text-white">
-                            ${description.ru || description.en || 'Исследуйте захватывающие горы Памира, древние города Шёлкового пути и богатую культуру этой удивительной страны'}
+                            ${descText}
                         </p>
-                        ${slide.link && buttonText ? `
+                        ${slide.link && btnText ? `
                             <a href="${slide.link}" class="inline-block bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                                ${buttonText.ru || buttonText.en || 'Узнать больше'}
+                                ${btnText}
                             </a>
                         ` : ''}
                     </div>
