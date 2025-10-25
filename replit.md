@@ -53,6 +53,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
     -   **Manual Migrations**: Stored in `manual_migrations/` directory for complex schema changes (e.g., TEXT to JSONB conversions). Automatically executed by `update.sh` before Prisma migrations.
     -   **Prisma Migrations**: Standard migrations via `prisma migrate deploy` for routine schema updates.
 -   **Multilingual Data Architecture**: Uses PostgreSQL JSONB fields with `{ru: "text", en: "text"}` structure for all multilingual content (slides, tour data, etc.). Controllers guarantee both language keys exist to prevent API errors.
+-   **Rate Limiting Security**: All rate limiters configured with `validate: {trustProxy: false}` to work properly behind Nginx reverse proxy in production.
 
 ## External Dependencies
 
