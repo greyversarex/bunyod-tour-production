@@ -1,0 +1,291 @@
+[root@archlinux ~]# cd /srv/bunyod-tour
+./update.sh
+🔄 Начинаю обновление bunyod-tour...
+🧷 Бэкап БД перед обновлением...
+✅ Бэкап готов
+📥 Git fetch/reset...
+Username for 'https://github.com': greyversarex
+Password for 'https://greyversarex@github.com':
+remote: Enumerating objects: 29, done.
+remote: Counting objects: 100% (29/29), done.
+remote: Compressing objects: 100% (5/5), done.
+remote: Total 20 (delta 15), reused 20 (delta 15), pack-reused 0 (from 0)
+Unpacking objects: 100% (20/20), 221.40 KiB | 1.38 MiB/s, done.
+From https://github.com/greyversarex/bunyod-tour-production
+   c31aedc..2d35336  main       -> origin/main
+HEAD is now at 2d35336 Fix image display and data loading errors on admin dashboard
+📦 npm ci...
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+> workspace@1.0.0 postinstall
+> prisma generate
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 627ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+
+added 399 packages, and audited 400 packages in 27s
+
+45 packages are looking for funding
+  run `npm fund` for details
+
+2 vulnerabilities (1 moderate, 1 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+🔧 Prisma generate...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 551ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+🏗️ Компиляция...
+
+> workspace@1.0.0 build
+> tsc
+
+📁 Создаю директорию логов (если нет)...
+🗄️ Применяю миграции слайдов (многоязычный баннер)...
+DO
+ALTER TABLE
+COMMENT
+COMMENT
+COMMENT
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 601ms
+
+🚀 Перезапуск приложения через PM2...
+[PM2] Applying action reloadProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour        │ fork     │ 48   │ online    │ 0%       │ 18.4mb   │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+🩺 Healthcheck...
+⚠️ Обновление прошло, но healthz != 200 (был 000). Проверь логи: pm2 logs bunyod-tour --lines 100
+🎉 Готово.
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 100
+[TAILING] Tailing last 100 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-10-25T08:30:29: Error creating pricing component: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-10-25T08:30:29: Invalid `prisma.priceCalculatorComponent.create()` invocation:
+0|bunyod-t | 2025-10-25T08:30:29:
+0|bunyod-t | 2025-10-25T08:30:29:
+0|bunyod-t | 2025-10-25T08:30:29: Unique constraint failed on the fields: (`key`)
+0|bunyod-t | 2025-10-25T08:30:29:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-10-25T08:30:29:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-10-25T08:30:29:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-10-25T08:30:29:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-10-25T08:30:29:     at async PriceCalculatorModel.create (/srv/bunyod-tour/dist/models/index.js:1199:16)
+0|bunyod-t | 2025-10-25T08:30:29:     at async createComponent (/srv/bunyod-tour/dist/controllers/priceCalculatorController.js:120:27) {
+0|bunyod-t | 2025-10-25T08:30:29:   code: 'P2002',
+0|bunyod-t | 2025-10-25T08:30:29:   meta: { modelName: 'PriceCalculatorComponent', target: [ 'key' ] },
+0|bunyod-t | 2025-10-25T08:30:29:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-10-25T08:30:29: }
+0|bunyod-t | 2025-10-25T08:30:35: Error creating pricing component: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-10-25T08:30:35: Invalid `prisma.priceCalculatorComponent.create()` invocation:
+0|bunyod-t | 2025-10-25T08:30:35:
+0|bunyod-t | 2025-10-25T08:30:35:
+0|bunyod-t | 2025-10-25T08:30:35: Unique constraint failed on the fields: (`key`)
+0|bunyod-t | 2025-10-25T08:30:35:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-10-25T08:30:35:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-10-25T08:30:35:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-10-25T08:30:35:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-10-25T08:30:35:     at async PriceCalculatorModel.create (/srv/bunyod-tour/dist/models/index.js:1199:16)
+0|bunyod-t | 2025-10-25T08:30:35:     at async createComponent (/srv/bunyod-tour/dist/controllers/priceCalculatorController.js:120:27) {
+0|bunyod-t | 2025-10-25T08:30:35:   code: 'P2002',
+0|bunyod-t | 2025-10-25T08:30:35:   meta: { modelName: 'PriceCalculatorComponent', target: [ 'key' ] },
+0|bunyod-t | 2025-10-25T08:30:35:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-10-25T08:30:35: }
+0|bunyod-t | 2025-10-25T11:53:13:
+0|bunyod-t | 2025-10-25T11:53:13: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-25T11:53:13:   - SMTP_USER
+0|bunyod-t | 2025-10-25T11:53:13:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-25T11:53:13: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-25T11:53:13:
+0|bunyod-t | 2025-10-25T11:54:38: ValidationError: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|bunyod-t | 2025-10-25T11:54:38:     at Object.trustProxy (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:348:13)
+0|bunyod-t | 2025-10-25T11:54:38:     at wrappedValidations.<computed> [as trustProxy] (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:638:22)
+0|bunyod-t | 2025-10-25T11:54:38:     at Object.keyGenerator (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:739:20)
+0|bunyod-t | 2025-10-25T11:54:38:     at /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:801:32
+0|bunyod-t | 2025-10-25T11:54:38:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+0|bunyod-t | 2025-10-25T11:54:38:     at async /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:782:5 {
+0|bunyod-t | 2025-10-25T11:54:38:   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|bunyod-t | 2025-10-25T11:54:38:   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|bunyod-t | 2025-10-25T11:54:38: }
+0|bunyod-t | 2025-10-25T15:28:42: ValidationError: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|bunyod-t | 2025-10-25T15:28:42:     at Object.trustProxy (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:348:13)
+0|bunyod-t | 2025-10-25T15:28:42:     at wrappedValidations.<computed> [as trustProxy] (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:638:22)
+0|bunyod-t | 2025-10-25T15:28:42:     at Object.keyGenerator (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:739:20)
+0|bunyod-t | 2025-10-25T15:28:42:     at /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:801:32
+0|bunyod-t | 2025-10-25T15:28:42:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+0|bunyod-t | 2025-10-25T15:28:42:     at async /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:782:5 {
+0|bunyod-t | 2025-10-25T15:28:42:   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|bunyod-t | 2025-10-25T15:28:42:   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|bunyod-t | 2025-10-25T15:28:42: }
+0|bunyod-t | 2025-10-25T21:50:47:
+0|bunyod-t | 2025-10-25T21:50:47: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-25T21:50:47:   - SMTP_USER
+0|bunyod-t | 2025-10-25T21:50:47:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-25T21:50:47: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-25T21:50:47:
+0|bunyod-t | 2025-10-25T21:59:02: ValidationError: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|bunyod-t | 2025-10-25T21:59:02:     at Object.trustProxy (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:348:13)
+0|bunyod-t | 2025-10-25T21:59:02:     at wrappedValidations.<computed> [as trustProxy] (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:638:22)
+0|bunyod-t | 2025-10-25T21:59:02:     at Object.keyGenerator (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:739:20)
+0|bunyod-t | 2025-10-25T21:59:02:     at /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:801:32
+0|bunyod-t | 2025-10-25T21:59:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+0|bunyod-t | 2025-10-25T21:59:02:     at async /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:782:5 {
+0|bunyod-t | 2025-10-25T21:59:02:   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|bunyod-t | 2025-10-25T21:59:02:   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|bunyod-t | 2025-10-25T21:59:02: }
+0|bunyod-t | 2025-10-26T00:27:07: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-26T00:27:07:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-26T00:27:07:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-26T00:27:07:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-26T00:27:07:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-26T00:27:07:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-26T00:27:07: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-26T00:27:07:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-26T00:27:07:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-26T00:27:07:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-26T00:27:07:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-26T00:27:07:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:46: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-26T01:41:46:   - SMTP_USER
+0|bunyod-t | 2025-10-26T01:41:46:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-26T01:41:46: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-26T01:41:46:
+
+/srv/bunyod-tour/logs/pm2-out.log last 100 lines:
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1761052409784-909142081.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1761052409702-634781754.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1761052409702-634781754.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760767694916-686784733.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760767694916-686784733.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760767695254-949203912.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760767695254-949203912.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760767695000-780450823.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760767695000-780450823.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760767695179-975682513.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760767695179-975682513.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760767695095-544260362.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760767695095-544260362.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681105704-324173404.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681105704-324173404.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140492-821694408.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140492-821694408.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140577-359301987.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140577-359301987.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140170-708277915.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140170-708277915.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140332-929347934.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140332-929347934.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140252-80140839.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140252-80140839.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760681140410-15310538.png
+0|bunyod-t | 2025-10-26T01:08:03: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760681140410-15310538.png
+0|bunyod-t | 2025-10-26T01:08:10: Fetching tour blocks...
+0|bunyod-t | 2025-10-26T01:08:10: Found tour blocks: 7
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 2 tours for block 1 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 0 tours for block 2 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 5 tours for block 3 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 0 tours for block 4 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 0 tours for block 5 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 0 tours for block 6 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:08:11: 📋 Found 0 tours for block 7 (via new assignment system)
+0|bunyod-t | 2025-10-26T01:11:44: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-26T01:11:44: 🏠 Request URL: /
+0|bunyod-t | 2025-10-26T01:11:44: 🏠 Request path: /
+0|bunyod-t | 2025-10-26T01:24:10: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-26T01:24:10: 🏠 Request URL: /
+0|bunyod-t | 2025-10-26T01:24:10: 🏠 Request path: /
+0|bunyod-t | 2025-10-26T01:27:34: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-26T01:27:34: 🏠 Request URL: /
+0|bunyod-t | 2025-10-26T01:27:34: 🏠 Request path: /
+0|bunyod-t | 2025-10-26T01:27:36: 🔄 Middleware check - Original URL: /v2/_catalog
+0|bunyod-t | 2025-10-26T01:27:36: 🔄 Middleware check - Decoded URL: /v2/_catalog
+0|bunyod-t | 2025-10-26T01:28:06: 🔄 Middleware check - Original URL: /v2/_catalog
+0|bunyod-t | 2025-10-26T01:28:06: 🔄 Middleware check - Decoded URL: /v2/_catalog
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /admin-dashboard.html
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /admin-dashboard.html
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/utils.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/utils.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /public/js/security-utils.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /public/js/security-utils.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Original URL: /$%7BmainImageUrl%7D
+0|bunyod-t | 2025-10-26T01:31:56: 🔄 Middleware check - Decoded URL: /${mainImageUrl}
+0|bunyod-t | 2025-10-26T01:39:48: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-26T01:39:48: 🏠 Request URL: /
+0|bunyod-t | 2025-10-26T01:39:48: 🏠 Request path: /
+0|bunyod-t | 2025-10-26T01:41:46: [dotenv@17.2.3] injecting env (23) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+0|bunyod-t | 2025-10-26T01:41:46: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:46: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:46: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-10-26T01:41:46: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-10-26T01:41:46: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:46: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:47: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-10-26T01:41:47: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-10-26T01:41:47: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-10-26T01:41:47: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-10-26T01:41:47: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-10-26T01:41:47: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-10-26T01:41:47: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-10-26T01:41:47: ✅ База данных готова к работе!
+0|bunyod-t | 2025-10-26T01:41:47: Starting backend API server...
+0|bunyod-t | 2025-10-26T01:41:47: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-10-26T01:41:47: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-10-26T01:41:47: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-10-26T01:41:47: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-10-26T01:41:47: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-10-26T01:41:49: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-10-26T01:41:49: 📊 Инициализация компонентов: создано 0, пропущено 26 (уже существуют)
+0|bunyod-t | 2025-10-26T01:41:49: ✅ Инициализировано 26 компонентов по умолчанию
