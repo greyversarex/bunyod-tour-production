@@ -13008,10 +13008,11 @@
                 const title = slide.title || {ru: '', en: ''};
                 const description = slide.description || {ru: '', en: ''};
                 const buttonText = slide.buttonText || {ru: '', en: ''};
+                const imageUrl = slide.image ? getSafeImageUrl(slide.image) : '';
                 
                 return `
                     <div class="border rounded-lg p-4 bg-white">
-                        ${slide.image ? `<img data-image-placeholder="slide-image" alt="Slide" class="w-full h-32 object-cover rounded mb-2" onerror="this.style.display='none'">` : ''}
+                        ${imageUrl ? `<img src="${imageUrl}" alt="Slide" class="w-full h-32 object-cover rounded mb-2" onerror="this.style.display='none'">` : ''}
                         <div class="flex justify-between items-start mb-2">
                             <div>
                                 <h4 class="font-medium">${title.ru || title.en || 'Без названия'}</h4>
@@ -13191,7 +13192,8 @@
                     })
                     .catch(err => {
                         console.error('Error loading slide:', err);
-                        alert('Ошибка загрузки данных слайда');
+                        // Don't show alert if modal is opening successfully
+                        // alert('Ошибка загрузки данных слайда');
                     });
             } else {
                 // This shouldn't happen for edit modal, but just in case
