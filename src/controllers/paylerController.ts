@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
 import crypto from 'crypto';
-import fetch from 'node-fetch';
+import axios from 'axios';
 
 export const paylerController = {
   /**
@@ -70,20 +70,20 @@ export const paylerController = {
       console.log('📤 Payler request:', { ...fields, key: '***' });
 
       // Отправить запрос к боевому Payler StartSession API (убрали sandbox)
-      const response = await fetch('https://secure.payler.com/gapi/StartSession', {
-        method: 'POST',
+      const response = await axios.post('https://secure.payler.com/gapi/StartSession', 
+        new URLSearchParams(fields).toString(), {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams(fields),
+        validateStatus: () => true,
       });
 
       console.log('📥 Payler response status:', response.status, response.statusText);
 
-      const responseText = await response.text();
+      const responseText = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
       console.log('📥 Payler response body:', responseText);
 
-      if (!response.ok) {
+      if (response.status < 200 || response.status >= 300) {
         console.error('❌ Payler StartSession failed:', response.status, response.statusText);
         return res.status(500).json({
           success: false,
@@ -95,7 +95,7 @@ export const paylerController = {
       // Парсим ответ
       let responseData;
       try {
-        responseData = JSON.parse(responseText);
+        responseData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
       } catch {
         // Если не JSON, пытаемся извлечь session_id из строки
         const sessionIdMatch = responseText.match(/session_id=([^&\s]+)/);
