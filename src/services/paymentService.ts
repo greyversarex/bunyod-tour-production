@@ -1,9 +1,18 @@
-import Stripe from 'stripe';
 import { Order } from '@prisma/client';
 
-// Initialize Stripe with secret key (only if key is provided)
-const stripeKey = process.env.STRIPE_SECRET_KEY;
-const stripe = stripeKey ? new Stripe(stripeKey) : null;
+// Conditional Stripe import - only load if package is installed
+// @ts-ignore - Stripe is optional dependency
+let Stripe: any;
+let stripe: any = null;
+
+try {
+  Stripe = require('stripe');
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  stripe = stripeKey ? new Stripe(stripeKey) : null;
+} catch (e) {
+  // Stripe not installed, payment service will throw errors if used
+  console.warn('⚠️  Stripe package not installed, Stripe payments will not be available');
+}
 
 // Payment service interface
 interface PaymentIntent {
@@ -125,17 +134,17 @@ export const paymentService = {
   },
 
   // Handle webhook events from Stripe
-  async handleWebhook(event: Stripe.Event): Promise<PaymentResult> {
+  async handleWebhook(event: any): Promise<PaymentResult> {
     switch (event.type) {
       case 'payment_intent.succeeded':
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const paymentIntent = event.data.object;
         return {
           success: true,
           transactionId: paymentIntent.id,
         };
       
       case 'payment_intent.payment_failed':
-        const failedPayment = event.data.object as Stripe.PaymentIntent;
+        const failedPayment = event.data.object;
         return {
           success: false,
           error: failedPayment.last_payment_error?.message || 'Payment failed',

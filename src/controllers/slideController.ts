@@ -15,6 +15,19 @@ const parseML = (v: any) => {
   }
 };
 
+// 🔧 NORMALIZE MULTILINGUAL OBJECT: Ensures {ru, en} structure with both fields present
+// This prevents any 500 errors and ensures consistency across the API
+const normalizeLangObj = (input: any): { ru: string; en: string } => {
+  if (!input || typeof input !== 'object') {
+    return { ru: '', en: '' };
+  }
+  
+  return {
+    ru: typeof input.ru === 'string' ? input.ru : (input.ru || ''),
+    en: typeof input.en === 'string' ? input.en : (input.en || '')
+  };
+};
+
 // Get all slides - BULLETPROOF: Never throws on malformed data
 export const getSlides = async (req: Request, res: Response) => {
   try {
@@ -125,23 +138,30 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
 
     const imagePath = `/uploads/slides/${req.file.filename}`;
     
-    // 🔧 ROBUST PARSING: Use safeJsonParse like updateSlide
-    const title = req.body.title ? safeJsonParse(req.body.title) : {};
-    const description = req.body.description ? safeJsonParse(req.body.description) : {};
-    const buttonText = req.body.buttonText ? safeJsonParse(req.body.buttonText) : null;
+    // 🔧 ROBUST PARSING: Parse and normalize to ensure {ru, en} structure
+    const titleRaw = req.body.title ? safeJsonParse(req.body.title) : {};
+    const descriptionRaw = req.body.description ? safeJsonParse(req.body.description) : {};
+    const buttonTextRaw = req.body.buttonText ? safeJsonParse(req.body.buttonText) : null;
+    
+    // ✅ GUARANTEE: Always {ru, en} even if en is missing
+    const title = normalizeLangObj(titleRaw);
+    const description = normalizeLangObj(descriptionRaw);
+    const buttonText = buttonTextRaw ? normalizeLangObj(buttonTextRaw) : null;
+    
     const link = req.body.link || '';
     const order = parseInt(req.body.order) || 0;
     const isActive = req.body.isActive === 'true';
 
     const cityId = req.body.cityId ? parseInt(req.body.cityId) : null;
 
+    // 🚀 PRISMA JSON: Save as object directly, NOT stringified
     const slide = await prisma.slide.create({
       data: {
-        title: JSON.stringify(title),
-        description: JSON.stringify(description),
+        title: title as Prisma.InputJsonValue,
+        description: description as Prisma.InputJsonValue,
         image: imagePath,
         link,
-        buttonText: buttonText ? JSON.stringify(buttonText) : Prisma.DbNull,
+        buttonText: buttonText ? (buttonText as Prisma.InputJsonValue) : Prisma.DbNull,
         order,
         isActive,
         ...(cityId ? { city: { connect: { id: cityId } } } : {})
@@ -245,16 +265,32 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
       }
     }
 
-    // 📝 BUILD UPDATE DATA: Only include defined fields
+    // 📝 BUILD UPDATE DATA: Normalize multilingual fields and save as objects
     const updateData: any = {};
-    if (parsedData.title !== undefined) updateData.title = JSON.stringify(parsedData.title);
-    if (parsedData.description !== undefined) updateData.description = JSON.stringify(parsedData.description);
+    
+    // ✅ GUARANTEE: Always {ru, en} structure when saving
+    if (parsedData.title !== undefined) {
+      updateData.title = normalizeLangObj(parsedData.title) as Prisma.InputJsonValue;
+    }
+    if (parsedData.description !== undefined) {
+      updateData.description = normalizeLangObj(parsedData.description) as Prisma.InputJsonValue;
+    }
     if (parsedData.link !== undefined) updateData.link = parsedData.link;
-    if (parsedData.buttonText !== undefined) updateData.buttonText = parsedData.buttonText ? JSON.stringify(parsedData.buttonText) : Prisma.DbNull;
+    if (parsedData.buttonText !== undefined) {
+      updateData.buttonText = parsedData.buttonText 
+        ? (normalizeLangObj(parsedData.buttonText) as Prisma.InputJsonValue)
+        : Prisma.DbNull;
+    }
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
     if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
+    
+    // 🔧 CITY RELATION: Use Prisma relation syntax
     if (parsedData.cityId !== undefined) {
-      updateData.city = parsedData.cityId ? { connect: { id: parsedData.cityId } } : { disconnect: true };
+      if (parsedData.cityId === null) {
+        updateData.city = { disconnect: true };
+      } else {
+        updateData.city = { connect: { id: parsedData.cityId } };
+      }
     }
     updateData.updatedAt = new Date();
 
