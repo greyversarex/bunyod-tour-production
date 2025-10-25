@@ -4,6 +4,10 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes (October 25, 2025)
+-   **Homepage Filter Simplification**: Removed "Бренд отеля" (Hotel Brand) and "Звезды отеля" (Hotel Stars) filters from homepage to streamline user experience. Converted `updateHotels()` and `updateHotelFilters()` JavaScript functions to empty stubs to prevent errors after filter removal.
+-   **Search Suggestion Navigation Fix**: Fixed search suggestion behavior - clicking on tour suggestions now navigates directly to tour detail pages (`tour.html?id={id}`) instead of search results page.
+-   **Admin Hotel Modal Simplification**: Removed "Типы питания" (Meal Type Pricing) section from hotel creation modal in admin dashboard to simplify hotel management workflow.
+-   **Excluded Services Update**: Added "Питание: обед" (Meals: lunch) to PREDEFINED_EXCLUDED_SERVICES list in tour creation to match standard services structure.
 -   **Admin Hotel Display Enhancement**: Improved hotel presentation in tour creation/editing modal with city-based grouping. Hotels now display under section headers "Связанные отели по г.{cityName}" (Related Hotels in {cityName}). Modified `loadHotelsForCheckboxes()` to accept `preselectedHotelIds` parameter, enabling reliable restoration of selected hotels when editing existing tours. This eliminates "Hotel checkbox not found" warnings and ensures proper checkbox state across modal lifecycle.
 
 ## Previous Changes (October 24, 2025)
