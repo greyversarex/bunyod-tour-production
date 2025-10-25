@@ -316,7 +316,7 @@ router.get('/payment-methods', async (req: Request, res: Response) => {
       {
         id: 'alif',
         name: 'AlifPay',
-        enabled: !!(process.env.ALIF_KEY && process.env.ALIF_PASSWORD),
+        enabled: !!(process.env.ALIF_MERCHANT_KEY && process.env.ALIF_MERCHANT_PASSWORD),
         description: 'Tajikistan payment system (Alif Bank)',
       },
       {
@@ -369,8 +369,8 @@ router.post('/alif', async (req: Request, res: Response) => {
       });
     }
 
-    const alifKey = process.env.ALIF_KEY;
-    const alifPassword = process.env.ALIF_PASSWORD;
+    const alifKey = process.env.ALIF_MERCHANT_KEY;
+    const alifPassword = process.env.ALIF_MERCHANT_PASSWORD;
     const returnUrl = process.env.ALIF_RETURN_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/frontend/payment-success.html`;
     const callbackUrl = process.env.ALIF_CALLBACK_URL || `${process.env.BASE_URL || 'http://localhost:5000'}/api/payments/alif-callback`;
 
@@ -439,8 +439,8 @@ router.post('/alif-callback', async (req: Request, res: Response) => {
     console.log('🔄 AlifPay callback received:', { orderId, amount, status });
     
     // ✅ КРИТИЧЕСКИ ВАЖНО: Валидация HMAC подписи
-    const alifKey = process.env.ALIF_KEY;
-    const alifPassword = process.env.ALIF_PASSWORD;
+    const alifKey = process.env.ALIF_MERCHANT_KEY;
+    const alifPassword = process.env.ALIF_MERCHANT_PASSWORD;
     
     if (!alifKey || !alifPassword) {
       console.error('❌ AlifPay configuration missing for callback validation');
