@@ -49,6 +49,10 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 ### Production Deployment Infrastructure
 -   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/`.
 -   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management, Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
+-   **Migration Strategy**: Two-tier system for database changes:
+    -   **Manual Migrations**: Stored in `manual_migrations/` directory for complex schema changes (e.g., TEXT to JSONB conversions). Automatically executed by `update.sh` before Prisma migrations.
+    -   **Prisma Migrations**: Standard migrations via `prisma migrate deploy` for routine schema updates.
+-   **Multilingual Data Architecture**: Uses PostgreSQL JSONB fields with `{ru: "text", en: "text"}` structure for all multilingual content (slides, tour data, etc.). Controllers guarantee both language keys exist to prevent API errors.
 
 ## External Dependencies
 
