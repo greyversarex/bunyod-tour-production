@@ -1532,12 +1532,20 @@
                                         <input type="text" class="form-input" id="bannerTitleRu" data-translate-placeholder="placeholder.slide_title" placeholder="Заголовок слайда">
                                     </div>
                                     
+                                    <div class="form-group">
+                                        <label class="form-label">Title (English)</label>
+                                        <input type="text" class="form-input" id="bannerTitleEn" placeholder="Slide title">
+                                    </div>
                                     
                                     <div class="form-group">
                                         <label class="form-label">Описание (Русский)</label>
                                         <textarea class="form-input" rows="3" id="bannerDescRu" data-translate-placeholder="placeholder.slide_description" placeholder="Описание слайда"></textarea>
                                     </div>
                                     
+                                    <div class="form-group">
+                                        <label class="form-label">Description (English)</label>
+                                        <textarea class="form-input" rows="3" id="bannerDescEn" placeholder="Slide description"></textarea>
+                                    </div>
                                     
                                     <div class="form-group">
                                         <label class="form-label">Фоновое изображение</label>
@@ -1548,6 +1556,11 @@
                                     <div class="form-group">
                                         <label class="form-label">Текст кнопки (Русский)</label>
                                         <input type="text" class="form-input" id="bannerButtonTextRu" data-translate-placeholder="placeholder.learn_more" placeholder="Узнать больше">
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label class="form-label">Button Text (English)</label>
+                                        <input type="text" class="form-input" id="bannerButtonTextEn" placeholder="Learn more">
                                     </div>
                                     
                                     
@@ -1832,8 +1845,18 @@
                 </div>
                 
                 <div class="form-group">
+                    <label class="form-label">Title (English) *</label>
+                    <input type="text" class="form-input" id="editSlideTitleEn" required placeholder="Slide title">
+                </div>
+                
+                <div class="form-group">
                     <label class="form-label">Описание (Русский)</label>
                     <textarea class="form-input" rows="3" id="editSlideDescRu" placeholder="Описание слайда"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Description (English)</label>
+                    <textarea class="form-input" rows="3" id="editSlideDescEn" placeholder="Slide description"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -1848,6 +1871,11 @@
                 <div class="form-group">
                     <label class="form-label">Текст кнопки (Русский)</label>
                     <input type="text" class="form-input" id="editSlideButtonTextRu" placeholder="Узнать больше">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Button Text (English)</label>
+                    <input type="text" class="form-input" id="editSlideButtonTextEn" placeholder="Learn more">
                 </div>
                 
                 <div class="form-group">
@@ -13063,14 +13091,17 @@
             // Подготавливаем данные слайда
             const slideData = {
                 title: {
-                    ru: safeGetValue('bannerTitleRu', '')
+                    ru: safeGetValue('bannerTitleRu', ''),
+                    en: safeGetValue('bannerTitleEn', '')
                 },
                 description: {
-                    ru: safeGetValue('bannerDescRu', '')
+                    ru: safeGetValue('bannerDescRu', ''),
+                    en: safeGetValue('bannerDescEn', '')
                 },
                 link: safeGetValue('bannerLink', ''),
                 buttonText: {
-                    ru: safeGetValue('bannerButtonTextRu', '')
+                    ru: safeGetValue('bannerButtonTextRu', ''),
+                    en: safeGetValue('bannerButtonTextEn', '')
                 },
                 order: safeGetValue('bannerOrder', 1, 'int'),
                 isActive: safeGetValue('bannerActive', false, 'checkbox')
@@ -13131,39 +13162,48 @@
                             document.getElementById('editSlideId').value = slideId;
                             
                             // 🔧 MULTILINGUAL PARSING (robust like categories)
-                            // Parse title
+                            // Parse title (RU and EN)
                             if (slide._raw && slide._raw.title) {
                                 document.getElementById('editSlideTitleRu').value = slide._raw.title.ru || '';
+                                document.getElementById('editSlideTitleEn').value = slide._raw.title.en || '';
                             } else if (slide.title) {
                                 try {
                                     const titleParsed = JSON.parse(slide.title);
                                     document.getElementById('editSlideTitleRu').value = titleParsed.ru || '';
+                                    document.getElementById('editSlideTitleEn').value = titleParsed.en || '';
                                 } catch (e) {
                                     document.getElementById('editSlideTitleRu').value = slide.title || '';
+                                    document.getElementById('editSlideTitleEn').value = '';
                                 }
                             }
                             
-                            // Parse description
+                            // Parse description (RU and EN)
                             if (slide._raw && slide._raw.description) {
                                 document.getElementById('editSlideDescRu').value = slide._raw.description.ru || '';
+                                document.getElementById('editSlideDescEn').value = slide._raw.description.en || '';
                             } else if (slide.description) {
                                 try {
                                     const descParsed = JSON.parse(slide.description);
                                     document.getElementById('editSlideDescRu').value = descParsed.ru || '';
+                                    document.getElementById('editSlideDescEn').value = descParsed.en || '';
                                 } catch (e) {
                                     document.getElementById('editSlideDescRu').value = slide.description || '';
+                                    document.getElementById('editSlideDescEn').value = '';
                                 }
                             }
                             
-                            // Parse button text
+                            // Parse button text (RU and EN)
                             if (slide._raw && slide._raw.buttonText) {
                                 document.getElementById('editSlideButtonTextRu').value = slide._raw.buttonText.ru || '';
+                                document.getElementById('editSlideButtonTextEn').value = slide._raw.buttonText.en || '';
                             } else if (slide.buttonText) {
                                 try {
                                     const btnParsed = JSON.parse(slide.buttonText);
                                     document.getElementById('editSlideButtonTextRu').value = btnParsed.ru || '';
+                                    document.getElementById('editSlideButtonTextEn').value = btnParsed.en || '';
                                 } catch (e) {
                                     document.getElementById('editSlideButtonTextRu').value = slide.buttonText || '';
+                                    document.getElementById('editSlideButtonTextEn').value = '';
                                 }
                             }
                             
@@ -13219,13 +13259,16 @@
             const cityIdValue = document.getElementById('editSlideCity').value;
             const slideData = {
                 title: {
-                    ru: document.getElementById('editSlideTitleRu').value || ''
+                    ru: document.getElementById('editSlideTitleRu').value || '',
+                    en: document.getElementById('editSlideTitleEn').value || ''
                 },
                 description: {
-                    ru: document.getElementById('editSlideDescRu').value || ''
+                    ru: document.getElementById('editSlideDescRu').value || '',
+                    en: document.getElementById('editSlideDescEn').value || ''
                 },
                 buttonText: {
-                    ru: document.getElementById('editSlideButtonTextRu').value || ''
+                    ru: document.getElementById('editSlideButtonTextRu').value || '',
+                    en: document.getElementById('editSlideButtonTextEn').value || ''
                 },
                 link: document.getElementById('editSlideLink').value || '',
                 order: parseInt(document.getElementById('editSlideOrder').value) || 1,
