@@ -279,7 +279,6 @@ function populateCountryFilter() {
 
 // Функция для обновления списка городов
 function updateCities() {
-    const countrySelect = document.getElementById('countryFilter');
     const citySelect = document.getElementById('cityFilter');
     
     if (!citySelect) return;
@@ -294,15 +293,28 @@ function updateCities() {
     placeholder.textContent = getTranslation('filter.city') || (currentLang === 'en' ? 'City' : 'Город');
     citySelect.appendChild(placeholder);
     
-    const selectedCountry = countrySelect?.value;
-    if (selectedCountry && citiesByCountry[selectedCountry]) {
-        citiesByCountry[selectedCountry].forEach(city => {
-            const option = document.createElement('option');
-            option.value = city;
-            option.textContent = city;
-            citySelect.appendChild(option);
+    // Показываем все города независимо от выбранной страны
+    let allCities = [];
+    
+    if (citiesData && citiesData.length > 0) {
+        // Используем данные из API
+        allCities = citiesData.map(city => getMultilingualValue(city, 'name'));
+    } else {
+        // Fallback: собираем все города из citiesByCountry
+        const citiesSet = new Set();
+        Object.values(citiesByCountry).forEach(cities => {
+            cities.forEach(city => citiesSet.add(city));
         });
+        allCities = Array.from(citiesSet);
     }
+    
+    // Сортируем и добавляем города в select
+    allCities.sort().forEach(city => {
+        const option = document.createElement('option');
+        option.value = city;
+        option.textContent = city;
+        citySelect.appendChild(option);
+    });
 }
 
 // Функция для обновления списка отелей

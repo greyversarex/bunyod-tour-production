@@ -1454,14 +1454,30 @@ function checkUrlParams() {
     const urlParams = new URLSearchParams(window.location.search);
     const blockId = urlParams.get('blockId');
     const categoryId = urlParams.get('categoryId');
-    const category = urlParams.get('category'); // Новый параметр из хедера
+    const category = urlParams.get('category'); // Может быть ID или название
     const cityId = urlParams.get('cityId');
+    
+    // Новые параметры с главной страницы
+    const query = urlParams.get('query');
+    const countryName = urlParams.get('country');
+    const cityName = urlParams.get('city');
+    const format = urlParams.get('format'); // тип тура
+    
+    let hasFilters = false;
+
+    // Обработка поискового запроса
+    if (query) {
+        state.filters.query = query;
+        hasFilters = true;
+        console.log(`✅ Applied query filter from URL: ${query}`);
+    }
 
     if (blockId) {
         const blockIdNum = parseInt(blockId);
         if (!state.filters.tourBlocks.includes(blockIdNum)) {
             state.filters.tourBlocks.push(blockIdNum);
         }
+        hasFilters = true;
     }
 
     if (categoryId) {
@@ -1469,15 +1485,55 @@ function checkUrlParams() {
         if (!state.filters.categories.includes(catIdNum)) {
             state.filters.categories.push(catIdNum);
         }
+        hasFilters = true;
     }
     
-    // Обработка параметра category из навигационного меню
-    if (category) {
+    // Обработка параметра category - может быть числом (ID) или строкой (название)
+    if (category && !categoryId) {
         const catIdNum = parseInt(category);
-        if (!state.filters.categories.includes(catIdNum)) {
-            state.filters.categories.push(catIdNum);
+        
+        // Если это число - это ID категории
+        if (!isNaN(catIdNum)) {
+            if (!state.filters.categories.includes(catIdNum)) {
+                state.filters.categories.push(catIdNum);
+                hasFilters = true;
+                console.log(`✅ Applied category filter from URL: ${catIdNum}`);
+            }
+        } else {
+            // Если это строка - ищем категорию по названию
+            const foundCategory = state.categories.find(cat => 
+                cat.nameRu === category || cat.nameEn === category
+            );
+            if (foundCategory && !state.filters.categories.includes(foundCategory.id)) {
+                state.filters.categories.push(foundCategory.id);
+                hasFilters = true;
+                console.log(`✅ Applied category filter by name from URL: ${category} (id=${foundCategory.id})`);
+            }
         }
-        console.log(`✅ Applied category filter from URL: ${catIdNum}`);
+    }
+    
+    // Обработка названия страны
+    if (countryName) {
+        const foundCountry = state.countries.find(c => 
+            c.nameRu === countryName || c.nameEn === countryName
+        );
+        if (foundCountry && !state.filters.countries.includes(foundCountry.id)) {
+            state.filters.countries.push(foundCountry.id);
+            hasFilters = true;
+            console.log(`✅ Applied country filter from URL: ${countryName} (id=${foundCountry.id})`);
+        }
+    }
+    
+    // Обработка названия города
+    if (cityName) {
+        const foundCity = state.cities.find(c => 
+            c.nameRu === cityName || c.nameEn === cityName
+        );
+        if (foundCity && !state.filters.cities.includes(foundCity.id)) {
+            state.filters.cities.push(foundCity.id);
+            hasFilters = true;
+            console.log(`✅ Applied city filter by name from URL: ${cityName} (id=${foundCity.id})`);
+        }
     }
     
     // Обработка параметра cityId - применяем к обоим фильтрам
@@ -1491,11 +1547,20 @@ function checkUrlParams() {
         if (!isNaN(cityIdNum) && !state.filters.cities.includes(cityIdNum)) {
             state.filters.cities.push(cityIdNum);
         }
-        
+        hasFilters = true;
         console.log(`✅ Applied city filter from URL: cityId=${cityId} (added to sidebar checkboxes)`);
     }
     
-    if (blockId || categoryId || category || cityId) {
+    // Обработка типа тура (format)
+    if (format) {
+        if (!state.filters.tourTypes.includes(format)) {
+            state.filters.tourTypes.push(format);
+            hasFilters = true;
+            console.log(`✅ Applied tour type filter from URL: ${format}`);
+        }
+    }
+    
+    if (hasFilters) {
         renderFilters(); // Re-render to show checked boxes
         searchTours(); // Apply filters and show results
         searchHotels(); // Also update hotels
