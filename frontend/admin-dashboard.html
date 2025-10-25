@@ -2045,80 +2045,6 @@
                         <small class="text-gray-500 mt-2 block">Отметьте доступные типы номеров и укажите цену за ночь для каждого</small>
                     </div>
                     
-                    <!-- 🍽️ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Добавлена секция типов питания -->
-                    <div class="form-group">
-                        <label class="form-label">Типы питания и цены</label>
-                        <div class="bg-gray-50 p-4 rounded-lg border">
-                            <p class="text-sm text-gray-600 mb-3">Настройте дополнительную плату за питание (в USD за сутки)</p>
-                            
-                            <!-- RO - Без питания -->
-                            <div class="flex items-center justify-between py-2 border-b border-gray-200">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="mealRO" class="rounded">
-                                    <label for="mealRO" class="font-medium">RO - Без питания</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span>$</span>
-                                    <input type="number" id="priceMealRO" class="form-input w-20" placeholder="0" min="0" step="1" disabled>
-                                    <span class="text-sm text-gray-500">/ сутки</span>
-                                </div>
-                            </div>
-                            
-                            <!-- BB - Завтрак -->
-                            <div class="flex items-center justify-between py-2 border-b border-gray-200">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="mealBB" class="rounded">
-                                    <label for="mealBB" class="font-medium">BB - Завтрак</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span>$</span>
-                                    <input type="number" id="priceMealBB" class="form-input w-20" placeholder="15" min="0" step="1" disabled>
-                                    <span class="text-sm text-gray-500">/ сутки</span>
-                                </div>
-                            </div>
-                            
-                            <!-- HB - Полупансион -->
-                            <div class="flex items-center justify-between py-2 border-b border-gray-200">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="mealHB" class="rounded">
-                                    <label for="mealHB" class="font-medium">HB - Полупансион</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span>$</span>
-                                    <input type="number" id="priceMealHB" class="form-input w-20" placeholder="35" min="0" step="1" disabled>
-                                    <span class="text-sm text-gray-500">/ сутки</span>
-                                </div>
-                            </div>
-                            
-                            <!-- FB - Полный пансион -->
-                            <div class="flex items-center justify-between py-2 border-b border-gray-200">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="mealFB" class="rounded">
-                                    <label for="mealFB" class="font-medium">FB - Полный пансион</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span>$</span>
-                                    <input type="number" id="priceMealFB" class="form-input w-20" placeholder="55" min="0" step="1" disabled>
-                                    <span class="text-sm text-gray-500">/ сутки</span>
-                                </div>
-                            </div>
-                            
-                            <!-- AI - Все включено -->
-                            <div class="flex items-center justify-between py-2">
-                                <div class="flex items-center gap-3">
-                                    <input type="checkbox" id="mealAI" class="rounded">
-                                    <label for="mealAI" class="font-medium">AI - Все включено</label>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <span>$</span>
-                                    <input type="number" id="priceMealAI" class="form-input w-20" placeholder="85" min="0" step="1" disabled>
-                                    <span class="text-sm text-gray-500">/ сутки</span>
-                                </div>
-                            </div>
-                        </div>
-                        <small class="text-gray-500 mt-2 block">Отметьте доступные типы питания и укажите дополнительную плату за каждый</small>
-                    </div>
-                    
                     <div class="form-group">
                         <label class="form-label">Фотографии отеля</label>
                         <div id="hotel-uploader-container"></div>
@@ -7696,6 +7622,7 @@
         const PREDEFINED_EXCLUDED_SERVICES = [
             { ru: 'Питание: обед, ужин', en: 'Meals: lunch, dinner' },
             { ru: 'Питание: ужин', en: 'Meals: dinner' },
+            { ru: 'Питание: обед', en: 'Meals: lunch' },
             { ru: 'Страховка', en: 'Insurance' },
             { ru: 'Алкогольные напитки', en: 'Alcohol drinks' },
             { ru: 'Авиабилеты', en: 'Flight tickets' },

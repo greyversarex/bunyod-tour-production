@@ -307,99 +307,14 @@ function updateCities() {
 
 // Функция для обновления списка отелей
 function updateHotels() {
-    const countrySelect = document.getElementById('countryFilter');
-    const hotelSelect = document.getElementById('hotelFilter');
-    
-    // Очищаем список отелей
-    const currentLang = getCurrentLanguage();
-    const hotelsPlaceholder = currentLang === 'en' ? 'Hotels' : 'Гостиницы';
-    hotelSelect.innerHTML = `<option value="">${hotelsPlaceholder}</option>`;
-    
-    // Mapping для перевода hotel group names
-    const groupTranslations = {
-        'Люкс сегмент': { ru: 'Люкс сегмент', en: 'Luxury Segment' },
-        'Премиум сегмент': { ru: 'Премиум сегмент', en: 'Premium Segment' },
-        'Средний сегмент': { ru: 'Средний сегмент', en: 'Mid-range Segment' },
-        'Бюджетный сегмент': { ru: 'Бюджетный сегмент', en: 'Budget Segment' },
-        'Местные и региональные': { ru: 'Местные и региональные', en: 'Local & Regional' }
-    };
-    
-    const selectedCountry = countrySelect.value;
-    
-    // Поиск hotels по стране - проверяем и Russian и English названия
-    let hotels = hotelsByCountry[selectedCountry];
-    if (!hotels) {
-        // Попробуем найти через countriesData mapping
-        const country = countriesData.find(c => 
-            (c.nameRu === selectedCountry || c.nameEn === selectedCountry || c.name === selectedCountry)
-        );
-        if (country) {
-            hotels = hotelsByCountry[country.nameRu] || hotelsByCountry[country.nameEn];
-        }
-    }
-    
-    if (hotels) {
-        hotels.forEach(group => {
-            const optgroup = document.createElement('optgroup');
-            const translatedLabel = groupTranslations[group.group]?.[currentLang] || group.group;
-            optgroup.label = translatedLabel;
-            
-            group.hotels.forEach(hotel => {
-                const option = document.createElement('option');
-                option.value = hotel;
-                option.textContent = hotel;
-                optgroup.appendChild(option);
-            });
-            
-            hotelSelect.appendChild(optgroup);
-        });
-    }
+    // Функция больше не используется после удаления hotel фильтров
+    return;
 }
 
 // Новая функция для обновления фильтров отелей на основе страны
 function updateHotelFilters() {
-    const country = document.getElementById('countryFilter').value;
-    const hotelBrandFilter = document.getElementById('hotelBrandFilter');
-    const hotelStarsFilter = document.getElementById('hotelStarsFilter');
-    
-    // Проверяем, что элементы существуют
-    if (!hotelBrandFilter || !hotelStarsFilter) {
-        return;
-    }
-    
-    // Сбрасываем фильтры, если не выбрана страна
-    if (!country) {
-        hotelBrandFilter.disabled = false;
-        hotelStarsFilter.disabled = false;
-        return;
-    }
-    
-    // Включаем фильтры для определённых стран (используем обе версии названий)
-    const countriesWithHotels = [];
-    countriesData.forEach(c => {
-        if (c.nameRu) countriesWithHotels.push(c.nameRu);
-        if (c.nameEn) countriesWithHotels.push(c.nameEn);
-        if (c.name) countriesWithHotels.push(c.name);
-    });
-    // Fallback если countriesData пуст
-    if (countriesWithHotels.length === 0) {
-        const currentLang = getCurrentLanguage();
-        if (currentLang === 'en') {
-            countriesWithHotels.push('Tajikistan', 'Uzbekistan', 'Kyrgyzstan', 'Kazakhstan');
-        } else {
-            countriesWithHotels.push('Таджикистан', 'Узбекистан', 'Кыргызстан', 'Казахстан');
-        }
-    }
-    
-    if (countriesWithHotels.includes(country)) {
-        hotelBrandFilter.disabled = false;
-        hotelStarsFilter.disabled = false;
-    } else {
-        hotelBrandFilter.disabled = true;
-        hotelStarsFilter.disabled = true;
-        hotelBrandFilter.value = '';
-        hotelStarsFilter.value = '';
-    }
+    // Функция больше не используется после удаления hotel фильтров
+    return;
 }
 
 // Функция для переключения панели фильтров
@@ -463,7 +378,7 @@ function displaySuggestions(suggestions) {
     suggestions.forEach(suggestion => {
         const suggestionDiv = document.createElement('div');
         suggestionDiv.className = 'suggestion-item';
-        suggestionDiv.onclick = () => selectSuggestion(suggestion.text, suggestion.type);
+        suggestionDiv.onclick = () => selectSuggestion(suggestion.text, suggestion.type, suggestion.id);
         
         const iconSvg = document.createElement('svg');
         iconSvg.className = 'suggestion-icon';
@@ -525,17 +440,17 @@ function showDefaultSuggestions(query) {
 }
 
 // Функция для выбора подсказки
-function selectSuggestion(text, type) {
+function selectSuggestion(text, type, id) {
     const searchInput = document.getElementById('searchInput');
     searchInput.value = text;
     hideSuggestions();
     
     // Автоматически запускаем поиск
-    if (type === 'тур') {
-        // Если это тур, переходим к расширенному поиску
-        window.location.href = `tours-search.html?query=${encodeURIComponent(text)}`;
+    if (type === 'тур' && id) {
+        // Если это тур и есть ID, переходим на страницу тура
+        window.location.href = `tour.html?id=${id}`;
     } else {
-        // Иначе просто выполняем поиск на текущей странице
+        // Иначе выполняем поиск
         performSearch();
     }
 }
@@ -567,7 +482,6 @@ function performSearch() {
         city: document.getElementById('cityFilter')?.value || '',
         format: document.getElementById('formatFilter')?.value || '',
         category: document.getElementById('categoryFilter')?.value || '',
-        hotel: document.getElementById('hotelFilter')?.value || '',
         date: document.getElementById('dateFilter')?.value || ''
     };
     
@@ -611,9 +525,6 @@ async function searchTours() {
             city: document.getElementById('cityFilter')?.value || '',
             format: document.getElementById('formatFilter')?.value || '',
             category: document.getElementById('categoryFilter')?.value || '',
-            hotel: document.getElementById('hotelFilter')?.value || '',
-            hotelBrand: document.getElementById('hotelBrandFilter')?.value || '',
-            hotelStars: document.getElementById('hotelStarsFilter')?.value || '',
             date: document.getElementById('dateFilter')?.value || ''
         };
 
