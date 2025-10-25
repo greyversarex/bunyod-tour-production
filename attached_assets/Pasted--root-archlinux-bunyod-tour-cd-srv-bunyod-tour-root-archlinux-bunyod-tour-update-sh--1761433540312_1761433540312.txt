@@ -1,0 +1,191 @@
+[root@archlinux bunyod-tour]# cd /srv/bunyod-tour
+[root@archlinux bunyod-tour]# ./update.sh
+🔄 Начинаю обновление bunyod-tour...
+🧷 Бэкап БД перед обновлением...
+✅ Бэкап готов
+📥 Git fetch/reset...
+Username for 'https://github.com': greyversarex
+Password for 'https://greyversarex@github.com':
+remote: Enumerating objects: 24, done.
+remote: Counting objects: 100% (24/24), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 16 (delta 13), reused 16 (delta 13), pack-reused 0 (from 0)
+Unpacking objects: 100% (16/16), 7.37 KiB | 359.00 KiB/s, done.
+From https://github.com/greyversarex/bunyod-tour-production
+   2d35336..51acc3f  main       -> origin/main
+HEAD is now at 51acc3f Improve rate limiting configuration for production environments
+📦 npm ci...
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+> workspace@1.0.0 postinstall
+> prisma generate
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 603ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+
+added 399 packages, and audited 400 packages in 23s
+
+45 packages are looking for funding
+  run `npm fund` for details
+
+2 vulnerabilities (1 moderate, 1 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+🔧 Prisma generate...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 568ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Want to turn off tips and other hints? https://pris.ly/tip-4-nohints
+
+🏗️ Компиляция...
+
+> workspace@1.0.0 build
+> tsc
+
+📁 Создаю директорию логов (если нет)...
+🗄️ Применяю миграции слайдов (многоязычный баннер)...
+DO
+ALTER TABLE
+COMMENT
+COMMENT
+COMMENT
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 586ms
+
+🚀 Перезапуск приложения через PM2...
+[PM2] Applying action reloadProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour    │ default     │ 1.0.0   │ fork    │ 1822726  │ 0s     │ 49   │ online    │ 0%       │ 6.5mb    │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+🩺 Healthcheck...
+⚠️ Обновление прошло, но healthz != 200 (был 000). Проверь логи: pm2 logs bunyod-tour --lines 100
+🎉 Готово.
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 50
+[TAILING] Tailing last 50 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 50 lines:
+0|bunyod-t | 2025-10-25T21:50:47:
+0|bunyod-t | 2025-10-25T21:50:47: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-25T21:50:47:   - SMTP_USER
+0|bunyod-t | 2025-10-25T21:50:47:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-25T21:50:47: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-25T21:50:47:
+0|bunyod-t | 2025-10-25T21:59:02: ValidationError: The Express 'trust proxy' setting is true, which allows anyone to trivially bypass IP-based rate limiting. See https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/ for more information.
+0|bunyod-t | 2025-10-25T21:59:02:     at Object.trustProxy (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:348:13)
+0|bunyod-t | 2025-10-25T21:59:02:     at wrappedValidations.<computed> [as trustProxy] (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:638:22)
+0|bunyod-t | 2025-10-25T21:59:02:     at Object.keyGenerator (/srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:739:20)
+0|bunyod-t | 2025-10-25T21:59:02:     at /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:801:32
+0|bunyod-t | 2025-10-25T21:59:02:     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+0|bunyod-t | 2025-10-25T21:59:02:     at async /srv/bunyod-tour/node_modules/express-rate-limit/dist/index.cjs:782:5 {
+0|bunyod-t | 2025-10-25T21:59:02:   code: 'ERR_ERL_PERMISSIVE_TRUST_PROXY',
+0|bunyod-t | 2025-10-25T21:59:02:   help: 'https://express-rate-limit.github.io/ERR_ERL_PERMISSIVE_TRUST_PROXY/'
+0|bunyod-t | 2025-10-25T21:59:02: }
+0|bunyod-t | 2025-10-26T00:27:07: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-26T00:27:07:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-26T00:27:07:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-26T00:27:07:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-26T00:27:07:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-26T00:27:07:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-26T00:27:07: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-26T00:27:07:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-26T00:27:07:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-26T00:27:07:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-26T00:27:07:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-26T00:27:07:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-26T00:27:07:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-26T00:27:07:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:41:46: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-26T01:41:46:   - SMTP_USER
+0|bunyod-t | 2025-10-26T01:41:46:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-26T01:41:46: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-26T01:41:46:
+0|bunyod-t | 2025-10-26T01:58:43:
+0|bunyod-t | 2025-10-26T01:58:43: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-26T01:58:43:   - SMTP_USER
+0|bunyod-t | 2025-10-26T01:58:43:   - SMTP_PASSWORD
+0|bunyod-t | 2025-10-26T01:58:43: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-26T01:58:43:
+
+/srv/bunyod-tour/logs/pm2-out.log last 50 lines:
+0|bunyod-t | 2025-10-26T01:43:12: 🔄 Middleware check - Original URL: /$%7BabsoluteImageUrl%7D
+0|bunyod-t | 2025-10-26T01:43:12: 🔄 Middleware check - Decoded URL: /${absoluteImageUrl}
+0|bunyod-t | 2025-10-26T01:43:13: 🔄 Middleware check - Original URL: /api/objects/direct/image-1761312491203-325800232.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1761312491203-325800232.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760593638023-669343026.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760593638023-669343026.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760593841572-640499979.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760593841572-640499979.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760593174266-469209931.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760593174266-469209931.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Original URL: /api/objects/direct/image-1760593420260-237278353.png
+0|bunyod-t | 2025-10-26T01:43:14: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1760593420260-237278353.png
+0|bunyod-t | 2025-10-26T01:43:14: 📋 Found 0 drivers
+0|bunyod-t | 2025-10-26T01:43:15: 📋 Found 0 drivers
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Original URL: /uploads/slides/slide-1761430070023-437734030.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Decoded URL: /uploads/slides/slide-1761430070023-437734030.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Original URL: /uploads/slides/slide-1760347690487-963049369.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Decoded URL: /uploads/slides/slide-1760347690487-963049369.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Original URL: /uploads/slides/slide-1761312792840-862970338.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Decoded URL: /uploads/slides/slide-1761312792840-862970338.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Original URL: /uploads/slides/slide-1760963906838-979765079.jpg
+0|bunyod-t | 2025-10-26T01:43:15: 🔄 Middleware check - Decoded URL: /uploads/slides/slide-1760963906838-979765079.jpg
+0|bunyod-t | 2025-10-26T01:58:43: [dotenv@17.2.3] injecting env (23) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+0|bunyod-t | 2025-10-26T01:58:43: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-10-26T01:58:43:
+0|bunyod-t | 2025-10-26T01:58:43: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-10-26T01:58:43:
+0|bunyod-t | 2025-10-26T01:58:43: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-10-26T01:58:43: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-10-26T01:58:43: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-10-26T01:58:43:
+0|bunyod-t | 2025-10-26T01:58:43: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-10-26T01:58:43:
+0|bunyod-t | 2025-10-26T01:58:43: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-10-26T01:58:43: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-10-26T01:58:43: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-10-26T01:58:43: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-10-26T01:58:43: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-10-26T01:58:43: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-10-26T01:58:43: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-10-26T01:58:43: ✅ База данных готова к работе!
+0|bunyod-t | 2025-10-26T01:58:43: Starting backend API server...
+0|bunyod-t | 2025-10-26T01:58:43: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-10-26T01:58:43: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-10-26T01:58:43: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-10-26T01:58:43: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-10-26T01:58:43: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-10-26T01:58:45: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-10-26T01:58:45: 📊 Инициализация компонентов: создано 0, пропущено 26 (уже существуют)
+0|bunyod-t | 2025-10-26T01:58:45: ✅ Инициализировано 26 компонентов по умолчанию
