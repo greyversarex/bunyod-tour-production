@@ -1375,7 +1375,7 @@ export class TourController {
       // Get tours with titles matching the query
       const tours = await TourModel.findAll();
       
-      const suggestions: Array<{text: string, type: string}> = [];
+      const suggestions: Array<{text: string, type: string, id?: number}> = [];
       
       // Add tour suggestions
       tours.forEach((tour: any) => {
@@ -1398,7 +1398,8 @@ export class TourController {
           if (title.ru && title.ru.toLowerCase().includes(searchQuery)) {
             suggestions.push({
               text: title.ru,
-              type: 'тур'
+              type: 'тур',
+              id: tour.id
             });
           }
           
@@ -1406,7 +1407,8 @@ export class TourController {
           if (title.en && title.en.toLowerCase().includes(searchQuery)) {
             suggestions.push({
               text: title.en,
-              type: 'тур'
+              type: 'тур',
+              id: tour.id
             });
           }
           
