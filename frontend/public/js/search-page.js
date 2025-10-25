@@ -27,6 +27,7 @@ const state = {
         query: '',
         country: '',
         city: '',
+        date: '', // Дата тура в формате DD.MM.YYYY
         countries: [],
         cities: [],
         categories: [],
@@ -748,6 +749,64 @@ function searchTours() {
         return price >= state.filters.priceMin && price <= state.filters.priceMax;
     });
     
+    // Apply date filter
+    if (state.filters.date) {
+        results = results.filter(tour => {
+            try {
+                // Парсим дату в формате DD.MM.YYYY
+                const dateParts = state.filters.date.split('.');
+                if (dateParts.length !== 3) return true; // Если формат неверный, не фильтруем
+                
+                const day = parseInt(dateParts[0], 10);
+                const month = parseInt(dateParts[1], 10);
+                const year = parseInt(dateParts[2], 10);
+                
+                // Проверяем валидность даты
+                const date = new Date(year, month - 1, day);
+                if (isNaN(date.getTime())) {
+                    console.warn('Invalid date:', state.filters.date);
+                    return true; // При невалидной дате не фильтруем
+                }
+                
+                // Получаем день недели (0 = Воскресенье, 1 = Понедельник, ...)
+                const dayOfWeek = date.getDay();
+                
+                // Проверяем availableMonths
+                if (tour.availableMonths) {
+                    const availableMonths = typeof tour.availableMonths === 'string' 
+                        ? JSON.parse(tour.availableMonths) 
+                        : tour.availableMonths;
+                    if (Array.isArray(availableMonths) && availableMonths.length > 0) {
+                        // Нормализуем к числам для сравнения
+                        const normalizedMonths = availableMonths.map(m => typeof m === 'string' ? parseInt(m, 10) : m);
+                        if (!normalizedMonths.includes(month)) {
+                            return false; // Тур недоступен в этом месяце
+                        }
+                    }
+                }
+                
+                // Проверяем availableDays
+                if (tour.availableDays) {
+                    const availableDays = typeof tour.availableDays === 'string' 
+                        ? JSON.parse(tour.availableDays) 
+                        : tour.availableDays;
+                    if (Array.isArray(availableDays) && availableDays.length > 0) {
+                        // Нормализуем к числам для сравнения
+                        const normalizedDays = availableDays.map(d => typeof d === 'string' ? parseInt(d, 10) : d);
+                        if (!normalizedDays.includes(dayOfWeek)) {
+                            return false; // Тур недоступен в этот день недели
+                        }
+                    }
+                }
+                
+                return true;
+            } catch (e) {
+                console.error('Error parsing date filter:', e);
+                return true; // При ошибке не фильтруем
+            }
+        });
+    }
+    
     state.filteredResults = results;
     renderTourCards();
     updateResultsCount();
@@ -1364,6 +1423,13 @@ function setupEventListeners() {
         console.log('🔄 Language changed event received:', e.detail);
         state.currentLang = e.detail.language;
         
+        // Обновляем локаль flatpickr календаря
+        if (window.searchDatePickerInstance) {
+            const newLocale = state.currentLang === 'ru' ? flatpickr.l10ns.ru : flatpickr.l10ns.default;
+            window.searchDatePickerInstance.set('locale', newLocale);
+            console.log('📅 Flatpickr locale updated to:', state.currentLang);
+        }
+        
         // Reload all data with new language
         loadAllData().then(() => {
             // Re-render filters with new language
@@ -1462,6 +1528,7 @@ function checkUrlParams() {
     const countryName = urlParams.get('country');
     const cityName = urlParams.get('city');
     const format = urlParams.get('format'); // тип тура
+    const date = urlParams.get('date'); // дата тура
     
     let hasFilters = false;
 
@@ -1470,6 +1537,18 @@ function checkUrlParams() {
         state.filters.query = query;
         hasFilters = true;
         console.log(`✅ Applied query filter from URL: ${query}`);
+    }
+    
+    // Обработка даты тура
+    if (date) {
+        state.filters.date = date;
+        // Устанавливаем значение в календарь
+        const dateInput = document.getElementById('search-date-filter');
+        if (dateInput) {
+            dateInput.value = date;
+        }
+        hasFilters = true;
+        console.log(`✅ Applied date filter from URL: ${date}`);
     }
 
     if (blockId) {
@@ -1596,5 +1675,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Инициализируем переводы
     if (typeof translateAllDynamicContent === 'function') {
         translateAllDynamicContent(state.currentLang);
+    }
+    
+    // Инициализация flatpickr календаря с локализацией
+    const dateInput = document.getElementById('search-date-filter');
+    if (dateInput && typeof flatpickr !== 'undefined') {
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Инициализация flatpickr
+        const fp = flatpickr(dateInput, {
+            dateFormat: "d.m.Y",
+            minDate: tomorrow,
+            locale: state.currentLang === 'ru' ? flatpickr.l10ns.ru : flatpickr.l10ns.default,
+            allowInput: false,
+            disableMobile: true,
+            onChange: function(selectedDates, dateStr, instance) {
+                // Обновляем фильтр при выборе даты
+                state.filters.date = dateStr;
+                performSearch();
+                console.log(`📅 Date filter applied: ${dateStr}`);
+            }
+        });
+        
+        // Сохраняем инстанс для обновления локали при смене языка
+        window.searchDatePickerInstance = fp;
+        
+        console.log('📅 Flatpickr calendar initialized with locale:', state.currentLang);
     }
 });

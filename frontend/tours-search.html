@@ -7,6 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Flatpickr Calendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    
     <!-- Централизованная система интернационализации -->
     <script src="/public/js/i18n.js"></script>
     <script src="/public/js/multilingual-utils.js"></script>
@@ -345,6 +350,24 @@
                         </div>
                         <div class="filter-content" id="tourblocks-content">
                             <div class="filter-options-wrapper" id="tourblocks-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Дата тура -->
+                    <div class="filter-section" id="filter-section-date">
+                        <div class="filter-header" onclick="toggleFilter('date')">
+                            <div class="filter-title" data-translate="search.tour_date">ДАТА ТУРА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="date-content">
+                            <div class="filter-options-wrapper">
+                                <input type="text" 
+                                       id="search-date-filter" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600" 
+                                       placeholder="ДД.ММ.ГГГГ" 
+                                       data-translate-placeholder="filter.select_date"
+                                       readonly>
+                            </div>
                         </div>
                     </div>
                     
