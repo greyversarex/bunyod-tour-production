@@ -78,6 +78,77 @@
         .btn-continue:active {
             transform: translateY(0);
         }
+        
+        /* Hotel Image Slider Styles */
+        .hotel-image-slider {
+            position: relative;
+            width: 100%;
+            height: 350px;
+            overflow: hidden;
+            border-radius: 12px 12px 0 0;
+        }
+        .hotel-image-slider img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        .hotel-image-slider img.active {
+            display: block;
+        }
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            z-index: 10;
+        }
+        .slider-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .slider-btn.prev {
+            left: 15px;
+        }
+        .slider-btn.next {
+            right: 15px;
+        }
+        .slider-indicators {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+        .slider-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .slider-indicator.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+        .hotel-card-content {
+            padding: 24px;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -959,22 +1030,37 @@
                         </div>
                         
                         <div class="space-y-6">
-                            ${cityData.hotels.map(hotel => `
+                            ${cityData.hotels.map((hotel, hotelIndex) => {
+                                const hotelImages = hotel.images && hotel.images.length > 0 ? hotel.images : [];
+                                return `
                                 <div class="hotel-card bg-white rounded-lg shadow-md overflow-hidden border border-gray-200" data-hotel-id="${hotel.id}">
-                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-                                        <!-- Hotel Images -->
-                                        <div class="md:col-span-1">
-                                            ${hotel.images && hotel.images.length > 0 ? `
-                                                <img src="${getAbsoluteImageUrl(hotel.images[0])}" alt="${getHotelName(hotel)}" class="w-full h-48 object-cover rounded-lg">
-                                            ` : `
-                                                <div class="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
-                                                    <i class="fas fa-hotel text-4xl text-gray-400"></i>
-                                                </div>
-                                            `}
-                                        </div>
+                                    <!-- Hotel Image Slider -->
+                                    <div class="hotel-image-slider" id="slider-${hotel.id}">
+                                        ${hotelImages.length > 0 ? hotelImages.map((image, imgIndex) => `
+                                            <img src="${getAbsoluteImageUrl(image)}" alt="${getHotelName(hotel)}" class="${imgIndex === 0 ? 'active' : ''}" data-index="${imgIndex}">
+                                        `).join('') : `
+                                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-hotel text-6xl text-gray-400"></i>
+                                            </div>
+                                        `}
+                                        
+                                        ${hotelImages.length > 1 ? `
+                                            <button class="slider-btn prev" onclick="changeSlide('${hotel.id}', -1)">
+                                                <i class="fas fa-chevron-left"></i>
+                                            </button>
+                                            <button class="slider-btn next" onclick="changeSlide('${hotel.id}', 1)">
+                                                <i class="fas fa-chevron-right"></i>
+                                            </button>
+                                            <div class="slider-indicators">
+                                                ${hotelImages.map((_, indicatorIndex) => `
+                                                    <div class="slider-indicator ${indicatorIndex === 0 ? 'active' : ''}" onclick="goToSlide('${hotel.id}', ${indicatorIndex})"></div>
+                                                `).join('')}
+                                            </div>
+                                        ` : ''}
+                                    </div>
 
-                                        <!-- Hotel Info -->
-                                        <div class="md:col-span-2">
+                                    <!-- Hotel Content -->
+                                    <div class="hotel-card-content">
                                             <div class="mb-4">
                                                 <h3 class="text-xl font-bold text-gray-800 mb-2">${getHotelName(hotel)}</h3>
                                                 <div class="flex items-center mb-2">
@@ -1065,10 +1151,9 @@
                                                     </div>
                                                 </div>
                                             ` : ''}
-                                        </div>
                                     </div>
                                 </div>
-                            `).join('')}
+                            `; }).join('')}
                         </div>
                     </div>
                 `;
@@ -1115,6 +1200,54 @@
             }
             
             return lang === 'en' ? 'Unknown Country' : lang === 'tj' ? 'Мамлакати номаълум' : 'Неизвестная страна';
+        }
+
+        // Hotel Image Slider Functions
+        function changeSlide(hotelId, direction) {
+            const slider = document.getElementById(`slider-${hotelId}`);
+            if (!slider) return;
+            
+            const images = slider.querySelectorAll('img');
+            if (images.length <= 1) return;
+            
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            let newIndex = currentIndex + direction;
+            
+            // Loop around
+            if (newIndex >= images.length) newIndex = 0;
+            if (newIndex < 0) newIndex = images.length - 1;
+            
+            // Update images
+            images[currentIndex].classList.remove('active');
+            images[newIndex].classList.add('active');
+            
+            // Update indicators
+            const indicators = slider.querySelectorAll('.slider-indicator');
+            if (indicators.length > 0) {
+                indicators[currentIndex].classList.remove('active');
+                indicators[newIndex].classList.add('active');
+            }
+        }
+
+        function goToSlide(hotelId, index) {
+            const slider = document.getElementById(`slider-${hotelId}`);
+            if (!slider) return;
+            
+            const images = slider.querySelectorAll('img');
+            if (images.length <= 1) return;
+            
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            
+            // Update images
+            images[currentIndex].classList.remove('active');
+            images[index].classList.add('active');
+            
+            // Update indicators
+            const indicators = slider.querySelectorAll('.slider-indicator');
+            if (indicators.length > 0) {
+                indicators[currentIndex].classList.remove('active');
+                indicators[index].classList.add('active');
+            }
         }
 
         function changeRoomQuantity(hotelId, roomType, change) {
