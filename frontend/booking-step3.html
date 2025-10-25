@@ -803,17 +803,6 @@
                             orderNumber: orderNumber
                         })
                     });
-                } else if (selectedPaymentMethod === 'stripe') {
-                    // Use existing Stripe integration
-                    paymentResponse = await fetch('/api/payments/create-payment-intent', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            orderNumber: orderNumber
-                        })
-                    });
                 } else {
                     alert('Метод оплаты временно недоступен');
                     closePaymentModal();
@@ -834,7 +823,7 @@
                         bookingId: bookingId
                     }));
                     
-                    // Redirect to payment gateway or show success
+                    // Redirect to payment gateway
                     if (paymentData.method === 'POST' && paymentData.formData && paymentData.action) {
                         // AlifPay Legacy: Create and submit POST form
                         console.log('🔄 Creating POST form for AlifPay:', paymentData.action);
@@ -844,9 +833,6 @@
                         const redirectUrl = paymentData.paymentUrl || paymentData.redirectUrl;
                         console.log('🔄 Redirecting to payment gateway:', redirectUrl);
                         window.location.href = redirectUrl;
-                    } else if (paymentData.clientSecret) {
-                        // Handle Stripe payment
-                        showPaymentSuccess();
                     }
                 } else {
                     console.error('❌ Payment failed:', paymentData.message);
