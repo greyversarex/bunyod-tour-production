@@ -4,6 +4,7 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes (October 25, 2025)
+-   **Payment System Configuration**: Configured AlifPay payment gateway with merchant credentials (Key: 152065). Updated all environment variable references from `ALIF_KEY`/`ALIF_PASSWORD` to `ALIF_MERCHANT_KEY`/`ALIF_MERCHANT_PASSWORD` for consistency. Removed Stripe integration completely as it's not needed for Central Asia market - deleted all Stripe routes, frontend code, and npm packages (`stripe`, `@types/stripe`). Streamlined payment methods list to only show AlifPay and Payler. Marked old duplicate routes (`/alif`, `/payler`, `/alif-callback`, `/payler-callback`) as deprecated in favor of new secure routes (`/alif/create`, `/payler/create`, `/alif/callback`, `/payler/callback`) with HMAC validation.
 -   **Booking Step 1 Hotel Card Redesign**: Completely redesigned hotel cards on booking-step1.html with vertical layout - large image slider on top (350px height), hotel information and room selection below. Added image slider with navigation buttons (prev/next), slide indicators, and smooth transitions. Features: circular navigation buttons with hover effects, auto-loop carousel, responsive image display with object-fit cover, rounded corners (12px top). Implemented `changeSlide()` and `goToSlide()` JavaScript functions for slider control. New CSS classes: .hotel-image-slider, .slider-btn, .slider-indicators, .hotel-card-content. Added Google Maps button next to hotel address - clicking opens hotel location in Google Maps in new tab using Google Maps Search API with encoded address parameter. Maps button styled with green color (bg-green-500 hover:bg-green-600) to match Continue button design consistency.
 -   **Search Page Date Filter with Calendar**: Integrated Flatpickr calendar widget into search page filters for date-based tour filtering. Added "ДАТА ТУРА" (Tour Date) section with calendar input in tours-search.html with full translation support via `search.tour_date` i18n key. Implemented date filtering logic in `searchTours()` that parses DD.MM.YYYY format, validates dates, and filters tours based on `availableMonths` and `availableDays` fields with type normalization (supports both string and numeric arrays). Calendar features: Russian/English localization that updates on language change, minDate set to tomorrow, onChange handler triggers search. Extended `checkUrlParams()` to process `date` URL parameter for seamless homepage-to-search navigation with date selection.
 -   **Search Page Top Bar Removal**: Removed non-functional top search bar from tours-search.html page (search-hero block with query/country/city inputs and Search button) to eliminate duplicate controls and streamline UX. Sidebar filters remain as the sole filter interface.
@@ -78,9 +79,8 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Nodemailer**: Email sending.
 
 ### Payment Gateways
--   **AlifPay Legacy**: Fully configured.
--   **Payler API**: StartSession/Pay flow.
--   **Stripe API**: Payment Intents integration.
+-   **AlifPay**: Fully configured with merchant credentials (Key: 152065). Uses HMAC-SHA256 signature validation for security. Supports POST form redirect to https://web.alif.tj/ with callback webhooks.
+-   **Payler**: StartSession/Pay flow for Tajikistan market. Requires `PAYLER_KEY` environment variable (not yet configured). Supports TJS currency and card payments.
 
 ### Development Tools
 -   **TypeScript**: Static type checking.
