@@ -1068,7 +1068,21 @@
                                                     ${hotel.rating ? `<span class="ml-2 text-sm text-gray-600">(${hotel.rating})</span>` : ''}
                                                     ${hotel.category ? `<span class="ml-2 bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">${hotel.category}</span>` : ''}
                                                 </div>
-                                                ${hotel.address ? `<p class="text-gray-600 text-sm mb-2"><i class="fas fa-map-marker-alt text-gray-600 mr-1"></i>${hotel.address}</p>` : ''}
+                                                ${hotel.address ? `
+                                                    <div class="flex items-center mb-2">
+                                                        <p class="text-gray-600 text-sm flex-1">
+                                                            <i class="fas fa-map-marker-alt text-gray-600 mr-1"></i>${hotel.address}
+                                                        </p>
+                                                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotel.address)}" 
+                                                           target="_blank" 
+                                                           rel="noopener noreferrer"
+                                                           class="ml-2 inline-flex items-center px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-lg transition-colors duration-200"
+                                                           title="${window.currentLanguage === 'en' ? 'Open in Google Maps' : 'Открыть в Google Maps'}">
+                                                            <i class="fas fa-map-marked-alt mr-1"></i>
+                                                            ${window.currentLanguage === 'en' ? 'Map' : 'Карта'}
+                                                        </a>
+                                                    </div>
+                                                ` : ''}
                                                 ${hotel.description ? `<p class="text-gray-600 text-sm mb-2">${getHotelDescription(hotel)}</p>` : ''}
                                             </div>
 
