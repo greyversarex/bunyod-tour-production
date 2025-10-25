@@ -584,11 +584,11 @@ model NewsletterSubscriber {
 
 model Slide {
   id          Int      @id @default(autoincrement())
-  title       String
-  description String
+  title       Json
+  description Json
   image       String?
   link        String?
-  buttonText  String?
+  buttonText  Json?
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   cityId      Int?     @map("city_id")
