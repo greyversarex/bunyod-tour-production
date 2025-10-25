@@ -84,13 +84,30 @@ export const getSlides = async (req: Request, res: Response) => {
 // Get all slides for admin (including inactive)
 export const getAllSlides = async (req: Request, res: Response) => {
   try {
-    const slides = await prisma.slide.findMany({
-      orderBy: { order: 'asc' }
+    const rows = await prisma.slide.findMany({
+      orderBy: { order: 'asc' },
+      include: { city: true }
     });
+
+    // 🛡️ SAFE MAPPING: Parse all JSON fields for admin panel
+    const data = rows.map(s => ({
+      id: s.id,
+      title: parseML(s.title),
+      description: parseML(s.description),
+      image: s.image,
+      link: s.link ?? null,
+      buttonText: s.buttonText ? parseML(s.buttonText) : null,
+      order: s.order,
+      isActive: s.isActive,
+      cityId: s.cityId,
+      city: s.city ? { id: s.city.id, name: s.city.name } : null,
+      createdAt: s.createdAt,
+      updatedAt: s.updatedAt
+    }));
 
     res.json({
       success: true,
-      data: slides
+      data
     });
   } catch (error) {
     console.error('Error fetching all slides:', error);
@@ -108,7 +125,8 @@ export const getSlideById = async (req: Request, res: Response): Promise<void> =
     const { includeRaw } = req.query;
     
     const slide = await prisma.slide.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: parseInt(id) },
+      include: { city: true }
     });
 
     if (!slide) {
@@ -119,15 +137,21 @@ export const getSlideById = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Если запрошены raw данные (для админки), добавляем распарсенные JSON объекты
-    const responseData = includeRaw === 'true' ? {
-      ...slide,
-      _raw: {
-        title: safeJsonParse(slide.title),
-        description: safeJsonParse(slide.description),
-        buttonText: safeJsonParse(slide.buttonText)
-      }
-    } : slide;
+    // 🛡️ ALWAYS parse JSON fields correctly for admin panel
+    const responseData = {
+      id: slide.id,
+      title: parseML(slide.title),
+      description: parseML(slide.description),
+      image: slide.image,
+      link: slide.link ?? null,
+      buttonText: slide.buttonText ? parseML(slide.buttonText) : null,
+      order: slide.order,
+      isActive: slide.isActive,
+      cityId: slide.cityId,
+      city: slide.city ? { id: slide.city.id, name: slide.city.name } : null,
+      createdAt: slide.createdAt,
+      updatedAt: slide.updatedAt
+    };
 
     res.json({
       success: true,
