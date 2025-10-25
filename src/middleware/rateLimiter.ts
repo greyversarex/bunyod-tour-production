@@ -18,6 +18,7 @@ export const loginLimiter = rateLimit({
   },
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  validate: { trustProxy: false }, // Allow trust proxy за Nginx
   handler: (req, res) => {
     console.warn(`⚠️ Rate limit exceeded for IP: ${req.ip} on ${req.path}`);
     res.status(429).json({
@@ -41,6 +42,7 @@ export const apiLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Allow trust proxy за Nginx
   skip: (req) => {
     // Пропускаем rate limiting для статических файлов
     return req.path.startsWith('/public/') || 
@@ -66,6 +68,7 @@ export const orderLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Allow trust proxy за Nginx
   handler: (req, res) => {
     console.warn(`⚠️ Order rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
@@ -88,7 +91,8 @@ export const uploadLimiter = rateLimit({
     message: 'Слишком много загрузок файлов. Попробуйте позже.'
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  validate: { trustProxy: false } // Allow trust proxy за Nginx
 });
 
 /**
@@ -104,6 +108,7 @@ export const registrationLimiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Allow trust proxy за Nginx
   handler: (req, res) => {
     console.warn(`⚠️ Registration rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
