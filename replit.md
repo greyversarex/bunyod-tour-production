@@ -34,6 +34,7 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 -   **Banner & City Images System**: Separated systems for banner slider management, city reference data, and city card images. Multilingual banner slider support.
 -   **Tour Share Functionality**: Share button on tour pages with copy link and native Web Share API options.
 -   **Homepage Filtering**: Enhanced city filtering to display all cities independently of country selection, and seamless integration of homepage filters to the search page. Removed non-functional elements from search page.
+-   **Smart Autocomplete Search**: Real-time search suggestions across 6 entity types (tours, hotels, countries, cities, categories, tour types) with multilingual support (Russian/English). Features intelligent navigation routing - direct links for specific entities (tours/hotels) and filtered search page for categories/locations. Supports proper Cyrillic URL encoding with 300ms debounce for optimal performance.
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for all core entities, including booking table with guide assignment and tour status. Smart hotel filtering in tour modal with city-based grouping.

@@ -407,8 +407,25 @@ function displaySuggestions(suggestions) {
         typeSpan.className = 'suggestion-type';
         // Переводим тип в зависимости от языка
         const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
-        const translatedType = suggestion.type === 'тур' || suggestion.type === 'tour' 
-            ? (currentLang === 'ru' ? 'тур' : 'tour') 
+        const typeTranslations = {
+            'тур': { ru: 'тур', en: 'tour' },
+            'tour': { ru: 'тур', en: 'tour' },
+            'отель': { ru: 'отель', en: 'hotel' },
+            'hotel': { ru: 'отель', en: 'hotel' },
+            'страна': { ru: 'страна', en: 'country' },
+            'country': { ru: 'страна', en: 'country' },
+            'город': { ru: 'город', en: 'city' },
+            'city': { ru: 'город', en: 'city' },
+            'категория': { ru: 'категория', en: 'category' },
+            'category': { ru: 'категория', en: 'category' },
+            'тип тура': { ru: 'тип тура', en: 'tour type' },
+            'tour type': { ru: 'тип тура', en: 'tour type' },
+            'место': { ru: 'место', en: 'place' },
+            'place': { ru: 'место', en: 'place' }
+        };
+        const typeNormalized = suggestion.type.toLowerCase();
+        const translatedType = typeTranslations[typeNormalized] 
+            ? typeTranslations[typeNormalized][currentLang] 
             : suggestion.type;
         typeSpan.textContent = translatedType; // Безопасная вставка текста
         
@@ -424,19 +441,40 @@ function displaySuggestions(suggestions) {
 
 // Функция для получения иконки подсказки
 function getSuggestionIcon(type) {
-    switch(type) {
-        case 'тур':
-        case 'tour':
-            return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>';
-        case 'место':
-        case 'place':
-            return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>';
-        case 'категория':
-        case 'category':
-            return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>';
-        default:
-            return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>';
+    const typeNormalized = type.toLowerCase();
+    
+    // Тур
+    if (typeNormalized === 'тур' || typeNormalized === 'tour') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>';
     }
+    
+    // Отель
+    if (typeNormalized === 'отель' || typeNormalized === 'hotel') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>';
+    }
+    
+    // Страна
+    if (typeNormalized === 'страна' || typeNormalized === 'country') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>';
+    }
+    
+    // Город
+    if (typeNormalized === 'город' || typeNormalized === 'city') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>';
+    }
+    
+    // Категория
+    if (typeNormalized === 'категория' || typeNormalized === 'category') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>';
+    }
+    
+    // Тип тура
+    if (typeNormalized === 'тип тура' || typeNormalized === 'tour type') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>';
+    }
+    
+    // По умолчанию - иконка поиска
+    return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>';
 }
 
 // Функция для отображения стандартных подсказок
@@ -465,14 +503,77 @@ function selectSuggestion(text, type, id) {
     searchInput.value = text;
     hideSuggestions();
     
-    // Автоматически запускаем поиск
-    if ((type === 'тур' || type === 'tour') && id) {
-        // Если это тур и есть ID, переходим на страницу тура
+    // Определяем тип результата и куда переходить
+    const typeNormalized = type.toLowerCase();
+    
+    // Туры → страница тура
+    if ((typeNormalized === 'тур' || typeNormalized === 'tour') && id) {
         window.location.href = `tour.html?id=${id}`;
-    } else {
-        // Иначе выполняем поиск
-        performSearch();
+        return;
     }
+    
+    // Отели → страница отеля
+    if ((typeNormalized === 'отель' || typeNormalized === 'hotel') && id) {
+        window.location.href = `hotel-template.html?id=${id}`;
+        return;
+    }
+    
+    // Страны → страница поиска с фильтром по стране
+    if (typeNormalized === 'страна' || typeNormalized === 'country') {
+        const params = new URLSearchParams();
+        if (id) {
+            params.append('countryId', id);
+        } else {
+            params.append('country', text);
+        }
+        window.location.href = `tours-search.html?${params.toString()}`;
+        return;
+    }
+    
+    // Города → страница поиска с фильтром по городу
+    if (typeNormalized === 'город' || typeNormalized === 'city') {
+        const params = new URLSearchParams();
+        if (id) {
+            params.append('cityId', id);
+        } else {
+            params.append('city', text);
+        }
+        window.location.href = `tours-search.html?${params.toString()}`;
+        return;
+    }
+    
+    // Категории → страница поиска с фильтром по категории
+    if (typeNormalized === 'категория' || typeNormalized === 'category') {
+        const params = new URLSearchParams();
+        if (id) {
+            params.append('categoryId', id);
+        } else {
+            params.append('category', text);
+        }
+        window.location.href = `tours-search.html?${params.toString()}`;
+        return;
+    }
+    
+    // Типы туров → страница поиска с фильтром по формату
+    if (typeNormalized === 'тип тура' || typeNormalized === 'tour type') {
+        const params = new URLSearchParams();
+        // Преобразуем название в значение формата
+        const formatMap = {
+            'персональный': 'individual',
+            'individual': 'individual',
+            'групповой персональный': 'group_private',
+            'private group': 'group_private',
+            'групповой общий': 'group_shared',
+            'shared group': 'group_shared'
+        };
+        const format = formatMap[text.toLowerCase()] || text;
+        params.append('format', format);
+        window.location.href = `tours-search.html?${params.toString()}`;
+        return;
+    }
+    
+    // По умолчанию → обычный поиск
+    performSearch();
 }
 
 // Функция для показа подсказок

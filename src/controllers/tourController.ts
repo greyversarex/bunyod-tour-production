@@ -1372,12 +1372,10 @@ export class TourController {
         });
       }
 
-      // Get tours with titles matching the query
+      const suggestions: Array<{text: string, textEn?: string, type: string, id?: number}> = [];
+      
+      // 1. Add tour suggestions
       const tours = await TourModel.findAll();
-      
-      const suggestions: Array<{text: string, type: string, id?: number}> = [];
-      
-      // Add tour suggestions
       tours.forEach((tour: any) => {
         try {
           let title: any;
@@ -1398,15 +1396,17 @@ export class TourController {
           if (title.ru && title.ru.toLowerCase().includes(searchQuery)) {
             suggestions.push({
               text: title.ru,
+              textEn: title.en,
               type: 'тур',
               id: tour.id
             });
           }
           
           // Check English title
-          if (title.en && title.en.toLowerCase().includes(searchQuery)) {
+          if (title.en && title.en.toLowerCase().includes(searchQuery) && title.en !== title.ru) {
             suggestions.push({
               text: title.en,
+              textEn: title.en,
               type: 'тур',
               id: tour.id
             });
@@ -1414,48 +1414,182 @@ export class TourController {
           
         } catch (error) {
           console.error('Error processing tour title:', tour.id, error);
-          // Если что-то пошло не так, пропускаем этот тур
         }
       });
 
-      // Add location suggestions
-      const locations = [
-        'Памир', 'Искандеркуль', 'Душанбе', 'Худжанд', 'Файзабад', 
-        'Хорог', 'Калаи-Хумб', 'Мургаб', 'Каракуль', 'Ваханский коридор',
-        'Самарканд', 'Ташкент', 'Бишкек', 'Алматы'
-      ];
+      // 2. Add country suggestions
+      const countries = await prisma.country.findMany({
+        where: { isActive: true }
+      });
       
-      locations.forEach(location => {
-        if (location.toLowerCase().includes(searchQuery)) {
+      countries.forEach((country: any) => {
+        const nameRu = country.nameRu || '';
+        const nameEn = country.nameEn || '';
+        
+        if (nameRu.toLowerCase().includes(searchQuery)) {
           suggestions.push({
-            text: location,
-            type: 'место'
+            text: nameRu,
+            textEn: nameEn,
+            type: 'страна',
+            id: country.id
+          });
+        }
+        
+        if (nameEn && nameEn.toLowerCase().includes(searchQuery) && nameEn !== nameRu) {
+          suggestions.push({
+            text: nameEn,
+            textEn: nameEn,
+            type: 'страна',
+            id: country.id
           });
         }
       });
 
-      // Add category suggestions
-      const categories = [
-        'Горные туры', 'Трекинг', 'Культурные туры', 'Исторические туры',
-        'Природные туры', 'Приключенческие туры', 'Гастрономические туры',
-        'Однодневные', 'Многодневные', 'VIP туры'
-      ];
+      // 3. Add city suggestions
+      const cities = await prisma.city.findMany({
+        where: { isActive: true }
+      });
       
-      categories.forEach(category => {
-        if (category.toLowerCase().includes(searchQuery)) {
+      cities.forEach((city: any) => {
+        const nameRu = city.nameRu || '';
+        const nameEn = city.nameEn || '';
+        
+        if (nameRu.toLowerCase().includes(searchQuery)) {
           suggestions.push({
-            text: category,
-            type: 'категория'
+            text: nameRu,
+            textEn: nameEn,
+            type: 'город',
+            id: city.id
+          });
+        }
+        
+        if (nameEn && nameEn.toLowerCase().includes(searchQuery) && nameEn !== nameRu) {
+          suggestions.push({
+            text: nameEn,
+            textEn: nameEn,
+            type: 'город',
+            id: city.id
           });
         }
       });
 
-      // Remove duplicates and limit to 6 suggestions
+      // 4. Add category suggestions
+      const categories = await CategoryModel.findAll();
+      categories.forEach((category: any) => {
+        try {
+          let name: any;
+          
+          // Безопасная обработка поля name (может быть строкой или JSON)
+          if (typeof category.name === 'string') {
+            try {
+              name = safeJsonParse(category.name);
+            } catch (e) {
+              name = { ru: category.name, en: category.name };
+            }
+          } else {
+            name = category.name;
+          }
+          
+          // Check Russian name
+          if (name.ru && name.ru.toLowerCase().includes(searchQuery)) {
+            suggestions.push({
+              text: name.ru,
+              textEn: name.en,
+              type: 'категория',
+              id: category.id
+            });
+          }
+          
+          // Check English name
+          if (name.en && name.en.toLowerCase().includes(searchQuery) && name.en !== name.ru) {
+            suggestions.push({
+              text: name.en,
+              textEn: name.en,
+              type: 'категория',
+              id: category.id
+            });
+          }
+          
+        } catch (error) {
+          console.error('Error processing category name:', category.id, error);
+        }
+      });
+
+      // 5. Add tour type suggestions
+      const tourTypes = [
+        { ru: 'Персональный', en: 'Individual', value: 'individual' },
+        { ru: 'Групповой персональный', en: 'Private Group', value: 'group_private' },
+        { ru: 'Групповой общий', en: 'Shared Group', value: 'group_shared' }
+      ];
+      
+      tourTypes.forEach(tourType => {
+        if (tourType.ru.toLowerCase().includes(searchQuery)) {
+          suggestions.push({
+            text: tourType.ru,
+            textEn: tourType.en,
+            type: 'тип тура',
+            id: undefined // No ID for tour types
+          });
+        }
+        
+        if (tourType.en.toLowerCase().includes(searchQuery)) {
+          suggestions.push({
+            text: tourType.en,
+            textEn: tourType.en,
+            type: 'тип тура',
+            id: undefined
+          });
+        }
+      });
+
+      // 6. Add hotel suggestions
+      const hotels = await HotelModel.findAll();
+      hotels.forEach((hotel: any) => {
+        try {
+          let name: any;
+          
+          // Безопасная обработка поля name
+          if (typeof hotel.name === 'string') {
+            try {
+              name = safeJsonParse(hotel.name);
+            } catch (e) {
+              name = { ru: hotel.name, en: hotel.name };
+            }
+          } else {
+            name = hotel.name;
+          }
+          
+          // Check Russian name
+          if (name.ru && name.ru.toLowerCase().includes(searchQuery)) {
+            suggestions.push({
+              text: name.ru,
+              textEn: name.en,
+              type: 'отель',
+              id: hotel.id
+            });
+          }
+          
+          // Check English name
+          if (name.en && name.en.toLowerCase().includes(searchQuery) && name.en !== name.ru) {
+            suggestions.push({
+              text: name.en,
+              textEn: name.en,
+              type: 'отель',
+              id: hotel.id
+            });
+          }
+          
+        } catch (error) {
+          console.error('Error processing hotel name:', hotel.id, error);
+        }
+      });
+
+      // Remove duplicates and limit to 8 suggestions
       const uniqueSuggestions = suggestions
         .filter((suggestion, index, self) => 
-          index === self.findIndex(s => s.text === suggestion.text)
+          index === self.findIndex(s => s.text === suggestion.text && s.type === suggestion.type)
         )
-        .slice(0, 6);
+        .slice(0, 8);
 
       const response: ApiResponse = {
         success: true,
