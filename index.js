@@ -220,7 +220,7 @@ app.get('/tour-template.html', (req, res) => {
 // Tour page - explicit route BEFORE static middleware
 app.get('/tour.html', (req, res) => {
   console.log('🎯 Serving tour page with query:', req.query);
-  res.sendFile(path.join(__dirname, 'frontend', 'tour.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'tour-template.html'));
 });
 
 // Hotel template page - explicit route BEFORE static middleware
