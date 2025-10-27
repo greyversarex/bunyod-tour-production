@@ -153,96 +153,313 @@ const emailTemplates = {
     `
   }),
   
-  paymentConfirmation: (order: any, customer: Customer) => ({
-    subject: `Подтверждение оплаты заказа №${order.orderNumber}`,
-    html: `
+  paymentConfirmation: (order: any, customer: Customer) => {
+    const tourists = JSON.parse(order.tourists || '[]');
+    const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
+    const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || null;
+    const itinerary = order.tour?.itinerary ? JSON.parse(order.tour.itinerary) : [];
+    
+    return {
+      subject: `🎉 Билет подтвержден! Заказ №${order.orderNumber} - ${tourTitle}`,
+      html: `
       <!DOCTYPE html>
       <html>
       <head>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 0; }
-          .company-header { background: #3E3E3E; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-          .company-logo { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; display: block; }
-          .company-name { font-size: 28px; font-weight: bold; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-          .company-subtitle { font-size: 14px; margin: 5px 0 0 0; opacity: 0.9; }
-          .header { background: #10b981; color: white; padding: 30px; text-align: center; }
-          .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+          .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+          .company-header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 25px; text-align: center; }
+          .company-logo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px; display: block; border: 3px solid white; }
+          .company-name { font-size: 32px; font-weight: bold; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+          .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
+          .success-banner { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 35px 20px; text-align: center; }
+          .success-icon { font-size: 48px; margin-bottom: 10px; }
+          .success-title { font-size: 28px; font-weight: bold; margin: 0 0 10px 0; }
+          .success-subtitle { font-size: 16px; opacity: 0.95; margin: 0; }
+          .voucher-section { background: #fff; padding: 30px; }
+          .voucher-header { text-align: center; border-bottom: 3px dashed #e5e7eb; padding-bottom: 20px; margin-bottom: 25px; }
+          .order-number { font-size: 24px; font-weight: bold; color: #667eea; margin: 0; }
+          .order-date { color: #6b7280; font-size: 14px; margin: 5px 0 0 0; }
+          .section-title { background: #f3f4f6; padding: 12px 15px; font-weight: bold; color: #1f2937; margin: 25px 0 15px 0; border-left: 4px solid #667eea; }
+          .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+          .detail-item { }
+          .detail-label { font-size: 12px; color: #6b7280; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+          .detail-value { font-size: 15px; font-weight: 600; color: #1f2937; }
+          .tourists-list { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0; }
+          .tourist-item { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+          .tourist-item:last-child { border-bottom: none; }
+          .tourist-name { font-weight: 600; color: #1f2937; }
+          .tourist-details { font-size: 13px; color: #6b7280; margin-top: 3px; }
+          .itinerary-day { background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #667eea; }
+          .itinerary-day-title { font-weight: bold; color: #667eea; margin-bottom: 8px; }
+          .itinerary-activities { font-size: 14px; color: #4b5563; line-height: 1.8; }
+          .payment-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0; }
+          .payment-amount { font-size: 36px; font-weight: bold; margin: 10px 0; }
+          .payment-status { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 14px; }
+          .contact-section { background: #f3f4f6; padding: 20px; text-align: center; margin-top: 30px; border-radius: 8px; }
+          .contact-item { display: inline-block; margin: 0 15px; font-size: 14px; color: #4b5563; }
+          .footer { text-align: center; padding: 25px; background: #f9fafb; color: #6b7280; font-size: 13px; }
+          .btn-primary { display: inline-block; padding: 14px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+          @media only screen and (max-width: 600px) {
+            .detail-grid { grid-template-columns: 1fr; }
+          }
         </style>
       </head>
       <body>
         <div class="container">
+          <!-- Company Header -->
           <div class="company-header">
-            <img src="${process.env.PUBLIC_URL || 'http://localhost:5000'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
+            <img src="${process.env.PUBLIC_URL || 'http://bunyodtour.tj'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
-          <div class="header">
-            <h1>Оплата получена!</h1>
+          
+          <!-- Success Banner -->
+          <div class="success-banner">
+            <div class="success-icon">✅</div>
+            <h2 class="success-title">Оплата подтверждена!</h2>
+            <p class="success-subtitle">Ваш тур забронирован. Приготовьтесь к незабываемому путешествию!</p>
           </div>
-          <div class="content">
-            <p>Уважаемый(ая) ${customer.fullName},</p>
-            <p>Мы получили вашу оплату для заказа №${order.orderNumber}.</p>
-            <p>Сумма: <strong>$${order.totalAmount}</strong></p>
-            <p>Способ оплаты: ${order.paymentMethod}</p>
-            <p>Ваш тур полностью подтвержден. Желаем вам приятного путешествия!</p>
-            <p>С уважением,<br>Команда Bunyod-Tour</p>
+          
+          <!-- Voucher Section -->
+          <div class="voucher-section">
+            <div class="voucher-header">
+              <p class="order-number">БИЛЕТ №${order.orderNumber}</p>
+              <p class="order-date">Дата заказа: ${new Date(order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            </div>
+            
+            <!-- Customer Info -->
+            <div class="section-title">👤 Информация о клиенте</div>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">Имя</div>
+                <div class="detail-value">${customer.fullName}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Email</div>
+                <div class="detail-value">${customer.email}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Телефон</div>
+                <div class="detail-value">${customer.phone || 'Не указан'}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Количество туристов</div>
+                <div class="detail-value">${tourists.length} ${tourists.length === 1 ? 'человек' : 'человек'}</div>
+              </div>
+            </div>
+            
+            <!-- Tour Details -->
+            <div class="section-title">🗺️ Детали тура</div>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">Название тура</div>
+                <div class="detail-value">${tourTitle}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Дата начала</div>
+                <div class="detail-value">${new Date(order.tourDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              </div>
+              ${hotelName ? `
+              <div class="detail-item">
+                <div class="detail-label">Отель</div>
+                <div class="detail-value">${hotelName}</div>
+              </div>
+              ` : ''}
+              ${order.pickupLocation ? `
+              <div class="detail-item">
+                <div class="detail-label">Место встречи</div>
+                <div class="detail-value">${order.pickupLocation}</div>
+              </div>
+              ` : ''}
+            </div>
+            
+            <!-- Tourists List -->
+            <div class="section-title">👥 Список туристов</div>
+            <div class="tourists-list">
+              ${tourists.map((tourist: any, index: number) => `
+                <div class="tourist-item">
+                  <div class="tourist-name">${index + 1}. ${tourist.fullName}</div>
+                  <div class="tourist-details">
+                    📅 Дата рождения: ${tourist.birthDate || 'Не указана'} | 
+                    🆔 Паспорт: ${tourist.passportNumber || 'Не указан'}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            
+            ${itinerary && itinerary.length > 0 ? `
+            <!-- Itinerary -->
+            <div class="section-title">📍 Программа тура</div>
+            ${itinerary.map((day: any, index: number) => `
+              <div class="itinerary-day">
+                <div class="itinerary-day-title">День ${index + 1}${day.dayTitle?.ru ? `: ${day.dayTitle.ru}` : ''}</div>
+                <div class="itinerary-activities">${day.activities?.ru || day.activities?.en || 'Информация отсутствует'}</div>
+              </div>
+            `).join('')}
+            ` : ''}
+            
+            <!-- Payment Summary -->
+            <div class="payment-summary">
+              <div>Общая стоимость</div>
+              <div class="payment-amount">${order.totalAmount} ${order.currency || 'TJS'}</div>
+              <div class="payment-status">✓ Оплачено ${order.paymentMethod || 'онлайн'}</div>
+            </div>
+            
+            <!-- Contact Section -->
+            <div class="contact-section">
+              <h3 style="margin-top: 0; color: #1f2937;">Нужна помощь?</h3>
+              <div class="contact-item">📞 +992 123 456 789</div>
+              <div class="contact-item">✉️ info@bunyodtour.tj</div>
+              <div class="contact-item">🌐 www.bunyodtour.tj</div>
+            </div>
+          </div>
+          
+          <!-- Footer -->
+          <div class="footer">
+            <p><strong>Важная информация:</strong></p>
+            <p style="font-size: 12px; line-height: 1.6;">
+              • Пожалуйста, сохраните этот билет и предъявите его гиду в день тура<br>
+              • Прибудьте на место встречи за 15 минут до начала тура<br>
+              • При возникновении вопросов свяжитесь с нами по телефону или email
+            </p>
+            <p style="margin-top: 20px;">© ${new Date().getFullYear()} Bunyod-Tour. Все права защищены.</p>
           </div>
         </div>
       </body>
       </html>
     `
-  }),
+    };
+  },
   
-  adminNotification: (order: any, customer: Customer, tour: any) => ({
-    subject: `Новый заказ №${order.orderNumber}`,
-    html: `
+  adminNotification: (order: any, customer: Customer, tour: any) => {
+    const tourists = JSON.parse(order.tourists || '[]');
+    const tourTitle = tour.title?.ru || tour.title?.en || 'Tour';
+    const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || 'Не выбран';
+    
+    return {
+      subject: `💰 Новая оплата! Заказ №${order.orderNumber} - ${order.totalAmount} ${order.currency || 'TJS'}`,
+      html: `
       <!DOCTYPE html>
       <html>
       <head>
         <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 0; }
-          .company-header { background: #3E3E3E; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-          .company-logo { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; display: block; }
-          .company-name { font-size: 28px; font-weight: bold; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
-          .company-subtitle { font-size: 14px; margin: 5px 0 0 0; opacity: 0.9; }
-          .header { background: #667eea; color: white; padding: 20px; text-align: center; }
-          .content { background: #f8f9fa; padding: 20px; border-radius: 0 0 10px 10px; }
-          .details { background: white; padding: 15px; margin: 15px 0; border-radius: 5px; }
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+          .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4 20px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+          .header h1 { margin: 0; font-size: 26px; }
+          .header p { margin: 10px 0 0 0; opacity: 0.95; }
+          .alert-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px; color: #92400e; }
+          .content { padding: 30px; }
+          .info-block { background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea; }
+          .info-title { font-weight: bold; color: #1f2937; margin-bottom: 15px; font-size: 16px; }
+          .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e7eb; }
+          .info-row:last-child { border-bottom: none; }
+          .info-label { color: #6b7280; font-size: 14px; }
+          .info-value { font-weight: 600; color: #1f2937; }
+          .amount-box { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
+          .amount { font-size: 36px; font-weight: bold; }
+          .btn { display: inline-block; padding: 14px 28px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
+          .footer { text-align: center; padding: 20px; background: #f9fafb; color: #6b7280; font-size: 13px; }
         </style>
       </head>
       <body>
         <div class="container">
-          <div class="company-header">
-            <img src="${process.env.PUBLIC_URL || 'http://localhost:5000'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
-            <h1 class="company-name">BUNYOD-TOUR</h1>
-            <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
-          </div>
           <div class="header">
-            <h2>Новый заказ в системе</h2>
+            <h1>🔔 Новая оплата получена!</h1>
+            <p>Заказ успешно оплачен через ${order.paymentMethod || 'платежную систему'}</p>
           </div>
+          
+          <div class="alert-box">
+            <strong>⚡ Требуется действие:</strong> Проверьте детали заказа и подготовьте тур для клиента
+          </div>
+          
           <div class="content">
-            <div class="details">
-              <h3>Информация о заказе</h3>
-              <p><strong>Номер:</strong> ${order.orderNumber}</p>
-              <p><strong>Тур:</strong> ${tour.title?.ru || tour.title?.en}</p>
-              <p><strong>Дата:</strong> ${new Date(order.tourDate).toLocaleDateString('ru-RU')}</p>
-              <p><strong>Сумма:</strong> $${order.totalAmount}</p>
+            <!-- Order Info -->
+            <div class="info-block">
+              <div class="info-title">📋 Информация о заказе</div>
+              <div class="info-row">
+                <span class="info-label">Номер заказа</span>
+                <span class="info-value">${order.orderNumber}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Дата заказа</span>
+                <span class="info-value">${new Date(order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Статус оплаты</span>
+                <span class="info-value" style="color: #10b981;">✓ Оплачено</span>
+              </div>
             </div>
-            <div class="details">
-              <h3>Информация о клиенте</h3>
-              <p><strong>Имя:</strong> ${customer.fullName}</p>
-              <p><strong>Email:</strong> ${customer.email}</p>
-              <p><strong>Телефон:</strong> ${customer.phone}</p>
+            
+            <!-- Tour Info -->
+            <div class="info-block">
+              <div class="info-title">🗺️ Детали тура</div>
+              <div class="info-row">
+                <span class="info-label">Название</span>
+                <span class="info-value">${tourTitle}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Дата начала</span>
+                <span class="info-value">${new Date(order.tourDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Количество туристов</span>
+                <span class="info-value">${tourists.length} чел.</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Отель</span>
+                <span class="info-value">${hotelName}</span>
+              </div>
+              ${order.pickupLocation ? `
+              <div class="info-row">
+                <span class="info-label">Место встречи</span>
+                <span class="info-value">${order.pickupLocation}</span>
+              </div>
+              ` : ''}
             </div>
-            <p><a href="http://localhost:5000/admin-dashboard.html" style="background: #667eea; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Открыть в админ-панели</a></p>
+            
+            <!-- Customer Info -->
+            <div class="info-block">
+              <div class="info-title">👤 Информация о клиенте</div>
+              <div class="info-row">
+                <span class="info-label">Имя</span>
+                <span class="info-value">${customer.fullName}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">${customer.email}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Телефон</span>
+                <span class="info-value">${customer.phone || 'Не указан'}</span>
+              </div>
+            </div>
+            
+            <!-- Amount Box -->
+            <div class="amount-box">
+              <div style="font-size: 16px; margin-bottom: 5px;">Сумма заказа</div>
+              <div class="amount">${order.totalAmount} ${order.currency || 'TJS'}</div>
+              <div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">Оплачено ${order.paymentMethod || 'онлайн'}</div>
+            </div>
+            
+            <div style="text-align: center;">
+              <a href="${process.env.PUBLIC_URL || 'http://bunyodtour.tj'}/admin-dashboard.html" class="btn">
+                Открыть в админ-панели →
+              </a>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <p><strong>Bunyod-Tour</strong> - Система управления туристическими заказами</p>
+            <p style="margin-top: 10px;">© ${new Date().getFullYear()} Все права защищены</p>
           </div>
         </div>
       </body>
       </html>
     `
-  })
+    };
+  }
 };
 
 // Email service functions

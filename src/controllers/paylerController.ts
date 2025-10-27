@@ -285,10 +285,15 @@ export const paylerController = {
 
         console.log('✅ Payment confirmed for order:', order_id);
 
-        // Отправить email подтверждение
+        // Отправить email подтверждение клиенту и уведомление администратору
         try {
+          // Email клиенту с билетом
           await emailService.sendPaymentConfirmation(order, order.customer);
-          console.log('✅ Confirmation email sent for order:', order_id);
+          console.log('✅ Confirmation email sent to customer:', order.customer.email);
+          
+          // Email администратору о новой оплате
+          await emailService.sendAdminNotification(order, order.customer, order.tour);
+          console.log('✅ Admin notification email sent');
         } catch (emailError) {
           console.error('❌ Email sending failed:', emailError);
         }
