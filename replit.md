@@ -66,7 +66,16 @@ The backend utilizes **Express.js and TypeScript** with a **modular architecture
 
 ### Payment Gateways
 -   **AlifPay**: Fully configured with merchant credentials (Key: 152065). Uses HMAC-SHA256 signature validation.
--   **Payler**: StartSession/Pay flow for Tajikistan market. Requires `PAYLER_KEY` environment variable.
+-   **Payler**: Full integration with comprehensive API support for Tajikistan market. Features:
+    -   **StartSession API**: Creates payment sessions with email support, return URLs (success/decline), and TJS currency (amounts in dиrams - minimum units).
+    -   **GetStatus API**: Retrieves current payment status. Statuses: `Charged` (success), `Refunded` (returned), `Authorized` (blocked), `Rejected` (failed).
+    -   **Callback/Webhook Handler**: Processes POST callbacks from Payler (IP: 178.20.235.180). Callback sends only `order_id`, status is retrieved via GetStatus API. Returns HTTP 200 to confirm receipt.
+    -   **Refund API**: Supports full and partial refunds for `Charged` payments. Requires `PAYLER_PASSWORD` for authentication.
+    -   **Environment Variables**: Requires `PAYLER_KEY` (merchant identifier) and `PAYLER_PASSWORD` (for operations like refunds).
+    -   **API Endpoints**:
+        -   `POST /api/payments/payler/create` - Create payment session
+        -   `POST /api/payments/payler/callback` - Handle Payler webhooks
+        -   `POST /api/payments/payler/refund` - Process refunds
 
 ### Development Tools
 -   **TypeScript**: Static type checking.

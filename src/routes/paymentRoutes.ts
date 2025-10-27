@@ -199,6 +199,9 @@ router.post('/payler/create', paylerController.createPayment);
 // Callback от Payler с улучшенной валидацией
 router.post('/payler/callback', paylerController.callback);
 
+// Возврат средств через Payler
+router.post('/payler/refund', paylerController.refund);
+
 // ✅ НОВЫЕ БЕЗОПАСНЫЕ ALIF РОУТЫ
 // Создание платежа через AlifPay контроллер
 router.post('/alif/create', alifController.createPayment);
