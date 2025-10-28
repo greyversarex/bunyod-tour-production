@@ -147,7 +147,7 @@ export const alifController = {
         });
       }
 
-      if (status === 'success' || status === 'paid' || status === 'Charged') {
+      if (status === 'ok' || status === 'success' || status === 'paid' || status === 'Charged') {
         await prisma.order.update({
           where: { id: Number(orderId) },
           data: {
