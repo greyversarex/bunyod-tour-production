@@ -10,6 +10,8 @@ Frontend structure alignment: Admin panel must perfectly match the frontend home
 System integration preference: User requires simplified and unified pricing systems with single source of truth. Eliminated complex manual categorization in favor of automatic detection.
 Pricing logic: All tour types (including "Групповой общий") use the same per-person multiplication when priceType is "за человека".
 
+**CRITICAL WORK RULE**: Before starting any task, conduct thorough research of all related code, structure, dependencies, and potential impacts. Nothing should be broken or damaged. Work must be performed with utmost professionalism and responsibility. Quality is paramount.
+
 ## System Architecture
 
 ### Backend
