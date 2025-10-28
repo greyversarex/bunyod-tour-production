@@ -1,5 +1,8 @@
 import nodemailer from 'nodemailer';
 import { Order, Customer, Tour } from '@prisma/client';
+import puppeteer from 'puppeteer';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // Email configuration - in production, use environment variables
 const EMAIL_CONFIG = {
@@ -14,6 +17,221 @@ const EMAIL_CONFIG = {
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport(EMAIL_CONFIG);
+
+// PDF Generation Function
+async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer> {
+  const tourists = JSON.parse(order.tourists || '[]');
+  const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
+  const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || 'Не выбран';
+  const tourDuration = order.tour?.durationDays || parseInt(order.tour?.duration) || 1;
+  const tourType = order.tour?.tourType || order.tour?.format || 'Персональный';
+  const bookingRef = `BT-${order.id}${new Date().getFullYear()}`;
+  const submissionTime = new Date(order.createdAt || Date.now());
+  
+  // Parse tour services
+  let services = [];
+  try {
+    if (order.tour?.services) {
+      services = typeof order.tour.services === 'string' ? 
+        JSON.parse(order.tour.services) : order.tour.services;
+    }
+  } catch (e) {
+    console.warn('Error parsing tour services:', e);
+  }
+  
+  // Create HTML for PDF (matching booking-step3.html voucher design)
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f5f5f5; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .company-header { background: #3E3E3E; color: white; padding: 25px; text-align: center; }
+        .company-logo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px; }
+        .company-name { font-size: 32px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .company-subtitle { font-size: 14px; margin-top: 8px; opacity: 0.95; }
+        .voucher-content { padding: 40px; }
+        .voucher-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid #e5e7eb; margin-bottom: 25px; }
+        .date { color: #6b7280; }
+        .status-badge { background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; }
+        .tour-title { font-size: 26px; font-weight: bold; color: #1f2937; margin-bottom: 10px; }
+        .tour-subtitle { color: #6b7280; font-size: 16px; margin-bottom: 30px; }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-weight: bold; color: #1f2937; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .section-value { color: #4b5563; line-height: 1.8; }
+        .tourist-list { background: #f9fafb; padding: 15px; border-radius: 8px; margin-top: 10px; }
+        .tourist-item { padding: 8px 0; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; }
+        .tourist-item:last-child { border-bottom: none; }
+        .tourist-number { width: 24px; height: 24px; background: #6b7280; color: white; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin-right: 10px; }
+        .services-list { margin-top: 10px; }
+        .service-item { padding: 5px 0; color: #4b5563; }
+        .service-item::before { content: "✓"; color: #10b981; font-weight: bold; margin-right: 8px; }
+        .amount-box { background: #f3f4f6; padding: 20px; border-radius: 8px; text-align: center; margin-top: 30px; }
+        .amount-label { color: #6b7280; font-size: 14px; margin-bottom: 5px; }
+        .amount-value { font-size: 32px; font-weight: bold; color: #1f2937; }
+        .amount-usd { color: #6b7280; font-size: 14px; margin-top: 5px; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; margin-top: 30px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <!-- Company Header -->
+        <div class="company-header">
+          <div class="company-name">BUNYOD-TOUR</div>
+          <div class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</div>
+        </div>
+        
+        <div class="voucher-content">
+          <!-- Header with Date and Status -->
+          <div class="voucher-header">
+            <div class="date">📅 ${new Date(order.tourDate).toLocaleDateString('ru-RU')}</div>
+            <div class="status-badge">ПОДТВЕРЖДЕН</div>
+          </div>
+          
+          <!-- Tour Title -->
+          <div class="tour-title">${tourTitle}</div>
+          <div class="tour-subtitle">${tourType} - ${tourDuration} ${tourDuration > 1 ? 'дней' : 'день'}</div>
+          
+          <!-- Two Column Layout -->
+          <div class="two-column">
+            <!-- Left Column -->
+            <div>
+              ${customer.fullName ? `
+                <div class="section">
+                  <div class="section-title">Контактное лицо:</div>
+                  <div class="section-value">${customer.fullName}</div>
+                </div>
+              ` : ''}
+              
+              <div class="section">
+                <div class="section-title">Участники тура:</div>
+                <div class="section-value">${tourists.length} ${tourists.length === 1 ? 'человек' : 'человек'}</div>
+                ${tourists.length > 0 ? `
+                  <div class="tourist-list">
+                    ${tourists.map((tourist: any, index: number) => `
+                      <div class="tourist-item">
+                        <span class="tourist-number">${index + 1}</span>
+                        <span>${tourist.fullName} ${tourist.birthDate ? `(${tourist.birthDate})` : ''}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+              </div>
+              
+              <div class="section">
+                <div class="section-title">Язык тура:</div>
+                <div class="section-value">Russian</div>
+              </div>
+              
+              <div class="section">
+                <div class="section-title">Включено:</div>
+                <div class="services-list">
+                  ${services.map((service: any) => `
+                    <div class="service-item">${service.name}</div>
+                  `).join('')}
+                  ${hotelName !== 'Не выбран' ? '<div class="service-item">Проживание в отеле</div>' : ''}
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div>
+              <div class="section">
+                <div class="section-title">${bookingRef}</div>
+                <div class="section-value">Подтверждено ${submissionTime.toLocaleDateString('ru-RU')} ${submissionTime.toLocaleTimeString('ru-RU', {hour: '2-digit', minute:'2-digit'})} GMT+5</div>
+              </div>
+              
+              ${customer.phone ? `
+                <div class="section">
+                  <div class="section-title">Номер телефона клиента:</div>
+                  <div class="section-value">${customer.phone}</div>
+                </div>
+              ` : ''}
+              
+              <div class="section">
+                <div class="section-title">Место сбора:</div>
+                <div class="section-value">${order.tour?.pickupInfo || 'Рудаки парк'}</div>
+              </div>
+              
+              <div class="section">
+                <div class="section-title">Источник бронирования:</div>
+                <div class="section-value">Bunyod-Tour</div>
+              </div>
+              
+              <div class="section">
+                <div class="section-title">Код продукта:</div>
+                <div class="section-value">TOUR${order.tour?.id}TJ${tourDuration}D</div>
+              </div>
+              
+              <div class="section">
+                <div class="section-title">Гид тура:</div>
+                <div class="section-value">${order.guide ? (order.guide.name?.ru || order.guide.name?.en) : 'Назначается при начале тура'}</div>
+              </div>
+            </div>
+          </div>
+          
+          ${hotelName !== 'Не выбран' ? `
+            <div class="section">
+              <div class="section-title">Отель:</div>
+              <div class="section-value">${hotelName}</div>
+            </div>
+          ` : ''}
+          
+          ${order.wishes ? `
+            <div class="section">
+              <div class="section-title">Особые требования:</div>
+              <div class="section-value">${order.wishes}</div>
+            </div>
+          ` : ''}
+          
+          <!-- Total Amount -->
+          <div class="amount-box">
+            <div class="amount-label">Итоговая сумма:</div>
+            <div class="amount-value">${Math.round(order.totalAmount).toLocaleString()} TJS</div>
+            <div class="amount-usd">≈ ${Math.round(order.totalAmount * 0.091)} USD</div>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+          © ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.<br>
+          734042, Таджикистан, г. Душанбе, ул. Айни 104
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // Generate PDF using Puppeteer
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  
+  try {
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+    
+    const pdfBuffer = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '10mm',
+        right: '10mm',
+        bottom: '10mm',
+        left: '10mm'
+      }
+    });
+    
+    return pdfBuffer as Buffer;
+  } finally {
+    await browser.close();
+  }
+}
 
 // Email templates
 const emailTemplates = {
@@ -154,10 +372,7 @@ const emailTemplates = {
   }),
   
   paymentConfirmation: (order: any, customer: Customer) => {
-    const tourists = JSON.parse(order.tourists || '[]');
     const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
-    const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || null;
-    const itinerary = order.tour?.itinerary ? JSON.parse(order.tour.itinerary) : [];
     const paymentDate = new Date(order.updatedAt || order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
     
     return {
@@ -217,117 +432,29 @@ const emailTemplates = {
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
           
-          <!-- Greeting Message -->
+          <!-- Greeting Message with PDF Note -->
           <div class="greeting-section">
             <p class="greeting-text">Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
             <p class="greeting-text">
               Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>. 
               Подробно со всеми деталями вашего заказа вы можете ознакомиться в билете тура.
             </p>
+            <p class="greeting-text" style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+              📎 <strong>Билет тура прикреплён к письму в формате PDF</strong>
+            </p>
           </div>
           
-          <!-- Success Banner -->
-          <div class="success-banner">
-            <div class="success-icon">✅</div>
-            <h2 class="success-title">Оплата подтверждена!</h2>
-            <p class="success-subtitle">Ваш тур забронирован. Приготовьтесь к незабываемому путешествию!</p>
-          </div>
-          
-          <!-- Voucher Section -->
+          <!-- Contact Section -->
           <div class="voucher-section">
-            <div class="voucher-header">
-              <p class="order-number">БИЛЕТ №${order.orderNumber}</p>
-              <p class="order-date">Дата заказа: ${new Date(order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-            </div>
-            
-            <!-- Customer Info -->
-            <div class="section-title">👤 Информация о клиенте</div>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <div class="detail-label">Имя</div>
-                <div class="detail-value">${customer.fullName}</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">Email</div>
-                <div class="detail-value">${customer.email}</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">Телефон</div>
-                <div class="detail-value">${customer.phone || 'Не указан'}</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">Количество туристов</div>
-                <div class="detail-value">${tourists.length} ${tourists.length === 1 ? 'человек' : 'человек'}</div>
-              </div>
-            </div>
-            
-            <!-- Tour Details -->
-            <div class="section-title">🗺️ Детали тура</div>
-            <div class="detail-grid">
-              <div class="detail-item">
-                <div class="detail-label">Название тура</div>
-                <div class="detail-value">${tourTitle}</div>
-              </div>
-              <div class="detail-item">
-                <div class="detail-label">Дата начала</div>
-                <div class="detail-value">${new Date(order.tourDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
-              </div>
-              ${hotelName ? `
-              <div class="detail-item">
-                <div class="detail-label">Отель</div>
-                <div class="detail-value">${hotelName}</div>
-              </div>
-              ` : ''}
-              ${order.pickupLocation ? `
-              <div class="detail-item">
-                <div class="detail-label">Место встречи</div>
-                <div class="detail-value">${order.pickupLocation}</div>
-              </div>
-              ` : ''}
-            </div>
-            
-            <!-- Tourists List -->
-            <div class="section-title">👥 Список туристов</div>
-            <div class="tourists-list">
-              ${tourists.map((tourist: any, index: number) => `
-                <div class="tourist-item">
-                  <div class="tourist-name">${index + 1}. ${tourist.fullName}</div>
-                  <div class="tourist-details">
-                    📅 Дата рождения: ${tourist.birthDate || 'Не указана'} | 
-                    🆔 Паспорт: ${tourist.passportNumber || 'Не указан'}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-            
-            ${itinerary && itinerary.length > 0 ? `
-            <!-- Itinerary -->
-            <div class="section-title">📍 Программа тура</div>
-            ${itinerary.map((day: any, index: number) => `
-              <div class="itinerary-day">
-                <div class="itinerary-day-title">День ${index + 1}${day.dayTitle?.ru ? `: ${day.dayTitle.ru}` : ''}</div>
-                <div class="itinerary-activities">${day.activities?.ru || day.activities?.en || 'Информация отсутствует'}</div>
-              </div>
-            `).join('')}
-            ` : ''}
-            
-            <!-- Payment Summary -->
-            <div class="payment-summary">
-              <div>Общая стоимость</div>
-              <div class="payment-amount">${order.totalAmount} ${order.currency || 'TJS'}</div>
-              <div class="payment-status">✓ Оплачено ${order.paymentMethod || 'онлайн'}</div>
-            </div>
-            
-            <!-- Contact Section -->
             <div class="contact-section">
-              <h3 style="margin-top: 0; color: #1f2937;">Нужна помощь?</h3>
+              <h3 style="margin-top: 0; color: #1f2937;">Контактная информация</h3>
               <div style="text-align: left; max-width: 500px; margin: 0 auto; font-size: 14px; line-height: 1.8;">
                 <p style="margin: 5px 0;">☎️ +992 93 126 1134, +992 915 123 344</p>
                 <p style="margin: 5px 0;">💌 info@bunyodtour.tj</p>
                 <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj/ru" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
                 <p style="margin: 5px 0;">🌐 <a href="https://www.bunyodtour.com/" style="color: #667eea; text-decoration: none;">bunyodtour.com</a> (via TA)</p>
                 <p style="margin: 5px 0;">📱 WhatsApp: <a href="https://wa.me/992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
-                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a>, +992 882 35 3434</p>
+                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a>, <a href="https://t.me/+992882353434" style="color: #667eea; text-decoration: none;">+992 882 35 3434</a></p>
               </div>
             </div>
           </div>
@@ -529,14 +656,28 @@ export const emailService = {
     try {
       const template = emailTemplates.paymentConfirmation(order, customer);
       
+      console.log('Generating PDF ticket...');
+      const pdfBuffer = await generateTicketPDF(order, customer);
+      console.log('PDF ticket generated successfully');
+      
+      const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
+      const filename = `Ticket-${order.orderNumber}-${tourTitle.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.pdf`;
+      
       await transporter.sendMail({
         from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
         to: customer.email,
         subject: template.subject,
-        html: template.html
+        html: template.html,
+        attachments: [
+          {
+            filename: filename,
+            content: pdfBuffer,
+            contentType: 'application/pdf'
+          }
+        ]
       });
       
-      console.log(`Payment confirmation email sent to ${customer.email}`);
+      console.log(`Payment confirmation email with PDF ticket sent to ${customer.email}`);
       return true;
     } catch (error) {
       console.error('Error sending payment confirmation email:', error);
