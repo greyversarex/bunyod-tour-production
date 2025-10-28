@@ -6466,6 +6466,9 @@
                 maxPeople: tourMaxPeopleEl && tourMaxPeopleEl.value ? parseInt(tourMaxPeopleEl.value) : null,
                 // Сохраняем выбранные компоненты тура в поле services
                 services: JSON.stringify(selectedTourComponents || []),
+                // ДОБАВЛЕНО: Отправляем pricingComponents для совместимости со старой системой
+                pricingComponents: JSON.stringify(selectedTourComponents || []),
+                profitMargin: safeGetValue('profitMargin', 0, 'float'),
                 itinerary: JSON.stringify(convertDaysItineraryToArray()), // Обратная совместимость: сохраняем как массив
                 itineraryEn: JSON.stringify(convertDaysItineraryToArrayEn()), // Английская версия
                 startTimeOptions: JSON.stringify(window.tourStartTimes || []),
