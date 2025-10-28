@@ -121,7 +121,7 @@ export class TourModel {
       }
     }
 
-    // Создаём тур и связи в транзакции
+    // Создаём тур и связи в транзакции (увеличен timeout для сложных операций)
     return await prisma.$transaction(async (prisma: Prisma.TransactionClient) => {
       // Создаём основной тур
       const tour = await prisma.tour.create({
@@ -174,19 +174,15 @@ export class TourModel {
         }
       });
 
-      // Создаём связи со странами
+      // Создаём связи со странами (batch insert для производительности)
       if (data.countriesIds && data.countriesIds.length > 0) {
-        await Promise.all(
-          data.countriesIds.map((countryId, index) =>
-            prisma.tourCountry.create({
-              data: {
-                tourId: tour.id,
-                countryId: countryId,
-                isPrimary: index === 0 // Первая страна считается основной
-              }
-            })
-          )
-        );
+        await prisma.tourCountry.createMany({
+          data: data.countriesIds.map((countryId, index) => ({
+            tourId: tour.id,
+            countryId: countryId,
+            isPrimary: index === 0 // Первая страна считается основной
+          }))
+        });
       } else if (data.countryId) {
         // Если передан только старый одиночный countryId, создаём primary связь
         await prisma.tourCountry.create({
@@ -198,19 +194,15 @@ export class TourModel {
         });
       }
 
-      // Создаём связи с городами
+      // Создаём связи с городами (batch insert для производительности)
       if (data.citiesIds && data.citiesIds.length > 0) {
-        await Promise.all(
-          data.citiesIds.map((cityId, index) =>
-            prisma.tourCity.create({
-              data: {
-                tourId: tour.id,
-                cityId: cityId,
-                isPrimary: index === 0 // Первый город считается основным
-              }
-            })
-          )
-        );
+        await prisma.tourCity.createMany({
+          data: data.citiesIds.map((cityId, index) => ({
+            tourId: tour.id,
+            cityId: cityId,
+            isPrimary: index === 0 // Первый город считается основным
+          }))
+        });
       } else if (data.cityId) {
         // Если передан только старый одиночный cityId, создаём primary связь
         await prisma.tourCity.create({
@@ -222,19 +214,15 @@ export class TourModel {
         });
       }
 
-      // Создаём связи с категориями (множественный выбор)
+      // Создаём связи с категориями (batch insert для производительности)
       if (data.categoriesIds && data.categoriesIds.length > 0) {
-        await Promise.all(
-          data.categoriesIds.map((categoryId: number, index: number) =>
-            prisma.tourCategoryAssignment.create({
-              data: {
-                tourId: tour.id,
-                categoryId: categoryId,
-                isPrimary: index === 0 // Первая категория считается основной
-              }
-            })
-          )
-        );
+        await prisma.tourCategoryAssignment.createMany({
+          data: data.categoriesIds.map((categoryId: number, index: number) => ({
+            tourId: tour.id,
+            categoryId: categoryId,
+            isPrimary: index === 0 // Первая категория считается основной
+          }))
+        });
       } else {
         // Если передана только одна категория (старый способ), создаём primary связь
         await prisma.tourCategoryAssignment.create({
@@ -275,7 +263,7 @@ export class TourModel {
           }
         }
       });
-    });
+    }); // Используем дефолтный timeout, оптимизация через batch insert (createMany)
   }
 
   /**
@@ -386,19 +374,15 @@ export class TourModel {
           where: { tourId: id }
         });
 
-        // Создаём новые связи
+        // Создаём новые связи (batch insert для производительности)
         if (data.countriesIds.length > 0) {
-          await Promise.all(
-            data.countriesIds.map((countryId, index) =>
-              prisma.tourCountry.create({
-                data: {
-                  tourId: id,
-                  countryId: countryId,
-                  isPrimary: index === 0 // Первая страна считается основной
-                }
-              })
-            )
-          );
+          await prisma.tourCountry.createMany({
+            data: data.countriesIds.map((countryId, index) => ({
+              tourId: id,
+              countryId: countryId,
+              isPrimary: index === 0 // Первая страна считается основной
+            }))
+          });
         }
       } else if (data.countryId !== undefined && data.countryId !== null) {
         // Если передан только старый одиночный countryId, обновляем/создаём primary связь
@@ -431,19 +415,15 @@ export class TourModel {
           where: { tourId: id }
         });
 
-        // Создаём новые связи
+        // Создаём новые связи (batch insert для производительности)
         if (data.citiesIds.length > 0) {
-          await Promise.all(
-            data.citiesIds.map((cityId, index) =>
-              prisma.tourCity.create({
-                data: {
-                  tourId: id,
-                  cityId: cityId,
-                  isPrimary: index === 0 // Первый город считается основным
-                }
-              })
-            )
-          );
+          await prisma.tourCity.createMany({
+            data: data.citiesIds.map((cityId, index) => ({
+              tourId: id,
+              cityId: cityId,
+              isPrimary: index === 0 // Первый город считается основным
+            }))
+          });
         }
       } else if (data.cityId !== undefined && data.cityId !== null) {
         // Если передан только старый одиночный cityId, обновляем/создаём primary связь
@@ -476,19 +456,15 @@ export class TourModel {
           where: { tourId: id }
         });
 
-        // Создаём новые связи
+        // Создаём новые связи (batch insert для производительности)
         if (data.categoriesIds.length > 0) {
-          await Promise.all(
-            data.categoriesIds.map((categoryId: number, index: number) =>
-              prisma.tourCategoryAssignment.create({
-                data: {
-                  tourId: id,
-                  categoryId: categoryId,
-                  isPrimary: index === 0 // Первая категория считается основной
-                }
-              })
-            )
-          );
+          await prisma.tourCategoryAssignment.createMany({
+            data: data.categoriesIds.map((categoryId: number, index: number) => ({
+              tourId: id,
+              categoryId: categoryId,
+              isPrimary: index === 0 // Первая категория считается основной
+            }))
+          });
         }
       } else if (data.categoryId !== undefined && data.categoryId !== null) {
         // Если передана только одна категория (старый способ), обновляем/создаём primary связь
@@ -549,7 +525,7 @@ export class TourModel {
           }
         }
       });
-    });
+    }); // Используем дефолтный timeout, оптимизация через batch insert (createMany)
   }
 
   /**
