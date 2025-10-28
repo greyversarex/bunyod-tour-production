@@ -8,7 +8,8 @@ const EMAIL_CONFIG = {
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465 (SSL), false for 587 (TLS)
   auth: {
-    user: process.env.SMTP_USER || 'noreply@bunyod-tour.com',
+    // Yandex требует логин БЕЗ @yandex.ru
+    user: (process.env.SMTP_USER || 'noreply@bunyod-tour.com').replace('@yandex.ru', ''),
     pass: process.env.SMTP_PASS || 'your-password'
   }
 };
