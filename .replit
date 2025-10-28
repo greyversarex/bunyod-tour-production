@@ -6,7 +6,7 @@ integrations = ["javascript_database==1.0.0==1.0.0:1.0.0", "javascript_object_st
 
 [nix]
 channel = "stable-25_05"
-packages = ["sqlite"]
+packages = ["sqlite", "chromium", "nss", "atk", "cups", "libdrm", "mesa", "glib", "alsa-lib", "pango", "gtk3"]
 
 [workflows]
 runButton = "Project"

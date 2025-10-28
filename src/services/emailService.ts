@@ -204,10 +204,18 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
     </html>
   `;
   
-  // Generate PDF using Puppeteer
+  // Generate PDF using Puppeteer with system Chromium
   const browser = await puppeteer.launch({
+    executablePath: '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium-browser',
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions'
+    ]
   });
   
   try {
