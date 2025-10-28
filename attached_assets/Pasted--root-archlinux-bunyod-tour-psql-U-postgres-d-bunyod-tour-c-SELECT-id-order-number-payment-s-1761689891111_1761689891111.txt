@@ -1,0 +1,24 @@
+[root@archlinux bunyod-tour]# psql -U postgres -d bunyod_tour -c "SELECT id, order_number, payment_status, payment_method, payment_intent_id, total_amount FROM orders ORDER BY \"createdAt\" DESC LIMIT 10;"
+ id |  order_number   | payment_status | payment_method |          payment_intent_id           | total_amount
+----+-----------------+----------------+----------------+--------------------------------------+--------------
+ 27 | BT-271917BRJYZQ | processing     | payler         | QWYYxsD4GUZjQpiRrSrEDFo8aFxOUwFe9KQw |         1218
+ 26 | BT-695869ZYM78N | unpaid         |                |                                      |         1218
+ 25 | BT-105271BNB2IO | unpaid         |                |                                      |         1218
+ 24 | BT-0991447YLK5Q | unpaid         |                |                                      |         1218
+ 23 | BT-0596350FNGGL | failed         | alif           |                                      |           12
+ 22 | BT-0426368GR5GB | unpaid         |                |                                      |           12
+ 21 | BT-4112498C1EO6 | processing     | payler         | UNy9ucobEfW9h1L43jRglD5QPSisIRD5aBMO |         9320
+ 20 | BT-479108GZHFQM | unpaid         |                |                                      |         1218
+ 19 | BT-4650352I9YMS | unpaid         |                |                                      |         1218
+ 18 | BT-312714UI8K1P | unpaid         |                |                                      |         1218
+(10 rows)
+
+[root@archlinux bunyod-tour]# # На production сервере посмотрите логи приложения
+pm2 logs bunyod-tour --lines 100 | grep -i "alif\|payler"
+0|bunyod-t | 2025-10-28T22:17:34:       host: 'secure.payler.com',
+0|bunyod-t | 2025-10-28T22:17:34:     _currentUrl: 'https://secure.payler.com/gapi/StartSession',
+0|bunyod-t | 2025-10-28T22:17:34:   cause: Error: getaddrinfo ENOTFOUND secure.payler.com
+0|bunyod-t | 2025-10-28T22:17:34:     hostname: 'secure.payler.com'
+0|bunyod-t | 2025-10-28T22:34:59: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:35:05: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T23:01:38: ❌ Payler StartSession failed: 400 Bad Request
