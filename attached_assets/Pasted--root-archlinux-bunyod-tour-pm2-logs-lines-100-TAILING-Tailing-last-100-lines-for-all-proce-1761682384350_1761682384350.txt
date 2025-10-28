@@ -1,0 +1,345 @@
+[root@archlinux bunyod-tour]# pm2 logs --lines 100
+[TAILING] Tailing last 100 lines for [all] processes (change the value with --lines option)
+/root/.pm2/pm2.log last 100 lines:
+PM2        | 2025-10-21T11:16:45: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-21T11:16:45: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-21T23:34:13: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-21T23:34:13: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-21T23:34:13: PM2 log: pid=1691465 msg=process killed
+PM2        | 2025-10-21T23:35:45: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-21T23:35:45: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-21T23:35:45: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-24T01:09:52: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-24T01:09:52: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-24T01:09:52: PM2 log: pid=1706169 msg=process killed
+PM2        | 2025-10-24T01:11:29: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-24T01:11:29: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-24T01:11:29: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-24T09:53:09: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-24T09:53:09: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-24T09:53:09: PM2 log: pid=1762481 msg=process killed
+PM2        | 2025-10-24T09:54:35: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-24T09:54:35: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-24T09:54:35: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-25T01:21:58: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-25T01:21:58: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-25T01:21:59: PM2 log: pid=1775482 msg=process killed
+PM2        | 2025-10-25T01:23:52: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-25T01:23:52: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-25T01:23:52: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-25T11:51:30: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-25T11:51:30: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-25T11:51:30: PM2 log: pid=1793215 msg=process killed
+PM2        | 2025-10-25T11:53:13: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-25T11:53:13: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-25T11:53:13: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-25T19:40:11: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-25T19:40:11: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-25T19:40:11: PM2 log: pid=1806161 msg=process killed
+PM2        | 2025-10-25T21:50:47: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-25T21:50:47: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-25T21:50:47: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-26T01:41:46: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-26T01:41:46: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-26T01:41:46: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-26T01:41:46: PM2 log: pid=1817279 msg=process killed
+PM2        | 2025-10-26T01:41:46: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-26T01:41:46: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-26T01:58:42: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-26T01:58:42: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-26T01:58:42: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-26T01:58:42: PM2 log: pid=1821976 msg=process killed
+PM2        | 2025-10-26T01:58:42: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-26T01:58:42: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-26T02:43:51: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-26T02:43:51: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-26T02:43:51: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-26T02:43:51: PM2 log: pid=1822726 msg=process killed
+PM2        | 2025-10-26T02:43:51: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-26T02:43:51: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-26T02:48:06: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-26T02:48:06: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-26T02:48:06: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-26T02:48:06: PM2 log: pid=1823889 msg=process killed
+PM2        | 2025-10-26T02:48:06: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-26T02:48:06: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-26T21:34:41: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-26T21:34:41: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-26T21:34:41: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-26T21:34:41: PM2 log: pid=1824336 msg=process killed
+PM2        | 2025-10-26T21:34:41: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-26T21:34:41: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-27T14:36:28: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-27T14:36:28: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-27T14:36:28: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-27T14:36:28: PM2 log: pid=1847200 msg=process killed
+PM2        | 2025-10-27T14:36:28: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-27T14:36:28: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-27T14:57:56: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-27T14:57:56: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-27T14:57:56: PM2 log: pid=1868967 msg=process killed
+PM2        | 2025-10-27T14:57:56: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-27T14:57:56: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-27T14:58:13: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-27T14:58:13: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-27T14:58:13: PM2 log: pid=1869783 msg=process killed
+PM2        | 2025-10-27T14:58:13: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-27T14:58:13: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-28T22:02:08: PM2 log: Process 0 in a stopped status, starting it
+PM2        | 2025-10-28T22:02:08: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-28T22:02:08: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T22:02:08: PM2 log: pid=1869876 msg=process killed
+PM2        | 2025-10-28T22:02:08: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-28T22:02:08: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-28T23:01:07: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-28T23:01:07: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T23:01:07: PM2 log: pid=1913869 msg=process killed
+PM2        | 2025-10-28T23:01:07: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-28T23:01:07: PM2 log: App [bunyod-tour:0] online
+PM2        | 2025-10-28T23:01:23: PM2 log: Stopping app:bunyod-tour id:0
+PM2        | 2025-10-28T23:01:23: PM2 log: App [bunyod-tour:0] exited with code [0] via signal [SIGINT]
+PM2        | 2025-10-28T23:01:23: PM2 log: pid=1915407 msg=process killed
+PM2        | 2025-10-28T23:01:23: PM2 log: App [bunyod-tour:0] starting in -fork mode-
+PM2        | 2025-10-28T23:01:23: PM2 log: App [bunyod-tour:0] online
+
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-10-28T22:17:34:       _removedTE: false,
+0|bunyod-t | 2025-10-28T22:17:34:       strictContentLength: false,
+0|bunyod-t | 2025-10-28T22:17:34:       _contentLength: 322,
+0|bunyod-t | 2025-10-28T22:17:34:       _hasBody: true,
+0|bunyod-t | 2025-10-28T22:17:34:       _trailer: '',
+0|bunyod-t | 2025-10-28T22:17:34:       finished: false,
+0|bunyod-t | 2025-10-28T22:17:34:       _headerSent: true,
+0|bunyod-t | 2025-10-28T22:17:34:       _closed: false,
+0|bunyod-t | 2025-10-28T22:17:34:       _header: 'POST /gapi/StartSession HTTP/1.1\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Accept: application/json, text/plain, */*\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Content-Type: application/x-www-form-urlencoded\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'User-Agent: axios/1.11.0\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Content-Length: 322\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Accept-Encoding: gzip, compress, deflate, br\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Host: secure.payler.com\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         'Connection: keep-alive\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:         '\r\n',
+0|bunyod-t | 2025-10-28T22:17:34:       _keepAliveTimeout: 0,
+0|bunyod-t | 2025-10-28T22:17:34:       _onPendingData: [Function: nop],
+0|bunyod-t | 2025-10-28T22:17:34:       agent: [Agent],
+0|bunyod-t | 2025-10-28T22:17:34:       socketPath: undefined,
+0|bunyod-t | 2025-10-28T22:17:34:       method: 'POST',
+0|bunyod-t | 2025-10-28T22:17:34:       maxHeaderSize: undefined,
+0|bunyod-t | 2025-10-28T22:17:34:       insecureHTTPParser: undefined,
+0|bunyod-t | 2025-10-28T22:17:34:       joinDuplicateHeaders: undefined,
+0|bunyod-t | 2025-10-28T22:17:34:       path: '/gapi/StartSession',
+0|bunyod-t | 2025-10-28T22:17:34:       _ended: false,
+0|bunyod-t | 2025-10-28T22:17:34:       res: null,
+0|bunyod-t | 2025-10-28T22:17:34:       aborted: false,
+0|bunyod-t | 2025-10-28T22:17:34:       timeoutCb: [Function: emitRequestTimeout],
+0|bunyod-t | 2025-10-28T22:17:34:       upgradeOrConnect: false,
+0|bunyod-t | 2025-10-28T22:17:34:       parser: null,
+0|bunyod-t | 2025-10-28T22:17:34:       maxHeadersCount: null,
+0|bunyod-t | 2025-10-28T22:17:34:       reusedSocket: false,
+0|bunyod-t | 2025-10-28T22:17:34:       host: 'secure.payler.com',
+0|bunyod-t | 2025-10-28T22:17:34:       protocol: 'https:',
+0|bunyod-t | 2025-10-28T22:17:34:       _redirectable: [Circular *1],
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(shapeMode): false,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kCapture): false,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kBytesWritten): 0,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kNeedDrain): false,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(corked): 0,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kChunkedBuffer): [],
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kChunkedLength): 0,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kSocket): [TLSSocket],
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kOutHeaders): [Object: null prototype],
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(errored): null,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kHighWaterMark): 65536,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kRejectNonStandardBodyWrites): false,
+0|bunyod-t | 2025-10-28T22:17:34:       Symbol(kUniqueHeaders): null
+0|bunyod-t | 2025-10-28T22:17:34:     },
+0|bunyod-t | 2025-10-28T22:17:34:     _currentUrl: 'https://secure.payler.com/gapi/StartSession',
+0|bunyod-t | 2025-10-28T22:17:34:     Symbol(shapeMode): true,
+0|bunyod-t | 2025-10-28T22:17:34:     Symbol(kCapture): false
+0|bunyod-t | 2025-10-28T22:17:34:   },
+0|bunyod-t | 2025-10-28T22:17:34:   cause: Error: getaddrinfo ENOTFOUND secure.payler.com
+0|bunyod-t | 2025-10-28T22:17:34:       at GetAddrInfoReqWrap.onlookupall [as oncomplete] (node:dns:122:26) {
+0|bunyod-t | 2025-10-28T22:17:34:     errno: -3007,
+0|bunyod-t | 2025-10-28T22:17:34:     code: 'ENOTFOUND',
+0|bunyod-t | 2025-10-28T22:17:34:     syscall: 'getaddrinfo',
+0|bunyod-t | 2025-10-28T22:17:34:     hostname: 'secure.payler.com'
+0|bunyod-t | 2025-10-28T22:17:34:   }
+0|bunyod-t | 2025-10-28T22:17:34: }
+0|bunyod-t | 2025-10-28T22:19:33: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-28T22:19:33:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-28T22:19:33:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-28T22:19:33:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-28T22:19:33:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-28T22:19:33:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-28T22:19:33:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-28T22:19:33:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-28T22:19:33: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-10-28T22:19:33:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/index.js:162:22
+0|bunyod-t | 2025-10-28T22:19:33:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-10-28T22:19:33:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-10-28T22:19:33:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-10-28T22:19:33:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-10-28T22:19:33:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-10-28T22:19:33:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-10-28T22:19:33:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-10-28T22:34:59: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:35:05: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:07: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-28T23:01:07:   - SMTP_USER
+0|bunyod-t | 2025-10-28T23:01:07:   - SMTP_PASS
+0|bunyod-t | 2025-10-28T23:01:07: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:23: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+0|bunyod-t | 2025-10-28T23:01:23:   - SMTP_USER
+0|bunyod-t | 2025-10-28T23:01:23:   - SMTP_PASS
+0|bunyod-t | 2025-10-28T23:01:23: Некоторые функции могут не работать (платежи, email рассылка).
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:38: ❌ Payler StartSession failed: 400 Bad Request
+
+/srv/bunyod-tour/logs/pm2-out.log last 100 lines:
+0|bunyod-t | 2025-10-28T22:38:21: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-28T22:38:21: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-28T22:38:22: 🔄 Middleware check - Original URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-10-28T22:38:22: 🔄 Middleware check - Decoded URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-10-28T22:38:27: 🔍 Получение списка всех турагентов...
+0|bunyod-t | 2025-10-28T22:38:27: ✅ Найдено 0 турагентов
+0|bunyod-t | 2025-10-28T23:01:07: [dotenv@17.2.3] injecting env (24) from .env -- tip: 👥 sync secrets across teammates & machines: https://dotenvx.com/ops
+0|bunyod-t | 2025-10-28T23:01:07: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:07: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:07: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-10-28T23:01:07: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-10-28T23:01:07: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:07: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-10-28T23:01:07:
+0|bunyod-t | 2025-10-28T23:01:08: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-10-28T23:01:08: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-10-28T23:01:08: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-10-28T23:01:08: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-10-28T23:01:08: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-10-28T23:01:08: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-10-28T23:01:08: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-10-28T23:01:08: ✅ База данных готова к работе!
+0|bunyod-t | 2025-10-28T23:01:08: Starting backend API server...
+0|bunyod-t | 2025-10-28T23:01:08: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-10-28T23:01:08: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-10-28T23:01:08: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-10-28T23:01:08: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-10-28T23:01:08: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-10-28T23:01:10: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-10-28T23:01:10: 📊 Инициализация компонентов: создано 0, пропущено 26 (уже существуют)
+0|bunyod-t | 2025-10-28T23:01:10: ✅ Added accommodation to tour 24: {"en":"TEST","ru":"ТЕСТ"}...
+0|bunyod-t | 2025-10-28T23:01:10: 🏨 Migration completed: Added accommodation component to 1 tours
+0|bunyod-t | 2025-10-28T23:01:10: ✅ Инициализировано 26 компонентов по умолчанию, обновлено 1 туров с компонентом проживания
+0|bunyod-t | 2025-10-28T23:01:23: [dotenv@17.2.3] injecting env (24) from .env -- tip: ⚙️  override existing env vars with { override: true }
+0|bunyod-t | 2025-10-28T23:01:23: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:23: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:23: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-10-28T23:01:23: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-10-28T23:01:23: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:23: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-10-28T23:01:23:
+0|bunyod-t | 2025-10-28T23:01:24: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-10-28T23:01:24: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-10-28T23:01:24: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-10-28T23:01:24: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-10-28T23:01:24: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-10-28T23:01:24: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-10-28T23:01:24: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-10-28T23:01:24: ✅ База данных готова к работе!
+0|bunyod-t | 2025-10-28T23:01:24: Starting backend API server...
+0|bunyod-t | 2025-10-28T23:01:24: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-10-28T23:01:24: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-10-28T23:01:24: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-10-28T23:01:24: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-10-28T23:01:24: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-10-28T23:01:26: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-10-28T23:01:26: 📊 Инициализация компонентов: создано 0, пропущено 26 (уже существуют)
+0|bunyod-t | 2025-10-28T23:01:26: ✅ Инициализировано 26 компонентов по умолчанию
+0|bunyod-t | 2025-10-28T23:01:32: 📋 Serving booking-step3.html with params: [Object: null prototype] { bookingId: '70' }
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Original URL: /public/js/booking-state.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Decoded URL: /public/js/booking-state.js
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Original URL: /_header.html?v=1.5
+0|bunyod-t | 2025-10-28T23:01:32: 🔄 Middleware check - Decoded URL: /_header.html?v=1.5
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.5
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.5
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-28T23:01:33: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-10-28T23:01:36: 🔄 Creating Payler payment: Order 26, Amount 121800 дирамов (1218 TJS)
+0|bunyod-t | 2025-10-28T23:01:36: 📤 Payler request: {
+0|bunyod-t | 2025-10-28T23:01:36:   key: '***',
+0|bunyod-t | 2025-10-28T23:01:36:   type: 'OneStep',
+0|bunyod-t | 2025-10-28T23:01:36:   currency: 'TJS',
+0|bunyod-t | 2025-10-28T23:01:36:   amount: '121800',
+0|bunyod-t | 2025-10-28T23:01:36:   order_id: '26',
+0|bunyod-t | 2025-10-28T23:01:36:   email: 'Faha.H@mail.ru',
+0|bunyod-t | 2025-10-28T23:01:36:   return_url_success: 'http://147.45.213.8:5000/payment-success?orderNumber=BT-695869ZYM78N',
+0|bunyod-t | 2025-10-28T23:01:36:   return_url_decline: 'http://147.45.213.8:5000/payment-fail?orderNumber=BT-695869ZYM78N'
+0|bunyod-t | 2025-10-28T23:01:36: }
+0|bunyod-t | 2025-10-28T23:01:38: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-10-28T23:01:38: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 26"}}
+0|bunyod-t | 2025-10-28T23:02:59: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-28T23:02:59: 🏠 Request URL: /
+0|bunyod-t | 2025-10-28T23:02:59: 🏠 Request path: /
+0|bunyod-t | 2025-10-28T23:05:58: 🔄 Middleware check - Original URL: /.git/config
+0|bunyod-t | 2025-10-28T23:05:58: 🔄 Middleware check - Decoded URL: /.git/config
+0|bunyod-t | 2025-10-28T23:08:43: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-10-28T23:08:43: 🏠 Request URL: /
+0|bunyod-t | 2025-10-28T23:08:43: 🏠 Request path: /
+
+^C
+[root@archlinux bunyod-tour]# pm2 logs --lines 500 | grep -i payler
+0|bunyod-t | 2025-10-27T14:37:12: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-27T14:58:24: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-27T14:58:27: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-27T15:15:13: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-27T15:17:45: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-27T15:18:00: ❌ Payler StartSession failed: 403 Forbidden
+0|bunyod-t | 2025-10-28T22:17:34: ❌ Payler createPayment error: AxiosError: getaddrinfo ENOTFOUND secure.payler.com
+0|bunyod-t | 2025-10-28T22:17:34:     at async createPayment (/srv/bunyod-tour/dist/controllers/paylerController.js:58:30) {
+0|bunyod-t | 2025-10-28T22:17:34:   hostname: 'secure.payler.com',
+0|bunyod-t | 2025-10-28T22:17:34:     url: 'https://secure.payler.com/gapi/StartSession',
+0|bunyod-t | 2025-10-28T22:17:34:       hostname: 'secure.payler.com',
+0|bunyod-t | 2025-10-28T22:17:34:         'Host: secure.payler.com\r\n' +
+0|bunyod-t | 2025-10-28T22:17:34:       host: 'secure.payler.com',
+0|bunyod-t | 2025-10-28T22:17:34:     _currentUrl: 'https://secure.payler.com/gapi/StartSession',
+0|bunyod-t | 2025-10-28T22:17:34:   cause: Error: getaddrinfo ENOTFOUND secure.payler.com
+0|bunyod-t | 2025-10-28T22:17:34:     hostname: 'secure.payler.com'
+0|bunyod-t | 2025-10-28T22:34:59: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:35:05: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T23:01:38: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:34:59: 🔄 Creating Payler payment: Order 24, Amount 121800 дирамов (1218 TJS)
+0|bunyod-t | 2025-10-28T22:34:59: 📤 Payler request: {
+0|bunyod-t | 2025-10-28T22:34:59: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:34:59: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 24"}}
+0|bunyod-t | 2025-10-28T22:35:05: 🔄 Creating Payler payment: Order 25, Amount 121800 дирамов (1218 TJS)
+0|bunyod-t | 2025-10-28T22:35:05: 📤 Payler request: {
+0|bunyod-t | 2025-10-28T22:35:05: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-10-28T22:35:05: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 25"}}
+0|bunyod-t | 2025-10-28T23:01:36: 🔄 Creating Payler payment: Order 26, Amount 121800 дирамов (1218 TJS)
+0|bunyod-t | 2025-10-28T23:01:36: 📤 Payler request: {
+0|bunyod-t | 2025-10-28T23:01:38: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-10-28T23:01:38: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 26"}}
+^C
+[root@archlinux bunyod-tour]# pm2 logs --lines 500 | grep -i alif
+0|bunyod-t | 2025-10-28T22:20:23: 🔄 AlifPay Legacy callback received: { orderId: '23', status: 'ok', transactionId: '101704657' }
+
