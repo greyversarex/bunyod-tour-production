@@ -36,6 +36,8 @@ import tourAgentRoutes from './tourAgentRoutes';
 import transferRoutes from './transferRoutes';
 // Guide hire system
 import guideHireRoutes from './guideHireRoutes';
+// Test email system
+import testEmailRoutes from './testEmailRoutes';
 
 // Remove old SQLite database routes (now using Prisma)
 
@@ -72,6 +74,7 @@ router.use('/trips', tripRoutes); // Trip management
 router.use('/tour-agents', tourAgentRoutes); // Tour agents management
 router.use('/transfers', transferRoutes); // Transfer requests management
 router.use('/guide-hire', guideHireRoutes); // Guide hiring system
+router.use('/test', testEmailRoutes); // Test email with PDF
 router.use('/', objectStorageRoutes);
 
 // All data access now through Prisma models
