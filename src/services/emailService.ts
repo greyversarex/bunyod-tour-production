@@ -5,7 +5,7 @@ import { Order, Customer, Tour } from '@prisma/client';
 const EMAIL_CONFIG = {
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: false,
+  secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465 (SSL), false for 587 (TLS)
   auth: {
     user: process.env.SMTP_USER || 'noreply@bunyod-tour.com',
     pass: process.env.SMTP_PASS || 'your-password'
