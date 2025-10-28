@@ -253,7 +253,8 @@ export const paylerController = {
       }
 
       const status = statusData.status;
-      console.log(`📊 Payment status for order ${order_id}:`, status);
+      const transactionId = statusData.transaction_id || statusData.session_id;
+      console.log(`📊 Payment status for order ${order_id}:`, status, 'Transaction ID:', transactionId);
 
       // Найти заказ в базе данных с полными данными для email билета
       const order = await prisma.order.findUnique({
@@ -282,6 +283,8 @@ export const paylerController = {
           where: { id: Number(order_id) },
           data: {
             paymentStatus: 'paid',
+            // Сохраняем transaction_id или session_id для отображения в админке
+            ...(transactionId && !order.paymentIntentId ? { paymentIntentId: transactionId } : {}),
           },
         });
 
