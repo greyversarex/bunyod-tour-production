@@ -158,20 +158,23 @@ const emailTemplates = {
     const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
     const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || null;
     const itinerary = order.tour?.itinerary ? JSON.parse(order.tour.itinerary) : [];
+    const paymentDate = new Date(order.updatedAt || order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
     
     return {
-      subject: `🎉 Билет подтвержден! Заказ №${order.orderNumber} - ${tourTitle}`,
+      subject: `Подтверждение оплаты №${order.orderNumber} - ${tourTitle}`,
       html: `
       <!DOCTYPE html>
       <html>
       <head>
         <style>
-          body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+          body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
           .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
           .company-header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 25px; text-align: center; }
           .company-logo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px; display: block; border: 3px solid white; }
           .company-name { font-size: 32px; font-weight: bold; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
           .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
+          .greeting-section { background: #fff; padding: 30px; border-bottom: 2px solid #f3f4f6; }
+          .greeting-text { font-size: 15px; line-height: 1.8; color: #1f2937; margin-bottom: 15px; }
           .success-banner { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 35px 20px; text-align: center; }
           .success-icon { font-size: 48px; margin-bottom: 10px; }
           .success-title { font-size: 28px; font-weight: bold; margin: 0 0 10px 0; }
@@ -212,6 +215,15 @@ const emailTemplates = {
             <img src="${process.env.PUBLIC_URL || 'http://bunyodtour.tj'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
+          </div>
+          
+          <!-- Greeting Message -->
+          <div class="greeting-section">
+            <p class="greeting-text">Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
+            <p class="greeting-text">
+              Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>. 
+              Подробно со всеми деталями вашего заказа вы можете ознакомиться в билете тура.
+            </p>
           </div>
           
           <!-- Success Banner -->
@@ -309,21 +321,29 @@ const emailTemplates = {
             <!-- Contact Section -->
             <div class="contact-section">
               <h3 style="margin-top: 0; color: #1f2937;">Нужна помощь?</h3>
-              <div class="contact-item">📞 +992 123 456 789</div>
-              <div class="contact-item">✉️ info@bunyodtour.tj</div>
-              <div class="contact-item">🌐 www.bunyodtour.tj</div>
+              <div style="text-align: left; max-width: 500px; margin: 0 auto; font-size: 14px; line-height: 1.8;">
+                <p style="margin: 5px 0;">☎️ +992 93 126 1134, +992 915 123 344</p>
+                <p style="margin: 5px 0;">💌 info@bunyodtour.tj</p>
+                <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj/ru" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
+                <p style="margin: 5px 0;">🌐 <a href="https://www.bunyodtour.com/" style="color: #667eea; text-decoration: none;">bunyodtour.com</a> (via TA)</p>
+                <p style="margin: 5px 0;">📱 WhatsApp: <a href="https://wa.me/992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
+                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a>, +992 882 35 3434</p>
+              </div>
             </div>
           </div>
           
           <!-- Footer -->
           <div class="footer">
-            <p><strong>Важная информация:</strong></p>
-            <p style="font-size: 12px; line-height: 1.6;">
+            <p style="margin: 10px 0; font-size: 15px;"><strong>С уважением,</strong></p>
+            <p style="margin: 5px 0; font-size: 14px;"><strong>Администрация ООО «Бунёд-Тур»</strong></p>
+            <p style="margin: 15px 0 5px 0; font-size: 13px; color: #6b7280;">734042, Таджикистан, г. Душанбе, ул. Айни 104</p>
+            <p style="margin-top: 15px; font-size: 12px; line-height: 1.6; color: #9ca3af;">
+              <strong>Важная информация:</strong><br>
               • Пожалуйста, сохраните этот билет и предъявите его гиду в день тура<br>
               • Прибудьте на место встречи за 15 минут до начала тура<br>
               • При возникновении вопросов свяжитесь с нами по телефону или email
             </p>
-            <p style="margin-top: 20px;">© ${new Date().getFullYear()} Bunyod-Tour. Все права защищены.</p>
+            <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">© ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.</p>
           </div>
         </div>
       </body>
