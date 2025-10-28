@@ -1810,6 +1810,55 @@ function renderTourBlock(block, tours) {
             translateAllDynamicContent(currentLang);
             console.log(`🌐 Переведены элементы блока ${block.id} на язык: ${currentLang}`);
         }
+        
+        // 💱 Применяем сохранённую валюту к новым карточкам туров
+        const savedCurrency = localStorage.getItem('selectedCurrency') || currentCurrency || 'TJS';
+        if (savedCurrency && exchangeRates && exchangeRates[savedCurrency]) {
+            // Применяем валюту только к карточкам этого блока
+            const blockElement = document.getElementById(`tour-block-${block.id}`);
+            if (blockElement) {
+                const currentLang = getCurrentLanguage();
+                const pricePrefix = currentLang === 'en' ? 'from' : 'от';
+                
+                blockElement.querySelectorAll('.tour-price').forEach(priceElement => {
+                    const originalPrice = priceElement.dataset.originalPrice;
+                    if (originalPrice) {
+                        let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
+                        if (!prefixSpan) {
+                            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
+                        } else {
+                            prefixSpan.textContent = pricePrefix;
+                            const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
+                            if (textNode) {
+                                textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), savedCurrency);
+                            } else {
+                                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
+                            }
+                        }
+                    }
+                });
+                
+                // Применяем к зачёркнутым ценам
+                blockElement.querySelectorAll('.price-display').forEach(priceElement => {
+                    const originalPrice = priceElement.dataset.originalPrice;
+                    if (originalPrice) {
+                        let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
+                        if (!prefixSpan) {
+                            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
+                        } else {
+                            prefixSpan.textContent = pricePrefix;
+                            const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
+                            if (textNode) {
+                                textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), savedCurrency);
+                            } else {
+                                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
+                            }
+                        }
+                    }
+                });
+            }
+            console.log(`💱 Применена валюта ${savedCurrency} к блоку ${block.id}`);
+        }
     }
 }
 
