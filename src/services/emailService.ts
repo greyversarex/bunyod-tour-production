@@ -1,8 +1,6 @@
 import nodemailer from 'nodemailer';
 import { Order, Customer, Tour } from '@prisma/client';
 import puppeteer from 'puppeteer';
-import * as fs from 'fs';
-import * as path from 'path';
 
 // Email configuration - in production, use environment variables
 const EMAIL_CONFIG = {
