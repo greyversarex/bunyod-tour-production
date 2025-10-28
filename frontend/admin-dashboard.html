@@ -462,10 +462,6 @@
                     <i class="fas fa-calendar-check"></i>
                     <span data-translate="admin.bookings">Заказы</span>
                 </a>
-                <a href="#" class="nav-item" data-section="payments">
-                    <i class="fas fa-credit-card"></i>
-                    <span data-translate="admin.payments">Платежи</span>
-                </a>
                 <a href="#" class="nav-item" data-section="categories">
                     <i class="fas fa-tags"></i>
                     <span data-translate="admin.categories">Категории</span>
@@ -493,10 +489,6 @@
                 <a href="#" class="nav-item" data-section="city-card-photos">
                     <i class="fas fa-images"></i>
                     <span data-translate="admin.city_card_photos">Фото карточек городов</span>
-                </a>
-                <a href="#" class="nav-item" data-section="customers">
-                    <i class="fas fa-users"></i>
-                    <span data-translate="admin.customers">Клиенты</span>
                 </a>
                 <a href="#" class="nav-item" data-section="reviews">
                     <i class="fas fa-star"></i>
@@ -8318,6 +8310,16 @@
                         // Безопасная обработка tourists (может быть строка или массив)
                         const tourists = Array.isArray(order.tourists) ? order.tourists : JSON.parse(order.tourists || '[]');
                         
+                        // Определяем валюту (по умолчанию сомони, но можно получить из tour)
+                        const currency = order.tour?.currency || 'TJS';
+                        const currencySymbol = {
+                            'TJS': 'с',
+                            'USD': '$',
+                            'EUR': '€',
+                            'RUB': '₽',
+                            'CNY': '¥'
+                        }[currency] || 'с';
+                        
                         return `
                         <tr>
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
@@ -8328,7 +8330,7 @@
                             <td class="text-sm">${guideName}</td>
                             <td class="font-medium ${tourStatusColor}">${tourStatusText}</td>
                             <td>${tourists.length} чел.</td>
-                            <td class="font-semibold">$${order.totalAmount}</td>
+                            <td class="font-semibold">${order.totalAmount} ${currencySymbol}</td>
                             <td>${getPaymentMethodBadge(order.paymentMethod)}</td>
                             <td>${getPaymentBadge(order.paymentStatus)}</td>
                             <td>${getStatusBadge(order.status)}</td>
@@ -8362,6 +8364,16 @@
                     const order = data.order;
                     // Безопасная обработка tourists (может быть строка или массив)
                     const tourists = Array.isArray(order.tourists) ? order.tourists : JSON.parse(order.tourists || '[]');
+                    
+                    // Определяем валюту
+                    const currency = order.tour?.currency || 'TJS';
+                    const currencySymbol = {
+                        'TJS': 'с',
+                        'USD': '$',
+                        'EUR': '€',
+                        'RUB': '₽',
+                        'CNY': '¥'
+                    }[currency] || 'с';
                     
                     document.getElementById('bookingDetails').innerHTML = `
                         <div class="space-y-4">
@@ -8451,7 +8463,7 @@
                             <div class="flex justify-between items-center pt-4 border-t">
                                 <div>
                                     <p class="text-sm text-gray-600">Общая сумма</p>
-                                    <p class="text-2xl font-bold text-green-600">$${order.totalAmount}</p>
+                                    <p class="text-2xl font-bold text-green-600">${order.totalAmount} ${currencySymbol}</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-sm text-gray-600">Статус</p>
@@ -8815,10 +8827,11 @@
         function getPaymentBadge(status) {
             const badges = {
                 unpaid: '<span class="badge badge-warning">Не оплачен</span>',
-                paid: '<span class="badge badge-success">Оплачен</span>',
+                paid: '<span class="badge badge-success">✅ Оплачен</span>',
                 refunded: '<span class="badge badge-danger">Возврат</span>',
-                pending: '<span class="badge badge-info">В обработке</span>',
-                failed: '<span class="badge badge-danger">Ошибка</span>'
+                pending: '<span class="badge badge-info">⏳ В обработке</span>',
+                processing: '<span class="badge badge-info">⏳ Обрабатывается</span>',
+                failed: '<span class="badge badge-danger">❌ Ошибка</span>'
             };
             return badges[status] || '<span class="badge">Неизвестно</span>';
         }
