@@ -147,11 +147,24 @@ export const alifController = {
         });
       }
 
-      if (status === 'ok' || status === 'success' || status === 'paid' || status === 'Charged') {
+      // Нормализуем статус (приводим к нижнему регистру для сравнения)
+      const normalizedStatus = status?.toLowerCase();
+      
+      // Список успешных статусов от Alif
+      const successStatuses = ['ok', 'success', 'paid', 'charged', 'complete', 'completed', '1', 'true'];
+      
+      console.log('📊 Alif status check:', { 
+        originalStatus: status, 
+        normalizedStatus, 
+        isSuccess: successStatuses.includes(normalizedStatus) 
+      });
+      
+      if (successStatuses.includes(normalizedStatus)) {
         await prisma.order.update({
           where: { id: Number(orderId) },
           data: {
             paymentStatus: 'paid',
+            status: 'confirmed', // Обновляем статус заказа
             paymentIntentId: transactionId || null,
           },
         });

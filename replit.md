@@ -6,9 +6,12 @@ Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offeri
 ## Recent Changes
 ### October 28, 2025 - Admin Panel UX Improvements & Currency Display
 - **Currency Display Fixed**: Orders now display correct currency symbols (TJS=с, USD=$, EUR=€, RUB=₽, CNY=¥) instead of hardcoded dollar signs
-- **Payment Status Enhanced**: Added 'processing' status badge (⏳ Обрабатывается) for payments in progress, added emojis to status badges for better visibility
+- **Payment Status Enhanced**: Added 'processing' status badge (⏳ Обрабатывается) for payments in progress, added emojis to all status badges for better visibility
 - **Navigation Cleanup**: Removed unused "Payments" and "Customers" menu items - all data consolidated in Bookings section
 - **Dynamic Currency Detection**: Admin panel reads currency from tour data, defaults to TJS (Tajik Somoni) if not specified
+- **Automatic Order Confirmation**: Payment webhooks now automatically update order.status to 'confirmed' when payment succeeds
+- **Enhanced Alif Status Support**: Expanded list of accepted success statuses (ok, success, paid, charged, complete, etc.) with case-insensitive matching
+- **Improved Status Labels**: Order status badges now show clear labels with emojis (⏳ Ожидает оплаты, ✅ Подтверждён, 🎉 Завершён, ❌ Отменён)
 
 ### October 28, 2025 - Payment Gateway Fixes & Admin Panel Data Display
 - **AlifPay Callback Fixed**: Added support for 'ok' status in Alif webhook handler - successful payments now correctly save to database

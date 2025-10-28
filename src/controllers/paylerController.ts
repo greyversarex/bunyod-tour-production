@@ -283,6 +283,7 @@ export const paylerController = {
           where: { id: Number(order_id) },
           data: {
             paymentStatus: 'paid',
+            status: 'confirmed', // Обновляем статус заказа
             // Сохраняем transaction_id или session_id для отображения в админке
             ...(transactionId && !order.paymentIntentId ? { paymentIntentId: transactionId } : {}),
           },

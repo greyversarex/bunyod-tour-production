@@ -8815,11 +8815,11 @@
         
         function getStatusBadge(status) {
             const badges = {
-                pending: '<span class="badge badge-warning">Ожидает</span>',
-                confirmed: '<span class="badge badge-info">Подтвержден</span>',
-                paid: '<span class="badge badge-success">Оплачен</span>',
-                completed: '<span class="badge badge-success">Завершен</span>',
-                cancelled: '<span class="badge badge-danger">Отменен</span>'
+                pending: '<span class="badge badge-warning">⏳ Ожидает оплаты</span>',
+                confirmed: '<span class="badge badge-success">✅ Подтверждён</span>',
+                paid: '<span class="badge badge-success">✅ Оплачен</span>',
+                completed: '<span class="badge badge-info">🎉 Завершён</span>',
+                cancelled: '<span class="badge badge-danger">❌ Отменён</span>'
             };
             return badges[status] || '<span class="badge">Неизвестно</span>';
         }
