@@ -3,6 +3,18 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
+## Recent Changes
+### October 28, 2025 - Email Notification System & Admin Panel Payment Info
+- **SMTP Email System Configured**: Integrated Yandex SMTP (smtp.yandex.ru:465) with credentials from legacy website (ramaz.nur@yandex.ru)
+- **Payment Confirmation Emails**: Automated email notifications sent after successful payments via Payler/Alif webhooks
+- **Email Template Enhanced**: Professional voucher-style tickets with complete tour details (itinerary, hotel, guide, company contacts)
+- **Admin Panel Payment Tracking**: Added payment information display in orders table:
+  - Payment method column with color-coded badges (Payler 🧡, Alif 💚, Stripe 💜, PayMe 💙, Click 🩵)
+  - Payment status column (paid, unpaid, pending, refunded, failed)
+  - Transaction ID visible in order details modal
+- **Webhook Handlers Updated**: Both Payler and Alif callbacks now load complete order data (customer, tour, hotel, guide) for email generation
+- **Environment Variables**: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, ADMIN_EMAIL configured in .env
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.

@@ -730,7 +730,8 @@
                                         <th>Статус тура</th>
                                         <th>Кол-во человек</th>
                                         <th data-translate="table.amount">Сумма</th>
-                                        <th>Оплата</th>
+                                        <th>Способ оплаты</th>
+                                        <th>Статус оплаты</th>
                                         <th data-translate="table.status">Статус заказа</th>
                                         <th data-translate="table.actions">Действия</th>
                                     </tr>
@@ -8291,7 +8292,7 @@
                     const tbody = document.getElementById('bookingsTable');
                     const orders = data.data || data.orders || [];
                     if (orders.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-500">Нет заказов</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500">Нет заказов</td></tr>';
                         return;
                     }
                     
@@ -8325,10 +8326,11 @@
                             <td class="font-medium ${tourStatusColor}">${tourStatusText}</td>
                             <td>${JSON.parse(order.tourists || '[]').length} чел.</td>
                             <td class="font-semibold">$${order.totalAmount}</td>
+                            <td>${getPaymentMethodBadge(order.paymentMethod)}</td>
                             <td>${getPaymentBadge(order.paymentStatus)}</td>
                             <td>${getStatusBadge(order.status)}</td>
                             <td>
-                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
+                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть детали">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </td>
@@ -8340,7 +8342,7 @@
                     console.error('Error loading bookings:', err);
                     const tbody = document.getElementById('bookingsTable');
                     if (tbody) {
-                        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-red-500 py-4">Ошибка загрузки данных</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-red-500 py-4">Ошибка загрузки данных</td></tr>';
                     }
                 });
         }
@@ -8377,6 +8379,10 @@
                                     <p class="font-semibold">${order.customer?.email}</p>
                                 </div>
                                 <div>
+                                    <p class="text-sm text-gray-600">Телефон</p>
+                                    <p class="font-semibold">${order.customer?.phone || 'Не указан'}</p>
+                                </div>
+                                <div>
                                     <p class="text-sm text-gray-600">Тур</p>
                                     <p class="font-semibold">${getTourName(order.tour)}</p>
                                 </div>
@@ -8391,6 +8397,30 @@
                                 <div>
                                     <p class="text-sm text-gray-600">Гид</p>
                                     <p class="font-semibold">${order.guide ? getGuideName(order.guide) : 'Не выбран'}</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Информация об оплате -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-blue-900 mb-3 flex items-center">
+                                    <i class="fas fa-credit-card mr-2"></i>
+                                    Информация об оплате
+                                </h4>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Способ оплаты</p>
+                                        <p class="font-semibold">${getPaymentMethodBadge(order.paymentMethod)}</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Статус оплаты</p>
+                                        <p class="font-semibold">${getPaymentBadge(order.paymentStatus)}</p>
+                                    </div>
+                                    ${order.paymentIntentId ? `
+                                    <div class="col-span-2">
+                                        <p class="text-sm text-gray-600">ID транзакции</p>
+                                        <p class="font-mono text-xs bg-white px-2 py-1 rounded border">${order.paymentIntentId}</p>
+                                    </div>
+                                    ` : ''}
                                 </div>
                             </div>
                             
@@ -8655,7 +8685,7 @@
                     console.error('Error loading bookings:', err);
                     const tbody = document.getElementById('bookingsTable');
                     if (tbody) {
-                        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-red-500">Ошибка загрузки заказов</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-red-500">Ошибка загрузки заказов</td></tr>';
                     }
                 });
         }
@@ -8782,9 +8812,27 @@
             const badges = {
                 unpaid: '<span class="badge badge-warning">Не оплачен</span>',
                 paid: '<span class="badge badge-success">Оплачен</span>',
-                refunded: '<span class="badge badge-danger">Возврат</span>'
+                refunded: '<span class="badge badge-danger">Возврат</span>',
+                pending: '<span class="badge badge-info">В обработке</span>',
+                failed: '<span class="badge badge-danger">Ошибка</span>'
             };
             return badges[status] || '<span class="badge">Неизвестно</span>';
+        }
+        
+        function getPaymentMethodBadge(method) {
+            if (!method) {
+                return '<span class="badge badge-secondary">Не указан</span>';
+            }
+            const badges = {
+                payler: '<span class="badge" style="background: #FF6B35; color: white;">💳 Payler</span>',
+                alif: '<span class="badge" style="background: #00A859; color: white;">💳 Alif</span>',
+                stripe: '<span class="badge" style="background: #635BFF; color: white;">💳 Stripe</span>',
+                payme: '<span class="badge" style="background: #14C9C9; color: white;">💳 PayMe</span>',
+                click: '<span class="badge" style="background: #00AEEF; color: white;">💳 Click</span>',
+                cash: '<span class="badge badge-secondary">💵 Наличные</span>',
+                transfer: '<span class="badge badge-info">🏦 Перевод</span>'
+            };
+            return badges[method.toLowerCase()] || `<span class="badge badge-secondary">${method}</span>`;
         }
         
         // Tab switching
