@@ -979,21 +979,8 @@ window.updateCurrency = function(currency) {
     document.querySelectorAll('.tour-price').forEach(priceElement => {
         const originalPrice = priceElement.dataset.originalPrice;
         if (originalPrice) {
-            // Находим span с префиксом или создаём новый
-            let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
-            if (!prefixSpan) {
-                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
-            } else {
-                // Обновляем только текст префикса и цену, сохраняя структуру
-                prefixSpan.textContent = pricePrefix;
-                // Обновляем текстовый узел после span
-                const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
-                if (textNode) {
-                    textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), currency);
-                } else {
-                    priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
-                }
-            }
+            // Просто заменяем весь HTML с правильным префиксом и ценой
+            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
         }
     });
     
@@ -1001,18 +988,8 @@ window.updateCurrency = function(currency) {
     document.querySelectorAll('.price-display').forEach(priceElement => {
         const originalPrice = priceElement.dataset.originalPrice;
         if (originalPrice) {
-            let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
-            if (!prefixSpan) {
-                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
-            } else {
-                prefixSpan.textContent = pricePrefix;
-                const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
-                if (textNode) {
-                    textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), currency);
-                } else {
-                    priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
-                }
-            }
+            // Просто заменяем весь HTML с правильным префиксом и ценой
+            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), currency)}`;
         }
     });
     
@@ -1823,18 +1800,8 @@ function renderTourBlock(block, tours) {
                 blockElement.querySelectorAll('.tour-price').forEach(priceElement => {
                     const originalPrice = priceElement.dataset.originalPrice;
                     if (originalPrice) {
-                        let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
-                        if (!prefixSpan) {
-                            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
-                        } else {
-                            prefixSpan.textContent = pricePrefix;
-                            const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
-                            if (textNode) {
-                                textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), savedCurrency);
-                            } else {
-                                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
-                            }
-                        }
+                        // Просто заменяем весь HTML с правильным префиксом и ценой
+                        priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
                     }
                 });
                 
@@ -1842,18 +1809,8 @@ function renderTourBlock(block, tours) {
                 blockElement.querySelectorAll('.price-display').forEach(priceElement => {
                     const originalPrice = priceElement.dataset.originalPrice;
                     if (originalPrice) {
-                        let prefixSpan = priceElement.querySelector('[data-translate="price.from_prefix"]');
-                        if (!prefixSpan) {
-                            priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
-                        } else {
-                            prefixSpan.textContent = pricePrefix;
-                            const textNode = Array.from(priceElement.childNodes).find(node => node.nodeType === 3);
-                            if (textNode) {
-                                textNode.textContent = ' ' + formatPrice(parseFloat(originalPrice), savedCurrency);
-                            } else {
-                                priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
-                            }
-                        }
+                        // Просто заменяем весь HTML с правильным префиксом и ценой
+                        priceElement.innerHTML = `<span data-translate="price.from_prefix">${pricePrefix}</span> ${formatPrice(parseFloat(originalPrice), savedCurrency)}`;
                     }
                 });
             }
