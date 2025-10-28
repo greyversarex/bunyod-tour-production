@@ -263,7 +263,10 @@ export class TourModel {
           }
         }
       });
-    }); // Используем дефолтный timeout, оптимизация через batch insert (createMany)
+    }, {
+      maxWait: 10000,
+      timeout: 15000
+    });
   }
 
   /**
@@ -525,7 +528,10 @@ export class TourModel {
           }
         }
       });
-    }); // Используем дефолтный timeout, оптимизация через batch insert (createMany)
+    }, {
+      maxWait: 10000,
+      timeout: 15000
+    });
   }
 
   /**
