@@ -23,7 +23,7 @@ const envConfig: EnvironmentConfig = {
     'ALIF_MERCHANT_PASSWORD',
     'SMTP_HOST',
     'SMTP_USER',
-    'SMTP_PASSWORD'
+    'SMTP_PASS'
   ],
   
   // 📝 ДОПОЛНИТЕЛЬНЫЕ - просто логирует
