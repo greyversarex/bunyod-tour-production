@@ -134,6 +134,8 @@ export const alifController = {
         include: {
           customer: true,
           tour: true,
+          hotel: true,
+          guide: true,
         },
       });
 

@@ -255,12 +255,14 @@ export const paylerController = {
       const status = statusData.status;
       console.log(`📊 Payment status for order ${order_id}:`, status);
 
-      // Найти заказ в базе данных
+      // Найти заказ в базе данных с полными данными для email билета
       const order = await prisma.order.findUnique({
         where: { id: Number(order_id) },
         include: {
           customer: true,
           tour: true,
+          hotel: true,
+          guide: true,
         },
       });
 
