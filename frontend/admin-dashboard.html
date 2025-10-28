@@ -8315,6 +8315,9 @@
                             'finished': 'text-gray-600'
                         }[order.tour?.status || 'pending'] || 'text-yellow-600';
                         
+                        // Безопасная обработка tourists (может быть строка или массив)
+                        const tourists = Array.isArray(order.tourists) ? order.tourists : JSON.parse(order.tourists || '[]');
+                        
                         return `
                         <tr>
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
@@ -8324,7 +8327,7 @@
                             <td>${order.tourDate || '-'}</td>
                             <td class="text-sm">${guideName}</td>
                             <td class="font-medium ${tourStatusColor}">${tourStatusText}</td>
-                            <td>${JSON.parse(order.tourists || '[]').length} чел.</td>
+                            <td>${tourists.length} чел.</td>
                             <td class="font-semibold">$${order.totalAmount}</td>
                             <td>${getPaymentMethodBadge(order.paymentMethod)}</td>
                             <td>${getPaymentBadge(order.paymentStatus)}</td>
@@ -8357,7 +8360,8 @@
                 .then(res => res.json())
                 .then(data => {
                     const order = data.order;
-                    const tourists = JSON.parse(order.tourists || '[]');
+                    // Безопасная обработка tourists (может быть строка или массив)
+                    const tourists = Array.isArray(order.tourists) ? order.tourists : JSON.parse(order.tourists || '[]');
                     
                     document.getElementById('bookingDetails').innerHTML = `
                         <div class="space-y-4">
