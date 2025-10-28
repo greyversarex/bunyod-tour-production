@@ -1,0 +1,76 @@
+[root@archlinux bunyod-tour]# # Проверка DNS резолва для Payler
+nslookup secure.payler.com
+
+# Альтернативная проверка
+dig secure.payler.com
+
+# Проверка интернет соединения
+ping -c 4 8.8.8.8
+
+# Проверка DNS через curl
+curl -v https://secure.payler.com
+-bash: nslookup: command not found
+-bash: dig: command not found
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=108 time=17.0 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=108 time=11.8 ms
+64 bytes from 8.8.8.8: icmp_seq=3 ttl=108 time=11.8 ms
+64 bytes from 8.8.8.8: icmp_seq=4 ttl=108 time=11.8 ms
+
+--- 8.8.8.8 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3006ms
+rtt min/avg/max/mdev = 11.827/13.136/17.044/2.256 ms
+* Host secure.payler.com:443 was resolved.
+* IPv6: (none)
+* IPv4: 178.248.236.144
+*   Trying 178.248.236.144:443...
+* ALPN: curl offers h2,http/1.1
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: none
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+* TLSv1.2 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (OUT), TLS handshake, Finished (20):
+* TLSv1.2 (IN), TLS handshake, Finished (20):
+* SSL connection using TLSv1.2 / ECDHE-RSA-AES256-GCM-SHA384 / x25519 / RSASSA-PSS
+* ALPN: server accepted http/1.1
+* Server certificate:
+*  subject: CN=*.payler.com
+*  start date: Apr 29 00:00:00 2025 GMT
+*  expire date: Apr 28 23:59:59 2026 GMT
+*  subjectAltName: host "secure.payler.com" matched cert's "*.payler.com"
+*  issuer: C=US; O=DigiCert Inc; OU=www.digicert.com; CN=Thawte TLS RSA CA G1
+*  SSL certificate verify ok.
+*   Certificate level 0: Public key type RSA (4096/152 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 1: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+*   Certificate level 2: Public key type RSA (2048/112 Bits/secBits), signed using sha256WithRSAEncryption
+* Established connection to secure.payler.com (178.248.236.144 port 443) from 147.45.213.8 port 42158
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: secure.payler.com
+> User-Agent: curl/8.16.0
+> Accept: */*
+>
+* Request completely sent off
+< HTTP/1.1 403 Forbidden
+< Server: nginx
+< Date: Tue, 28 Oct 2025 20:21:29 GMT
+< Content-Type: text/html
+< Content-Length: 146
+< Connection: keep-alive
+< Vary: Accept-Encoding
+< Strict-Transport-Security: max-age=31536000;
+<
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+* Connection #0 to host secure.payler.com:443 left intact
+[root@archlinux bunyod-tour]#
