@@ -1449,6 +1449,24 @@ function translateDynamicContent(lang) {
             }
         });
         
+        // Обновляем длительность туров
+        const tourDurations = document.querySelectorAll('.tour-duration');
+        tourDurations.forEach(element => {
+            const duration = element.dataset.tourDuration;
+            const durationDays = element.dataset.tourDurationDays;
+            if (duration || durationDays) {
+                const tourData = {
+                    duration: duration,
+                    durationDays: durationDays ? parseInt(durationDays) : null
+                };
+                const formatted = formatDuration(tourData, lang);
+                if (formatted) {
+                    element.textContent = `(${formatted})`;
+                    updatedCount++;
+                }
+            }
+        });
+        
         // Обновляем заголовки блоков туров
         const blockTitles = document.querySelectorAll('[data-tour-block-title]');
         blockTitles.forEach(element => {
@@ -1950,8 +1968,6 @@ function getCategoryIcon(categoryName) {
 
 // Функция для локализации длительности тура
 function formatDuration(tour, lang) {
-    console.log('formatDuration called:', {tourId: tour.id, duration: tour.duration, durationDays: tour.durationDays, lang});
-    
     // Если есть duration Days, используем его
     if (tour.durationDays && typeof tour.durationDays === 'number') {
         const days = tour.durationDays;
@@ -1960,7 +1976,6 @@ function formatDuration(tour, lang) {
             : (days % 10 === 1 && days % 100 !== 11) ? `${days} день`
             : (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? `${days} дня`
             : `${days} дней`;
-        console.log('formatDuration result (from durationDays):', result);
         return result;
     }
     
@@ -1976,16 +1991,13 @@ function formatDuration(tour, lang) {
                 : (num % 10 === 1 && num % 100 !== 11) ? `${num} день`
                 : (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) ? `${num} дня`
                 : `${num} дней`;
-            console.log('formatDuration result (from duration string):', result);
             return result;
         }
         
         // Если уже есть единицы измерения, возвращаем как есть
-        console.log('formatDuration result (preformatted):', durationStr);
         return durationStr;
     }
     
-    console.log('formatDuration result: empty string');
     return '';
 }
 
@@ -2139,11 +2151,9 @@ function renderTourCard(tour, blockId = null) {
                     ${getCategoryIcon(categoryText)}
                     <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}</span>${(() => {
                         const hasDuration = tour.duration || tour.durationDays;
-                        console.log('Duration check:', {tourId: tour.id, hasDuration, duration: tour.duration, durationDays: tour.durationDays});
                         if (hasDuration) {
                             const formatted = formatDuration(tour, currentLang);
-                            console.log('Duration formatted:', formatted);
-                            return ` <span class="text-gray-600">(${formatted})</span>`;
+                            return ` <span class="text-gray-600 tour-duration" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}">(${formatted})</span>`;
                         }
                         return '';
                     })()}
