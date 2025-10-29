@@ -3899,13 +3899,16 @@
                         if (orders.length === 0) {
                             tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">Нет оплаченных заказов</td></tr>';
                         } else {
-                            tbody.innerHTML = orders.map(order => `
+                            tbody.innerHTML = orders.map(order => {
+                                const currency = order.tour?.currency || 'TJS';
+                                const symbol = getCurrencySymbol(currency);
+                                return `
                                 <tr>
                                     <td class="font-medium">${order.orderNumber || 'N/A'}</td>
                                     <td>${order.customer?.fullName || 'Неизвестно'}</td>
                                     <td>${getTourName(order.tour)}</td>
                                     <td>${formatDate(order.createdAt)}</td>
-                                    <td class="font-semibold">$${order.totalAmount}</td>
+                                    <td class="font-semibold">${symbol}${order.totalAmount}</td>
                                     <td><span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Оплачено</span></td>
                                     <td>
                                         <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
@@ -3913,7 +3916,7 @@
                                         </button>
                                     </td>
                                 </tr>
-                            `).join('');
+                            `}).join('');
                         }
                     } else {
                         console.error('Dashboard stats API error:', data.message);
@@ -3925,6 +3928,18 @@
                     console.error('Error loading dashboard stats:', err);
                     showDefaultStats();
                 });
+        }
+        
+        // Функция для получения символа валюты
+        function getCurrencySymbol(currency) {
+            const symbols = {
+                'TJS': 'с',
+                'USD': '$',
+                'EUR': '€',
+                'RUB': '₽',
+                'CNY': '¥'
+            };
+            return symbols[currency] || 'с'; // По умолчанию сомони
         }
         
         function showDefaultStats() {
@@ -3950,13 +3965,16 @@
                         return;
                     }
                     
-                    tbody.innerHTML = orders.map(order => `
+                    tbody.innerHTML = orders.map(order => {
+                        const currency = order.tour?.currency || 'TJS';
+                        const symbol = getCurrencySymbol(currency);
+                        return `
                         <tr>
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
                             <td>${getTourName(order.tour)}</td>
                             <td>${formatDate(order.createdAt)}</td>
-                            <td class="font-semibold">$${order.totalAmount}</td>
+                            <td class="font-semibold">${symbol}${order.totalAmount}</td>
                             <td>${getStatusBadge(order.status)}</td>
                             <td>
                                 <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
@@ -3964,7 +3982,7 @@
                                 </button>
                             </td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 })
                 .catch(err => {
                     console.error('Error loading orders:', err);

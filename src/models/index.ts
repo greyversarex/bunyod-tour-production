@@ -1345,14 +1345,12 @@ export class PriceCalculatorModel {
       { key: 'ticket_kuli', category: 'local_transport', name: 'Входной билет в Кули (аквапрак) Душанбе', nameEn: 'Entrance tickets to Kuli (Aquapark) Dushanbe', price: 150.0, unit: 'человек/час', sortOrder: 3 },
       { key: 'ticket_bokhtar', category: 'local_transport', name: 'Входные билеты в объектах г.Бохтар', nameEn: 'Entrance tickets to visiting objects of Bokhtar city', price: 40.0, unit: 'человек/час', sortOrder: 4 },
       { key: 'ticket_hisor', category: 'local_transport', name: 'Входные билеты в объектах Гиссарской Крепости', nameEn: 'Entrance tickets to objects of Hisor Fortress', price: 90.0, unit: 'человек/час', sortOrder: 5 },
-      { key: 'ticket_dushanbe', category: 'local_transport', name: 'Входные билеты в объектах г.Душанбе', nameEn: 'Entrance tickets to objects of Dushanbe', price: 250.0, unit: 'человек/час', sortOrder: 6 },
-      { key: 'ticket_istaravshan', category: 'local_transport', name: 'Входные билеты в объектах г.Истаравшан', nameEn: 'Entrance tickets to objects of Istaravshan', price: 50.0, unit: 'человек/час', sortOrder: 7 },
-      { key: 'flight_khujand', category: 'local_transport', name: 'Авиабилет на внутренний рейс, Худжанд', nameEn: 'Flight tickets to domestic lines, Khujand', price: 450.0, unit: 'человек/час', sortOrder: 8 },
-      { key: 'ticket_penjikent', category: 'local_transport', name: 'Входные билеты в объектах г.Пенджикент', nameEn: 'Entrance tickets to objects of Penjikent', price: 60.0, unit: 'человек/час', sortOrder: 9 },
-      { key: 'ticket_dushanbe_4h', category: 'local_transport', name: 'Входные билеты в объектах г.Душанбе, тур на 4 часа', nameEn: 'Entrance tickets to objects of Dushanbe, 4 hour Tour', price: 120.0, unit: 'человек/час', sortOrder: 10 },
-      { key: 'ticket_iskanderkul', category: 'local_transport', name: 'Входной билет в озеро Искандеркуль', nameEn: 'Entrance ticket to Iskanderkul Lake', price: 30.0, unit: 'человек/час', sortOrder: 11 },
-      { key: 'ticket_nurek', category: 'local_transport', name: 'Входные билеты в объектах г.Нурек', nameEn: 'Entrance tickets to objects of Nurek', price: 40.0, unit: 'человек/час', sortOrder: 12 },
-      { key: 'ticket_car', category: 'local_transport', name: 'Входные билеты в туристских объектах, ЦАР', nameEn: 'Entrance tickets to tourism objects, CAR', price: 50.0, unit: 'человек/час', sortOrder: 13 },
+      { key: 'ticket_istaravshan', category: 'local_transport', name: 'Входные билеты в объектах г.Истаравшан', nameEn: 'Entrance tickets to objects of Istaravshan', price: 50.0, unit: 'человек/час', sortOrder: 6 },
+      { key: 'flight_khujand', category: 'local_transport', name: 'Авиабилет на внутренний рейс, Худжанд', nameEn: 'Flight tickets to domestic lines, Khujand', price: 450.0, unit: 'человек/час', sortOrder: 7 },
+      { key: 'ticket_penjikent', category: 'local_transport', name: 'Входные билеты в объектах г.Пенджикент', nameEn: 'Entrance tickets to objects of Penjikent', price: 60.0, unit: 'человек/час', sortOrder: 8 },
+      { key: 'ticket_iskanderkul', category: 'local_transport', name: 'Входной билет в озеро Искандеркуль', nameEn: 'Entrance ticket to Iskanderkul Lake', price: 30.0, unit: 'человек/час', sortOrder: 9 },
+      { key: 'ticket_nurek', category: 'local_transport', name: 'Входные билеты в объектах г.Нурек', nameEn: 'Entrance tickets to objects of Nurek', price: 40.0, unit: 'человек/час', sortOrder: 10 },
+      { key: 'ticket_car', category: 'local_transport', name: 'Входные билеты в туристских объектах, ЦАР', nameEn: 'Entrance tickets to tourism objects, CAR', price: 50.0, unit: 'человек/час', sortOrder: 11 },
       
       // Питание
       { key: 'meal_hb', category: 'meals', name: 'Питание, обед, НВ', nameEn: 'Meals, Lunch, HB', price: 70.0, unit: 'человек/день', sortOrder: 1 },
@@ -1361,11 +1359,6 @@ export class PriceCalculatorModel {
       // Permits (разрешения)
       { key: 'permit_gbao', category: 'permits', name: 'Разрешение на въезд в ГБАО', nameEn: 'GBAO Entry Permit', price: 250.0, unit: 'человек', sortOrder: 1 },
       { key: 'permit_nurek', category: 'permits', name: 'Разрешение на въезд на платину Нурекской ГЭС', nameEn: 'Nurek HPP Dam Entry Permit', price: 500.0, unit: 'человек', sortOrder: 2 },
-      
-      // Tour_transport (транспорт во время тура)
-      { key: 'transport_4wd', category: 'tour_transport', name: 'Транспорт по время тура, 4WD', nameEn: 'Transport During Tour, 4WD', price: 1200.0, unit: 'единица/день', sortOrder: 1 },
-      { key: 'transport_sedan', category: 'tour_transport', name: 'Транспорт по время тура, легковой', nameEn: 'Transport During the Tour, sedan', price: 400.0, unit: 'единица/день', sortOrder: 2 },
-      { key: 'transport_van', category: 'tour_transport', name: 'Транспорт по время тура, миниавтобус', nameEn: 'Transport During the Tour, Van', price: 2000.0, unit: 'единица/день', sortOrder: 3 },
       
       // Трансфер
       { key: 'transfer_van', category: 'transfer', name: 'Трансфер от/до аэропорта, миниавтобус', nameEn: 'Transfer from/to airport, Van', price: 2000.0, unit: 'единица/день', sortOrder: 1 },

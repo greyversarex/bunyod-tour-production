@@ -1981,9 +1981,29 @@ function formatDuration(tour, lang) {
     
     // Если duration - это строка, проверяем её содержимое
     if (tour.duration) {
-        const durationStr = String(tour.duration).trim();
+        const durationStr = String(tour.duration).trim().toLowerCase();
         
-        // Если это просто число, добавляем единицу измерения
+        // Проверка: это часы? (ищем 'час', 'hour' или строку заканчивающуюся на 'h')
+        const hasHourKeyword = durationStr.includes('час') || durationStr.includes('hour');
+        const endsWithH = /\d+\s*h$/i.test(durationStr); // Ловит "4h", "4 h", "4H", "24h" и т.д.
+        
+        if (hasHourKeyword || endsWithH) {
+            // Извлекаем число
+            const match = durationStr.match(/(\d+)/);
+            if (match) {
+                const hours = parseInt(match[1]);
+                const result = lang === 'en'
+                    ? (hours === 1 ? `${hours} hour` : `${hours} hours`)
+                    : (hours % 10 === 1 && hours % 100 !== 11) ? `${hours} час`
+                    : (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? `${hours} часа`
+                    : `${hours} часов`;
+                return result;
+            }
+            // Если не удалось извлечь число, вернуть как есть
+            return tour.duration;
+        }
+        
+        // Проверка: это просто число без единиц измерения (считаем днями)
         if (/^\d+$/.test(durationStr)) {
             const num = parseInt(durationStr);
             const result = lang === 'en'
@@ -1994,8 +2014,8 @@ function formatDuration(tour, lang) {
             return result;
         }
         
-        // Если уже есть единицы измерения, возвращаем как есть
-        return durationStr;
+        // Если уже есть единицы измерения или неизвестный формат, возвращаем как есть
+        return tour.duration;
     }
     
     return '';
