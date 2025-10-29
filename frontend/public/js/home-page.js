@@ -2137,7 +2137,16 @@ function renderTourCard(tour, blockId = null) {
                 <!-- Категория тура и длительность -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
-                    <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}${tour.duration || tour.durationDays ? ` <span class="text-gray-600">(${formatDuration(tour, currentLang)})</span>` : ''}</span>
+                    <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}${(() => {
+                        const hasDuration = tour.duration || tour.durationDays;
+                        console.log('Duration check:', {tourId: tour.id, hasDuration, duration: tour.duration, durationDays: tour.durationDays});
+                        if (hasDuration) {
+                            const formatted = formatDuration(tour, currentLang);
+                            console.log('Duration formatted:', formatted);
+                            return ` <span class="text-gray-600">(${formatted})</span>`;
+                        }
+                        return '';
+                    })()}</span>
                     ${allCategories.length > 1 ? `
                     <span class="relative group cursor-help ml-0.5">
                         <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
