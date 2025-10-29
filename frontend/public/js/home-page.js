@@ -2488,14 +2488,14 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.log(`🔄 Главная страница: язык изменен на ${event.detail.language}`);
         translateDynamicContent(event.detail.language);
         
-        // Перезагружаем весь динамический контент с новым языком
+        // Обновляем фильтры (страны, города, категории) без полной перезагрузки данных
         await loadCountriesAndCities(); // Обновляем кеш стран/городов
         populateCountryFilter(); // Обновляем DOM фильтра стран
         updateCities(); // Обновляем DOM фильтра городов
-        
         await loadCategories(); // Обновляем фильтр категорий
-        loadTourBlocks();
-        loadSlides();
+        
+        // ❌ УДАЛЕНО: loadTourBlocks() - карточки туров переводятся через translateDynamicContent()
+        // ❌ УДАЛЕНО: loadSlides() - слайды переводятся через translateDynamicContent()
         
         // Обновляем локаль календаря
         if (window.datePickerInstance && typeof flatpickr !== 'undefined') {
@@ -2503,11 +2503,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             window.datePickerInstance.set('locale', newLocale);
             console.log('📅 Calendar locale updated to:', event.detail.language);
         }
-        
-        // Обновляем статические цены с учетом текущей валюты
-        setTimeout(() => {
-            updateStaticTourPrices();
-        }, 500);
         
         // Восстанавливаем флаги после обновления
         forceEmojiFlags();
