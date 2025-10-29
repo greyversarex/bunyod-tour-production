@@ -1461,7 +1461,7 @@ function translateDynamicContent(lang) {
                 };
                 const formatted = formatDuration(tourData, lang);
                 if (formatted) {
-                    element.textContent = `(${formatted})`;
+                    element.textContent = `, ${formatted}`;
                     updatedCount++;
                 }
             }
@@ -2188,7 +2188,7 @@ function renderTourCard(tour, blockId = null) {
                         const hasDuration = tour.duration || tour.durationDays;
                         if (hasDuration) {
                             const formatted = formatDuration(tour, currentLang);
-                            return ` <span class="text-gray-600 tour-duration" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}">(${formatted})</span>`;
+                            return `<span class="tour-duration" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}">, ${formatted}</span>`;
                         }
                         return '';
                     })()}

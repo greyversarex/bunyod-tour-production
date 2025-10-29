@@ -4,7 +4,7 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes
-### October 29, 2025 - Hour Duration Support (Fixed), Recent Orders Currency Fix & Price Calculator Cleanup
+### October 29, 2025 - Hour Duration Support (Fixed), Recent Orders Currency Fix, Price Calculator Cleanup & Duration Format Update
 - **Hour-Based Duration Support - FIXED**: Tours can now correctly display hour-based durations with proper localization
   - **Primary check**: Function `formatDuration()` now checks `tour.durationType` field from database first
   - If `durationType === 'hours'`, formats value as hours with proper pluralization  
@@ -30,6 +30,11 @@ Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offeri
   - Total components reduced from 26 to 21
   - Adjusted sortOrder values to maintain sequence
   - Deployment safe: update.sh does not overwrite existing components
+- **Tour Card Duration Format Changed**: Updated visual format on tour cards across all pages
+  - Changed from "Категория (длительность)" to "Категория, длительность"
+  - Examples: "Городской, 2 часа" instead of "Городской (2 часа)"
+  - Applied to both homepage (`home-page.js`) and search page (`search-page.js`)
+  - Affects all tour card displays and language switching functionality
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
