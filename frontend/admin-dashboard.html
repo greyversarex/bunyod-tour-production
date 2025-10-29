@@ -3889,7 +3889,7 @@
                         if (statsCards.length >= 4) {
                             statsCards[0].textContent = stats.tours || 0;
                             statsCards[1].textContent = stats.hotels || 0; 
-                            statsCards[2].textContent = '$' + (stats.revenue || 0).toFixed(2);
+                            statsCards[2].textContent = (stats.revenue || 0).toFixed(2) + ' с';
                             statsCards[3].textContent = stats.activeCustomers || 0;
                         }
                         

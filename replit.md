@@ -4,6 +4,11 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes
+### October 29, 2025 - Tour Duration Display & Dashboard Revenue Conversion
+- **Tour Card Duration Display**: Added tour duration display on tour cards (homepage and search page) next to category - format: "Категория (X дней/часов)" with bilingual support
+- **Dashboard Revenue in TJS**: Dashboard now displays monthly revenue in base currency (TJS) with automatic conversion of orders in other currencies (USD, EUR, RUB, CNY) using exchange rates from database
+- **Price Calculator Safety Confirmed**: Verified that update.sh script does not overwrite price calculator data - only updates code and runs migrations, preserving all database data
+
 ### October 28, 2025 - Admin Panel UX Improvements & Currency Display
 - **Currency Display Fixed**: Orders now display correct currency symbols (TJS=с, USD=$, EUR=€, RUB=₽, CNY=¥) instead of hardcoded dollar signs
 - **Payment Status Enhanced**: Added 'processing' status badge (⏳ Обрабатывается) for payments in progress, added emojis to all status badges for better visibility

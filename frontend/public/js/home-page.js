@@ -1948,6 +1948,52 @@ function getCategoryIcon(categoryName) {
     </svg>`;
 }
 
+// Функция для локализации длительности тура
+function formatDuration(tour, lang) {
+    // Если есть duration Days, используем его
+    if (tour.durationDays && typeof tour.durationDays === 'number') {
+        const days = tour.durationDays;
+        if (lang === 'en') {
+            return days === 1 ? `${days} day` : `${days} days`;
+        } else {
+            // Русская форма числительных
+            if (days % 10 === 1 && days % 100 !== 11) {
+                return `${days} день`;
+            } else if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) {
+                return `${days} дня`;
+            } else {
+                return `${days} дней`;
+            }
+        }
+    }
+    
+    // Если duration - это строка, проверяем её содержимое
+    if (tour.duration) {
+        const durationStr = String(tour.duration).trim();
+        
+        // Если это просто число, добавляем единицу измерения
+        if (/^\d+$/.test(durationStr)) {
+            const num = parseInt(durationStr);
+            if (lang === 'en') {
+                return num === 1 ? `${num} day` : `${num} days`;
+            } else {
+                if (num % 10 === 1 && num % 100 !== 11) {
+                    return `${num} день`;
+                } else if (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) {
+                    return `${num} дня`;
+                } else {
+                    return `${num} дней`;
+                }
+            }
+        }
+        
+        // Если уже есть единицы измерения, возвращаем как есть
+        return durationStr;
+    }
+    
+    return '';
+}
+
 function renderTourCard(tour, blockId = null) {
     // Получаем текущий язык
     const currentLang = getCurrentLanguage();
@@ -2093,10 +2139,10 @@ function renderTourCard(tour, blockId = null) {
                         return translated !== translationKey ? translated : tourType;
                     })()}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
                 </div>
-                <!-- Категория тура -->
+                <!-- Категория тура и длительность -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
-                    <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}</span>
+                    <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}${tour.duration || tour.durationDays ? ` <span class="text-gray-600">(${formatDuration(tour, currentLang)})</span>` : ''}</span>
                     ${allCategories.length > 1 ? `
                     <span class="relative group cursor-help ml-0.5">
                         <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>

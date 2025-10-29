@@ -188,21 +188,53 @@ export class AdminController {
       const oneMonthAgo = new Date();
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
+      // Загружаем курсы валют для конвертации в TJS
+      const exchangeRates = await prisma.exchangeRate.findMany({
+        where: { isActive: true }
+      });
+      
+      const ratesMap: { [key: string]: number } = {};
+      exchangeRates.forEach(rate => {
+        ratesMap[rate.currency] = rate.rate;
+      });
+
+      // Получаем оплаченные заказы за месяц с информацией о турах (для валюты)
+      const monthlyOrders = await prisma.order.findMany({
+        where: {
+          paymentStatus: 'paid',
+          createdAt: { gte: oneMonthAgo }
+        },
+        include: {
+          tour: true
+        }
+      });
+
+      // Конвертируем все заказы в TJS и суммируем
+      let totalRevenueInTJS: number = 0;
+      monthlyOrders.forEach(order => {
+        const orderCurrency = order.tour?.currency || 'TJS';
+        const orderAmount: number = parseFloat(String(order.totalAmount || '0'));
+        
+        if (orderCurrency === 'TJS') {
+          totalRevenueInTJS += orderAmount;
+        } else if (ratesMap[orderCurrency]) {
+          // Конвертация: сумма * курс валюты = сумма в TJS
+          // Например: 100 USD * 11.0 = 1100 TJS
+          totalRevenueInTJS += orderAmount * ratesMap[orderCurrency];
+        } else {
+          // Если курс не найден, считаем как TJS
+          console.warn(`Exchange rate not found for ${orderCurrency}, using as TJS`);
+          totalRevenueInTJS += orderAmount;
+        }
+      });
+
       // Считаем только оплаченные заказы
-      const [toursCount, paidOrdersCount, hotelsCount, guidesCount, reviewsCount, monthlyRevenue, activeCustomersCount] = await Promise.all([
+      const [toursCount, paidOrdersCount, hotelsCount, guidesCount, reviewsCount, activeCustomersCount] = await Promise.all([
         prisma.tour.count({ where: { isActive: true } }),
         prisma.order.count({ where: { paymentStatus: 'paid' } }),
         prisma.hotel.count({ where: { isActive: true } }),
         prisma.guide.count(),
         prisma.review.count(),
-        // Доход за месяц только от оплаченных заказов
-        prisma.order.aggregate({
-          where: {
-            paymentStatus: 'paid',
-            createdAt: { gte: oneMonthAgo }
-          },
-          _sum: { totalAmount: true }
-        }),
         // Активные клиенты - те, кто сделал хотя бы один оплаченный заказ
         prisma.customer.count({
           where: {
@@ -231,7 +263,7 @@ export class AdminController {
             tours: toursCount,
             orders: paidOrdersCount,
             hotels: hotelsCount,
-            revenue: monthlyRevenue._sum.totalAmount || 0,
+            revenue: Math.round(totalRevenueInTJS * 100) / 100, // Округляем до 2 знаков
             activeCustomers: activeCustomersCount,
             guides: guidesCount,
             reviews: reviewsCount
