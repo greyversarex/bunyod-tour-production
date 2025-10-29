@@ -1968,7 +1968,22 @@ function getCategoryIcon(categoryName) {
 
 // Функция для локализации длительности тура
 function formatDuration(tour, lang) {
-    // Если есть duration Days, используем его
+    // Проверяем durationType - если это "hours", форматируем как часы
+    if (tour.durationType === 'hours' && tour.duration) {
+        const durationValue = typeof tour.duration === 'string' ? tour.duration.trim() : String(tour.duration);
+        const match = durationValue.match(/(\d+)/);
+        if (match) {
+            const hours = parseInt(match[1]);
+            const result = lang === 'en'
+                ? (hours === 1 ? `${hours} hour` : `${hours} hours`)
+                : (hours % 10 === 1 && hours % 100 !== 11) ? `${hours} час`
+                : (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? `${hours} часа`
+                : `${hours} часов`;
+            return result;
+        }
+    }
+    
+    // Если есть durationDays, используем его
     if (tour.durationDays && typeof tour.durationDays === 'number') {
         const days = tour.durationDays;
         const result = lang === 'en' 

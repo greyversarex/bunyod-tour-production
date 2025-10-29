@@ -3,6 +3,34 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
+## Recent Changes
+### October 29, 2025 - Hour Duration Support (Fixed), Recent Orders Currency Fix & Price Calculator Cleanup
+- **Hour-Based Duration Support - FIXED**: Tours can now correctly display hour-based durations with proper localization
+  - **Primary check**: Function `formatDuration()` now checks `tour.durationType` field from database first
+  - If `durationType === 'hours'`, formats value as hours with proper pluralization  
+  - **Fallback detection**: Also detects hour indicators in duration string: "час", "hour", or compact format like "4h", "4 h"
+  - Regex pattern `/\d+\s*h$/i` catches all compact hour formats (4h, 4 h, 24h, etc.)
+  - Applies proper Russian plural rules (час/часа/часов) based on number
+  - English support with singular/plural (hour/hours)
+  - Falls back to day pluralization if no hour indicator found
+  - **Fix applied**: Regenerated Prisma client with `npx prisma generate` to include `durationType` in API responses
+  - Updated `formatDuration()` in both `frontend/public/js/home-page.js` and `frontend/public/js/search-page.js`
+  - Example: `durationType='hours'` + `duration='2'` → "2 hours" (EN) / "2 часа" (RU)
+- **Recent Orders Currency Display Fixed**: Admin dashboard Recent Orders section now shows correct currency symbols instead of hardcoded dollar sign
+  - Created `getCurrencySymbol()` helper function in admin-dashboard.html
+  - Maps currencies correctly: TJS→'с', USD→'$', EUR→'€', RUB→'₽', CNY→'¥'
+  - Reads currency from tour data with somoni as fallback
+  - Applied to both dashboard stats and loadRecentOrders() function
+- **Price Calculator Components Cleaned Up**: Removed 5 unused components from `src/models/index.ts`
+  - `ticket_dushanbe` - Входные билеты в объектах г.Душанбе
+  - `ticket_dushanbe_4h` - Входные билеты г.Душанбе, тур на 4 часа  
+  - `transport_4wd` - Транспорт по время тура, 4WD
+  - `transport_sedan` - Транспорт по время тура, легковой
+  - `transport_van` - Транспорт по время тура, миниавтобус
+  - Total components reduced from 26 to 21
+  - Adjusted sortOrder values to maintain sequence
+  - Deployment safe: update.sh does not overwrite existing components
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.

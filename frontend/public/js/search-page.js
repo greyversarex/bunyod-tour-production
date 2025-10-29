@@ -1047,7 +1047,22 @@ function renderTourCards() {
 
 // Функция для локализации длительности тура
 function formatDuration(tour, lang) {
-    // Если есть duration Days, используем его
+    // Проверяем durationType - если это "hours", форматируем как часы
+    if (tour.durationType === 'hours' && tour.duration) {
+        const durationValue = typeof tour.duration === 'string' ? tour.duration.trim() : String(tour.duration);
+        const match = durationValue.match(/(\d+)/);
+        if (match) {
+            const hours = parseInt(match[1]);
+            const result = lang === 'en'
+                ? (hours === 1 ? `${hours} hour` : `${hours} hours`)
+                : (hours % 10 === 1 && hours % 100 !== 11) ? `${hours} час`
+                : (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? `${hours} часа`
+                : `${hours} часов`;
+            return result;
+        }
+    }
+    
+    // Если есть durationDays, используем его
     if (tour.durationDays && typeof tour.durationDays === 'number') {
         const days = tour.durationDays;
         if (lang === 'en') {
@@ -1066,9 +1081,27 @@ function formatDuration(tour, lang) {
     
     // Если duration - это строка, проверяем её содержимое
     if (tour.duration) {
-        const durationStr = String(tour.duration).trim();
+        const durationStr = String(tour.duration).trim().toLowerCase();
         
-        // Если это просто число, добавляем единицу измерения
+        // Проверка: это часы? (ищем 'час', 'hour' или строку заканчивающуюся на 'h')
+        const hasHourKeyword = durationStr.includes('час') || durationStr.includes('hour');
+        const endsWithH = /\d+\s*h$/i.test(durationStr);
+        
+        if (hasHourKeyword || endsWithH) {
+            const match = durationStr.match(/(\d+)/);
+            if (match) {
+                const hours = parseInt(match[1]);
+                const result = lang === 'en'
+                    ? (hours === 1 ? `${hours} hour` : `${hours} hours`)
+                    : (hours % 10 === 1 && hours % 100 !== 11) ? `${hours} час`
+                    : (hours % 10 >= 2 && hours % 10 <= 4 && (hours % 100 < 10 || hours % 100 >= 20)) ? `${hours} часа`
+                    : `${hours} часов`;
+                return result;
+            }
+            return tour.duration;
+        }
+        
+        // Если это просто число, добавляем единицу измерения (дни)
         if (/^\d+$/.test(durationStr)) {
             const num = parseInt(durationStr);
             if (lang === 'en') {
