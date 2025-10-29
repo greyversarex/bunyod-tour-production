@@ -4,9 +4,20 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes
-### October 29, 2025 - Tour Duration Display & Dashboard Revenue Conversion
-- **Tour Card Duration Display**: Added tour duration display on tour cards (homepage and search page) next to category - format: "Категория (X дней/часов)" with bilingual support
+### October 29, 2025 - Tour Duration Localization & Dashboard Revenue Conversion
+- **Tour Duration Localization**: Implemented `formatDuration()` helper function for proper bilingual duration display on tour cards
+  - Automatically detects if duration is numeric and adds localized units ("дней/days")
+  - Handles Russian plural forms correctly (день/дня/дней) based on number rules
+  - English support (day/days) with proper singular/plural
+  - Uses `tour.durationDays` field (Int) if available, falls back to `tour.duration` string
+  - Works on both homepage and search page
+  - Example output: "Экскурсионные (2 дня)" or "Sightseeing (2 days)"
 - **Dashboard Revenue in TJS**: Dashboard now displays monthly revenue in base currency (TJS) with automatic conversion of orders in other currencies (USD, EUR, RUB, CNY) using exchange rates from database
+  - Backend loads exchange rates and converts all paid orders to TJS
+  - Uses tour.currency for conversion (totalAmount is calculated from tour.price at order creation)
+  - Formula: amount * exchange_rate = amount in TJS
+  - Returns revenue rounded to 2 decimal places
+  - Frontend displays revenue with "с" symbol (somoni) instead of hardcoded "$"
 - **Price Calculator Safety Confirmed**: Verified that update.sh script does not overwrite price calculator data - only updates code and runs migrations, preserving all database data
 
 ### October 28, 2025 - Admin Panel UX Improvements & Currency Display
