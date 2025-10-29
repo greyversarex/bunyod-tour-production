@@ -1950,21 +1950,18 @@ function getCategoryIcon(categoryName) {
 
 // Функция для локализации длительности тура
 function formatDuration(tour, lang) {
+    console.log('formatDuration called:', {tourId: tour.id, duration: tour.duration, durationDays: tour.durationDays, lang});
+    
     // Если есть duration Days, используем его
     if (tour.durationDays && typeof tour.durationDays === 'number') {
         const days = tour.durationDays;
-        if (lang === 'en') {
-            return days === 1 ? `${days} day` : `${days} days`;
-        } else {
-            // Русская форма числительных
-            if (days % 10 === 1 && days % 100 !== 11) {
-                return `${days} день`;
-            } else if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) {
-                return `${days} дня`;
-            } else {
-                return `${days} дней`;
-            }
-        }
+        const result = lang === 'en' 
+            ? (days === 1 ? `${days} day` : `${days} days`)
+            : (days % 10 === 1 && days % 100 !== 11) ? `${days} день`
+            : (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) ? `${days} дня`
+            : `${days} дней`;
+        console.log('formatDuration result (from durationDays):', result);
+        return result;
     }
     
     // Если duration - это строка, проверяем её содержимое
@@ -1974,23 +1971,21 @@ function formatDuration(tour, lang) {
         // Если это просто число, добавляем единицу измерения
         if (/^\d+$/.test(durationStr)) {
             const num = parseInt(durationStr);
-            if (lang === 'en') {
-                return num === 1 ? `${num} day` : `${num} days`;
-            } else {
-                if (num % 10 === 1 && num % 100 !== 11) {
-                    return `${num} день`;
-                } else if (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) {
-                    return `${num} дня`;
-                } else {
-                    return `${num} дней`;
-                }
-            }
+            const result = lang === 'en'
+                ? (num === 1 ? `${num} day` : `${num} days`)
+                : (num % 10 === 1 && num % 100 !== 11) ? `${num} день`
+                : (num % 10 >= 2 && num % 10 <= 4 && (num % 100 < 10 || num % 100 >= 20)) ? `${num} дня`
+                : `${num} дней`;
+            console.log('formatDuration result (from duration string):', result);
+            return result;
         }
         
         // Если уже есть единицы измерения, возвращаем как есть
+        console.log('formatDuration result (preformatted):', durationStr);
         return durationStr;
     }
     
+    console.log('formatDuration result: empty string');
     return '';
 }
 
