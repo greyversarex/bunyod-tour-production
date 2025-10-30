@@ -163,9 +163,65 @@ function updateTourDescriptions(language) {
  * @param {string} language - Целевой язык
  */
 function updateCategoryNames(language) {
-  document.querySelectorAll('[data-category-name]').forEach(element => {
+  const allElements = document.querySelectorAll('[data-category-name]');
+  console.log(`🔍 updateCategoryNames: найдено ${allElements.length} элементов с data-category-name`);
+  
+  allElements.forEach((element, index) => {
     const categoryData = element.dataset.categoryName;
-    updateMultilingualElement(element, categoryData, language, 'textContent');
+    const isTourDuration = element.classList.contains('tour-duration');
+    console.log(`🔍 Element #${index}: isTourDuration=${isTourDuration}, categoryData="${categoryData}"`);
+    
+    // Если это tour-duration элемент, добавляем длительность после категории
+    if (isTourDuration) {
+      const duration = element.dataset.tourDuration;
+      const durationDays = element.dataset.tourDurationDays;
+      const durationType = element.dataset.tourDurationType;
+      
+      console.log(`🔍 Element #${index}: duration="${duration}", durationDays="${durationDays}", durationType="${durationType}"`);
+      
+      if (categoryData) {
+        const parsed = safeJsonParse(categoryData);
+        const categoryText = getLocalizedText(parsed, language) || (language === 'en' ? 'Category' : 'Категория');
+        console.log(`🔍 Element #${index}: categoryText="${categoryText}"`);
+        
+        // Если есть длительность, добавляем её
+        if (duration || durationDays) {
+          const tourData = {
+            duration: duration,
+            durationDays: durationDays ? parseInt(durationDays) : null,
+            durationType: durationType || null
+          };
+          console.log(`🔍 Element #${index}: tourData=`, tourData);
+          
+          // Используем formatDuration если доступна, иначе простой формат
+          let formatted = '';
+          if (typeof window.formatDuration === 'function') {
+            console.log(`🔍 Element #${index}: вызываю window.formatDuration`);
+            formatted = window.formatDuration(tourData, language);
+            console.log(`🔍 Element #${index}: window.formatDuration вернула="${formatted}"`);
+          } else {
+            console.log(`🔍 Element #${index}: window.formatDuration НЕ ДОСТУПНА, использую fallback`);
+            // Fallback формат
+            const value = durationDays || duration;
+            const unit = durationType === 'hours' 
+              ? (language === 'en' ? 'hours' : 'часов')
+              : (language === 'en' ? 'days' : 'дней');
+            formatted = `${value} ${unit}`;
+            console.log(`🔍 Element #${index}: fallback formatted="${formatted}"`);
+          }
+          
+          const finalText = `${categoryText}, ${formatted}`;
+          console.log(`🔍 Element #${index}: УСТАНОВКА textContent="${finalText}"`);
+          element.textContent = finalText;
+        } else {
+          console.log(`🔍 Element #${index}: НЕТ ДЛИТЕЛЬНОСТИ, только категория`);
+          element.textContent = categoryText;
+        }
+      }
+    } else {
+      // Обычная категория без длительности
+      updateMultilingualElement(element, categoryData, language, 'textContent');
+    }
   });
 }
 

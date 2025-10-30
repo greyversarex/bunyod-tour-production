@@ -1541,24 +1541,35 @@ function translateDynamicContent(lang) {
         
         // Обновляем длительность туров (вместе с категорией)
         const tourDurations = document.querySelectorAll('.tour-duration');
-        tourDurations.forEach(element => {
+        console.log(`🔍 translateAllDynamicContent: найдено ${tourDurations.length} элементов .tour-duration`);
+        tourDurations.forEach((element, index) => {
             const duration = element.dataset.tourDuration;
             const durationDays = element.dataset.tourDurationDays;
+            const durationType = element.dataset.tourDurationType;
             const categoryData = element.dataset.categoryName;
+            
+            console.log(`🔍 Element ${index}: duration="${duration}", durationDays="${durationDays}", durationType="${durationType}"`);
+            console.log(`🔍 Element ${index}: categoryData="${categoryData}"`);
             
             if (categoryData) {
                 const parsed = safeJsonParse(categoryData);
                 const categoryText = getLocalizedText(parsed, lang) || (lang === 'en' ? 'Category' : 'Категория');
+                console.log(`🔍 Element ${index}: categoryText="${categoryText}"`);
                 
                 if (duration || durationDays) {
                     const tourData = {
                         duration: duration,
                         durationDays: durationDays ? parseInt(durationDays) : null,
-                        durationType: element.dataset.tourDurationType || null
+                        durationType: durationType || null
                     };
+                    console.log(`🔍 Element ${index}: tourData=`, tourData);
                     const formatted = formatDuration(tourData, lang);
-                    element.textContent = `${categoryText}, ${formatted}`;
+                    console.log(`🔍 Element ${index}: formatted="${formatted}"`);
+                    const finalText = `${categoryText}, ${formatted}`;
+                    console.log(`🔍 Element ${index}: SETTING textContent="${finalText}"`);
+                    element.textContent = finalText;
                 } else {
+                    console.log(`🔍 Element ${index}: NO DURATION, только категория`);
                     element.textContent = categoryText;
                 }
                 updatedCount++;
@@ -2134,6 +2145,9 @@ function formatDuration(tour, lang) {
     return '';
 }
 
+// Экспортируем formatDuration глобально для использования в multilingual-utils.js
+window.formatDuration = formatDuration;
+
 function renderTourCard(tour, blockId = null) {
     // Получаем текущий язык
     const currentLang = getCurrentLanguage();
@@ -2282,17 +2296,24 @@ function renderTourCard(tour, blockId = null) {
                 <!-- Категория тура и длительность -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
-                    <span class="font-medium tour-duration" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}" data-tour-duration-type="${tour.durationType || ''}">${categoryText}${(() => {
-                        console.log(`📍 renderTourCard: тур ${tour.id}, duration=${tour.duration}, durationDays=${tour.durationDays}, durationType=${tour.durationType}`);
+                    <span class="font-medium tour-duration" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}" data-tour-duration-type="${tour.durationType || ''}">${(() => {
+                        console.log(`📍 renderTourCard START: тур ${tour.id}, categoryText="${categoryText}"`);
+                        console.log(`📍 Tour data: duration=${tour.duration}, durationDays=${tour.durationDays}, durationType=${tour.durationType}`);
+                        
+                        let result = categoryText;
                         const hasDuration = tour.duration || tour.durationDays;
+                        
                         if (hasDuration) {
                             console.log(`✅ hasDuration=true, вызываю formatDuration`);
                             const formatted = formatDuration(tour, currentLang);
-                            console.log(`✅ Результат formatDuration: "${formatted}"`);
-                            return `, ${formatted}`;
+                            console.log(`✅ formatDuration returned: "${formatted}"`);
+                            result = categoryText + ', ' + formatted;
+                            console.log(`✅ FINAL RESULT: "${result}"`);
+                        } else {
+                            console.log(`⚠️ hasDuration=false, только категория`);
                         }
-                        console.log(`⚠️ hasDuration=false, пропускаю длительность`);
-                        return '';
+                        
+                        return result;
                     })()}</span>
                     ${allCategories.length > 1 ? `
                     <span class="relative group cursor-help ml-0.5">
