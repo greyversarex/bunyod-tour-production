@@ -3,68 +3,6 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
-## Recent Changes
-### October 30, 2025 - Homepage Tour Card Enhancements: Max Tourists & Duration Display with Multilingual Support (FIXED)
-- **Tour Card Display Updates on Homepage**: Enhanced tour cards on main page to match search page functionality
-  - Added **max tourists display** next to tour type in format "(до 20 чел.)" / "(up to 20 people)"
-  - Max tourists only shown for group tours (not displayed for individual tours)
-  - Added **duration display** after category name with comma separator: "Категория, длительность"
-  - Examples: "Групповой персональный (до 15 чел.)" and "Исторический, 5 дней"
-- **Tour Type Normalization System**: Created `normalizeTourType()` function in `home-page.js`
-  - Standardizes tour types from API-denormalized values to enum: `group_private`, `group_general`, `individual`
-  - CRITICAL FIX: Properly distinguishes between "Персональный" (individual) and "Групповой персональный" (group_private)
-  - Handles exact matches first: "Персональный"→individual, "Групповой персональный"→group_private, "Групповой общий"→group_general
-  - Then checks partial matches for database variants
-  - API denormalizes enum values: `individual`→"Персональный", `group_private`→"Групповой персональный", `group_shared`→"Групповой общий"
-- **Multilingual Max Tourists Support**: Implemented dynamic language switching for max tourists text
-  - Created `updateMaxPeopleText()` function to update all `data-max-people` elements on language change
-  - Integrated into `languageChanged` event handler
-  - Russian format: "(до N чел.)" / English format: "(up to N people)"
-  - Uses separate spans to preserve i18n compatibility: tour type span with `data-translate`, max tourists span with `data-max-people`
-- **Database Fix**: Updated sample tour from `individual` to `group_private` to properly show max tourists
-- **Architecture Review**: All changes reviewed and approved by architect
-  - Confirmed proper multilingual behavior with `data-translate` attributes
-  - Verified `normalizeTourType` handles all tour type variants and API-denormalized values correctly
-  - Validated integration with existing i18n system and API denormalization
-  - No regressions detected in existing functionality
-
-### October 29, 2025 - Hour Duration Support (Fixed), Recent Orders Currency Fix, Price Calculator Cleanup & Duration Format Update
-- **Hour-Based Duration Support - FIXED**: Tours can now correctly display hour-based durations with proper localization
-  - **Primary check**: Function `formatDuration()` now checks `tour.durationType` field from database first
-  - If `durationType === 'hours'`, formats value as hours with proper pluralization  
-  - **Fallback detection**: Also detects hour indicators in duration string: "час", "hour", or compact format like "4h", "4 h"
-  - Regex pattern `/\d+\s*h$/i` catches all compact hour formats (4h, 4 h, 24h, etc.)
-  - Applies proper Russian plural rules (час/часа/часов) based on number
-  - English support with singular/plural (hour/hours)
-  - Falls back to day pluralization if no hour indicator found
-  - **Fix applied**: Regenerated Prisma client with `npx prisma generate` to include `durationType` in API responses
-  - Updated `formatDuration()` in both `frontend/public/js/home-page.js` and `frontend/public/js/search-page.js`
-  - Example: `durationType='hours'` + `duration='2'` → "2 hours" (EN) / "2 часа" (RU)
-- **Recent Orders Currency Display Fixed**: Admin dashboard Recent Orders section now shows correct currency symbols instead of hardcoded dollar sign
-  - Created `getCurrencySymbol()` helper function in admin-dashboard.html
-  - Maps currencies correctly: TJS→'с', USD→'$', EUR→'€', RUB→'₽', CNY→'¥'
-  - Reads currency from tour data with somoni as fallback
-  - Applied to both dashboard stats and loadRecentOrders() function
-- **Price Calculator Components Cleaned Up**: Removed 5 unused components from `src/models/index.ts`
-  - `ticket_dushanbe` - Входные билеты в объектах г.Душанбе
-  - `ticket_dushanbe_4h` - Входные билеты г.Душанбе, тур на 4 часа  
-  - `transport_4wd` - Транспорт по время тура, 4WD
-  - `transport_sedan` - Транспорт по время тура, легковой
-  - `transport_van` - Транспорт по время тура, миниавтобус
-  - Total components reduced from 26 to 21
-  - Adjusted sortOrder values to maintain sequence
-  - Deployment safe: update.sh does not overwrite existing components
-- **Tour Card Duration Format Changed**: Updated visual format on tour cards across all pages
-  - Changed from "Категория (длительность)" to "Категория, длительность"
-  - Examples: "Городской, 2 часа" instead of "Городской (2 часа)"
-  - Fixed spacing issue: comma is now directly after category name (no space before comma)
-  - Applied to both homepage (`home-page.js`) and search page (`search-page.js`)
-  - Affects all tour card displays and language switching functionality
-- **JavaScript Error Fixes**: Resolved `getCurrentLanguage is not defined` and `getMultilingualValue is not defined` errors
-  - Added both helper functions to `home-page.js`
-  - Functions extract multilingual values and detect current language
-  - Fixes currency conversion and country/city loading errors
-
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.
