@@ -1222,7 +1222,7 @@ function createTourCard(tour) {
                 <!-- Категория тура с множественными категориями и длительность -->
                 <div class="text-xs mb-2" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
-                    <span class="font-medium">${categoryText}${tour.duration || tour.durationDays ? `, ${formatDuration(tour, currentLang)}` : ''}</span>
+                    <span class="font-medium">${categoryText}${(tour.duration || tour.durationDays) ? `, ${formatDuration(tour, currentLang)}` : ''}</span>
                     ${allCategories.length > 1 ? `
                     <span class="relative group cursor-help ml-0.5">
                         <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>

@@ -33,8 +33,13 @@ Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offeri
 - **Tour Card Duration Format Changed**: Updated visual format on tour cards across all pages
   - Changed from "Категория (длительность)" to "Категория, длительность"
   - Examples: "Городской, 2 часа" instead of "Городской (2 часа)"
+  - Fixed spacing issue: comma is now directly after category name (no space before comma)
   - Applied to both homepage (`home-page.js`) and search page (`search-page.js`)
   - Affects all tour card displays and language switching functionality
+- **JavaScript Error Fixes**: Resolved `getCurrentLanguage is not defined` and `getMultilingualValue is not defined` errors
+  - Added both helper functions to `home-page.js`
+  - Functions extract multilingual values and detect current language
+  - Fixes currency conversion and country/city loading errors
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

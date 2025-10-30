@@ -4,6 +4,38 @@
  * Includes: filters, search, tours display, country/city management
  */
 
+// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ МНОГОЯЗЫЧНОСТИ ===
+
+/**
+ * Получает значение поля на текущем языке
+ * @param {object} obj - Объект с данными
+ * @param {string} field - Имя поля
+ * @returns {string} Локализованное значение
+ */
+function getMultilingualValue(obj, field) {
+    if (!obj) return '';
+    
+    const currentLang = getCurrentLanguage();
+    const value = obj[field];
+    
+    if (typeof value === 'object' && value !== null) {
+        return value[currentLang] || value.ru || value.en || '';
+    }
+    
+    return value || '';
+}
+
+/**
+ * Получает текущий язык
+ * @returns {string} Код языка ('ru' | 'en')
+ */
+function getCurrentLanguage() {
+    return window.currentLanguage || 
+           localStorage.getItem('selectedLanguage') || 
+           (navigator.language && navigator.language.startsWith('en') ? 'en' : 'ru') || 
+           'ru';
+}
+
 // Функция для переключения деталей информационных блоков
 function toggleDetails(detailsId, button) {
     const detailsElement = document.getElementById(detailsId);
@@ -1449,21 +1481,29 @@ function translateDynamicContent(lang) {
             }
         });
         
-        // Обновляем длительность туров
+        // Обновляем длительность туров (вместе с категорией)
         const tourDurations = document.querySelectorAll('.tour-duration');
         tourDurations.forEach(element => {
             const duration = element.dataset.tourDuration;
             const durationDays = element.dataset.tourDurationDays;
-            if (duration || durationDays) {
-                const tourData = {
-                    duration: duration,
-                    durationDays: durationDays ? parseInt(durationDays) : null
-                };
-                const formatted = formatDuration(tourData, lang);
-                if (formatted) {
-                    element.textContent = `, ${formatted}`;
-                    updatedCount++;
+            const categoryData = element.dataset.categoryName;
+            
+            if (categoryData) {
+                const parsed = safeJsonParse(categoryData);
+                const categoryText = getLocalizedText(parsed, lang) || (lang === 'en' ? 'Category' : 'Категория');
+                
+                if (duration || durationDays) {
+                    const tourData = {
+                        duration: duration,
+                        durationDays: durationDays ? parseInt(durationDays) : null,
+                        durationType: element.dataset.tourDurationType || null
+                    };
+                    const formatted = formatDuration(tourData, lang);
+                    element.textContent = `${categoryText}, ${formatted}`;
+                } else {
+                    element.textContent = categoryText;
                 }
+                updatedCount++;
             }
         });
         
@@ -2184,14 +2224,14 @@ function renderTourCard(tour, blockId = null) {
                 <!-- Категория тура и длительность -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
-                    <span class="font-medium" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}">${categoryText}</span>${(() => {
+                    <span class="font-medium tour-duration" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}">${categoryText}${(() => {
                         const hasDuration = tour.duration || tour.durationDays;
                         if (hasDuration) {
                             const formatted = formatDuration(tour, currentLang);
-                            return `<span class="tour-duration" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}">, ${formatted}</span>`;
+                            return `, ${formatted}`;
                         }
                         return '';
-                    })()}
+                    })()}</span>
                     ${allCategories.length > 1 ? `
                     <span class="relative group cursor-help ml-0.5">
                         <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
