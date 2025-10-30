@@ -4,6 +4,28 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Changes
+### October 30, 2025 - Homepage Tour Card Enhancements: Max Tourists & Duration Display with Multilingual Support
+- **Tour Card Display Updates on Homepage**: Enhanced tour cards on main page to match search page functionality
+  - Added **max tourists display** next to tour type in format "(до 20 чел.)" / "(up to 20 people)"
+  - Max tourists only shown for group tours (not displayed for individual tours)
+  - Added **duration display** after category name with comma separator: "Категория, длительность"
+  - Examples: "Групповой персональный (до 15 чел.)" and "Городской, 5 дней"
+- **Tour Type Normalization System**: Created `normalizeTourType()` function in `home-page.js`
+  - Standardizes tour types to enum: `group_private`, `group_general`, `individual`
+  - Supports multiple variants: "персональный"/"personal"/"приватный"/"private" → `group_private`
+  - Handles "общий"/"general" → `group_general` and "индивидуальный"/"individual" → `individual`
+  - Ensures consistent translation keys: `tour_type.{normalized_value}`
+- **Multilingual Max Tourists Support**: Implemented dynamic language switching for max tourists text
+  - Created `updateMaxPeopleText()` function to update all `data-max-people` elements on language change
+  - Integrated into `languageChanged` event handler
+  - Russian format: "(до N чел.)" / English format: "(up to N people)"
+  - Uses separate spans to preserve i18n compatibility: tour type span with `data-translate`, max tourists span with `data-max-people`
+- **Architecture Review**: All changes reviewed and approved by architect
+  - Confirmed proper multilingual behavior with `data-translate` attributes
+  - Verified `normalizeTourType` handles all tour type variants correctly
+  - Validated integration with existing i18n system
+  - No regressions detected in existing functionality
+
 ### October 29, 2025 - Hour Duration Support (Fixed), Recent Orders Currency Fix, Price Calculator Cleanup & Duration Format Update
 - **Hour-Based Duration Support - FIXED**: Tours can now correctly display hour-based durations with proper localization
   - **Primary check**: Function `formatDuration()` now checks `tour.durationType` field from database first
