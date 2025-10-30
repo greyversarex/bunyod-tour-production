@@ -793,23 +793,37 @@ function displaySearchResults(tours) {
 }
 
 // Нормализует тип тура в стандартный enum формат для переводов
+// ВАЖНО: API денормализует enum значения, поэтому нужно различать:
+// - "Персональный" (без "Групповой") = individual
+// - "Групповой персональный" = group_private
 function normalizeTourType(tourType) {
     if (!tourType) return 'group_general';
     
-    const type = tourType.toLowerCase();
+    const type = tourType.toLowerCase().trim();
     
-    // Групповой персональный / Group Private (включая "приватный")
-    if (type.includes('персональн') || type.includes('personal') || type.includes('приватн') || type.includes('private') || type === 'group_private') {
+    // СНАЧАЛА проверяем точные соответствия (денормализованные значения от API)
+    if (type === 'персональный' || type === 'individual') {
+        return 'individual';
+    }
+    
+    if (type === 'групповой персональный' || type === 'private group' || type === 'group_private') {
         return 'group_private';
     }
     
-    // Групповой общий / Group General
-    if (type.includes('общий') || type.includes('general') || type === 'group_general') {
+    if (type === 'групповой общий' || type === 'shared group' || type === 'group_general' || type === 'group_shared') {
         return 'group_general';
     }
     
-    // Индивидуальный / Individual
-    if (type.includes('индивидуальн') || type.includes('individual')) {
+    // Затем проверяем частичные совпадения (для вариантов из базы)
+    if (type.includes('групповой') && (type.includes('персональн') || type.includes('приватн') || type.includes('private'))) {
+        return 'group_private';
+    }
+    
+    if (type.includes('групповой') && (type.includes('общий') || type.includes('shared'))) {
+        return 'group_general';
+    }
+    
+    if (type.includes('индивидуальн')) {
         return 'individual';
     }
     
