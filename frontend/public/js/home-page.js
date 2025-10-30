@@ -792,6 +792,43 @@ function displaySearchResults(tours) {
     document.querySelector('section.bg-gray-50').style.display = 'none';
 }
 
+// Нормализует тип тура в стандартный enum формат для переводов
+function normalizeTourType(tourType) {
+    if (!tourType) return 'group_general';
+    
+    const type = tourType.toLowerCase();
+    
+    // Групповой персональный / Group Private (включая "приватный")
+    if (type.includes('персональн') || type.includes('personal') || type.includes('приватн') || type.includes('private') || type === 'group_private') {
+        return 'group_private';
+    }
+    
+    // Групповой общий / Group General
+    if (type.includes('общий') || type.includes('general') || type === 'group_general') {
+        return 'group_general';
+    }
+    
+    // Индивидуальный / Individual
+    if (type.includes('индивидуальн') || type.includes('individual')) {
+        return 'individual';
+    }
+    
+    // Default: групповой общий
+    return 'group_general';
+}
+
+// Обновляет текст макс. туристов при смене языка
+function updateMaxPeopleText(language) {
+    const maxPeopleElements = document.querySelectorAll('[data-max-people]');
+    maxPeopleElements.forEach(element => {
+        const maxPeople = element.getAttribute('data-max-people');
+        if (maxPeople) {
+            element.textContent = language === 'en' ? `(up to ${maxPeople} people)` : `(до ${maxPeople} чел.)`;
+        }
+    });
+    console.log(`✅ Обновлено ${maxPeopleElements.length} элементов макс. туристов на язык: ${language}`);
+}
+
 // Функция для создания карточки тура
 function createTourCard(tour) {
     const currentLang = getCurrentLanguage();
@@ -813,6 +850,19 @@ function createTourCard(tour) {
         locationText = typeof tour.country === 'object' ? getEntityName(tour.country, currentLang) : tour.country;
     }
     
+    // Нормализуем тип тура
+    const rawTourType = tour.format || tour.tourType || 'group_general';
+    const normalizedTourType = normalizeTourType(rawTourType);
+    
+    // Получаем ключ перевода для типа тура
+    const tourTypeKey = `tour_type.${normalizedTourType}`;
+    
+    // Получаем название категории
+    let categoryText = '';
+    if (tour.category && tour.category.name) {
+        categoryText = getCategoryNameByLanguage(tour.category.name, currentLang);
+    }
+    
     return `
         <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col">
             <div class="h-64 bg-gray-200 flex items-center justify-center">
@@ -822,20 +872,14 @@ function createTourCard(tour) {
                 <div class="flex justify-between items-start mb-4">
                     <h3 class="text-xl font-bold text-gray-900" data-tour-title data-title-ru="${escapeDataAttribute(getTitleByLanguageRaw(tour.title, 'ru'))}" data-title-en="${escapeDataAttribute(getTitleByLanguageRaw(tour.title, 'en'))}">${getTitleByLanguage(tour.title, window.i18n ? window.i18n.currentLanguage() : 'ru')}</h3>
                     <div class="flex flex-col gap-1">
-                        <!-- Тип тура (format/tourType) -->
-                        <div class="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium" data-translate="tour_type.${(tour.format || tour.tourType || 'групповой').toLowerCase().replace(/\s+/g, '_')}">
-                            ${(() => {
-                                const tourType = tour.format || tour.tourType || 'Групповой';
-                                const normalizedType = tourType.toLowerCase().replace(/\s+/g, '_');
-                                const translationKey = 'tour_type.' + normalizedType;
-                                const translated = getTranslation(translationKey);
-                                return translated !== translationKey ? translated : tourType;
-                            })()}
+                        <!-- Тип тура (format/tourType) с макс. количеством туристов -->
+                        <div class="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                            <span data-translate="${tourTypeKey}">${getTranslation(tourTypeKey)}</span>${normalizedTourType !== 'individual' && tour.maxPeople ? `<span class="text-gray-600 ml-1" data-max-people="${tour.maxPeople}">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : ''}
                         </div>
-                        <!-- Категория тура -->
+                        <!-- Категория тура с длительностью -->
                         ${tour.category ? `
                         <div class="flex items-center px-2 py-1 rounded-full text-xs font-medium" style="background-color: #3E3E3E; color: white;">
-                            <span data-tour-category data-cat-ru="${escapeDataAttribute(getCategoryNameByLanguageRaw(tour.category.name, 'ru'))}" data-cat-en="${escapeDataAttribute(getCategoryNameByLanguageRaw(tour.category.name, 'en'))}">${getCategoryNameByLanguage(tour.category.name, window.i18n ? window.i18n.currentLanguage() : 'ru')}</span>
+                            <span data-tour-category data-cat-ru="${escapeDataAttribute(getCategoryNameByLanguageRaw(tour.category.name, 'ru'))}" data-cat-en="${escapeDataAttribute(getCategoryNameByLanguageRaw(tour.category.name, 'en'))}">${categoryText}${(tour.duration || tour.durationDays) ? `, ${formatDuration(tour, currentLang)}` : ''}</span>
                         </div>` : ''}
                     </div>
                 </div>
@@ -2562,6 +2606,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.addEventListener('languageChanged', async function(event) {
         console.log(`🔄 Главная страница: язык изменен на ${event.detail.language}`);
         translateDynamicContent(event.detail.language);
+        
+        // Обновляем текст макс. туристов
+        updateMaxPeopleText(event.detail.language);
         
         // Обновляем фильтры (страны, города, категории) без полной перезагрузки данных
         await loadCountriesAndCities(); // Обновляем кеш стран/городов
