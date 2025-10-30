@@ -2291,26 +2291,22 @@ function renderTourCard(tour, blockId = null) {
                         const translationKey = 'tour_type.' + normalizedType;
                         const translated = getTranslation(translationKey);
                         return translated !== translationKey ? translated : tourType;
-                    })()}</span>${tour.tourType === 'Персональный' ? '' : (tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '')}
+                    })()}</span>${(() => {
+                        const tourType = (tour.format || tour.tourType || '').toLowerCase();
+                        const isIndividual = tourType.includes('персональный') && !tourType.includes('групповой');
+                        return !isIndividual && tour.maxPeople ? ` <span class="text-gray-600" data-max-people="${tour.maxPeople}">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '';
+                    })()}
                 </div>
                 <!-- Категория тура и длительность -->
                 <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
                     ${getCategoryIcon(categoryText)}
                     <span class="font-medium tour-duration" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}" data-tour-duration-type="${tour.durationType || ''}">${(() => {
-                        console.log(`📍 renderTourCard START: тур ${tour.id}, categoryText="${categoryText}"`);
-                        console.log(`📍 Tour data: duration=${tour.duration}, durationDays=${tour.durationDays}, durationType=${tour.durationType}`);
-                        
                         let result = categoryText;
                         const hasDuration = tour.duration || tour.durationDays;
                         
                         if (hasDuration) {
-                            console.log(`✅ hasDuration=true, вызываю formatDuration`);
                             const formatted = formatDuration(tour, currentLang);
-                            console.log(`✅ formatDuration returned: "${formatted}"`);
                             result = categoryText + ', ' + formatted;
-                            console.log(`✅ FINAL RESULT: "${result}"`);
-                        } else {
-                            console.log(`⚠️ hasDuration=false, только категория`);
                         }
                         
                         return result;

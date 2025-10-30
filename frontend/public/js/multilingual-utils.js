@@ -164,12 +164,10 @@ function updateTourDescriptions(language) {
  */
 function updateCategoryNames(language) {
   const allElements = document.querySelectorAll('[data-category-name]');
-  console.log(`🔍 updateCategoryNames: найдено ${allElements.length} элементов с data-category-name`);
   
   allElements.forEach((element, index) => {
     const categoryData = element.dataset.categoryName;
     const isTourDuration = element.classList.contains('tour-duration');
-    console.log(`🔍 Element #${index}: isTourDuration=${isTourDuration}, categoryData="${categoryData}"`);
     
     // Если это tour-duration элемент, добавляем длительность после категории
     if (isTourDuration) {
@@ -177,12 +175,9 @@ function updateCategoryNames(language) {
       const durationDays = element.dataset.tourDurationDays;
       const durationType = element.dataset.tourDurationType;
       
-      console.log(`🔍 Element #${index}: duration="${duration}", durationDays="${durationDays}", durationType="${durationType}"`);
-      
       if (categoryData) {
         const parsed = safeJsonParse(categoryData);
         const categoryText = getLocalizedText(parsed, language) || (language === 'en' ? 'Category' : 'Категория');
-        console.log(`🔍 Element #${index}: categoryText="${categoryText}"`);
         
         // Если есть длительность, добавляем её
         if (duration || durationDays) {
@@ -191,30 +186,22 @@ function updateCategoryNames(language) {
             durationDays: durationDays ? parseInt(durationDays) : null,
             durationType: durationType || null
           };
-          console.log(`🔍 Element #${index}: tourData=`, tourData);
           
           // Используем formatDuration если доступна, иначе простой формат
           let formatted = '';
           if (typeof window.formatDuration === 'function') {
-            console.log(`🔍 Element #${index}: вызываю window.formatDuration`);
             formatted = window.formatDuration(tourData, language);
-            console.log(`🔍 Element #${index}: window.formatDuration вернула="${formatted}"`);
           } else {
-            console.log(`🔍 Element #${index}: window.formatDuration НЕ ДОСТУПНА, использую fallback`);
             // Fallback формат
             const value = durationDays || duration;
             const unit = durationType === 'hours' 
               ? (language === 'en' ? 'hours' : 'часов')
               : (language === 'en' ? 'days' : 'дней');
             formatted = `${value} ${unit}`;
-            console.log(`🔍 Element #${index}: fallback formatted="${formatted}"`);
           }
           
-          const finalText = `${categoryText}, ${formatted}`;
-          console.log(`🔍 Element #${index}: УСТАНОВКА textContent="${finalText}"`);
-          element.textContent = finalText;
+          element.textContent = `${categoryText}, ${formatted}`;
         } else {
-          console.log(`🔍 Element #${index}: НЕТ ДЛИТЕЛЬНОСТИ, только категория`);
           element.textContent = categoryText;
         }
       }
@@ -302,6 +289,22 @@ function updateTourBlockTitles(language) {
   });
 }
 
+/**
+ * Обновляет лимит людей для персональных/групповых туров
+ * @param {string} language - Целевой язык
+ */
+function updateMaxPeopleText(language) {
+  const maxPeopleElements = document.querySelectorAll('[data-max-people]');
+  maxPeopleElements.forEach(element => {
+    const maxPeople = element.getAttribute('data-max-people');
+    if (maxPeople) {
+      element.textContent = language === 'en' 
+        ? `(up to ${maxPeople} people)` 
+        : `(до ${maxPeople} чел.)`;
+    }
+  });
+}
+
 // === ГЛАВНАЯ ФУНКЦИЯ ПЕРЕВОДА ВСЕГО ДИНАМИЧЕСКОГО КОНТЕНТА ===
 
 /**
@@ -337,6 +340,9 @@ function translateAllDynamicContent(language) {
   
   updateTourBlockTitles(language);
   updatedCount += document.querySelectorAll('[data-tour-block-title]').length;
+  
+  updateMaxPeopleText(language);
+  updatedCount += document.querySelectorAll('[data-max-people]').length;
   
   console.log(`✅ Обновлено ${updatedCount} элементов динамического контента`);
   
