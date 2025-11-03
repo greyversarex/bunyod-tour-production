@@ -555,6 +555,9 @@ export const bookingController = {
   async createOrderFromBooking(req: Request, res: Response) {
     try {
       const { id } = req.params;
+      const { paymentOption } = req.body; // full, deposit, free_cancellation
+      
+      console.log('🔄 Creating order from booking:', { bookingId: id, paymentOption });
       
       // Найти бронирование с полными данными
       const booking = await prisma.booking.findUnique({
@@ -612,7 +615,24 @@ export const bookingController = {
 
       const orderNumber = generateOrderNumber();
 
-      // Создать заказ с правильной суммой из бронирования
+      // 💰 Рассчитать сумму к оплате на основе выбранной опции
+      let paymentAmount = booking.totalPrice;
+      const effectivePaymentOption = paymentOption || 'full';
+      
+      if (effectivePaymentOption === 'deposit') {
+        // Для депозита берем 10% от общей суммы
+        paymentAmount = Math.round(booking.totalPrice * 0.1 * 100) / 100; // Округление до 2 знаков
+        console.log(`💳 Deposit payment: 10% of ${booking.totalPrice} = ${paymentAmount} TJS`);
+      } else if (effectivePaymentOption === 'free_cancel') {
+        // Для бесплатной отмены также берем полную сумму (но отменяемую)
+        paymentAmount = booking.totalPrice;
+        console.log(`💳 Free cancellation payment: ${paymentAmount} TJS (refundable)`);
+      } else {
+        // Полная оплата
+        console.log(`💳 Full payment: ${paymentAmount} TJS`);
+      }
+
+      // Создать заказ с правильной суммой
       const order = await prisma.order.create({
         data: {
           orderNumber,
@@ -623,7 +643,7 @@ export const bookingController = {
           tourDate: booking.tourDate,
           tourists: booking.tourists,
           wishes: booking.specialRequests || '',
-          totalAmount: booking.totalPrice,
+          totalAmount: paymentAmount, // 🎯 Используем рассчитанную сумму (10% для deposit)
           status: 'pending',
           paymentStatus: 'unpaid'
         },
@@ -638,11 +658,12 @@ export const bookingController = {
         }
       });
 
-      // Обновить статус бронирования
+      // Обновить статус бронирования и сохранить paymentOption
       await prisma.booking.update({
         where: { id: booking.id },
         data: {
-          status: 'order_created'
+          status: 'order_created',
+          paymentOption: effectivePaymentOption
         }
       });
 
@@ -651,7 +672,9 @@ export const bookingController = {
         data: {
           order: order,
           orderNumber: order.orderNumber,
-          totalAmount: order.totalAmount
+          totalAmount: order.totalAmount,
+          paymentOption: effectivePaymentOption,
+          fullAmount: booking.totalPrice // Отправляем и полную сумму для справки
         },
         message: 'Order created successfully from booking'
       });
