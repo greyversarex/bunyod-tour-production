@@ -352,9 +352,18 @@ window.translations = window.translations || {
     
     // Особенности бронирования
     'booking.free_cancellation': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
-    'booking.cancellation_terms': { ru: 'до 24 часов до начала тура (местное время)', en: 'up to 24 hours before tour start (local time)' },
+    'booking.cancellation_terms': { ru: 'Возврат средств возможен лишь за 30 дней до начала забронированного тура', en: 'Refund is possible only 30 days before the booked tour starts' },
     'booking.book_now_pay_later': { ru: 'Забронировать сейчас, оплатить позже', en: 'Book Now, Pay Later' },
-    'booking.reserve_flexibility': { ru: 'Забронируйте место и сохраните гибкость', en: 'Reserve your spot and stay flexible' },
+    'booking.reserve_flexibility': { ru: 'Забронируйте тур за 30 дней до его начала и получите возможность оплатить сейчас только 10% от его стоимости а оставшиеся 90% перед началом тура', en: 'Book a tour 30 days before it starts and get the opportunity to pay only 10% of its cost now and the remaining 90% before the tour starts' },
+    
+    // Типы оплаты для групповых туров (30+ дней)
+    'booking.payment_option_title': { ru: 'Выберите условия оплаты', en: 'Choose Payment Terms' },
+    'booking.payment_full': { ru: 'Полная оплата', en: 'Full Payment' },
+    'booking.payment_full_desc': { ru: 'Оплатить 100% стоимости тура', en: 'Pay 100% of the tour cost' },
+    'booking.payment_deposit': { ru: 'Бронируй сейчас - плати потом', en: 'Book Now - Pay Later' },
+    'booking.payment_deposit_desc': { ru: 'Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура', en: 'Pay 10% of the total tour cost now and 90% of the balance before the tour starts' },
+    'booking.payment_free_cancel': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
+    'booking.payment_free_cancel_desc': { ru: 'Отмена тура со стороны Туриста в срок до 30 календарных дней до даты (время) начала тура. В этом случае возврат средств будет осуществляться на 100%. Однако, данный бонус (возможность) не распространяется на те туры которые бронировались в течении 30 дней до начала тура!', en: 'Tour cancellation by the Tourist up to 30 calendar days before the tour start date (time). In this case, a 100% refund will be made. However, this bonus (opportunity) does not apply to tours booked within 30 days of the tour start!' },
     'booking.book_ahead': { ru: 'Бронируйте заранее!', en: 'Book Ahead!' },
     'booking.average_notice': { ru: 'В среднем этот тур бронируют за 20 дней.', en: 'On average, this tour is booked 20 days in advance.' },
     'booking.tour_start_time': { ru: 'Время начала тура', en: 'Tour Start Time' },

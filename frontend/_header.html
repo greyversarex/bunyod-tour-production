@@ -1,8 +1,8 @@
 <!-- Centralized Layout Styles -->
-<link rel="stylesheet" href="/public/css/layout.css?v=1.5">
+<link rel="stylesheet" href="/public/css/layout.css?v=1.6">
 
 <!-- Хедер -->
-<header class="shadow-md sticky top-0 z-50" style="background-color: #3E3E3E;">
+<header id="site-header" class="shadow-md sticky top-0 z-50 transition-transform duration-300" style="background-color: #3E3E3E;">
     <div class="max-w-7xl mx-auto">
         <div class="flex items-center justify-between h-16 px-4 md:px-6">
             <!-- Логотип -->
@@ -241,3 +241,33 @@
         </div>
     </div>
 </header>
+
+<script>
+// Sticky header with hide/show on scroll
+(function() {
+    let lastScrollTop = 0;
+    const header = document.getElementById('site-header');
+    const scrollThreshold = 100; // Минимальная прокрутка для активации эффекта
+    
+    window.addEventListener('scroll', function() {
+        const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Если прокрутка меньше порога, всегда показываем header
+        if (currentScroll <= scrollThreshold) {
+            header.style.transform = 'translateY(0)';
+            return;
+        }
+        
+        // Скрываем header при скролле вниз, показываем при скролле вверх
+        if (currentScroll > lastScrollTop) {
+            // Скролл вниз - скрыть header
+            header.style.transform = 'translateY(-100%)';
+        } else {
+            // Скролл вверх - показать header
+            header.style.transform = 'translateY(0)';
+        }
+        
+        lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+    }, { passive: true });
+})();
+</script>
