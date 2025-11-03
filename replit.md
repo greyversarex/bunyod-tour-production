@@ -3,6 +3,15 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
+## Recent Updates (November 2025)
+**Flexible Payment System & Sticky Header** - Реализована полная система гибкой оплаты для групповых туров, забронированных за 30+ дней до начала:
+- **3 опции оплаты**: Полная оплата (100%), Депозит (10% сейчас + 90% потом), Бесплатная отмена
+- **Backend логика**: Корректный расчет 10% для депозитной оплаты, сохранение `paymentOption` в базу данных
+- **Условная видимость**: Опции показываются только для туров типа "Групповой общий" за 30+ дней
+- **Билет с условиями**: Бейдж "Бесплатная отмена" отображается только если тур через 30+ дней
+- **Sticky Header**: Автоматическое скрытие при скролле вниз (>100px), появление при скролле вверх
+- **Интеграция с платежными системами**: Payler и AlifPay получают корректную сумму (10% для deposit, 100% для full/free_cancel)
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.
