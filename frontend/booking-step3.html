@@ -924,11 +924,16 @@
             try {
                 // ШАГАН 1: Сначала создать Order из Booking
                 console.log('🔄 Создаем заказ из бронирования...');
+                console.log('💳 Payment option:', selectedPaymentOption || 'full (default)');
+                
                 const createOrderResponse = await fetch(`/api/booking/${bookingId}/create-order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        paymentOption: selectedPaymentOption || 'full'
+                    })
                 });
 
                 const orderData = await createOrderResponse.json();

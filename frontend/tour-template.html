@@ -453,7 +453,8 @@
                             </div>
                         </div>
                         
-                        <div class="flex items-start space-x-2">
+                        <!-- Book Now - Pay Later (only for "Групповой общий" tours) -->
+                        <div class="flex items-start space-x-2" id="book-now-pay-later-block" style="display: none;">
                             <svg class="w-4 h-4 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                             </svg>
@@ -863,6 +864,22 @@
         async function updatePageContent() {
             
             try {
+            
+            // ✅ Показ/скрытие блока "Забронировать сейчас, оплатить позже" для "Групповой общий"
+            const bookNowPayLaterBlock = document.getElementById('book-now-pay-later-block');
+            if (bookNowPayLaterBlock) {
+                const tourType = tourData.tourType || '';
+                const isGroupShared = tourType.toLowerCase().includes('групповой') && 
+                                    tourType.toLowerCase().includes('общий');
+                
+                if (isGroupShared) {
+                    bookNowPayLaterBlock.style.display = 'flex';
+                    console.log('✅ Показан блок "Забронировать сейчас, оплатить позже" (тип тура: "Групповой общий")');
+                } else {
+                    bookNowPayLaterBlock.style.display = 'none';
+                    console.log('❌ Скрыт блок "Забронировать сейчас, оплатить позже" (тип тура:', tourType, ')');
+                }
+            }
             
             // Update title and meta - с проверкой существования элементов
             const pageTitle = document.getElementById('page-title');

@@ -615,6 +615,7 @@ model Booking {
   specialRequests     String?  @map("special_requests")
   status              String   @default("draft")
   paymentMethod       String?  @map("payment_method")
+  paymentOption       String?  @default("full") @map("payment_option")
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   selectedCurrency    String   @default("TJS") @map("selected_currency")
