@@ -623,12 +623,8 @@ export const bookingController = {
         // Для депозита берем 10% от общей суммы
         paymentAmount = Math.round(booking.totalPrice * 0.1 * 100) / 100; // Округление до 2 знаков
         console.log(`💳 Deposit payment: 10% of ${booking.totalPrice} = ${paymentAmount} TJS`);
-      } else if (effectivePaymentOption === 'free_cancel') {
-        // Для бесплатной отмены также берем полную сумму (но отменяемую)
-        paymentAmount = booking.totalPrice;
-        console.log(`💳 Free cancellation payment: ${paymentAmount} TJS (refundable)`);
       } else {
-        // Полная оплата
+        // Полная оплата (по умолчанию)
         console.log(`💳 Full payment: ${paymentAmount} TJS`);
       }
 

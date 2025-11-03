@@ -81,8 +81,8 @@
                 <!-- Full Payment -->
                 <div class="payment-method" data-option="full" onclick="selectPaymentOption('full')">
                     <div class="flex items-start">
-                        <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mr-4 flex-shrink-0">
-                            <i class="fas fa-money-bill-wave text-2xl text-blue-600"></i>
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-money-bill-wave text-2xl text-gray-700"></i>
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-800" data-translate="booking.payment_full">Полная оплата</h3>
@@ -94,25 +94,12 @@
                 <!-- Book Now - Pay Later (10% deposit) -->
                 <div class="payment-method" data-option="deposit" onclick="selectPaymentOption('deposit')">
                     <div class="flex items-start">
-                        <div class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mr-4 flex-shrink-0">
-                            <i class="fas fa-calendar-check text-2xl text-green-600"></i>
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-calendar-check text-2xl text-gray-700"></i>
                         </div>
                         <div class="flex-1">
                             <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом</h3>
                             <p class="text-gray-600 text-sm" data-translate="booking.payment_deposit_desc">Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Free Cancellation -->
-                <div class="payment-method" data-option="free_cancel" onclick="selectPaymentOption('free_cancel')">
-                    <div class="flex items-start">
-                        <div class="flex items-center justify-center w-12 h-12 bg-yellow-100 rounded-lg mr-4 flex-shrink-0">
-                            <i class="fas fa-undo text-2xl text-yellow-600"></i>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_free_cancel">Бесплатная отмена</h3>
-                            <p class="text-gray-600 text-sm" data-translate="booking.payment_free_cancel_desc">Отмена тура со стороны Туриста в срок до 30 календарных дней до даты (время) начала тура. В этом случае возврат средств будет осуществляться на 100%. Однако, данный бонус (возможность) не распространяется на те туры которые бронировались в течении 30 дней до начала тура!</p>
                         </div>
                     </div>
                 </div>
@@ -401,8 +388,14 @@
             }
         }
 
-        // Выбор типа оплаты
+        // Выбор типа оплаты (только full или deposit)
         function selectPaymentOption(option) {
+            // Разрешены только 'full' и 'deposit'
+            if (option !== 'full' && option !== 'deposit') {
+                console.warn('⚠️ Invalid payment option:', option);
+                return;
+            }
+            
             selectedPaymentOption = option;
             console.log('💳 Selected payment option:', option);
             
@@ -410,7 +403,10 @@
             document.querySelectorAll('#payment-options-section .payment-method').forEach(el => {
                 el.classList.remove('selected');
             });
-            document.querySelector(`[data-option="${option}"]`).classList.add('selected');
+            const selectedElement = document.querySelector(`[data-option="${option}"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
             
             // Перезагружаем summary чтобы показать пометки
             if (bookingState && bookingState.id) {
@@ -726,54 +722,52 @@
                             
                             <!-- Payment Option Badges -->
                             ${(() => {
-                                if (!selectedPaymentOption) return '';
-                                
                                 let badges = '';
                                 
+                                // Показываем бейдж выбранной опции оплаты
                                 if (selectedPaymentOption === 'deposit') {
                                     badges += `
-                                        <div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
                                             <div class="flex items-center gap-2">
-                                                <i class="fas fa-calendar-check text-green-600"></i>
-                                                <p class="text-sm font-medium text-green-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом</p>
+                                                <i class="fas fa-calendar-check text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом</p>
                                             </div>
-                                            <p class="text-xs text-green-700 mt-1">Оплата 10% сейчас, 90% перед началом тура</p>
+                                            <p class="text-xs text-gray-600 mt-1">Оплата 10% сейчас, 90% перед началом тура</p>
+                                        </div>
+                                    `;
+                                } else if (selectedPaymentOption === 'full') {
+                                    badges += `
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-check-circle text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_full">Полная оплата</p>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">100% оплата сейчас</p>
                                         </div>
                                     `;
                                 }
                                 
-                                // Бесплатная отмена показывается ТОЛЬКО если тур через 30+ дней
-                                if (selectedPaymentOption === 'free_cancel' && booking.tourDate) {
+                                // Бесплатная отмена - это НЕ опция оплаты, а информационная заметка
+                                // Показывается ТОЛЬКО если тур через 30+ дней (независимо от выбранной опции)
+                                if (booking.tourDate) {
                                     const today = new Date();
                                     today.setHours(0, 0, 0, 0);
                                     const tourDateObj = new Date(booking.tourDate);
                                     tourDateObj.setHours(0, 0, 0, 0);
                                     const daysUntilTour = Math.ceil((tourDateObj - today) / (1000 * 60 * 60 * 24));
                                     
-                                    // Показываем бейдж только если >= 30 дней
+                                    // Показываем информацию о бесплатной отмене только если >= 30 дней
                                     if (daysUntilTour >= 30) {
                                         badges += `
-                                            <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                            <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
                                                 <div class="flex items-center gap-2">
-                                                    <i class="fas fa-undo text-yellow-600"></i>
-                                                    <p class="text-sm font-medium text-yellow-800" data-translate="booking.payment_free_cancel">Бесплатная отмена</p>
+                                                    <i class="fas fa-undo text-gray-700"></i>
+                                                    <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_free_cancel">Бесплатная отмена</p>
                                                 </div>
-                                                <p class="text-xs text-yellow-700 mt-1">Возврат 100% за 30 дней до начала тура</p>
+                                                <p class="text-xs text-gray-600 mt-1">Возврат 100% за 30 дней до начала тура</p>
                                             </div>
                                         `;
                                     }
-                                }
-                                
-                                if (selectedPaymentOption === 'full') {
-                                    badges += `
-                                        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                            <div class="flex items-center gap-2">
-                                                <i class="fas fa-check-circle text-blue-600"></i>
-                                                <p class="text-sm font-medium text-blue-800" data-translate="booking.payment_full">Полная оплата</p>
-                                            </div>
-                                            <p class="text-xs text-blue-700 mt-1">100% оплата сейчас</p>
-                                        </div>
-                                    `;
                                 }
                                 
                                 return badges;
