@@ -868,16 +868,22 @@
             // ✅ Показ/скрытие блока "Забронировать сейчас, оплатить позже" для "Групповой общий"
             const bookNowPayLaterBlock = document.getElementById('book-now-pay-later-block');
             if (bookNowPayLaterBlock) {
-                const tourType = tourData.tourType || '';
-                const isGroupShared = tourType.toLowerCase().includes('групповой') && 
-                                    tourType.toLowerCase().includes('общий');
+                const tourType = (tourData.tourType || '').toLowerCase();
+                const format = (tourData.format || '').toLowerCase();
+                
+                // Проверяем на русский "групповой общий" или английский "group_shared" / "group shared"
+                const isGroupShared = (tourType.includes('групповой') && tourType.includes('общий')) || 
+                                     tourType.includes('group') && tourType.includes('shared') ||
+                                     tourType === 'group_shared' ||
+                                     format === 'group_shared' ||
+                                     (format.includes('group') && format.includes('shared'));
                 
                 if (isGroupShared) {
                     bookNowPayLaterBlock.style.display = 'flex';
-                    console.log('✅ Показан блок "Забронировать сейчас, оплатить позже" (тип тура: "Групповой общий")');
+                    console.log('✅ Показан блок "Забронировать сейчас, оплатить позже" (тип тура:', tourType || format, ')');
                 } else {
                     bookNowPayLaterBlock.style.display = 'none';
-                    console.log('❌ Скрыт блок "Забронировать сейчас, оплатить позже" (тип тура:', tourType, ')');
+                    console.log('❌ Скрыт блок "Забронировать сейчас, оплатить позже" (тип тура:', tourType || format, ')');
                 }
             }
             

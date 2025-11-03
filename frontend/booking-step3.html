@@ -366,17 +366,21 @@
 
         // Проверка условий и показ опций оплаты для групповых туров (30+ дней)
         function checkAndShowPaymentOptions(booking) {
-            const tourType = booking?.tour?.tourType || booking?.tour?.format || '';
+            const tourType = (booking?.tour?.tourType || '').toLowerCase();
+            const format = (booking?.tour?.format || '').toLowerCase();
             const tourDate = booking?.tourDate;
             
-            console.log('🔍 Checking payment options:', { tourType, tourDate });
+            console.log('🔍 Checking payment options:', { tourType, format, tourDate });
             
-            // Проверяем тип тура: "Групповой общий"
-            const isGroupShared = tourType.toLowerCase().includes('групповой') && 
-                                  tourType.toLowerCase().includes('общий');
+            // Проверяем тип тура: "Групповой общий" (русский) или "group_shared" (английский)
+            const isGroupShared = (tourType.includes('групповой') && tourType.includes('общий')) || 
+                                 (tourType.includes('group') && tourType.includes('shared')) ||
+                                 tourType === 'group_shared' ||
+                                 format === 'group_shared' ||
+                                 (format.includes('group') && format.includes('shared'));
             
             if (!isGroupShared || !tourDate) {
-                console.log('❌ Payment options not shown: isGroupShared=', isGroupShared, 'tourDate=', tourDate);
+                console.log('❌ Payment options not shown: isGroupShared=', isGroupShared, 'tourType=', tourType, 'format=', format, 'tourDate=', tourDate);
                 return;
             }
             
