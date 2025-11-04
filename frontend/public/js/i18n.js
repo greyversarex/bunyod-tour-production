@@ -353,8 +353,9 @@ window.translations = window.translations || {
     // Особенности бронирования
     'booking.free_cancellation': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
     'booking.cancellation_terms': { ru: 'Возврат средств возможен лишь за 30 дней до начала забронированного тура', en: 'Refund is possible only 30 days before the booked tour starts' },
-    'booking.book_now_pay_later': { ru: 'Забронировать сейчас, оплатить позже', en: 'Book Now, Pay Later' },
+    'booking.book_now_pay_later': { ru: 'Бронируй сейчас - плати потом', en: 'Book Now - Pay Later' },
     'booking.reserve_flexibility': { ru: 'Забронируйте тур за 30 дней до его начала и получите возможность оплатить сейчас только 10% от его стоимости а оставшиеся 90% перед началом тура', en: 'Book a tour 30 days before it starts and get the opportunity to pay only 10% of its cost now and the remaining 90% before the tour starts' },
+    'booking.book_now_pay_later_details': { ru: 'Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура (по местному времени, UTC +5)', en: 'Book now - pay later, 72 hours before the tour starts or on the first day of the tour (local time, UTC +5)' },
     
     // Типы оплаты для групповых туров (30+ дней)
     'booking.payment_option_title': { ru: 'Выберите условия оплаты', en: 'Choose Payment Terms' },
