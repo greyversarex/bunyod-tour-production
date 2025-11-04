@@ -349,6 +349,9 @@ window.translations = window.translations || {
     'form.check_dates': { ru: 'Проверить доступные даты', en: 'Check Available Dates' },
     'form.travelers_count': { ru: 'Количество туристов', en: 'Number of Travelers' },
     'form.one_adult': { ru: '1 взрослый', en: '1 Adult' },
+    'form.adults': { ru: 'взрослых', en: 'adults' },
+    'form.one_child': { ru: 'ребенок', en: 'child' },
+    'form.children': { ru: 'детей', en: 'children' },
     
     // Особенности бронирования
     'booking.free_cancellation': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
@@ -931,6 +934,9 @@ window.translations = window.translations || {
     'form.check_dates': { ru: 'Проверить доступные даты', en: 'Check Available Dates' },
     'form.travelers_count': { ru: 'Количество туристов', en: 'Number of Travelers' },
     'form.one_adult': { ru: '1 взрослый', en: '1 Adult' },
+    'form.adults': { ru: 'взрослых', en: 'adults' },
+    'form.one_child': { ru: 'ребенок', en: 'child' },
+    'form.children': { ru: 'детей', en: 'children' },
     'form.max_travelers_note': { ru: 'Вы можете выбрать до 15 туристов всего', en: 'You can select up to 15 travelers total' },
     'form.adults_age': { ru: 'Взрослые (от 9 лет)', en: 'Adults (9+ years)' },
     'form.adults_range': { ru: 'Минимум: 1, Максимум: 15', en: 'Minimum: 1, Maximum: 15' },

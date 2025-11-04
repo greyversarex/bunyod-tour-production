@@ -2493,6 +2493,11 @@
             // Перезагружаем данные тура с новым языком (включает повторное обновление списка услуг)
             loadTourData();
             
+            // Обновляем отображение количества туристов
+            if (typeof updateTravelerSummary === 'function') {
+                updateTravelerSummary();
+            }
+            
             console.log(`✅ Язык страницы тура обновлен на: ${language}`);
         }
 
@@ -2829,12 +2834,17 @@
         function updateTravelerSummary() {
             const { adults, children } = travelers;
             let summary = [];
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
             
             if (adults > 0) {
-                summary.push(`${adults} взрослых`);
+                const adultsText = currentLang === 'en' ? 'adults' : 'взрослых';
+                summary.push(`${adults} ${adultsText}`);
             }
             if (children > 0) {
-                summary.push(`${children} ${children === 1 ? 'ребенок' : 'детей'}`);
+                const childrenText = children === 1 
+                    ? (currentLang === 'en' ? 'child' : 'ребенок')
+                    : (currentLang === 'en' ? 'children' : 'детей');
+                summary.push(`${children} ${childrenText}`);
             }
             
             document.getElementById('traveler-summary').textContent = summary.join(', ');
