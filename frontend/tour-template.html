@@ -444,12 +444,17 @@
                     <!-- Features -->
                     <div class="space-y-3 text-sm mt-6">
                         <div class="flex items-start space-x-2 mb-4">
-                            <svg class="w-4 h-4 text-green-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                            <svg class="w-4 h-4 text-gray-700 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                             </svg>
                             <div>
-                                <span class="font-medium" data-translate="booking.free_cancellation">Бесплатная отмена</span>
-                                <p class="text-gray-600 text-sm" data-translate="booking.cancellation_terms">Возврат средств возможен лишь за 30 дней до начала забронированного тура</p>
+                                <button 
+                                    type="button"
+                                    onclick="openEarlyBookingModalTour()"
+                                    class="font-medium underline hover:text-gray-600 text-left"
+                                    data-translate="booking.early_booking_title"
+                                >Бесплатная отмена</button>
+                                <p class="text-gray-600 text-sm" data-translate="booking.early_booking_short">Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура (по местному времени, UTC +5)</p>
                             </div>
                         </div>
                         
@@ -3043,9 +3048,68 @@
         });
         
         
-        
+        // Open Early Booking Modal for Tour Page
+        function openEarlyBookingModalTour() {
+            const modal = document.getElementById('early-booking-modal-tour');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Close Early Booking Modal for Tour Page
+        function closeEarlyBookingModalTour() {
+            const modal = document.getElementById('early-booking-modal-tour');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal on backdrop click
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('early-booking-modal-tour');
+            if (e.target === modal) {
+                closeEarlyBookingModalTour();
+            }
+        });
         
     </script>
+
+    <!-- Early Booking Policy Modal for Tour Page -->
+    <div id="early-booking-modal-tour" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold text-gray-800" data-translate="booking.early_booking_policy_title">ПОЛИТИКА РАННЕЕ БРОНИРОВАНИЕ</h3>
+                <button onclick="closeEarlyBookingModalTour()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div class="px-6 py-6">
+                <ul class="space-y-3 text-gray-700">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 flex-shrink-0"></i>
+                        <span data-translate="booking.policy_point_1">Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 flex-shrink-0"></i>
+                        <span data-translate="booking.policy_point_2">Туристы, которые бронируют (регистрируются) заранее на групповой общий тур, могут внести депозит всего в размере 10% от стоимости тура, чтобы записаться на тур</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 flex-shrink-0"></i>
+                        <span data-translate="booking.policy_point_3">Баланс суммы (90%) необходимо оплатить за 72 часа до начала тура (доступными методами оплаты) или в первый день тура (наличными)</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 flex-shrink-0"></i>
+                        <span data-translate="booking.policy_point_4">Однако, регистрация (запись) должна быть завершена не позднее, чем за 30 дней до начала тура.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 flex-shrink-0"></i>
+                        <span data-translate="booking.policy_point_5">Внесение любых изменений в турпродукт или иные условия Заявки на бронирование допускается по соглашению Сторон не позднее, чем за 48 часов до начала тура.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
     <!-- 🌐 ДИНАМИЧЕСКИЙ ФУТЕР -->
     <div id="footer-container"></div>
 </body>

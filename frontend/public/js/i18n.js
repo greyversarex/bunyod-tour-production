@@ -364,6 +364,16 @@ window.translations = window.translations || {
     'booking.payment_deposit_desc': { ru: 'Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура', en: 'Pay 10% of the total tour cost now and 90% of the balance before the tour starts' },
     'booking.payment_free_cancel': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
     'booking.payment_free_cancel_desc': { ru: 'Отмена тура со стороны Туриста в срок до 30 календарных дней до даты (время) начала тура. В этом случае возврат средств будет осуществляться на 100%. Однако, данный бонус (возможность) не распространяется на те туры которые бронировались в течении 30 дней до начала тура!', en: 'Tour cancellation by the Tourist up to 30 calendar days before the tour start date (time). In this case, a 100% refund will be made. However, this bonus (opportunity) does not apply to tours booked within 30 days of the tour start!' },
+    
+    // Early Booking Policy
+    'booking.early_booking_title': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
+    'booking.early_booking_short': { ru: 'Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура (по местному времени, UTC +5)', en: 'Book now - pay later, 72 hours before the tour starts or on the first day of the tour (local time, UTC +5)' },
+    'booking.early_booking_policy_title': { ru: 'ПОЛИТИКА РАННЕЕ БРОНИРОВАНИЕ', en: 'EARLY BOOKING POLICY' },
+    'booking.policy_point_1': { ru: 'Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура.', en: 'Book now - pay later, 72 hours before the tour start or on the first day of the tour.' },
+    'booking.policy_point_2': { ru: 'Туристы, которые бронируют (регистрируются) заранее на групповой общий тур, могут внести депозит всего в размере 10% от стоимости тура, чтобы записаться на тур', en: 'Tourists who book (register) in advance for a group shared tour can make a deposit of just 10% of the tour cost to sign up for the tour' },
+    'booking.policy_point_3': { ru: 'Баланс суммы (90%) необходимо оплатить за 72 часа до начала тура (доступными методами оплаты) или в первый день тура (наличными)', en: 'The balance (90%) should be paid due 72 hours before the tour start (via accepted payment methods) or on the first day of the tour (in cash).' },
+    'booking.policy_point_4': { ru: 'Однако, регистрация (запись) должна быть завершена не позднее, чем за 30 дней до начала тура.', en: 'However, registration (booking) must be completed no later than 30 days before the tour start.' },
+    'booking.policy_point_5': { ru: 'Внесение любых изменений в турпродукт или иные условия Заявки на бронирование допускается по соглашению Сторон не позднее, чем за 48 часов до начала тура.', en: 'Any changes to the tour product or other conditions of the Booking Request are permitted by agreement of the Parties no later than 48 hours before the start of the tour.' },
     'booking.book_ahead': { ru: 'Бронируйте заранее!', en: 'Book Ahead!' },
     'booking.average_notice': { ru: 'В среднем этот тур бронируют за 20 дней.', en: 'On average, this tour is booked 20 days in advance.' },
     'booking.tour_start_time': { ru: 'Время начала тура', en: 'Tour Start Time' },
