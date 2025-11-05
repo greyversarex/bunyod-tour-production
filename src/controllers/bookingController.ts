@@ -623,6 +623,10 @@ export const bookingController = {
         // Для депозита берем 10% от общей суммы
         paymentAmount = Math.round(booking.totalPrice * 0.1 * 100) / 100; // Округление до 2 знаков
         console.log(`💳 Deposit payment: 10% of ${booking.totalPrice} = ${paymentAmount} TJS`);
+      } else if (effectivePaymentOption === 'deposit_30') {
+        // Для депозита 30% берем 30% от общей суммы
+        paymentAmount = Math.round(booking.totalPrice * 0.3 * 100) / 100; // Округление до 2 знаков
+        console.log(`💳 Deposit 30% payment: 30% of ${booking.totalPrice} = ${paymentAmount} TJS`);
       } else {
         // Полная оплата (по умолчанию)
         console.log(`💳 Full payment: ${paymentAmount} TJS`);

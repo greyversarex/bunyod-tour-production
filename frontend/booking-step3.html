@@ -92,14 +92,27 @@
                 </div>
 
                 <!-- Book Now - Pay Later (10% deposit) -->
-                <div class="payment-method" data-option="deposit" onclick="selectPaymentOption('deposit')">
+                <div class="payment-method" data-option="deposit" onclick="selectPaymentOption('deposit')" id="payment-option-deposit-10">
                     <div class="flex items-start">
                         <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
                             <i class="fas fa-calendar-check text-2xl text-gray-700"></i>
                         </div>
                         <div class="flex-1">
-                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом</h3>
+                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом (10%)</h3>
                             <p class="text-gray-600 text-sm" data-translate="booking.payment_deposit_desc">Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 30% deposit (only for personal and group_personal tours) -->
+                <div class="payment-method" data-option="deposit_30" onclick="selectPaymentOption('deposit_30')" id="payment-option-deposit-30" style="display: none;">
+                    <div class="flex items-start">
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-percentage text-2xl text-gray-700"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit_30">Депозит 30%</h3>
+                            <p class="text-gray-600 text-sm" data-translate="booking.payment_deposit_30_desc">Оплатить 30% от общей стоимости тура сейчас и 70% остатка перед началом тура</p>
                         </div>
                     </div>
                 </div>
@@ -351,7 +364,7 @@
             });
         }
 
-        // Проверка условий и показ опций оплаты для групповых туров (30+ дней)
+        // Проверка условий и показ опций оплаты для туров (30+ дней)
         function checkAndShowPaymentOptions(booking) {
             const tourType = (booking?.tour?.tourType || '').toLowerCase();
             const format = (booking?.tour?.format || '').toLowerCase();
@@ -366,8 +379,15 @@
                                  format === 'group_shared' ||
                                  (format.includes('group') && format.includes('shared'));
             
-            if (!isGroupShared || !tourDate) {
-                console.log('❌ Payment options not shown: isGroupShared=', isGroupShared, 'tourType=', tourType, 'format=', format, 'tourDate=', tourDate);
+            // Проверяем тип тура: "Персональный" или "Групповой персональный"
+            const isPersonal = tourType.includes('персональный') || tourType.includes('personal');
+            const isGroupPersonal = (tourType.includes('групповой') && tourType.includes('персональный')) ||
+                                   (tourType.includes('group') && tourType.includes('personal')) ||
+                                   tourType === 'group_personal' ||
+                                   format === 'group_personal';
+            
+            if ((!isGroupShared && !isPersonal && !isGroupPersonal) || !tourDate) {
+                console.log('❌ Payment options not shown: no valid tour type or date');
                 return;
             }
             
@@ -381,17 +401,28 @@
             
             // Если бронирование больше чем за 30 дней - показываем опции
             if (diffDays >= 30) {
-                document.getElementById('payment-options-section').style.display = 'block';
-                console.log('✅ Payment options shown (tour in', diffDays, 'days)');
+                const paymentOptionsSection = document.getElementById('payment-options-section');
+                const deposit30Option = document.getElementById('payment-option-deposit-30');
+                
+                paymentOptionsSection.style.display = 'block';
+                
+                // Показываем опцию 30% только для персональных туров
+                if (isPersonal || isGroupPersonal) {
+                    deposit30Option.style.display = 'block';
+                    console.log('✅ Payment options shown with 30% deposit (personal tour, in', diffDays, 'days)');
+                } else {
+                    deposit30Option.style.display = 'none';
+                    console.log('✅ Payment options shown without 30% deposit (group shared, in', diffDays, 'days)');
+                }
             } else {
                 console.log('❌ Payment options not shown: only', diffDays, 'days until tour');
             }
         }
 
-        // Выбор типа оплаты (только full или deposit)
+        // Выбор типа оплаты (full, deposit, deposit_30)
         function selectPaymentOption(option) {
-            // Разрешены только 'full' и 'deposit'
-            if (option !== 'full' && option !== 'deposit') {
+            // Разрешены: 'full', 'deposit' (10%), 'deposit_30' (30%)
+            if (option !== 'full' && option !== 'deposit' && option !== 'deposit_30') {
                 console.warn('⚠️ Invalid payment option:', option);
                 return;
             }
@@ -712,6 +743,19 @@
                                             </div>
                                         `;
                                     }
+                                    // Если выбрана опция "deposit_30" - показываем 30% сейчас
+                                    if (selectedPaymentOption === 'deposit_30') {
+                                        const depositAmount = totalAmount * 0.3;
+                                        const remainingAmount = totalAmount * 0.7;
+                                        return `
+                                            <p class="text-2xl font-bold text-green-600">${Math.round(depositAmount).toLocaleString()} TJS <span class="text-sm font-normal text-gray-600">(30%)</span></p>
+                                            <p class="text-sm text-gray-600">≈ ${Math.round(depositAmount * 0.091)} USD</p>
+                                            <div class="mt-2 pt-2 border-t border-gray-300">
+                                                <p class="text-sm text-gray-700">Остаток (70%): <span class="font-semibold">${Math.round(remainingAmount).toLocaleString()} TJS</span></p>
+                                                <p class="text-xs text-gray-500">Оплата перед началом тура</p>
+                                            </div>
+                                        `;
+                                    }
                                     // По умолчанию показываем полную сумму
                                     return `
                                         <p class="text-2xl font-bold text-gray-700">${Math.round(totalAmount).toLocaleString()} TJS</p>
@@ -730,9 +774,19 @@
                                         <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
                                             <div class="flex items-center gap-2">
                                                 <i class="fas fa-calendar-check text-gray-700"></i>
-                                                <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом</p>
+                                                <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_deposit">Бронируй сейчас - плати потом (10%)</p>
                                             </div>
                                             <p class="text-xs text-gray-600 mt-1">Оплата 10% сейчас, 90% перед началом тура</p>
+                                        </div>
+                                    `;
+                                } else if (selectedPaymentOption === 'deposit_30') {
+                                    badges += `
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-percentage text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800" data-translate="booking.payment_deposit_30">Депозит 30%</p>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">Оплата 30% сейчас, 70% перед началом тура</p>
                                         </div>
                                     `;
                                 } else if (selectedPaymentOption === 'full') {

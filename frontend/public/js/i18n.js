@@ -364,8 +364,10 @@ window.translations = window.translations || {
     'booking.payment_option_title': { ru: 'Выберите условия оплаты', en: 'Choose Payment Terms' },
     'booking.payment_full': { ru: 'Полная оплата', en: 'Full Payment' },
     'booking.payment_full_desc': { ru: 'Оплатить 100% стоимости тура', en: 'Pay 100% of the tour cost' },
-    'booking.payment_deposit': { ru: 'Бронируй сейчас - плати потом', en: 'Book Now - Pay Later' },
+    'booking.payment_deposit': { ru: 'Бронируй сейчас - плати потом (10%)', en: 'Book Now - Pay Later (10%)' },
     'booking.payment_deposit_desc': { ru: 'Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура', en: 'Pay 10% of the total tour cost now and 90% of the balance before the tour starts' },
+    'booking.payment_deposit_30': { ru: 'Депозит 30%', en: 'Deposit 30%' },
+    'booking.payment_deposit_30_desc': { ru: 'Оплатить 30% от общей стоимости тура сейчас и 70% остатка перед началом тура', en: 'Pay 30% of the total tour cost now and 70% of the balance before the tour starts' },
     'booking.payment_free_cancel': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
     'booking.payment_free_cancel_desc': { ru: 'Отмена тура со стороны Туриста в срок до 30 календарных дней до даты (время) начала тура. В этом случае возврат средств будет осуществляться на 100%. Однако, данный бонус (возможность) не распространяется на те туры которые бронировались в течении 30 дней до начала тура!', en: 'Tour cancellation by the Tourist up to 30 calendar days before the tour start date (time). In this case, a 100% refund will be made. However, this bonus (opportunity) does not apply to tours booked within 30 days of the tour start!' },
     
