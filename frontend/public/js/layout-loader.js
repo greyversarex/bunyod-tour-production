@@ -34,7 +34,7 @@ class LayoutLoader {
 
     async loadHeader() {
         try {
-            const response = await fetch('/_header.html?v=1.5');
+            const response = await fetch('/_header.html?v=1.6');
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             
             const headerHTML = await response.text();
