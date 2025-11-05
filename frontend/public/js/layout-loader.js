@@ -43,10 +43,24 @@ class LayoutLoader {
             const headerContainer = document.getElementById('header-container');
             if (headerContainer) {
                 headerContainer.innerHTML = headerHTML;
+                
+                // 📐 Добавляем spacer для fixed header (если еще не существует)
+                if (!headerContainer.nextElementSibling || !headerContainer.nextElementSibling.classList.contains('header-spacer')) {
+                    const spacer = document.createElement('div');
+                    spacer.className = 'header-spacer';
+                    spacer.style.height = '64px';
+                    headerContainer.after(spacer);
+                }
             } else {
                 const tempContainer = document.createElement('div');
                 tempContainer.innerHTML = headerHTML;
                 document.body.insertBefore(tempContainer.firstElementChild, document.body.firstChild);
+                
+                // 📐 Добавляем spacer для fixed header
+                const spacer = document.createElement('div');
+                spacer.className = 'header-spacer';
+                spacer.style.height = '64px';
+                document.body.insertBefore(spacer, document.body.children[1]);
             }
             
             this.headerLoaded = true;
