@@ -4,13 +4,15 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Updates (November 2025)
-**Flexible Payment System & Sticky Header** - Реализована полная система гибкой оплаты для групповых туров, забронированных за 30+ дней до начала:
-- **3 опции оплаты**: Полная оплата (100%), Депозит (10% сейчас + 90% потом), Бесплатная отмена
-- **Backend логика**: Корректный расчет 10% для депозитной оплаты, сохранение `paymentOption` в базу данных
-- **Условная видимость**: Опции показываются только для туров типа "Групповой общий" за 30+ дней
-- **Билет с условиями**: Бейдж "Бесплатная отмена" отображается только если тур через 30+ дней
+**Flexible Multi-Tier Deposit System** - Реализована полная система гибкой оплаты с адаптацией под тип тура:
+- **Групповой общий (group_shared)**: 2 опции - Депозит 10% или Полная оплата 100%
+- **Персональный и Групповой персональный (personal/group_personal)**: 3 опции - Депозит 10%, Депозит 30%, или Полная оплата 100%
+- **Backend логика**: Корректный расчет 10% и 30% для депозитных платежей с округлением, сохранение `paymentOption` (deposit, deposit_30, full) в базу данных
+- **Условная видимость**: Опции показываются только для туров забронированных за 30+ дней, опция 30% скрывается для групповых общих туров
+- **Билет с расчетами**: Динамическое отображение суммы к оплате (10%, 30%, или 100%) и остатка с бейджами выбранной опции
 - **Sticky Header**: Автоматическое скрытие при скролле вниз (>100px), появление при скролле вверх
-- **Интеграция с платежными системами**: Payler и AlifPay получают корректную сумму (10% для deposit, 100% для full/free_cancel)
+- **Интеграция с платежными системами**: Payler и AlifPay получают корректную сумму (10%, 30%, или 100% в зависимости от выбора)
+- **Переводы**: Полная поддержка русского и английского языков для всех опций
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
