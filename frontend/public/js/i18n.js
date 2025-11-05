@@ -368,6 +368,8 @@ window.translations = window.translations || {
     'booking.payment_deposit_desc': { ru: 'Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура', en: 'Pay 10% of the total tour cost now and 90% of the balance before the tour starts' },
     'booking.payment_deposit_30': { ru: 'Депозит 30%', en: 'Deposit 30%' },
     'booking.payment_deposit_30_desc': { ru: 'Оплатить 30% от общей стоимости тура сейчас и 70% остатка перед началом тура', en: 'Pay 30% of the total tour cost now and 70% of the balance before the tour starts' },
+    'booking.cash_notice_title': { ru: 'Внимание:', en: 'Attention:' },
+    'booking.cash_notice_text': { ru: 'Остаток оплаты производится наличными в национальной валюте в первый день тура.', en: 'The remaining balance is paid in cash in national currency on the first day of the tour.' },
     'booking.payment_free_cancel': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
     'booking.payment_free_cancel_desc': { ru: 'Отмена тура со стороны Туриста в срок до 30 календарных дней до даты (время) начала тура. В этом случае возврат средств будет осуществляться на 100%. Однако, данный бонус (возможность) не распространяется на те туры которые бронировались в течении 30 дней до начала тура!', en: 'Tour cancellation by the Tourist up to 30 calendar days before the tour start date (time). In this case, a 100% refund will be made. However, this bonus (opportunity) does not apply to tours booked within 30 days of the tour start!' },
     

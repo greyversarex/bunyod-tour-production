@@ -117,6 +117,17 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Cash Payment Notice (показывается только при выборе 10% или 30%) -->
+            <div id="cash-payment-notice" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" style="display: none;">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-yellow-600 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-gray-800 font-medium" data-translate="booking.cash_notice_title">Внимание:</p>
+                        <p class="text-gray-700 text-sm" data-translate="booking.cash_notice_text">Остаток оплаты производится наличными в национальной валюте в первый день тура.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Payment Methods -->
@@ -379,15 +390,21 @@
                                  format === 'group_shared' ||
                                  (format.includes('group') && format.includes('shared'));
             
-            // Проверяем тип тура: "Персональный" или "Групповой персональный"
-            const isPersonal = tourType.includes('персональный') || tourType.includes('personal');
+            // Проверяем тип тура: "Групповой персональный" (включая "group_private")
             const isGroupPersonal = (tourType.includes('групповой') && tourType.includes('персональный')) ||
                                    (tourType.includes('group') && tourType.includes('personal')) ||
+                                   (tourType.includes('group') && tourType.includes('private')) ||
                                    tourType === 'group_personal' ||
-                                   format === 'group_personal';
+                                   tourType === 'group_private' ||
+                                   format === 'group_personal' ||
+                                   format === 'group_private';
+            
+            // Проверяем тип тура: "Персональный" (без группового)
+            const isPersonal = (tourType.includes('персональный') || tourType.includes('personal') || tourType.includes('private')) &&
+                              !tourType.includes('групповой') && !tourType.includes('group');
             
             if ((!isGroupShared && !isPersonal && !isGroupPersonal) || !tourDate) {
-                console.log('❌ Payment options not shown: no valid tour type or date');
+                console.log('❌ Payment options not shown: tour type invalid', {isGroupShared, isPersonal, isGroupPersonal});
                 return;
             }
             
@@ -402,17 +419,22 @@
             // Если бронирование больше чем за 30 дней - показываем опции
             if (diffDays >= 30) {
                 const paymentOptionsSection = document.getElementById('payment-options-section');
+                const deposit10Option = document.getElementById('payment-option-deposit-10');
                 const deposit30Option = document.getElementById('payment-option-deposit-30');
                 
                 paymentOptionsSection.style.display = 'block';
                 
-                // Показываем опцию 30% только для персональных туров
-                if (isPersonal || isGroupPersonal) {
+                // Для Групповых (общий + персональный): 30% и 100%
+                if (isGroupShared || isGroupPersonal) {
+                    deposit10Option.style.display = 'none';
                     deposit30Option.style.display = 'block';
-                    console.log('✅ Payment options shown with 30% deposit (personal tour, in', diffDays, 'days)');
-                } else {
-                    deposit30Option.style.display = 'none';
-                    console.log('✅ Payment options shown without 30% deposit (group shared, in', diffDays, 'days)');
+                    console.log('✅ Payment options: 30% and 100% (group tour, in', diffDays, 'days)');
+                } 
+                // Для индивидуально-персональных: 10%, 30% и 100%
+                else if (isPersonal) {
+                    deposit10Option.style.display = 'block';
+                    deposit30Option.style.display = 'block';
+                    console.log('✅ Payment options: 10%, 30% and 100% (personal tour, in', diffDays, 'days)');
                 }
             } else {
                 console.log('❌ Payment options not shown: only', diffDays, 'days until tour');
@@ -437,6 +459,16 @@
             const selectedElement = document.querySelector(`[data-option="${option}"]`);
             if (selectedElement) {
                 selectedElement.classList.add('selected');
+            }
+            
+            // Показываем/скрываем уведомление о наличных
+            const cashNotice = document.getElementById('cash-payment-notice');
+            if (cashNotice) {
+                if (option === 'deposit' || option === 'deposit_30') {
+                    cashNotice.style.display = 'block';
+                } else {
+                    cashNotice.style.display = 'none';
+                }
             }
             
             // Перезагружаем summary чтобы показать пометки
