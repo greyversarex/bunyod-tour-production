@@ -613,6 +613,14 @@
                 tabElement.classList.remove('border-transparent', 'text-gray-500');
                 tabElement.classList.add('border-blue-500', 'text-blue-600');
             }
+            
+            // ✅ Обновление размера карты при переключении на вкладку "Карта Тура"
+            if (tabName === 'map' && tourMap) {
+                setTimeout(() => {
+                    tourMap.invalidateSize();
+                    console.log('🗺️ Размер карты обновлен после переключения вкладки');
+                }, 100);
+            }
         }
 
         // Toggle included/excluded services section
