@@ -1510,7 +1510,8 @@
                         ${days.map(day => `
                             <button onclick="showMapForDay(${day})" 
                                     id="map-day-btn-${day}"
-                                    class="map-day-btn px-4 py-2 rounded-lg border font-medium text-sm transition-all ${day === days[0] ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}">
+                                    class="map-day-btn px-4 py-2 rounded-lg border font-medium text-sm transition-all ${day === days[0] ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}"
+                                    style="${day === days[0] ? 'background-color: #3E3E3E; border-color: #3E3E3E;' : ''}">
                                 ${dayLabel} ${day}
                             </button>
                         `).join('')}
@@ -1543,13 +1544,17 @@
             
             // Обновляем стили кнопок дней
             document.querySelectorAll('.map-day-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.remove('text-white');
                 btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
             });
             const activeBtn = document.getElementById(`map-day-btn-${day}`);
             if (activeBtn) {
                 activeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-                activeBtn.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+                activeBtn.classList.add('text-white');
+                activeBtn.style.backgroundColor = '#3E3E3E';
+                activeBtn.style.borderColor = '#3E3E3E';
             }
             
             // Инициализируем карту если еще не создана
