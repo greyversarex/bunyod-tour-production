@@ -2234,7 +2234,19 @@
                             </div>
                             <input type="text" class="form-input mb-2" id="newItineraryTitleEn" placeholder="Title (English): Meeting with guide">
                             <textarea class="form-input mb-2" rows="2" id="newItineraryDesc" data-translate-placeholder="placeholder.detailed_stage_description" placeholder="Описание (Русский): Подробное описание этапа программы"></textarea>
-                            <textarea class="form-input" rows="2" id="newItineraryDescEn" placeholder="Description (English): Detailed description of the program stage"></textarea>
+                            <textarea class="form-input mb-2" rows="2" id="newItineraryDescEn" placeholder="Description (English): Detailed description of the program stage"></textarea>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-sm text-gray-600 mb-1 block">📍 Широта (Latitude) - опционально</label>
+                                    <input type="number" step="any" class="form-input" id="newItineraryLat" placeholder="38.5598">
+                                </div>
+                                <div>
+                                    <label class="text-sm text-gray-600 mb-1 block">📍 Долгота (Longitude) - опционально</label>
+                                    <input type="number" step="any" class="form-input" id="newItineraryLng" placeholder="68.7738">
+                                </div>
+                            </div>
+                            <small class="text-gray-400 text-xs">Координаты для отображения точки на карте тура. Если не указаны, активность не будет показана на карте.</small>
                         </div>
 
                         <small class="text-gray-500">Создайте детальную программу тура по дням. Каждый день может содержать несколько активностей.</small>
@@ -2719,6 +2731,17 @@
                 <div class="form-group mb-4">
                     <label class="form-label">Описание (English)</label>
                     <textarea class="form-input" rows="3" id="editItineraryDescEn" placeholder="Detailed description of the program stage"></textarea>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="form-group">
+                        <label class="form-label">📍 Широта (Latitude) - опционально</label>
+                        <input type="number" step="any" class="form-input" id="editItineraryLat" placeholder="38.5598">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">📍 Долгота (Longitude) - опционально</label>
+                        <input type="number" step="any" class="form-input" id="editItineraryLng" placeholder="68.7738">
+                    </div>
                 </div>
                 
                 <div class="flex justify-end gap-3">
@@ -4613,6 +4636,8 @@
             const itineraryTitleEn = safeGetValue('newItineraryTitleEn', '').trim();
             const desc = safeGetValue('newItineraryDesc', '').trim();
             const descEn = safeGetValue('newItineraryDescEn', '').trim();
+            const lat = safeGetValue('newItineraryLat', '').trim();
+            const lng = safeGetValue('newItineraryLng', '').trim();
             
             if (time && itineraryTitle) {
                 const itineraryItem = { 
@@ -4622,6 +4647,13 @@
                     description: desc || '',
                     descriptionEn: descEn || ''
                 };
+                
+                if (lat && lng) {
+                    itineraryItem.coordinates = {
+                        lat: parseFloat(lat),
+                        lng: parseFloat(lng)
+                    };
+                }
                 
                 // ИСПРАВЛЕНО: Проверяем и инициализируем window.tourDaysItinerary
                 if (!window.tourDaysItinerary) {
@@ -4645,6 +4677,8 @@
                 document.getElementById('newItineraryTitleEn').value = '';
                 document.getElementById('newItineraryDesc').value = '';
                 document.getElementById('newItineraryDescEn').value = '';
+                document.getElementById('newItineraryLat').value = '';
+                document.getElementById('newItineraryLng').value = '';
             } else {
                 alert('Пожалуйста, заполните время и название активности (русский)');
             }
@@ -4673,6 +4707,8 @@
             document.getElementById('editItineraryTitleEn').value = item.titleEn || '';
             document.getElementById('editItineraryDesc').value = item.description || '';
             document.getElementById('editItineraryDescEn').value = item.descriptionEn || '';
+            document.getElementById('editItineraryLat').value = item.coordinates?.lat || '';
+            document.getElementById('editItineraryLng').value = item.coordinates?.lng || '';
             
             // Открываем модальное окно
             document.getElementById('editItineraryModal').classList.add('active');
@@ -4697,6 +4733,8 @@
             const titleEn = document.getElementById('editItineraryTitleEn').value;
             const description = document.getElementById('editItineraryDesc').value;
             const descriptionEn = document.getElementById('editItineraryDescEn').value;
+            const lat = document.getElementById('editItineraryLat').value.trim();
+            const lng = document.getElementById('editItineraryLng').value.trim();
             
             if (!title || !titleEn) {
                 alert('Пожалуйста, заполните название на обоих языках');
@@ -4704,13 +4742,22 @@
             }
             
             // Обновляем данные этапа
-            window.tourDaysItinerary[dayNumber].activities[index] = {
+            const updatedItem = {
                 time: time,
                 title: title,
                 titleEn: titleEn,
                 description: description,
                 descriptionEn: descriptionEn
             };
+            
+            if (lat && lng) {
+                updatedItem.coordinates = {
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng)
+                };
+            }
+            
+            window.tourDaysItinerary[dayNumber].activities[index] = updatedItem;
             
             // Обновляем отображение
             updateDayContents();
@@ -4871,14 +4918,20 @@
                     const dayActivities = dayData.activities || [];
                     
                     dayActivities.forEach(activity => {
-                        allActivities.push({
+                        const activityItem = {
                             time: activity.time,
                             title: activity.titleEn || activity.title || '', // Используем английскую версию или фоллбэк
                             description: activity.descriptionEn || activity.description || '',
                             day: parseInt(day),
                             dayTitleRu: dayData.titleRu || '',
                             dayTitleEn: dayData.titleEn || ''
-                        });
+                        };
+                        
+                        if (activity.coordinates) {
+                            activityItem.coordinates = activity.coordinates;
+                        }
+                        
+                        allActivities.push(activityItem);
                     });
                 });
                 

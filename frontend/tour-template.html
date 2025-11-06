@@ -222,6 +222,9 @@
                             <button id="tab-program" class="whitespace-nowrap py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300" onclick="switchTab('program')">
                                 <span data-translate="tour.tab.program">Программа тура</span>
                             </button>
+                            <button id="tab-map" class="whitespace-nowrap py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300 hidden" onclick="switchTab('map')">
+                                <span data-translate="tour.tab.map">Карта Тура</span>
+                            </button>
 
                         </nav>
                     </div>
@@ -276,6 +279,15 @@
                         <div id="content-program" class="tab-content hidden">
                             <!-- Программа загружается динамически через JavaScript -->
                             <!-- Если программа не заполнена, этот блок останется пустым -->
+                        </div>
+
+                        <!-- Map Tab - показывается только если есть координаты -->
+                        <div id="content-map" class="tab-content hidden">
+                            <!-- Селектор дней -->
+                            <div id="map-day-selector" class="mb-4"></div>
+                            
+                            <!-- Карта Leaflet -->
+                            <div id="tour-map" style="height: 500px; border-radius: 8px; overflow: hidden;"></div>
                         </div>
 
 
@@ -1370,6 +1382,9 @@
             // ✅ ИНИЦИАЛИЗАЦИЯ КОЛИЧЕСТВА ТУРИСТОВ И ЦЕНЫ
             initializeTravelersAndPrice();
             
+            // ✅ ИНИЦИАЛИЗАЦИЯ КАРТЫ ТУРА (если есть координаты)
+            initializeTourMap();
+            
             } catch (error) {
                 console.error('Error in updatePageContent:', error);
                 console.error('Error stack:', error.stack);
@@ -1423,6 +1438,172 @@
             updatePriceDisplay();
             
             console.log(`✅ Инициализированы туристы: минимум ${minPeople}, максимум ${maxPeople}`);
+        }
+        
+        // ✅ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ КАРТЫ ТУРА
+        let tourMap = null;
+        let tourMapMarkers = [];
+        let tourMapLines = [];
+        
+        function initializeTourMap() {
+            if (!tourData || !tourData.itinerary) {
+                console.log('📍 Нет данных итинерария для карты');
+                return;
+            }
+            
+            const currentLang = getCurrentLanguage();
+            const itinerary = currentLang === 'en' && tourData.itineraryEn ? tourData.itineraryEn : tourData.itinerary;
+            
+            // Группируем активности по дням и проверяем наличие координат
+            const dayGroups = {};
+            let hasAnyCoordinates = false;
+            
+            itinerary.forEach(item => {
+                const day = item.day || 1;
+                if (!dayGroups[day]) {
+                    dayGroups[day] = [];
+                }
+                if (item.coordinates && item.coordinates.lat && item.coordinates.lng) {
+                    dayGroups[day].push(item);
+                    hasAnyCoordinates = true;
+                }
+            });
+            
+            // Показываем/скрываем вкладку карты
+            const tabMapButton = document.getElementById('tab-map');
+            if (!hasAnyCoordinates) {
+                if (tabMapButton) {
+                    tabMapButton.classList.add('hidden');
+                }
+                console.log('📍 Нет координат в итинерарии - вкладка карты скрыта');
+                return;
+            }
+            
+            // Показываем вкладку карты
+            if (tabMapButton) {
+                tabMapButton.classList.remove('hidden');
+            }
+            
+            // Создаем селектор дней
+            const mapDaySelector = document.getElementById('map-day-selector');
+            const days = Object.keys(dayGroups).sort((a, b) => parseInt(a) - parseInt(b));
+            
+            if (mapDaySelector && days.length > 0) {
+                const dayLabel = currentLang === 'en' ? 'Day' : 'День';
+                mapDaySelector.innerHTML = `
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <span class="text-sm font-medium text-gray-700">${currentLang === 'en' ? 'Show route for:' : 'Показать маршрут для:'}</span>
+                        ${days.map(day => `
+                            <button onclick="showMapForDay(${day})" 
+                                    id="map-day-btn-${day}"
+                                    class="map-day-btn px-4 py-2 rounded-lg border font-medium text-sm transition-all ${day === days[0] ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'}">
+                                ${dayLabel} ${day}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // Сохраняем данные для использования в функции showMapForDay
+                window.tourMapDayGroups = dayGroups;
+                
+                // Показываем карту для первого дня
+                setTimeout(() => showMapForDay(days[0]), 100);
+            }
+            
+            console.log('📍 Карта тура инициализирована с координатами');
+        }
+        
+        // Функция отображения карты для конкретного дня
+        function showMapForDay(day) {
+            const dayGroups = window.tourMapDayGroups;
+            if (!dayGroups || !dayGroups[day]) {
+                console.warn(`📍 Нет данных для дня ${day}`);
+                return;
+            }
+            
+            const activities = dayGroups[day];
+            if (activities.length === 0) {
+                console.warn(`📍 Нет активностей с координатами для дня ${day}`);
+                return;
+            }
+            
+            // Обновляем стили кнопок дней
+            document.querySelectorAll('.map-day-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-500', 'text-white', 'border-blue-500');
+                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            });
+            const activeBtn = document.getElementById(`map-day-btn-${day}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+                activeBtn.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
+            }
+            
+            // Инициализируем карту если еще не создана
+            const mapContainer = document.getElementById('tour-map');
+            if (!tourMap && mapContainer && typeof L !== 'undefined') {
+                tourMap = L.map('tour-map').setView([activities[0].coordinates.lat, activities[0].coordinates.lng], 12);
+                
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 18
+                }).addTo(tourMap);
+            }
+            
+            // Очищаем предыдущие маркеры и линии
+            tourMapMarkers.forEach(marker => marker.remove());
+            tourMapLines.forEach(line => line.remove());
+            tourMapMarkers = [];
+            tourMapLines = [];
+            
+            // Добавляем маркеры с номерами
+            const coordinates = [];
+            const currentLang = getCurrentLanguage();
+            
+            activities.forEach((activity, index) => {
+                const lat = activity.coordinates.lat;
+                const lng = activity.coordinates.lng;
+                coordinates.push([lat, lng]);
+                
+                // Создаем кастомную иконку с номером
+                const numberIcon = L.divIcon({
+                    className: 'custom-map-marker',
+                    html: `<div style="background-color: #000; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; border: 3px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${index + 1}</div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+                
+                const title = currentLang === 'en' ? (activity.titleEn || activity.title) : (activity.title || activity.titleEn);
+                const marker = L.marker([lat, lng], { icon: numberIcon }).addTo(tourMap);
+                
+                // Добавляем popup с информацией
+                const popupContent = `
+                    <div style="min-width: 200px;">
+                        <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${index + 1}. ${title || ''}</div>
+                        ${activity.time ? `<div style="color: #666; font-size: 12px;">⏰ ${activity.time}</div>` : ''}
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+                
+                tourMapMarkers.push(marker);
+            });
+            
+            // Добавляем линии между точками
+            if (coordinates.length > 1) {
+                const polyline = L.polyline(coordinates, {
+                    color: '#3b82f6',
+                    weight: 3,
+                    opacity: 0.7
+                }).addTo(tourMap);
+                tourMapLines.push(polyline);
+                
+                // Центрируем карту по всем точкам
+                tourMap.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+            } else if (coordinates.length === 1) {
+                // Если только одна точка, центрируем на ней
+                tourMap.setView(coordinates[0], 14);
+            }
+            
+            console.log(`📍 Карта обновлена для дня ${day} (${activities.length} точек)`);
         }
         
         // Update start time options

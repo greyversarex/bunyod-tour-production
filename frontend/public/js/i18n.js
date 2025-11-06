@@ -289,6 +289,7 @@ window.translations = window.translations || {
     'tour.show_more_services': { ru: 'Смотрите еще', en: 'Show more' },
     'tour.tab.description': { ru: 'Описание тура', en: 'Tour Description' },
     'tour.tab.program': { ru: 'Программа тура', en: 'Tour Program' },
+    'tour.tab.map': { ru: 'Карта Тура', en: 'Tour Map' },
     'tour.day': { ru: 'День', en: 'Day' },
     'tour.stop_singular': { ru: 'Остановка', en: 'Stop' },
     'tour.stops_few': { ru: 'Остановки', en: 'Stops' },

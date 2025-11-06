@@ -4,6 +4,16 @@
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offering tour, hotel, and guide booking, secure payments, and administrative management. The platform aims to provide a seamless user experience and efficient tools for administrators, supporting multilingual content and diverse payment methods. The project seeks to modernize and streamline regional tourism services, tapping into significant market potential.
 
 ## Recent Updates (November 2025)
+**Interactive Tour Map with Leaflet.js** - Добавлена интерактивная карта тура с визуализацией маршрута:
+- **Опциональные координаты**: В админке добавлены поля широты и долготы для каждой активности (необязательные)
+- **Условная видимость**: Вкладка "Карта Тура" показывается только если хотя бы одна активность имеет координаты
+- **Leaflet + OpenStreetMap**: Бесплатная карта без API ключей с полным функционалом
+- **Кастомные маркеры**: Нумерованные маркеры (1, 2, 3...) для каждой точки активности
+- **Polylines**: Синие линии соединяющие точки маршрута по порядку
+- **Селектор дней**: Переключение между днями тура для отображения разных маршрутов
+- **Multilingual support**: Полная поддержка русского и английского языков
+- **Popup информация**: Клик на маркер показывает название активности и время
+
 **Flexible Multi-Tier Deposit System** - Реализована полная система гибкой оплаты с адаптацией под тип тура:
 - **Групповой общий (group_shared)**: 2 опции - Депозит 10% или Полная оплата 100%
 - **Персональный и Групповой персональный (personal/group_personal)**: 3 опции - Депозит 10%, Депозит 30%, или Полная оплата 100%
