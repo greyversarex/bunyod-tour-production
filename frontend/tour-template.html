@@ -1560,10 +1560,11 @@
             // Инициализируем карту если еще не создана
             const mapContainer = document.getElementById('tour-map');
             if (!tourMap && mapContainer && typeof L !== 'undefined') {
-                tourMap = L.map('tour-map').setView([activities[0].coordinates.lat, activities[0].coordinates.lng], 12);
+                tourMap = L.map('tour-map', {
+                    attributionControl: false  // Убираем attribution (надпись и флаг)
+                }).setView([activities[0].coordinates.lat, activities[0].coordinates.lng], 12);
                 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
                     maxZoom: 18
                 }).addTo(tourMap);
             }
