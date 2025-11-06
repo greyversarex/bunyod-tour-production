@@ -75,7 +75,7 @@
     <div class="max-w-4xl mx-auto px-4 py-8">
         <!-- Payment Options Section (for group tours booked 30+ days ahead) -->
         <div id="payment-options-section" class="bg-white rounded-lg shadow-lg p-8 mb-8" style="display: none;">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.payment_option_title">Выберите условия оплаты</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.payment_option_title">Шаг 1. Выберите условия оплаты</h2>
             
             <div class="space-y-4">
                 <!-- Full Payment -->
@@ -132,7 +132,7 @@
 
         <!-- Payment Methods -->
         <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.select_payment">Выберите способ оплаты</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.select_payment">Шаг 2. Выберите способ оплаты</h2>
                 
                 <div class="space-y-4">
                     <!-- Payler -->
@@ -469,6 +469,13 @@
                 } else {
                     cashNotice.style.display = 'none';
                 }
+            }
+            
+            // ✅ Активируем кнопку оплаты после выбора условий оплаты в Шаге 1
+            const payBtn = document.getElementById('pay-btn');
+            if (payBtn) {
+                payBtn.disabled = false;
+                console.log('✅ Кнопка оплаты активирована после выбора условий оплаты');
             }
             
             // Перезагружаем summary чтобы показать пометки

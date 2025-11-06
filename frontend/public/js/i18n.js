@@ -362,7 +362,7 @@ window.translations = window.translations || {
     'booking.book_now_pay_later_details': { ru: 'Бронируй сейчас — плати позже, за 72 часа до начала тура или в первый день тура (по местному времени, UTC +5)', en: 'Book now - pay later, 72 hours before the tour starts or on the first day of the tour (local time, UTC +5)' },
     
     // Типы оплаты для групповых туров (30+ дней)
-    'booking.payment_option_title': { ru: 'Выберите условия оплаты', en: 'Choose Payment Terms' },
+    'booking.payment_option_title': { ru: 'Шаг 1. Выберите условия оплаты', en: 'Step 1. Choose Payment Terms' },
     'booking.payment_full': { ru: 'Полная оплата', en: 'Full Payment' },
     'booking.payment_full_desc': { ru: 'Оплатить 100% стоимости тура', en: 'Pay 100% of the tour cost' },
     'booking.payment_deposit': { ru: 'Бронируй сейчас - плати потом (10%)', en: 'Book Now - Pay Later (10%)' },
@@ -1372,7 +1372,7 @@ window.translations = window.translations || {
     
     // === BOOKING STEP 3 (PAYMENT) ===
     'booking.step3.page_title': { ru: 'Бронирование - Оплата | Bunyod-Tour', en: 'Booking - Payment | Bunyod-Tour' },
-    'booking.select_payment': { ru: 'Выберите способ оплаты', en: 'Select Payment Method' },
+    'booking.select_payment': { ru: 'Шаг 2. Выберите способ оплаты', en: 'Step 2. Select Payment Method' },
     'booking.payler_title': { ru: 'VISA / MasterCard — Payler', en: 'VISA / MasterCard — Payler' },
     'booking.payler_desc': { ru: 'Безопасная оплата банковской картой', en: 'Secure bank card payment' },
     'booking.alifpay_title': { ru: 'VISA / MasterCard — AlifPay', en: 'VISA / MasterCard — AlifPay' },
