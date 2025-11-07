@@ -79,6 +79,7 @@
             transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
         }
         
         .agent-card:hover {
@@ -474,7 +475,7 @@
             
             // Создаем карточку
             return `
-                <div class="agent-card">
+                <div class="agent-card" onclick="window.location.href='/guide-profile.html?id=${agent.id}'">
                     <div class="p-6 text-center">
                         <!-- Аватар -->
                         <div class="mb-3">
@@ -578,7 +579,7 @@
                         
                         <!-- Кнопки действий -->
                         <div class="space-y-3">
-                            <button class="contact-btn w-full" onclick="openHireModal(${agent.id}, '${name}')">
+                            <button class="contact-btn w-full" onclick="event.stopPropagation(); openHireModal(${agent.id}, '${name}')">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4l8 8 1-1-8-8-1 1z"/>
                                 </svg>

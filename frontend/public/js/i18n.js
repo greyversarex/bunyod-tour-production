@@ -1409,6 +1409,23 @@ window.translations = window.translations || {
     'guide.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
     'guide.first_review': { ru: 'Будьте первым, кто оставит отзыв!', en: 'Be the first to leave a review!' },
     
+    // === GUIDE REVIEW FORM ===
+    'guide_review.page_title': { ru: 'Оставить отзыв о гиде | Bunyod-Tour', en: 'Leave Guide Review | Bunyod-Tour' },
+    'guide_review.leave_review': { ru: 'Оставить отзыв о гиде', en: 'Leave Guide Review' },
+    'guide_review.your_name': { ru: 'Ваше имя *', en: 'Your Name *' },
+    'guide_review.rating_label': { ru: 'Оценка гида *', en: 'Guide Rating *' },
+    'guide_review.click_stars': { ru: 'Нажмите на звезды для оценки', en: 'Click stars to rate' },
+    'guide_review.your_review': { ru: 'Ваш отзыв *', en: 'Your Review *' },
+    'guide_review.min_characters': { ru: 'Минимум 20 символов', en: 'Minimum 20 characters' },
+    'guide_review.photos': { ru: 'Фотографии (необязательно)', en: 'Photos (optional)' },
+    'guide_review.choose_photos': { ru: 'Выбрать фотографии', en: 'Choose Photos' },
+    'guide_review.photo_limit': { ru: 'Максимум 5 фотографий, до 5MB каждая', en: 'Maximum 5 photos, up to 5MB each' },
+    'guide_review.submit': { ru: 'Отправить отзыв', en: 'Submit Review' },
+    'guide_review.moderation': { ru: 'Ваш отзыв будет опубликован после модерации', en: 'Your review will be published after moderation' },
+    'guide_review.thank_you': { ru: 'Спасибо за отзыв!', en: 'Thank You for Your Review!' },
+    'guide_review.success_message': { ru: 'Ваш отзыв успешно отправлен и будет опубликован после модерации.', en: 'Your review has been successfully submitted and will be published after moderation.' },
+    'guide_review.back_to_guides': { ru: 'Вернуться к гидам', en: 'Back to Guides' },
+    
     // === TOUR SEARCH PAGE ===
     'search.page_title': { ru: 'Поиск туров - Bunyod-Tour (Обновлено)', en: 'Tour Search - Bunyod-Tour (Updated)' },
     'search.hero_title': { ru: 'Найдите идеальный тур', en: 'Find Your Perfect Tour' },

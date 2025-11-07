@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="guide_review.page_title">Оставить отзыв о гиде | Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/layout.css?v=1.6">
+    <script src="/public/js/multilingual-utils.js?v=2.5"></script>
+    <script src="/public/js/i18n.js?v=1.8"></script>
+    <script src="/public/js/layout-loader.js?v=1.5"></script>
+    <style>
+        .star-rating {
+            font-size: 2.5rem;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .star-rating.active {
+            color: #fbbf24;
+        }
+        .star-rating:hover {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+        .preview-image {
+            max-width: 120px;
+            max-height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="header"></div>
+
+    <!-- Main Content -->
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <!-- Guide Info -->
+        <div id="guide-info" class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <div class="flex items-center gap-4 mb-4">
+                <img id="guide-photo" src="" alt="Guide" class="w-20 h-20 rounded-full object-cover border-4 border-gray-200">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800" data-translate="guide_review.leave_review">Оставить отзыв о гиде</h1>
+                    <p id="guide-name" class="text-gray-600 text-lg"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Form -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <form id="review-form" class="space-y-6">
+                <!-- Name -->
+                <div>
+                    <label for="reviewerName" class="block text-sm font-semibold text-gray-700 mb-2" data-translate="guide_review.your_name">
+                        Ваше имя *
+                    </label>
+                    <input type="text" id="reviewerName" name="reviewerName" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                           placeholder="Введите ваше имя">
+                </div>
+
+                <!-- Guide Rating -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3" data-translate="guide_review.rating_label">
+                        Оценка гида *
+                    </label>
+                    <div class="flex justify-center space-x-2 mb-2" id="rating-stars">
+                        <span class="star-rating" data-rating="1">★</span>
+                        <span class="star-rating" data-rating="2">★</span>
+                        <span class="star-rating" data-rating="3">★</span>
+                        <span class="star-rating" data-rating="4">★</span>
+                        <span class="star-rating" data-rating="5">★</span>
+                    </div>
+                    <input type="hidden" id="rating" name="rating" required>
+                    <p class="text-sm text-gray-500 text-center" data-translate="guide_review.click_stars">Нажмите на звезды для оценки</p>
+                </div>
+
+                <!-- Review Text -->
+                <div>
+                    <label for="text" class="block text-sm font-semibold text-gray-700 mb-2" data-translate="guide_review.your_review">
+                        Ваш отзыв *
+                    </label>
+                    <textarea id="text" name="text" rows="6" required
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500"
+                              placeholder="Поделитесь вашими впечатлениями о работе гида..."></textarea>
+                    <p class="text-xs text-gray-500 mt-1" data-translate="guide_review.min_characters">Минимум 20 символов</p>
+                </div>
+
+                <!-- Photo Upload -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2" data-translate="guide_review.photos">
+                        Фотографии (необязательно)
+                    </label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                        <input type="file" id="photos" multiple accept="image/*" class="hidden">
+                        <button type="button" id="upload-btn" 
+                                class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center gap-2">
+                            <i class="fas fa-camera"></i>
+                            <span data-translate="guide_review.choose_photos">Выбрать фотографии</span>
+                        </button>
+                        <p class="text-sm text-gray-500 mt-2" data-translate="guide_review.photo_limit">Максимум 5 фотографий, до 5MB каждая</p>
+                    </div>
+                    
+                    <!-- Photo Preview -->
+                    <div id="photo-preview" class="mt-4 grid grid-cols-3 gap-4 hidden"></div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" id="submit-btn"
+                            class="w-full bg-gray-600 text-white py-4 px-4 rounded-lg hover:bg-gray-700 font-semibold text-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane"></i>
+                        <span data-translate="guide_review.submit">Отправить отзыв</span>
+                    </button>
+                    <p class="text-sm text-gray-500 text-center mt-3" data-translate="guide_review.moderation">
+                        Ваш отзыв будет опубликован после модерации
+                    </p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div id="footer"></div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md mx-4 shadow-2xl">
+            <div class="text-center">
+                <div class="text-green-500 text-6xl mb-4">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3" data-translate="guide_review.thank_you">Спасибо за отзыв!</h3>
+                <p class="text-gray-600 mb-6" data-translate="guide_review.success_message">
+                    Ваш отзыв успешно отправлен и будет опубликован после модерации.
+                </p>
+                <button onclick="window.location.href='/tour-guides.html'" 
+                        class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors inline-flex items-center gap-2">
+                    <i class="fas fa-arrow-left"></i>
+                    <span data-translate="guide_review.back_to_guides">Вернуться к гидам</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedRating = 0;
+        let uploadedPhotos = [];
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
+
+        // Get guide ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const guideId = urlParams.get('guideId');
+
+        if (!guideId) {
+            alert('Guide ID not provided');
+            window.location.href = '/tour-guides.html';
+        }
+
+        // Load guide info
+        async function loadGuideInfo() {
+            try {
+                const lang = getCurrentLanguage();
+                const response = await fetch(`${API_BASE}/guides/${guideId}?lang=${lang}`);
+                if (!response.ok) throw new Error('Guide not found');
+                
+                const result = await response.json();
+                const guide = result.data;
+
+                // Display guide info
+                document.getElementById('guide-name').textContent = guide.name || 'Guide';
+                const photoEl = document.getElementById('guide-photo');
+                if (guide.photo) {
+                    photoEl.src = guide.photo.startsWith('http') ? guide.photo : `/uploads/guides/${guide.photo}`;
+                } else if (guide.avatar) {
+                    photoEl.src = guide.avatar.startsWith('http') ? guide.avatar : `/uploads/guides/${guide.avatar}`;
+                } else {
+                    photoEl.src = '/uploads/guides/default-guide.jpg';
+                }
+            } catch (error) {
+                console.error('Error loading guide:', error);
+                alert('Failed to load guide information');
+                window.location.href = '/tour-guides.html';
+            }
+        }
+
+        // Star rating functionality
+        const stars = document.querySelectorAll('.star-rating');
+        stars.forEach(star => {
+            star.addEventListener('click', function() {
+                selectedRating = parseInt(this.dataset.rating);
+                document.getElementById('rating').value = selectedRating;
+                updateStars();
+            });
+
+            star.addEventListener('mouseenter', function() {
+                const rating = parseInt(this.dataset.rating);
+                highlightStars(rating);
+            });
+        });
+
+        document.getElementById('rating-stars').addEventListener('mouseleave', () => {
+            updateStars();
+        });
+
+        function updateStars() {
+            stars.forEach(star => {
+                const rating = parseInt(star.dataset.rating);
+                star.classList.toggle('active', rating <= selectedRating);
+            });
+        }
+
+        function highlightStars(rating) {
+            stars.forEach(star => {
+                const r = parseInt(star.dataset.rating);
+                star.classList.toggle('active', r <= rating);
+            });
+        }
+
+        // Photo upload
+        document.getElementById('upload-btn').addEventListener('click', () => {
+            document.getElementById('photos').click();
+        });
+
+        document.getElementById('photos').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const preview = document.getElementById('photo-preview');
+            
+            if (files.length > 5) {
+                alert(getCurrentLanguage() === 'ru' ? 'Максимум 5 фотографий' : 'Maximum 5 photos');
+                return;
+            }
+
+            uploadedPhotos = [];
+            preview.innerHTML = '';
+            preview.classList.remove('hidden');
+
+            files.forEach((file, index) => {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`${file.name}: ` + (getCurrentLanguage() === 'ru' ? 'Файл слишком большой (макс. 5MB)' : 'File too large (max 5MB)'));
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    uploadedPhotos.push(e.target.result);
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" class="preview-image border border-gray-300">
+                        <button type="button" onclick="removePhoto(${index})" 
+                                class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                            <i class="fas fa-times text-xs"></i>
+                        </button>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function removePhoto(index) {
+            uploadedPhotos.splice(index, 1);
+            document.getElementById('photos').value = '';
+            updatePhotoPreview();
+        }
+
+        function updatePhotoPreview() {
+            const preview = document.getElementById('photo-preview');
+            preview.innerHTML = '';
+            
+            if (uploadedPhotos.length === 0) {
+                preview.classList.add('hidden');
+                return;
+            }
+
+            uploadedPhotos.forEach((photo, index) => {
+                const div = document.createElement('div');
+                div.className = 'relative';
+                div.innerHTML = `
+                    <img src="${photo}" class="preview-image border border-gray-300">
+                    <button type="button" onclick="removePhoto(${index})" 
+                            class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600">
+                        <i class="fas fa-times text-xs"></i>
+                    </button>
+                `;
+                preview.appendChild(div);
+            });
+        }
+
+        // Form submission
+        document.getElementById('review-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const reviewerName = document.getElementById('reviewerName').value.trim();
+            const text = document.getElementById('text').value.trim();
+
+            // Validation
+            if (!selectedRating) {
+                alert(getCurrentLanguage() === 'ru' ? 'Пожалуйста, поставьте оценку' : 'Please provide a rating');
+                return;
+            }
+
+            if (text.length < 20) {
+                alert(getCurrentLanguage() === 'ru' ? 'Отзыв должен содержать минимум 20 символов' : 'Review must be at least 20 characters');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Отправка...';
+
+            try {
+                const response = await fetch(`${API_BASE}/guide-reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        guideId: parseInt(guideId),
+                        reviewerName,
+                        rating: selectedRating,
+                        text,
+                        photos: uploadedPhotos,
+                    }),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Show success modal
+                    document.getElementById('success-modal').classList.remove('hidden');
+                    document.getElementById('success-modal').classList.add('flex');
+                } else {
+                    alert(result.message || 'Failed to submit review');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Отправить отзыв';
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Failed to submit review. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Отправить отзыв';
+            }
+        });
+
+        // Initialize
+        loadGuideInfo();
+
+        // Language change handler
+        window.addEventListener('languageChanged', (e) => {
+            loadGuideInfo();
+        });
+    </script>
+</body>
+</html>
