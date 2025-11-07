@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import { PrismaClient } from '@prisma/client';
 import {
   getTourBlocks,
   getTourBlock,
@@ -11,8 +10,7 @@ import {
 } from '../controllers/tourBlockController';
 import { authenticateJWT } from '../middleware/auth';
 import { mapTour, getLanguageFromRequest } from '../utils/multilingual';
-
-const prisma = new PrismaClient();
+import prisma from '../config/database';
 
 const router = Router();
 

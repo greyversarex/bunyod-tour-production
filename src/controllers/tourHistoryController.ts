@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
-
-const prisma = new PrismaClient();
+import prisma from '../config/database';
 
 // Получить активные туры для админ панели
 export const getActiveTours = async (req: Request, res: Response): Promise<void> => {
