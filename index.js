@@ -223,6 +223,12 @@ app.get('/tour.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'tour-template.html'));
 });
 
+// Guide profile page - explicit route BEFORE static middleware
+app.get('/guide-profile.html', (req, res) => {
+  console.log('👤 Serving guide profile page with query:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'guide-profile.html'));
+});
+
 // Hotel template page - explicit route BEFORE static middleware
 app.get('/hotel-template.html', (req, res) => {
   console.log('🏨 Serving hotel template page with query:', req.query);

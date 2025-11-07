@@ -9521,26 +9521,33 @@
                 guideName = '';
             }
 
-            // Парсим описание гида (мультиязычное поле)
-            let guideDescription = '';
+            // Парсим описание гида (мультиязычное поле) - получаем объект с ru и en
+            let guideDescription = { ru: '', en: '' };
             try {
                 if (typeof guide.description === 'string') {
                     // Попробуем распарсить как JSON
                     try {
                         const parsedDescription = JSON.parse(guide.description);
-                        guideDescription = parsedDescription.ru || parsedDescription.en || '';
+                        if (typeof parsedDescription === 'object') {
+                            guideDescription.ru = parsedDescription.ru || '';
+                            guideDescription.en = parsedDescription.en || '';
+                        } else {
+                            // Если это просто строка, используем для RU
+                            guideDescription.ru = parsedDescription || guide.description;
+                        }
                     } catch {
-                        // Если не JSON, используем как есть
-                        guideDescription = guide.description;
+                        // Если не JSON, используем как RU значение
+                        guideDescription.ru = guide.description;
                     }
                 } else if (typeof guide.description === 'object' && guide.description) {
-                    guideDescription = guide.description.ru || guide.description.en || '';
+                    guideDescription.ru = guide.description.ru || '';
+                    guideDescription.en = guide.description.en || '';
                 } else if (guide.description) {
-                    guideDescription = guide.description;
+                    guideDescription.ru = guide.description;
                 }
             } catch (e) {
                 console.warn('Error parsing guide description:', e);
-                guideDescription = '';
+                guideDescription = { ru: '', en: '' };
             }
             
             // Парсим контакты и документы
@@ -9658,7 +9665,7 @@
                                 <div class="grid grid-cols-1 gap-3">
                                     <div class="form-group">
                                         <label class="form-label">Комментарии (Русский)</label>
-                                        <textarea class="form-input" rows="3" id="editGuideCommentsRu" placeholder="Дополнительная информация о гиде на русском языке...">${guideDescription.ru || guideDescription || ''}</textarea>
+                                        <textarea class="form-input" rows="3" id="editGuideCommentsRu" placeholder="Дополнительная информация о гиде на русском языке...">${guideDescription.ru || ''}</textarea>
                                     </div>
                                     <div class="form-group">
                                         <label class="form-label">Комментарии (English)</label>

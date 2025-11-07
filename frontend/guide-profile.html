@@ -218,37 +218,58 @@
                 (lang === 'ru' ? 'Не указано' : 'Not specified');
             document.getElementById('guide-experience').textContent = experienceText;
 
-            // Languages - handle array or object
+            // Languages - translate language names to current language
+            const languageTranslations = {
+                // Russian language names
+                'Русский': { ru: 'Русский', en: 'Russian' },
+                'Английский': { ru: 'Английский', en: 'English' },
+                'Французский': { ru: 'Французский', en: 'French' },
+                'Немецкий': { ru: 'Немецкий', en: 'German' },
+                'Испанский': { ru: 'Испанский', en: 'Spanish' },
+                'Итальянский': { ru: 'Итальянский', en: 'Italian' },
+                'Китайский': { ru: 'Китайский', en: 'Chinese' },
+                'Японский': { ru: 'Японский', en: 'Japanese' },
+                'Таджикский': { ru: 'Таджикский', en: 'Tajik' },
+                'Узбекский': { ru: 'Узбекский', en: 'Uzbek' },
+                'Персидский': { ru: 'Персидский', en: 'Persian' },
+                'Арабский': { ru: 'Арабский', en: 'Arabic' },
+                'Турецкий': { ru: 'Турецкий', en: 'Turkish' },
+                'Корейский': { ru: 'Корейский', en: 'Korean' },
+                'Португальский': { ru: 'Португальский', en: 'Portuguese' },
+            };
+            
             let languagesText = lang === 'ru' ? 'Не указано' : 'Not specified';
             if (guide.languages) {
                 if (Array.isArray(guide.languages)) {
-                    languagesText = guide.languages.join(', ');
-                } else if (typeof guide.languages === 'object') {
+                    languagesText = guide.languages
+                        .map(l => languageTranslations[l]?.[lang] || l)
+                        .join(', ');
+                } else if (typeof guide.languages === 'object' && !Array.isArray(guide.languages)) {
                     languagesText = getMultilingualText(guide.languages, lang);
-                } else {
-                    languagesText = guide.languages;
+                } else if (typeof guide.languages === 'string') {
+                    // Parse comma-separated string and translate
+                    const langs = guide.languages.split(',').map(l => l.trim());
+                    languagesText = langs
+                        .map(l => languageTranslations[l]?.[lang] || l)
+                        .join(', ');
                 }
             }
             document.getElementById('guide-languages').textContent = languagesText;
 
-            // Region
+            // Region - use separate nameRu/nameEn fields or fallback to name JSONB
             let regionText = '';
             if (guide.guideCountry) {
-                // Country name might be string or object
-                const countryName = guide.guideCountry.name 
-                    ? (typeof guide.guideCountry.name === 'string' 
-                        ? guide.guideCountry.name 
-                        : getMultilingualText(guide.guideCountry.name, lang))
-                    : '';
+                // Try to get localized name from separate fields first
+                const countryName = lang === 'en' 
+                    ? (guide.guideCountry.nameEn || guide.guideCountry.nameRu || getMultilingualText(guide.guideCountry.name, lang))
+                    : (guide.guideCountry.nameRu || guide.guideCountry.nameEn || getMultilingualText(guide.guideCountry.name, lang));
                 regionText = countryName;
                 
                 if (guide.guideCity) {
-                    // City name might be string or object
-                    const cityName = guide.guideCity.name
-                        ? (typeof guide.guideCity.name === 'string'
-                            ? guide.guideCity.name
-                            : getMultilingualText(guide.guideCity.name, lang))
-                        : '';
+                    // Try to get localized name from separate fields first
+                    const cityName = lang === 'en'
+                        ? (guide.guideCity.nameEn || guide.guideCity.nameRu || getMultilingualText(guide.guideCity.name, lang))
+                        : (guide.guideCity.nameRu || guide.guideCity.nameEn || getMultilingualText(guide.guideCity.name, lang));
                     if (cityName) {
                         regionText += `, ${cityName}`;
                     }
@@ -448,10 +469,11 @@
             document.getElementById('error-state').classList.remove('hidden');
         }
 
-        // Initialize i18n
+        // Initialize i18n - update UI without reloading data
         window.addEventListener('languageChanged', (e) => {
             if (guideData) {
-                loadGuideProfile();
+                // Just update the display with existing data
+                displayGuide(guideData);
             }
         });
     </script>
