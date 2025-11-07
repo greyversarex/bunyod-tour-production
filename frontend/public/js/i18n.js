@@ -369,6 +369,7 @@ window.translations = window.translations || {
     'booking.payment_deposit_desc': { ru: 'Оплатить 10% от общей стоимости тура сейчас и 90% остатка перед началом тура', en: 'Pay 10% of the total tour cost now and 90% of the balance before the tour starts' },
     'booking.payment_deposit_30': { ru: 'Депозит 30%', en: 'Deposit 30%' },
     'booking.payment_deposit_30_desc': { ru: 'Оплатить 30% от общей стоимости тура сейчас и 70% остатка перед началом тура', en: 'Pay 30% of the total tour cost now and 70% of the balance before the tour starts' },
+    'booking.step1_instruction': { ru: 'После выбора условий оплаты выше, переходите к Шагу 2 для выбора способа оплаты', en: 'After selecting payment terms above, proceed to Step 2 to choose payment method' },
     'booking.cash_notice_title': { ru: 'Внимание:', en: 'Attention:' },
     'booking.cash_notice_text': { ru: 'Остаток оплаты производится наличными в национальной валюте в первый день тура.', en: 'The remaining balance is paid in cash in national currency on the first day of the tour.' },
     'booking.payment_free_cancel': { ru: 'Бесплатная отмена', en: 'Free Cancellation' },
