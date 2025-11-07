@@ -9646,9 +9646,15 @@
                                     <input type="email" class="form-input" id="editGuideEmail" placeholder="guide@example.com" value="${contact.email || ''}" required>
                                 </div>
                                 
-                                <div class="form-group">
-                                    <label class="form-label">Комментарии</label>
-                                    <textarea class="form-input" rows="3" id="editGuideComments" placeholder="Дополнительная информация о гиде...">${guideDescription}</textarea>
+                                <div class="grid grid-cols-1 gap-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Комментарии (Русский)</label>
+                                        <textarea class="form-input" rows="3" id="editGuideCommentsRu" placeholder="Дополнительная информация о гиде на русском языке...">${guideDescription.ru || guideDescription || ''}</textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Комментарии (English)</label>
+                                        <textarea class="form-input" rows="3" id="editGuideCommentsEn" placeholder="Additional information about the guide in English...">${guideDescription.en || ''}</textarea>
+                                    </div>
                                 </div>
                                 
                                 <!-- НОВОЕ: Поля для страны и города -->
@@ -9898,7 +9904,8 @@
             const name = document.getElementById('editGuideFullName').value.trim();
             const email = document.getElementById('editGuideEmail').value.trim();
             const phone = document.getElementById('editGuidePhone').value.trim();
-            const description = document.getElementById('editGuideComments').value.trim();
+            const descriptionRu = document.getElementById('editGuideCommentsRu').value.trim();
+            const descriptionEn = document.getElementById('editGuideCommentsEn').value.trim();
             const experience = document.getElementById('editGuideExperience').value;
             
             // Формируем мультиязычные данные как JSON (совместимо с функцией создания)
@@ -9908,8 +9915,8 @@
             });
             
             const descriptionJson = JSON.stringify({
-                ru: description,
-                en: description  // Пока используем одно значение для обоих языков
+                ru: descriptionRu,
+                en: descriptionEn
             });
             
             // Новые поля
