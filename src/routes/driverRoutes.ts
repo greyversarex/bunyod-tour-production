@@ -14,6 +14,7 @@ import {
   completeDriverEvent,
   upload
 } from '../controllers/driverController';
+import prisma from '../config/database';
 
 const router = express.Router();
 
@@ -129,9 +130,6 @@ router.get('/my-events', async (req, res) => {
     }
 
     // Получаем все туры с событиями, где назначен данный водитель
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
     const tours = await prisma.tour.findMany({
       where: {
         isActive: true,
@@ -223,9 +221,6 @@ router.post('/events/:eventId/start', async (req, res) => {
       });
     }
 
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-
     const [tourId, eventIndex] = eventId.split('-');
     const tour = await prisma.tour.findUnique({
       where: { id: parseInt(tourId) }
@@ -297,9 +292,6 @@ router.post('/events/:eventId/complete', async (req, res) => {
         message: 'Необходимы параметры driverId и eventId'
       });
     }
-
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
 
     const [tourId, eventIndex] = eventId.split('-');
     const tour = await prisma.tour.findUnique({

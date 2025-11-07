@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
 import multer from 'multer';
 import path from 'path';
-
-const prisma = new PrismaClient();
+import prisma from '../config/database';
 
 // Настройка multer для загрузки файлов
 const storage = multer.diskStorage({

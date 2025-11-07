@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { PublicController } from '../controllers/publicController';
+import prisma from '../config/database';
 
 const router = Router();
 
@@ -15,9 +16,6 @@ router.get('/test', (req, res) => {
 // Простой тест CMS блоков
 router.get('/test-cms', async (req, res) => {
   try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    
     const blocks = await prisma.contentBlock.findMany({
       take: 3
     });
