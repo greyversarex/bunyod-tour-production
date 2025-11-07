@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="guide.profile_title">Профиль Гида | Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/layout.css?v=1.6">
+    <script src="/public/js/multilingual-utils.js?v=2.5"></script>
+    <script src="/public/js/i18n.js?v=1759745702"></script>
+    <script src="/public/js/layout-loader.js?v=1759745702"></script>
+    <script src="/public/js/utils.js?v=1759745702"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="header"></div>
+
+    <!-- Guide Profile Container -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600" data-translate="guide.loading">Загрузка профиля гида...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+            <p class="text-red-600 text-lg mb-4" data-translate="guide.error">Ошибка загрузки профиля гида</p>
+            <button onclick="window.location.href='/tour-guides.html'" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-all">
+                <i class="fas fa-arrow-left mr-2"></i><span data-translate="guide.back_to_guides">Вернуться к списку гидов</span>
+            </button>
+        </div>
+
+        <!-- Guide Profile Content -->
+        <div id="guide-profile" class="hidden">
+            <!-- Guide Header Card -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- Guide Photo -->
+                    <div class="flex-shrink-0">
+                        <img id="guide-photo" 
+                             src="" 
+                             alt="Guide Photo" 
+                             class="w-48 h-48 rounded-xl object-cover border-4 border-gray-200">
+                    </div>
+
+                    <!-- Guide Info -->
+                    <div class="flex-1">
+                        <h1 id="guide-name" class="text-3xl font-bold text-gray-800 mb-2"></h1>
+                        
+                        <!-- Rating -->
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div id="guide-stars" class="flex text-yellow-400 text-xl"></div>
+                                <span id="guide-rating" class="text-gray-700 font-semibold text-lg"></span>
+                            </div>
+                            <span id="guide-review-count" class="text-gray-500"></span>
+                        </div>
+
+                        <!-- Key Info Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <!-- Experience -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-briefcase text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.experience">Опыт</p>
+                                    <p id="guide-experience" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                            <!-- Languages -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-language text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.languages">Языки</p>
+                                    <p id="guide-languages" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                            <!-- Region -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-map-marker-alt text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.region">Регион обслуживания</p>
+                                    <p id="guide-region" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-phone text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.contact">Контакт</p>
+                                    <p id="guide-contact" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2" data-translate="guide.about">О гиде</h3>
+                            <p id="guide-description" class="text-gray-600 leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800" data-translate="guide.reviews_title">Отзывы</h2>
+                    <button onclick="leaveReview()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-all">
+                        <i class="fas fa-star mr-2"></i><span data-translate="guide.leave_review">Оставить отзыв</span>
+                    </button>
+                </div>
+
+                <!-- Review Stats -->
+                <div id="review-stats" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- Reviews List -->
+                <div id="reviews-list" class="space-y-6">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+
+                <!-- No Reviews State -->
+                <div id="no-reviews" class="hidden text-center py-12">
+                    <i class="fas fa-comments text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg" data-translate="guide.no_reviews">Пока нет отзывов</p>
+                    <p class="text-gray-400 mt-2" data-translate="guide.first_review">Будьте первым, кто оставит отзыв!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer"></div>
+
+    <script>
+        let guideData = null;
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
+
+        // Get guide ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const guideId = urlParams.get('id');
+
+        if (!guideId) {
+            showError();
+        } else {
+            loadGuideProfile();
+        }
+
+        async function loadGuideProfile() {
+            try {
+                const lang = getCurrentLanguage();
+                console.log('Loading guide profile for ID:', guideId, 'Language:', lang);
+
+                // Load guide data
+                const guideResponse = await fetch(`${API_BASE}/guides/${guideId}?lang=${lang}`);
+                if (!guideResponse.ok) throw new Error('Guide not found');
+                
+                const guideResult = await guideResponse.json();
+                guideData = guideResult.data;
+
+                // Load reviews
+                const reviewsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}`);
+                const reviewsResult = await reviewsResponse.json();
+
+                // Load review stats
+                const statsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}/stats`);
+                const statsResult = await statsResponse.json();
+
+                displayGuide(guideData);
+                displayReviewStats(statsResult.data);
+                displayReviews(reviewsResult.data);
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('guide-profile').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading guide profile:', error);
+                showError();
+            }
+        }
+
+        function displayGuide(guide) {
+            // Photo
+            const photoEl = document.getElementById('guide-photo');
+            if (guide.photo) {
+                photoEl.src = guide.photo.startsWith('http') ? guide.photo : `/uploads/guides/${guide.photo}`;
+            } else if (guide.avatar) {
+                photoEl.src = guide.avatar.startsWith('http') ? guide.avatar : `/uploads/guides/${guide.avatar}`;
+            } else {
+                photoEl.src = '/uploads/guides/default-guide.jpg';
+            }
+
+            // Name
+            document.getElementById('guide-name').textContent = guide.name || 'Не указано';
+
+            // Rating
+            const rating = guide.rating || 0;
+            document.getElementById('guide-rating').textContent = rating.toFixed(1);
+            displayStars(rating, 'guide-stars');
+
+            // Experience
+            const experienceText = guide.experience ? 
+                `${guide.experience} ${getCurrentLanguage() === 'ru' ? 'лет опыта' : 'years of experience'}` : 
+                (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+            document.getElementById('guide-experience').textContent = experienceText;
+
+            // Languages
+            document.getElementById('guide-languages').textContent = guide.languages || (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+
+            // Region
+            let regionText = '';
+            if (guide.guideCountry) {
+                regionText = getCurrentLanguage() === 'ru' ? guide.guideCountry.nameRu : guide.guideCountry.nameEn;
+                if (guide.guideCity) {
+                    const cityName = getCurrentLanguage() === 'ru' ? guide.guideCity.nameRu : guide.guideCity.nameEn;
+                    regionText += `, ${cityName}`;
+                }
+            } else {
+                regionText = getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified';
+            }
+            document.getElementById('guide-region').textContent = regionText;
+
+            // Contact
+            document.getElementById('guide-contact').textContent = guide.contact || (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+
+            // Description
+            document.getElementById('guide-description').textContent = guide.description || (getCurrentLanguage() === 'ru' ? 'Описание отсутствует' : 'No description available');
+        }
+
+        function displayStars(rating, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('i');
+                if (i < fullStars) {
+                    star.className = 'fas fa-star';
+                } else if (i === fullStars && hasHalfStar) {
+                    star.className = 'fas fa-star-half-alt';
+                } else {
+                    star.className = 'far fa-star';
+                }
+                container.appendChild(star);
+            }
+        }
+
+        function displayReviewStats(stats) {
+            const container = document.getElementById('review-stats');
+            const distribution = stats.distribution || {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+            const total = stats.totalReviews || 0;
+
+            // Update review count in header
+            const lang = getCurrentLanguage();
+            const reviewText = lang === 'ru' ? 
+                `${total} ${getReviewsWord(total)}` : 
+                `${total} review${total !== 1 ? 's' : ''}`;
+            document.getElementById('guide-review-count').textContent = `(${reviewText})`;
+
+            container.innerHTML = '';
+            for (let i = 5; i >= 1; i--) {
+                const count = distribution[i] || 0;
+                const percentage = total > 0 ? (count / total * 100).toFixed(0) : 0;
+                
+                container.innerHTML += `
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-medium text-gray-700 w-16">${i} <i class="fas fa-star text-yellow-400 text-xs"></i></span>
+                        <div class="flex-1 bg-gray-200 rounded-full h-2">
+                            <div class="bg-yellow-400 h-2 rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                        <span class="text-sm text-gray-500 w-12 text-right">${count}</span>
+                    </div>
+                `;
+            }
+        }
+
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviews-list');
+            const noReviews = document.getElementById('no-reviews');
+
+            if (reviews.length === 0) {
+                container.classList.add('hidden');
+                noReviews.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            noReviews.classList.add('hidden');
+            container.innerHTML = '';
+
+            reviews.forEach(review => {
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'border-b border-gray-200 pb-6 last:border-0';
+                
+                const photos = review.photos || [];
+                const photosHTML = photos.length > 0 ? `
+                    <div class="flex gap-2 mt-4">
+                        ${photos.map(photo => `
+                            <img src="${photo}" alt="Review photo" class="w-20 h-20 object-cover rounded-lg cursor-pointer" onclick="window.open('${photo}', '_blank')">
+                        `).join('')}
+                    </div>
+                ` : '';
+
+                reviewCard.innerHTML = `
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
+                                <i class="fas fa-user text-gray-600 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">${review.reviewerName || 'Аноним'}</h4>
+                                <span class="text-sm text-gray-500">${formatDate(review.createdAt)}</span>
+                            </div>
+                            <div class="flex text-yellow-400 mb-2">
+                                ${Array(review.rating).fill('<i class="fas fa-star"></i>').join('')}
+                                ${Array(5 - review.rating).fill('<i class="far fa-star"></i>').join('')}
+                            </div>
+                            <p class="text-gray-700 leading-relaxed">${review.text}</p>
+                            ${photosHTML}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(reviewCard);
+            });
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const lang = getCurrentLanguage();
+            return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function getReviewsWord(count) {
+            const remainder10 = count % 10;
+            const remainder100 = count % 100;
+            
+            if (remainder10 === 1 && remainder100 !== 11) {
+                return 'отзыв';
+            } else if (remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 20)) {
+                return 'отзыва';
+            } else {
+                return 'отзывов';
+            }
+        }
+
+        function leaveReview() {
+            window.location.href = `/guide-review-form.html?guideId=${guideId}`;
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        // Initialize i18n
+        window.addEventListener('languageChanged', (e) => {
+            if (guideData) {
+                loadGuideProfile();
+            }
+        });
+    </script>
+</body>
+</html>

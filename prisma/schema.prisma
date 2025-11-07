@@ -212,8 +212,27 @@ model Guide {
   orders            Order[]
   tourGuides        TourGuide[]
   assignedTours     Tour[]             @relation("AssignedGuide")
+  guideReviews      GuideReview[]
 
   @@map("guides")
+}
+
+model GuideReview {
+  id          Int      @id @default(autoincrement())
+  guideId     Int      @map("guide_id")
+  customerId  Int?     @map("customer_id")
+  reviewerName String  @map("reviewer_name")
+  rating      Int
+  text        String
+  photos      String?
+  isModerated Boolean  @default(false) @map("is_moderated")
+  isApproved  Boolean  @default(false) @map("is_approved")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guide       Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_reviews")
 }
 
 model GuideHireRequest {
@@ -327,14 +346,15 @@ model TourCity {
 }
 
 model Customer {
-  id        Int      @id @default(autoincrement())
-  fullName  String   @map("full_name")
-  email     String   @unique
-  phone     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
-  reviews   Review[]
+  id           Int           @id @default(autoincrement())
+  fullName     String        @map("full_name")
+  email        String        @unique
+  phone        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orders       Order[]
+  reviews      Review[]
+  guideReviews GuideReview[]
 
   @@map("customers")
 }

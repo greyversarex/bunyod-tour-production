@@ -1394,6 +1394,21 @@ window.translations = window.translations || {
     'booking.try_again_message': { ru: 'Попробуйте еще раз или выберите другой способ оплаты', en: 'Try again or choose another payment method' },
     'booking.try_again': { ru: 'Попробовать снова', en: 'Try Again' },
     
+    // === GUIDE PROFILE PAGE ===
+    'guide.profile_title': { ru: 'Профиль Гида | Bunyod-Tour', en: 'Guide Profile | Bunyod-Tour' },
+    'guide.loading': { ru: 'Загрузка профиля гида...', en: 'Loading guide profile...' },
+    'guide.error': { ru: 'Ошибка загрузки профиля гида', en: 'Error loading guide profile' },
+    'guide.back_to_guides': { ru: 'Вернуться к списку гидов', en: 'Back to guides list' },
+    'guide.experience': { ru: 'Опыт', en: 'Experience' },
+    'guide.languages': { ru: 'Языки', en: 'Languages' },
+    'guide.region': { ru: 'Регион обслуживания', en: 'Service Region' },
+    'guide.contact': { ru: 'Контакт', en: 'Contact' },
+    'guide.about': { ru: 'О гиде', en: 'About Guide' },
+    'guide.reviews_title': { ru: 'Отзывы', en: 'Reviews' },
+    'guide.leave_review': { ru: 'Оставить отзыв', en: 'Leave Review' },
+    'guide.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
+    'guide.first_review': { ru: 'Будьте первым, кто оставит отзыв!', en: 'Be the first to leave a review!' },
+    
     // === TOUR SEARCH PAGE ===
     'search.page_title': { ru: 'Поиск туров - Bunyod-Tour (Обновлено)', en: 'Tour Search - Bunyod-Tour (Updated)' },
     'search.hero_title': { ru: 'Найдите идеальный тур', en: 'Find Your Perfect Tour' },
