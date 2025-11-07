@@ -186,9 +186,19 @@
             // Photo
             const photoEl = document.getElementById('guide-photo');
             if (guide.photo) {
-                photoEl.src = guide.photo.startsWith('http') ? guide.photo : `/uploads/guides/${guide.photo}`;
+                // If photo already has full path (starts with / or http), use it as is
+                if (guide.photo.startsWith('/') || guide.photo.startsWith('http')) {
+                    photoEl.src = guide.photo;
+                } else {
+                    photoEl.src = `/uploads/guides/${guide.photo}`;
+                }
             } else if (guide.avatar) {
-                photoEl.src = guide.avatar.startsWith('http') ? guide.avatar : `/uploads/guides/${guide.avatar}`;
+                // Same logic for avatar
+                if (guide.avatar.startsWith('/') || guide.avatar.startsWith('http')) {
+                    photoEl.src = guide.avatar;
+                } else {
+                    photoEl.src = `/uploads/guides/${guide.avatar}`;
+                }
             } else {
                 photoEl.src = '/uploads/guides/default-guide.jpg';
             }
@@ -250,8 +260,25 @@
             }
             document.getElementById('guide-region').textContent = regionText;
 
-            // Contact
-            document.getElementById('guide-contact').textContent = guide.contact || (lang === 'ru' ? 'Не указано' : 'Not specified');
+            // Contact - parse JSON if needed
+            let contactText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            if (guide.contact) {
+                try {
+                    // Try to parse JSON contact object
+                    const contactObj = typeof guide.contact === 'string' ? JSON.parse(guide.contact) : guide.contact;
+                    if (contactObj.phone) {
+                        contactText = contactObj.phone;
+                    } else if (contactObj.email) {
+                        contactText = contactObj.email;
+                    } else {
+                        contactText = guide.contact;
+                    }
+                } catch (e) {
+                    // If not JSON, use as is
+                    contactText = guide.contact;
+                }
+            }
+            document.getElementById('guide-contact').textContent = contactText;
 
             // Description - handle multilingual object
             const descriptionText = getMultilingualText(guide.description, lang) || (lang === 'ru' ? 'Описание отсутствует' : 'No description available');

@@ -435,6 +435,7 @@ export const getGuideById = async (req: Request, res: Response) => {
       description: safeJsonParse(guide.description),
       photo: photoPath,
       languages: safeJsonParse(guide.languages),
+      contact: guide.contact, // ✅ Добавлено поле контакта
       experience: guide.experience,
       rating: guide.rating,
       currency: guide.currency,
