@@ -108,11 +108,8 @@
 
             <!-- Reviews Section -->
             <div class="bg-white rounded-xl shadow-lg p-8">
-                <div class="flex justify-between items-center mb-6">
+                <div class="mb-6">
                     <h2 class="text-2xl font-bold text-gray-800" data-translate="guide.reviews_title">Отзывы</h2>
-                    <button onclick="leaveReview()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-all">
-                        <i class="fas fa-star mr-2"></i><span data-translate="guide.leave_review">Оставить отзыв</span>
-                    </button>
                 </div>
 
                 <!-- Review Stats -->
@@ -184,6 +181,8 @@
         }
 
         function displayGuide(guide) {
+            const lang = getCurrentLanguage();
+
             // Photo
             const photoEl = document.getElementById('guide-photo');
             if (guide.photo) {
@@ -194,8 +193,9 @@
                 photoEl.src = '/uploads/guides/default-guide.jpg';
             }
 
-            // Name
-            document.getElementById('guide-name').textContent = guide.name || 'Не указано';
+            // Name - handle multilingual object
+            const guideName = getMultilingualText(guide.name, lang) || (lang === 'ru' ? 'Не указано' : 'Not specified');
+            document.getElementById('guide-name').textContent = guideName;
 
             // Rating
             const rating = guide.rating || 0;
@@ -204,31 +204,92 @@
 
             // Experience
             const experienceText = guide.experience ? 
-                `${guide.experience} ${getCurrentLanguage() === 'ru' ? 'лет опыта' : 'years of experience'}` : 
-                (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+                `${guide.experience} ${lang === 'ru' ? 'лет опыта' : 'years of experience'}` : 
+                (lang === 'ru' ? 'Не указано' : 'Not specified');
             document.getElementById('guide-experience').textContent = experienceText;
 
-            // Languages
-            document.getElementById('guide-languages').textContent = guide.languages || (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+            // Languages - handle array or object
+            let languagesText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            if (guide.languages) {
+                if (Array.isArray(guide.languages)) {
+                    languagesText = guide.languages.join(', ');
+                } else if (typeof guide.languages === 'object') {
+                    languagesText = getMultilingualText(guide.languages, lang);
+                } else {
+                    languagesText = guide.languages;
+                }
+            }
+            document.getElementById('guide-languages').textContent = languagesText;
 
             // Region
             let regionText = '';
             if (guide.guideCountry) {
-                regionText = getCurrentLanguage() === 'ru' ? guide.guideCountry.nameRu : guide.guideCountry.nameEn;
+                // Country name might be string or object
+                const countryName = guide.guideCountry.name 
+                    ? (typeof guide.guideCountry.name === 'string' 
+                        ? guide.guideCountry.name 
+                        : getMultilingualText(guide.guideCountry.name, lang))
+                    : '';
+                regionText = countryName;
+                
                 if (guide.guideCity) {
-                    const cityName = getCurrentLanguage() === 'ru' ? guide.guideCity.nameRu : guide.guideCity.nameEn;
-                    regionText += `, ${cityName}`;
+                    // City name might be string or object
+                    const cityName = guide.guideCity.name
+                        ? (typeof guide.guideCity.name === 'string'
+                            ? guide.guideCity.name
+                            : getMultilingualText(guide.guideCity.name, lang))
+                        : '';
+                    if (cityName) {
+                        regionText += `, ${cityName}`;
+                    }
                 }
-            } else {
-                regionText = getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified';
+            }
+            
+            if (!regionText) {
+                regionText = lang === 'ru' ? 'Не указано' : 'Not specified';
             }
             document.getElementById('guide-region').textContent = regionText;
 
             // Contact
-            document.getElementById('guide-contact').textContent = guide.contact || (getCurrentLanguage() === 'ru' ? 'Не указано' : 'Not specified');
+            document.getElementById('guide-contact').textContent = guide.contact || (lang === 'ru' ? 'Не указано' : 'Not specified');
 
-            // Description
-            document.getElementById('guide-description').textContent = guide.description || (getCurrentLanguage() === 'ru' ? 'Описание отсутствует' : 'No description available');
+            // Description - handle multilingual object
+            const descriptionText = getMultilingualText(guide.description, lang) || (lang === 'ru' ? 'Описание отсутствует' : 'No description available');
+            document.getElementById('guide-description').textContent = descriptionText;
+        }
+
+        // Helper function to get text from multilingual field
+        function getMultilingualText(field, language) {
+            if (!field) return '';
+            
+            // If it's already a string, return it
+            if (typeof field === 'string') {
+                return field;
+            }
+            
+            // If it's an object with language keys
+            if (typeof field === 'object' && field !== null) {
+                // Try to get the requested language
+                const text = field[language];
+                if (text && text.trim()) {
+                    return text;
+                }
+                
+                // Fallback to Russian if English is empty
+                if (language === 'en' && field.ru && field.ru.trim()) {
+                    return field.ru;
+                }
+                
+                // Fallback to English if Russian is empty
+                if (language === 'ru' && field.en && field.en.trim()) {
+                    return field.en;
+                }
+                
+                // Return any non-empty value
+                return field.ru || field.en || '';
+            }
+            
+            return '';
         }
 
         function displayStars(rating, containerId) {
@@ -353,10 +414,6 @@
             } else {
                 return 'отзывов';
             }
-        }
-
-        function leaveReview() {
-            window.location.href = `/guide-review-form.html?guideId=${guideId}`;
         }
 
         function showError() {
