@@ -3,6 +3,16 @@
 ## Overview
 Bunyod-Tour is a comprehensive tourism booking platform for Central Asia. It offers tour, hotel, and guide booking, secure payments, and administrative management. The platform aims for a seamless user experience, efficient administration, multilingual content, and diverse payment methods, seeking to modernize regional tourism and capitalize on significant market potential. Key capabilities include a guide review system, interactive tour maps, and a flexible multi-tier deposit system.
 
+## Recent Updates (November 2025)
+
+**PostgreSQL Connection Pool Optimization** - Исправлена критическая проблема с переполнением пула соединений:
+- **Проблема**: В коде создавалось 12 отдельных экземпляров `PrismaClient()`, каждый открывал свой пул соединений
+- **Ошибка**: "terminating connection due to administrator command" (код E57P01) при перезапуске workflow
+- **Решение**: Все файлы переведены на использование единого синглтона из `src/config/database.ts`
+- **Исправленные файлы**: 10 файлов (middleware, routes, controllers, utils)
+- **Результат**: ✅ Стабильная работа без ошибок PostgreSQL, оптимальное использование ресурсов БД
+- **Безопасность**: Изменения затрагивают только способ подключения, логика работы не изменена, безопасны для продакшена
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 Development approach: Improve existing files rather than creating new ones. User prefers enhancement of existing admin-dashboard.html over creation of separate admin panels.
