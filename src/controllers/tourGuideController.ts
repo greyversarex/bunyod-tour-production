@@ -449,6 +449,76 @@ export const startTour = async (req: Request, res: Response): Promise<void> => {
 
     console.log(`🚀 Tour ${tourId} started by guide ${guideId}, totalDays: ${totalDays}`);
 
+    // Отправляем уведомление админу
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+      if (adminEmail) {
+        const transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false,
+          auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+          }
+        });
+
+        // Получаем имя тура
+        let tourName = 'Тур';
+        if (typeof tour.title === 'object' && tour.title !== null) {
+          tourName = (tour.title as any).ru || (tour.title as any).en || 'Тур';
+        } else if (typeof tour.title === 'string') {
+          try {
+            const titleObj = JSON.parse(tour.title);
+            tourName = titleObj.ru || titleObj.en || tour.title;
+          } catch {
+            tourName = tour.title;
+          }
+        }
+
+        // Получаем имя гида
+        const guide = await prisma.guide.findUnique({
+          where: { id: guideId },
+          select: { name: true }
+        });
+
+        let guideName = 'Гид';
+        if (guide && typeof guide.name === 'object' && guide.name !== null) {
+          guideName = (guide.name as any).ru || (guide.name as any).en || 'Гид';
+        } else if (guide && typeof guide.name === 'string') {
+          try {
+            const nameObj = JSON.parse(guide.name);
+            guideName = nameObj.ru || nameObj.en || guide.name;
+          } catch {
+            guideName = guide.name;
+          }
+        }
+
+        await transporter.sendMail({
+          from: process.env.EMAIL_FROM,
+          to: adminEmail,
+          subject: '🚀 Тур начат - Bunyod-Tour',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #10B981;">🚀 Тур начат</h2>
+              <p><strong>Тур:</strong> ${tourName}</p>
+              <p><strong>ID тура:</strong> ${tourId}</p>
+              <p><strong>Гид:</strong> ${guideName}</p>
+              <p><strong>Количество дней:</strong> ${totalDays}</p>
+              <p><strong>Текущий день:</strong> 1</p>
+              <p><strong>Время начала:</strong> ${new Date().toLocaleString('ru-RU')}</p>
+              <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+              <p style="font-size: 14px; color: #999;">Это автоматическое уведомление от системы Bunyod-Tour</p>
+            </div>
+          `
+        });
+
+        console.log(`📧 Admin notification sent for tour start: ${tourId}`);
+      }
+    } catch (emailError) {
+      console.warn('Failed to send admin notification for tour start:', emailError);
+    }
+
     res.json({
       success: true,
       data: updatedTour,
@@ -550,6 +620,80 @@ export const finishTour = async (req: Request, res: Response): Promise<void> => 
         completedDays: newCompletedDays
       }
     });
+
+    // Отправляем уведомление админу только при полном завершении тура
+    if (newStatus === 'finished') {
+      try {
+        const adminEmail = process.env.ADMIN_EMAIL || process.env.EMAIL_USER;
+        if (adminEmail) {
+          const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
+            auth: {
+              user: process.env.EMAIL_USER,
+              pass: process.env.EMAIL_PASS
+            }
+          });
+
+          // Получаем имя тура
+          let tourName = 'Тур';
+          if (typeof tour.title === 'object' && tour.title !== null) {
+            tourName = (tour.title as any).ru || (tour.title as any).en || 'Тур';
+          } else if (typeof tour.title === 'string') {
+            try {
+              const titleObj = JSON.parse(tour.title);
+              tourName = titleObj.ru || titleObj.en || tour.title;
+            } catch {
+              tourName = tour.title;
+            }
+          }
+
+          // Получаем имя гида
+          const guide = await prisma.guide.findUnique({
+            where: { id: guideId },
+            select: { name: true }
+          });
+
+          let guideName = 'Гид';
+          if (guide && typeof guide.name === 'object' && guide.name !== null) {
+            guideName = (guide.name as any).ru || (guide.name as any).en || 'Гид';
+          } else if (guide && typeof guide.name === 'string') {
+            try {
+              const nameObj = JSON.parse(guide.name);
+              guideName = nameObj.ru || nameObj.en || guide.name;
+            } catch {
+              guideName = guide.name;
+            }
+          }
+
+          await transporter.sendMail({
+            from: process.env.EMAIL_FROM,
+            to: adminEmail,
+            subject: '✅ Тур завершен - Bunyod-Tour',
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #3B82F6;">✅ Тур завершен</h2>
+                <p><strong>Тур:</strong> ${tourName}</p>
+                <p><strong>ID тура:</strong> ${tourId}</p>
+                <p><strong>Гид:</strong> ${guideName}</p>
+                <p><strong>Всего дней:</strong> ${totalDays}</p>
+                <p><strong>Завершенные дни:</strong> ${newCompletedDays.join(', ')}</p>
+                <p><strong>Время завершения:</strong> ${new Date().toLocaleString('ru-RU')}</p>
+                <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                <p style="font-size: 14px; color: #666;">Теперь можно собрать отзывы от туристов и попросить их оставить отзыв о работе гида.</p>
+                <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                <p style="font-size: 14px; color: #999;">Это автоматическое уведомление от системы Bunyod-Tour</p>
+              </div>
+            `
+          });
+
+          console.log(`📧 Admin notification sent for tour finish: ${tourId}`);
+        }
+      } catch (emailError) {
+        console.warn('Failed to send admin notification for tour finish:', emailError);
+      }
+    }
 
     res.json({
       success: true,
@@ -653,6 +797,137 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
   }
 };
 
+// Собрать отзывы о гиде (отправить email туристам)
+export const collectGuideReviews = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { tourId, selectedTourists } = req.body;
+    const guideId = (req as any).user?.id;
+
+    if (!tourId || !selectedTourists || !Array.isArray(selectedTourists)) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'ID тура и список туристов обязательны' 
+      });
+      return;
+    }
+
+    // Проверяем что тур назначен этому гиду
+    const tour = await prisma.tour.findFirst({
+      where: { 
+        id: parseInt(tourId),
+        OR: [
+          { assignedGuideId: guideId },
+          { 
+            tourGuides: {
+              some: {
+                guideId: guideId
+              }
+            }
+          }
+        ]
+      }
+    });
+
+    if (!tour) {
+      res.status(404).json({ 
+        success: false, 
+        message: 'Тур не найден или вы не назначены на него' 
+      });
+      return;
+    }
+
+    // Получаем информацию о гиде
+    const guide = await prisma.guide.findUnique({
+      where: { id: guideId },
+      select: {
+        id: true,
+        name: true
+      }
+    });
+
+    if (!guide) {
+      res.status(404).json({ 
+        success: false, 
+        message: 'Гид не найден' 
+      });
+      return;
+    }
+
+    // Получаем имя гида
+    let guideName = 'Гид';
+    if (typeof guide.name === 'string') {
+      try {
+        const nameObj = JSON.parse(guide.name);
+        guideName = nameObj.ru || nameObj.en || guide.name;
+      } catch {
+        guideName = guide.name;
+      }
+    } else if (typeof guide.name === 'object' && guide.name !== null) {
+      guideName = (guide.name as any).ru || (guide.name as any).en || 'Гид';
+    }
+
+    // Отправляем email каждому туристу
+    const reviewUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/guide-review-form.html?guideId=${guideId}`;
+    
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    let emailsSent = 0;
+
+    for (const tourist of selectedTourists) {
+      if (tourist.email) {
+        try {
+          await transporter.sendMail({
+            from: process.env.EMAIL_FROM,
+            to: tourist.email,
+            subject: `Оставьте отзыв о работе гида - ${guideName}`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #333;">Здравствуйте, ${tourist.name}!</h2>
+                <p style="font-size: 16px; line-height: 1.6;">Спасибо за участие в туре! Мы будем очень признательны, если вы поделитесь своими впечатлениями о работе нашего гида <strong>${guideName}</strong>.</p>
+                <p style="font-size: 16px; line-height: 1.6;">Ваш отзыв поможет нам улучшить качество обслуживания и другим туристам сделать правильный выбор.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${reviewUrl}" style="background: linear-gradient(135deg, #9333EA 0%, #7E22CE 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    ⭐ Оставить отзыв о гиде
+                  </a>
+                </div>
+                <p style="font-size: 14px; color: #666;">Это займет всего пару минут!</p>
+                <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 30px 0;">
+                <p style="font-size: 14px; color: #999;">С уважением,<br>Команда Bunyod-Tour</p>
+              </div>
+            `
+          });
+          
+          emailsSent++;
+        } catch (emailError) {
+          console.warn('Failed to send guide review email to:', tourist.email, emailError);
+        }
+      }
+    }
+
+    console.log(`📧 Sent ${emailsSent} guide review request emails for guide ${guideId}`);
+
+    res.json({
+      success: true,
+      emailsSent,
+      message: `Отправлено ${emailsSent} приглашений для отзывов о гиде`
+    });
+
+  } catch (error) {
+    console.error('❌ Error collecting guide reviews:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Ошибка сервера' 
+    });
+  }
+};
 
 // Создание нового тургида с аутентификацией (для админ панели)
 export const createTourGuideProfile = async (req: Request, res: Response): Promise<void> => {

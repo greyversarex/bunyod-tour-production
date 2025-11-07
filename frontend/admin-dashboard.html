@@ -462,6 +462,10 @@
                     <i class="fas fa-calendar-check"></i>
                     <span data-translate="admin.bookings">Заказы</span>
                 </a>
+                <a href="#" class="nav-item" data-section="events">
+                    <i class="fas fa-bell"></i>
+                    <span>События</span>
+                </a>
                 <a href="#" class="nav-item" data-section="categories">
                     <i class="fas fa-tags"></i>
                     <span data-translate="admin.categories">Категории</span>
@@ -730,6 +734,53 @@
                                 </thead>
                                 <tbody id="bookingsTable">
                                     <!-- Bookings will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events Section -->
+                <section id="eventsSection" style="display: none;">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl font-semibold">
+                                <i class="fas fa-bell mr-2 text-blue-600"></i>
+                                События туров
+                            </h2>
+                            <button onclick="loadTourEvents()" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt mr-2"></i>
+                                Обновить
+                            </button>
+                        </div>
+
+                        <!-- Filter Tabs -->
+                        <div class="flex gap-2 mb-4">
+                            <button class="tab-button active" onclick="filterEvents('all')">Все события</button>
+                            <button class="tab-button" onclick="filterEvents('started')">Начатые туры</button>
+                            <button class="tab-button" onclick="filterEvents('finished')">Завершенные туры</button>
+                        </div>
+
+                        <!-- Events Table -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left">Тип события</th>
+                                        <th class="px-4 py-3 text-left">Тур</th>
+                                        <th class="px-4 py-3 text-left">Гид</th>
+                                        <th class="px-4 py-3 text-left">Дата события</th>
+                                        <th class="px-4 py-3 text-left">Статус</th>
+                                        <th class="px-4 py-3 text-left">Детали</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="eventsTable">
+                                    <tr>
+                                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                                            <i class="fas fa-spinner fa-spin mr-2"></i>
+                                            Загрузка событий...
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -8550,6 +8601,114 @@
             document.getElementById('bookingModal').classList.remove('active');
             currentBookingId = null;
         }
+
+        // Tour Events functions
+        let allEvents = [];
+        let currentEventFilter = 'all';
+
+        async function loadTourEvents() {
+            try {
+                const response = await fetch(`${getApiUrl()}/tours`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                // Создаем события из туров со статусами active и finished
+                allEvents = data.tours
+                    .filter(tour => tour.status === 'active' || tour.status === 'finished')
+                    .map(tour => ({
+                        id: tour.id,
+                        tourName: getTourName(tour),
+                        guideName: tour.assignedGuide ? getGuideName(tour.assignedGuide) : 'Не назначен',
+                        status: tour.status,
+                        eventType: tour.status === 'active' ? 'started' : 'finished',
+                        updatedAt: tour.updatedAt,
+                        currentDay: tour.currentDay || 1,
+                        totalDays: tour.totalDays || tour.durationDays || 1,
+                        completedDays: tour.completedDays || []
+                    }))
+                    .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+                displayEvents(allEvents);
+            } catch (error) {
+                console.error('Error loading events:', error);
+                document.getElementById('eventsTable').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Ошибка загрузки событий
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function displayEvents(events) {
+            const tbody = document.getElementById('eventsTable');
+            
+            if (events.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox mr-2"></i>
+                            Нет событий для отображения
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = events.map(event => {
+                const eventIcon = event.eventType === 'started' 
+                    ? '<i class="fas fa-play-circle text-green-600"></i>' 
+                    : '<i class="fas fa-check-circle text-blue-600"></i>';
+                
+                const eventLabel = event.eventType === 'started' 
+                    ? '<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">🚀 Тур начат</span>'
+                    : '<span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">✅ Тур завершен</span>';
+                
+                const statusBadge = event.status === 'active'
+                    ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">В процессе</span>'
+                    : '<span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">Завершен</span>';
+
+                const details = event.eventType === 'started'
+                    ? `День ${event.currentDay} из ${event.totalDays}`
+                    : `Завершено дней: ${event.completedDays.length}/${event.totalDays}`;
+
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3">
+                            ${eventIcon}
+                            ${eventLabel}
+                        </td>
+                        <td class="px-4 py-3 font-medium">${event.tourName}</td>
+                        <td class="px-4 py-3">${event.guideName}</td>
+                        <td class="px-4 py-3">${formatDate(event.updatedAt)}</td>
+                        <td class="px-4 py-3">${statusBadge}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${details}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterEvents(filter) {
+            currentEventFilter = filter;
+            
+            // Update tab buttons
+            document.querySelectorAll('#eventsSection .tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            let filteredEvents = allEvents;
+            if (filter === 'started') {
+                filteredEvents = allEvents.filter(e => e.eventType === 'started');
+            } else if (filter === 'finished') {
+                filteredEvents = allEvents.filter(e => e.eventType === 'finished');
+            }
+
+            displayEvents(filteredEvents);
+        }
         
         // Hotels functions - moved to line 4302
         
@@ -13968,7 +14127,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections
-            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -14019,6 +14178,9 @@
                     break;
                 case 'bookings':
                     loadBookings();
+                    break;
+                case 'events':
+                    loadTourEvents();
                     break;
                 case 'hotels':
                     loadHotels();
