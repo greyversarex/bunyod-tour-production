@@ -9603,7 +9603,19 @@
             
             // Заполняем языки
             if (guide.languages) {
-                selectedGuideLanguages = guide.languages.split(', ').filter(lang => lang.trim());
+                // Обрабатываем как массив или строку
+                if (Array.isArray(guide.languages)) {
+                    selectedGuideLanguages = guide.languages.filter(lang => lang && lang.trim());
+                } else if (typeof guide.languages === 'string') {
+                    try {
+                        // Пробуем распарсить как JSON массив
+                        const parsed = JSON.parse(guide.languages);
+                        selectedGuideLanguages = Array.isArray(parsed) ? parsed : guide.languages.split(', ').filter(lang => lang.trim());
+                    } catch (e) {
+                        // Если не JSON, то это просто строка с разделителями
+                        selectedGuideLanguages = guide.languages.split(', ').filter(lang => lang.trim());
+                    }
+                }
                 updateSelectedGuideLanguagesDisplay();
             }
             
