@@ -515,21 +515,22 @@ model MenuItem {
 }
 
 model Country {
-  id            Int           @id @default(autoincrement())
-  name          String        @unique
-  nameRu        String        @map("name_ru")
-  nameEn        String        @map("name_en")
-  code          String        @unique
-  isActive      Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  cities        City[]
-  drivers       Driver[]
-  guides        Guide[]
-  hotels        Hotel[]
-  tourAgents    TourAgent[]
-  tourCountries TourCountry[] @relation("TourCountries")
-  tours         Tour[]
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @unique
+  nameRu               String                @map("name_ru")
+  nameEn               String                @map("name_en")
+  code                 String                @unique
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  cities               City[]
+  drivers              Driver[]
+  guides               Guide[]
+  hotels               Hotel[]
+  tourAgents           TourAgent[]
+  tourCountries        TourCountry[]         @relation("TourCountries")
+  tours                Tour[]
+  customTourComponents CustomTourComponent[]
 
   @@map("countries")
 }
@@ -674,6 +675,23 @@ model PriceCalculatorComponent {
   updatedAt   DateTime @updatedAt
 
   @@map("price_calculator_components")
+}
+
+model CustomTourComponent {
+  id          Int      @id @default(autoincrement())
+  countryId   Int      @map("country_id")
+  category    String
+  name        Json
+  price       Float
+  unit        String
+  description Json?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@map("custom_tour_components")
 }
 
 model TourPricingComponent {
