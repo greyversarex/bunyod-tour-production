@@ -438,6 +438,7 @@ export const getGuideById = async (req: Request, res: Response) => {
       contact: guide.contact, // ✅ Добавлено поле контакта
       experience: guide.experience,
       rating: guide.rating,
+      pricePerDay: guide.pricePerDay, // 💰 Цена за день
       currency: guide.currency,
       isHireable: guide.isHireable,
       isActive: guide.isActive,
