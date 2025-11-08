@@ -562,54 +562,100 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
 export const updateGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const guideData: Partial<GuideData> = req.body;
-    const { login, password, isActive } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    
+    // Получаем данные из FormData (все приходят как строки)
+    const {
+      name,
+      description,
+      login,
+      password,
+      email,
+      phone,
+      languages,
+      experience,
+      isActive,
+      isDraft,
+      countryId,
+      cityId,
+      passportSeries,
+      registration,
+      residenceAddress,
+      pricePerDay,
+      currency,
+      isHireable
+    } = req.body;
+
+    console.log('📝 Обновление гида #' + id);
+    console.log('📥 Полученные данные:', req.body);
+    console.log('📁 Полученные файлы:', files);
 
     const updateData: any = {};
     
-    // Handle JSON fields properly - parse incoming JSON strings
-    if (guideData.name) {
-      updateData.name = safeJsonParse(guideData.name);
+    // Обрабатываем JSON поля
+    if (name) {
+      updateData.name = safeJsonParse(name);
     }
-    if (guideData.description) {
-      updateData.description = safeJsonParse(guideData.description);
+    if (description) {
+      updateData.description = safeJsonParse(description);
     }
-    if (guideData.photo !== undefined) updateData.photo = guideData.photo;
-    if (guideData.languages) {
-      updateData.languages = typeof guideData.languages === 'string' ? guideData.languages : JSON.stringify(guideData.languages);
-    }
-    if (guideData.contact) {
-      updateData.contact = typeof guideData.contact === 'string' ? guideData.contact : JSON.stringify(guideData.contact);
-    }
-    if (guideData.experience !== undefined) updateData.experience = guideData.experience;
-    if (guideData.rating !== undefined) updateData.rating = guideData.rating;
-    if (guideData.countryId !== undefined) updateData.countryId = guideData.countryId;
-    if (guideData.cityId !== undefined) updateData.cityId = guideData.cityId;
-    if (guideData.passportSeries !== undefined) updateData.passportSeries = guideData.passportSeries;
-    if (guideData.registration !== undefined) updateData.registration = guideData.registration;
-    if (guideData.residenceAddress !== undefined) updateData.residenceAddress = guideData.residenceAddress;
     
-    // 🔒 Обработка полей авторизации с проверками
-    if (login !== undefined) {
+    // Обрабатываем массив языков
+    if (languages) {
+      updateData.languages = typeof languages === 'string' ? languages : JSON.stringify(languages);
+    }
+    
+    // Обрабатываем контактную информацию
+    if (email || phone) {
+      const currentGuide = await prisma.guide.findUnique({ where: { id: parseInt(id) } });
+      const currentContact = currentGuide?.contact ? JSON.parse(currentGuide.contact) : {};
+      updateData.contact = JSON.stringify({
+        email: email || currentContact.email || '',
+        phone: phone || currentContact.phone || ''
+      });
+    }
+    
+    // Числовые поля
+    if (experience !== undefined) updateData.experience = parseInt(experience) || 0;
+    if (countryId) updateData.countryId = parseInt(countryId);
+    if (cityId) updateData.cityId = parseInt(cityId);
+    
+    // Текстовые поля
+    if (passportSeries !== undefined) updateData.passportSeries = passportSeries;
+    if (registration !== undefined) updateData.registration = registration;
+    if (residenceAddress !== undefined) updateData.residenceAddress = residenceAddress;
+    
+    // 💰 Поля ценообразования
+    if (pricePerDay !== undefined && pricePerDay !== null && pricePerDay !== '') {
+      updateData.pricePerDay = parseFloat(pricePerDay);
+    }
+    if (currency) updateData.currency = currency;
+    if (isHireable !== undefined) {
+      updateData.isHireable = isHireable === 'true' || isHireable === true;
+    }
+    
+    // 🔒 Обработка полей авторизации
+    if (login !== undefined && login.trim()) {
       // Проверка уникальности логина
-      if (login.trim()) {
-        const existingGuide = await prisma.guide.findFirst({ 
-          where: { login: login.trim(), id: { not: parseInt(id) } } 
+      const existingGuide = await prisma.guide.findFirst({ 
+        where: { login: login.trim(), id: { not: parseInt(id) } } 
+      });
+      if (existingGuide) {
+        res.status(400).json({
+          success: false,
+          message: 'Логин уже используется другим гидом'
         });
-        if (existingGuide) {
-          res.status(400).json({
-            success: false,
-            message: 'Логин уже используется другим гидом'
-          });
-          return;
-        }
-        updateData.login = login.trim();
+        return;
       }
+      updateData.login = login.trim();
     }
     
+    // Статусы
     if (isActive !== undefined) {
-      // Безопасная обработка boolean
-      updateData.isActive = typeof isActive === 'boolean' ? isActive : String(isActive).toLowerCase() === 'true';
+      updateData.isActive = isActive === 'true' || isActive === true;
+    }
+    if (isDraft !== undefined) {
+      updateData.isDraft = isDraft === 'true' || isDraft === true;
     }
     
     // 🔒 Хешируем новый пароль если он передан
@@ -617,6 +663,32 @@ export const updateGuide = async (req: Request, res: Response) => {
       const saltRounds = 10;
       updateData.password = await bcrypt.hash(password.trim(), saltRounds);
     }
+
+    // 📁 Обрабатываем загруженный аватар
+    if (files && files.avatar && files.avatar[0]) {
+      const fullPath = files.avatar[0].path;
+      updateData.photo = fullPath.replace('/home/runner/workspace', '');
+      console.log('📷 Аватар обновлен:', updateData.photo);
+    }
+
+    // 📄 Обрабатываем загруженные документы (добавляем к существующим)
+    if (files && files.documents && files.documents.length > 0) {
+      const currentGuide = await prisma.guide.findUnique({ where: { id: parseInt(id) } });
+      const existingDocuments = currentGuide?.documents ? JSON.parse(currentGuide.documents) : [];
+      
+      const newDocuments = files.documents.map(file => ({
+        filename: file.filename,
+        originalname: file.originalname,
+        path: file.path.replace('/home/runner/workspace', ''),
+        size: file.size,
+        uploadedAt: new Date().toISOString()
+      }));
+      
+      updateData.documents = JSON.stringify([...existingDocuments, ...newDocuments]);
+      console.log('📄 Добавлено документов:', newDocuments.length);
+    }
+
+    console.log('💾 Данные для обновления:', updateData);
 
     const guide = await prisma.guide.update({
       where: { id: parseInt(id) },
