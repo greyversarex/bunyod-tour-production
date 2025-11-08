@@ -617,8 +617,18 @@ export const updateGuide = async (req: Request, res: Response) => {
     
     // Числовые поля
     if (experience !== undefined) updateData.experience = parseInt(experience) || 0;
-    if (countryId) updateData.countryId = parseInt(countryId);
-    if (cityId) updateData.cityId = parseInt(cityId);
+    
+    // Связи с Country и City (используем Prisma connect синтаксис)
+    if (countryId) {
+      updateData.guideCountry = {
+        connect: { id: parseInt(countryId) }
+      };
+    }
+    if (cityId) {
+      updateData.guideCity = {
+        connect: { id: parseInt(cityId) }
+      };
+    }
     
     // Текстовые поля
     if (passportSeries !== undefined) updateData.passportSeries = passportSeries;
