@@ -575,7 +575,6 @@ export const updateGuide = async (req: Request, res: Response) => {
       languages,
       experience,
       isActive,
-      isDraft,
       countryId,
       cityId,
       passportSeries,
@@ -663,9 +662,6 @@ export const updateGuide = async (req: Request, res: Response) => {
     // Статусы
     if (isActive !== undefined) {
       updateData.isActive = isActive === 'true' || isActive === true;
-    }
-    if (isDraft !== undefined) {
-      updateData.isDraft = isDraft === 'true' || isDraft === true;
     }
     
     // 🔒 Хешируем новый пароль если он передан
