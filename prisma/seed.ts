@@ -7,7 +7,7 @@ async function main() {
   console.log('🌱 Starting database seeding...');
 
   // 1. Create default admin user (ENV-driven)
-  const defaultPwd = process.env.ADMIN_DEFAULT_PASSWORD || 'admin12345';
+  const defaultPwd = process.env.ADMIN_DEFAULT_PASSWORD || 'admin123';
   const defaultEmail = process.env.ADMIN_DEFAULT_EMAIL || 'admin@bunyod-tour.tj';
   const hashedPassword = await bcrypt.hash(defaultPwd, 10);
   
