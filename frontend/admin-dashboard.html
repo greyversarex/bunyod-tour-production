@@ -5162,12 +5162,23 @@
                     
                     dayActivities.forEach(activity => {
                         // Добавляем маркер дня и название дня для публичных страниц
-                        allActivities.push({
-                            ...activity,
+                        const activityItem = {
+                            time: activity.time,
+                            title: activity.title,
+                            titleEn: activity.titleEn || '',
+                            description: activity.description || '',
+                            descriptionEn: activity.descriptionEn || '',
                             day: parseInt(day),
                             dayTitleRu: dayData.titleRu || '',
                             dayTitleEn: dayData.titleEn || ''
-                        });
+                        };
+                        
+                        // ИСПРАВЛЕНИЕ: Явно копируем координаты, чтобы они не терялись
+                        if (activity.coordinates) {
+                            activityItem.coordinates = activity.coordinates;
+                        }
+                        
+                        allActivities.push(activityItem);
                     });
                 });
                 
@@ -6237,13 +6248,20 @@
                                                 activities: []
                                             };
                                         }
-                                        groupedByDay[day].activities.push({
+                                        const activity = {
                                             time: item.time,
                                             title: item.title,
                                             titleEn: item.titleEn || '',
                                             description: item.description || '',
                                             descriptionEn: item.descriptionEn || ''
-                                        });
+                                        };
+                                        
+                                        // ИСПРАВЛЕНИЕ: Сохраняем coordinates при загрузке тура
+                                        if (item.coordinates) {
+                                            activity.coordinates = item.coordinates;
+                                        }
+                                        
+                                        groupedByDay[day].activities.push(activity);
                                     });
                                     window.tourDaysItinerary = groupedByDay;
                                 } else if (itinerary && typeof itinerary === 'object') {
