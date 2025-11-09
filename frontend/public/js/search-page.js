@@ -1723,6 +1723,13 @@ function checkUrlParams() {
         searchTours(); // Apply filters and show results
         searchHotels(); // Also update hotels
     }
+    
+    // ИСПРАВЛЕНИЕ: Заполняем поле поиска значением из state.filters.query
+    const searchInput = document.getElementById('search-query');
+    if (searchInput && state.filters.query) {
+        searchInput.value = state.filters.query;
+        console.log(`✅ Search input populated with query: ${state.filters.query}`);
+    }
 }
 
 // ============= LANGUAGE HANDLING =============
