@@ -654,13 +654,85 @@ function performSearch() {
 function searchTours() {
     let results = [...state.allTours];
     
-    // Apply text search
+    // Apply text search - РАСШИРЕННЫЙ ПОИСК ПО ВСЕМ ПОЛЯМ
     if (state.filters.query) {
         const query = state.filters.query.toLowerCase();
         results = results.filter(tour => {
+            // 1. Поиск по названию и описанию
             const title = typeof tour.title === 'object' ? (tour.title.ru || tour.title.en || '') : tour.title;
             const desc = typeof tour.description === 'object' ? (tour.description.ru || tour.description.en || '') : tour.description;
-            return title.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
+            if (title.toLowerCase().includes(query) || desc.toLowerCase().includes(query)) {
+                return true;
+            }
+            
+            // 2. Поиск по странам
+            if (tour.tourCountries && tour.tourCountries.length > 0) {
+                const countryMatch = tour.tourCountries.some(tc => {
+                    const countryName = tc.country?.nameRu || tc.country?.nameEn || '';
+                    return countryName.toLowerCase().includes(query);
+                });
+                if (countryMatch) return true;
+            }
+            
+            // 3. Поиск по городам
+            if (tour.tourCities && tour.tourCities.length > 0) {
+                const cityMatch = tour.tourCities.some(tc => {
+                    const cityName = tc.city?.nameRu || tc.city?.nameEn || '';
+                    return cityName.toLowerCase().includes(query);
+                });
+                if (cityMatch) return true;
+            }
+            
+            // 4. Поиск по категориям
+            if (tour.tourCategoryAssignments && tour.tourCategoryAssignments.length > 0) {
+                const categoryMatch = tour.tourCategoryAssignments.some(tca => {
+                    const categoryName = tca.category?.name;
+                    if (typeof categoryName === 'object') {
+                        return (categoryName.ru || '').toLowerCase().includes(query) || 
+                               (categoryName.en || '').toLowerCase().includes(query);
+                    } else if (typeof categoryName === 'string') {
+                        return categoryName.toLowerCase().includes(query);
+                    }
+                    return false;
+                });
+                if (categoryMatch) return true;
+            }
+            
+            // 5. Поиск по типу тура
+            const tourType = tour.tourType || tour.format || '';
+            if (tourType.toLowerCase().includes(query)) {
+                return true;
+            }
+            
+            // 6. Поиск по языкам
+            if (tour.languages) {
+                try {
+                    const tourLangs = typeof tour.languages === 'string' ? JSON.parse(tour.languages) : tour.languages;
+                    if (Array.isArray(tourLangs)) {
+                        const langMatch = tourLangs.some(lang => lang.toLowerCase().includes(query));
+                        if (langMatch) return true;
+                    }
+                } catch (e) {
+                    // Ignore parsing errors
+                }
+            }
+            
+            // 7. Поиск по блокам туров (направлениям)
+            if (tour.tourBlockAssignments && tour.tourBlockAssignments.length > 0) {
+                const blockMatch = tour.tourBlockAssignments.some(tba => {
+                    const blockName = tba.tourBlock?.name;
+                    if (typeof blockName === 'object') {
+                        return (blockName.ru || '').toLowerCase().includes(query) || 
+                               (blockName.en || '').toLowerCase().includes(query);
+                    } else if (typeof blockName === 'string') {
+                        return blockName.toLowerCase().includes(query);
+                    }
+                    return false;
+                });
+                if (blockMatch) return true;
+            }
+            
+            return false;
         });
     }
     
@@ -815,13 +887,55 @@ function searchTours() {
 function searchHotels() {
     let results = [...state.allHotels];
     
-    // Apply text search
+    // Apply text search - РАСШИРЕННЫЙ ПОИСК ПО ВСЕМ ПОЛЯМ
     if (state.filters.query) {
         const query = state.filters.query.toLowerCase();
         results = results.filter(hotel => {
+            // 1. Поиск по названию и описанию
             const name = hotel.nameRu || hotel.nameEn || hotel.name || '';
             const desc = hotel.descriptionRu || hotel.descriptionEn || hotel.description || '';
-            return name.toLowerCase().includes(query) || desc.toLowerCase().includes(query);
+            if (name.toLowerCase().includes(query) || desc.toLowerCase().includes(query)) {
+                return true;
+            }
+            
+            // 2. Поиск по стране
+            if (hotel.country) {
+                const countryName = hotel.country.nameRu || hotel.country.nameEn || '';
+                if (countryName.toLowerCase().includes(query)) {
+                    return true;
+                }
+            }
+            
+            // 3. Поиск по городу
+            if (hotel.city) {
+                const cityName = hotel.city.nameRu || hotel.city.nameEn || '';
+                if (cityName.toLowerCase().includes(query)) {
+                    return true;
+                }
+            }
+            
+            // 4. Поиск по удобствам
+            if (hotel.amenities) {
+                try {
+                    const hotelAmens = typeof hotel.amenities === 'string' ? JSON.parse(hotel.amenities) : hotel.amenities;
+                    if (Array.isArray(hotelAmens)) {
+                        const amenMatch = hotelAmens.some(amen => amen.toLowerCase().includes(query));
+                        if (amenMatch) return true;
+                    }
+                } catch (e) {
+                    // Ignore parsing errors
+                }
+            }
+            
+            // 5. Поиск по количеству звезд (текстовый поиск "5 звезд", "5 stars", "5")
+            if (hotel.stars) {
+                const starsStr = hotel.stars.toString();
+                if (starsStr.includes(query)) {
+                    return true;
+                }
+            }
+            
+            return false;
         });
     }
     
