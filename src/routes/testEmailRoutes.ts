@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
+import { sendTestEmail, sendBookingConfirmation } from '../services/emailServiceSendGrid';
 
 const router = Router();
 
@@ -231,6 +232,101 @@ router.get('/smtp-test', async (req: Request, res: Response) => {
         smtpPort: process.env.SMTP_PORT,
         smtpUser: process.env.SMTP_USER
       }
+    });
+  }
+});
+
+// SendGrid test endpoint - sends simple test email via SendGrid
+router.get('/sendgrid-test', async (req: Request, res: Response) => {
+  try {
+    const testEmail = req.query.email as string || 'greyversarex@gmail.com';
+    
+    console.log(`📧 SendGrid: Sending test email to: ${testEmail}`);
+    
+    const result = await sendTestEmail(testEmail);
+    
+    return res.json({
+      success: true,
+      message: `✅ Тестовое письмо отправлено на ${testEmail} через SendGrid`,
+      note: 'Проверьте почту (также папку "Спам")'
+    });
+    
+  } catch (error: any) {
+    console.error('❌ SendGrid Test Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ошибка SendGrid отправки',
+      error: error.message
+    });
+  }
+});
+
+// SendGrid booking confirmation with PDF - sends full booking email with ticket
+router.get('/sendgrid-booking-test', async (req: Request, res: Response) => {
+  try {
+    const testEmail = req.query.email as string || 'greyversarex@gmail.com';
+    
+    console.log(`📧 SendGrid: Sending booking confirmation with PDF to: ${testEmail}`);
+    
+    // Create mock order data matching the DB structure
+    const mockOrder = {
+      id: 999,
+      orderNumber: 'BT-TEST-2025',
+      tourDate: new Date('2025-11-15'),
+      tourists: JSON.stringify([
+        { fullName: 'Иван Тестовый', birthDate: '1990-01-15', passportNumber: 'TEST123456' },
+        { fullName: 'Мария Тестовая', birthDate: '1992-05-20', passportNumber: 'TEST789012' }
+      ]),
+      totalAmount: 3500.00,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      wishes: 'Вегетарианское меню, пожалуйста',
+      tour: {
+        id: 1,
+        title: { ru: 'Лучший тур по Таджикистану', en: 'Best Tour of Tajikistan' },
+        durationDays: 7,
+        duration: '7',
+        tourType: 'Групповой',
+        format: 'Групповой',
+        pickupInfo: 'Рудаки парк, 9:00 утра',
+        services: JSON.stringify([
+          { id: 1, name: 'Проживание в отеле 4*', nameEn: 'Hotel 4* accommodation' },
+          { id: 2, name: 'Трансфер из/в аэропорт', nameEn: 'Airport transfer' },
+          { id: 3, name: 'Экскурсии с гидом', nameEn: 'Guided excursions' },
+          { id: 4, name: 'Питание (завтрак + обед)', nameEn: 'Meals (breakfast + lunch)' }
+        ])
+      },
+      hotel: {
+        name: { ru: 'Отель Душанбе Серена', en: 'Dushanbe Serena Hotel' }
+      },
+      guide: {
+        name: { ru: 'Алексей Гидов', en: 'Alexey Guidov' }
+      }
+    };
+    
+    const mockCustomer = {
+      id: 999,
+      email: testEmail,
+      fullName: 'Иван Петрович Тестовый',
+      phone: '+992 917 123 456',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await sendBookingConfirmation(mockOrder as any, mockCustomer as any, mockOrder.tour);
+    
+    return res.json({
+      success: true,
+      message: `✅ Письмо с подтверждением бронирования и PDF билетом отправлено на ${testEmail} через SendGrid`,
+      note: 'Проверьте почту (также папку "Спам"). В письме должен быть прикреплён PDF билет.'
+    });
+    
+  } catch (error: any) {
+    console.error('❌ SendGrid Booking Test Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ошибка отправки подтверждения бронирования через SendGrid',
+      error: error.message
     });
   }
 });

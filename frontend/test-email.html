@@ -11,14 +11,14 @@
         <!-- Header -->
         <div class="bg-white rounded-lg shadow-md p-8 mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">📧 Тестирование Email</h1>
-            <p class="text-gray-600">Проверка отправки писем через Timeweb SMTP</p>
+            <p class="text-gray-600">Проверка отправки писем через SendGrid и Timeweb SMTP</p>
         </div>
 
         <!-- Test Form -->
         <div class="bg-white rounded-lg shadow-md p-8 mb-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-4">Отправить тестовое письмо</h2>
             
-            <div class="mb-4">
+            <div class="mb-6">
                 <label class="block text-gray-700 font-medium mb-2">Email получателя:</label>
                 <input 
                     type="email" 
@@ -29,48 +29,144 @@
                 >
             </div>
 
-            <button 
-                onclick="sendTestEmail()" 
-                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md"
-            >
-                📨 Отправить тестовое письмо с PDF билетом
-            </button>
+            <!-- SendGrid Buttons -->
+            <div class="space-y-3 mb-6 pb-6 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">✅ SendGrid (Рекомендуется)</h3>
+                
+                <button 
+                    onclick="sendSendGridTest()" 
+                    class="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-green-600 hover:to-teal-700 transition-all duration-200 shadow-md"
+                >
+                    📨 Простое тестовое письмо (SendGrid)
+                </button>
+
+                <button 
+                    onclick="sendSendGridBooking()" 
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md"
+                >
+                    🎫 Подтверждение бронирования + PDF билет (SendGrid)
+                </button>
+            </div>
+
+            <!-- Timeweb SMTP Buttons -->
+            <div class="space-y-3">
+                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">⚠️ Timeweb SMTP (Может не работать в Replit)</h3>
+                
+                <button 
+                    onclick="sendTimewebSMTPTest()" 
+                    class="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md"
+                >
+                    📧 Простой SMTP тест (Timeweb)
+                </button>
+
+                <button 
+                    onclick="sendTestEmail()" 
+                    class="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-200 shadow-md"
+                >
+                    🎫 Полное письмо + PDF (Timeweb)
+                </button>
+            </div>
         </div>
 
         <!-- Result -->
         <div id="result" class="hidden"></div>
 
         <!-- Info -->
-        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
-            <h3 class="text-blue-800 font-semibold mb-2">ℹ️ Информация</h3>
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+            <h3 class="text-blue-800 font-semibold mb-2">✅ SendGrid (работает в Replit)</h3>
             <ul class="text-blue-700 space-y-1 text-sm">
-                <li>• Письмо будет отправлено с адреса <strong>booking@bunyodtour.tj</strong></li>
-                <li>• В письме будет красивый HTML шаблон с логотипом компании</li>
-                <li>• К письму будет прикреплен PDF билет тура</li>
+                <li>• Отправка через HTTP API (не блокируется в Replit)</li>
+                <li>• Высокая надёжность доставки писем</li>
+                <li>• Красивые HTML шаблоны с логотипом компании</li>
+                <li>• Прикреплённые PDF билеты</li>
                 <li>• Проверьте папку "Спам" если письмо не пришло</li>
-                <li>• SMTP сервер: mail.timeweb.com (порт 465, SSL)</li>
+            </ul>
+        </div>
+
+        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
+            <h3 class="text-amber-800 font-semibold mb-2">⚠️ Timeweb SMTP (только для production)</h3>
+            <ul class="text-amber-700 space-y-1 text-sm">
+                <li>• Отправитель: <strong>booking@bunyodtour.tj</strong></li>
+                <li>• SMTP сервер: mail.timeweb.com (порт 587, TLS)</li>
+                <li>• <strong>Replit блокирует SMTP порты</strong> - работает только на вашем сервере</li>
+                <li>• Код готов, будет работать при публикации на домене</li>
             </ul>
         </div>
     </div>
 
     <script>
+        // SendGrid - простое тестовое письмо
+        async function sendSendGridTest() {
+            const email = document.getElementById('testEmail').value;
+            if (!validateEmail(email)) return;
+            
+            showResult('loading', 'Отправка через SendGrid...');
+
+            try {
+                const response = await fetch(`/api/test/sendgrid-test?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', data.message, data.note);
+                } else {
+                    showResult('error', data.message || 'Не удалось отправить письмо');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', 'Ошибка при отправке: ' + error.message);
+            }
+        }
+
+        // SendGrid - подтверждение бронирования с PDF
+        async function sendSendGridBooking() {
+            const email = document.getElementById('testEmail').value;
+            if (!validateEmail(email)) return;
+            
+            showResult('loading', 'Генерация PDF и отправка через SendGrid... Это может занять ~10 секунд');
+
+            try {
+                const response = await fetch(`/api/test/sendgrid-booking-test?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', data.message, data.note);
+                } else {
+                    showResult('error', data.message || 'Не удалось отправить письмо');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', 'Ошибка при отправке: ' + error.message);
+            }
+        }
+
+        // Timeweb SMTP - простой тест
+        async function sendTimewebSMTPTest() {
+            const email = document.getElementById('testEmail').value;
+            if (!validateEmail(email)) return;
+            
+            showResult('loading', 'Попытка подключения к Timeweb SMTP... (может не работать в Replit)');
+
+            try {
+                const response = await fetch(`/api/test/smtp-test?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', data.message);
+                } else {
+                    showResult('error', data.message || 'SMTP подключение заблокировано');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', 'Ошибка: ' + error.message);
+            }
+        }
+
+        // Timeweb SMTP - полное письмо с PDF
         async function sendTestEmail() {
             const email = document.getElementById('testEmail').value;
-            const resultDiv = document.getElementById('result');
+            if (!validateEmail(email)) return;
             
-            if (!email) {
-                showResult('error', 'Пожалуйста, введите email адрес');
-                return;
-            }
-
-            // Validate email
-            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-                showResult('error', 'Пожалуйста, введите корректный email адрес');
-                return;
-            }
-
-            // Show loading
-            showResult('loading', 'Отправка письма...');
+            showResult('loading', 'Отправка через Timeweb SMTP... (может не работать в Replit)');
 
             try {
                 const response = await fetch(`/api/test/send-simple-email?email=${encodeURIComponent(email)}`);
@@ -85,6 +181,21 @@
                 console.error('Error:', error);
                 showResult('error', 'Ошибка при отправке: ' + error.message);
             }
+        }
+
+        // Валидация email
+        function validateEmail(email) {
+            if (!email) {
+                showResult('error', 'Пожалуйста, введите email адрес');
+                return false;
+            }
+
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showResult('error', 'Пожалуйста, введите корректный email адрес');
+                return false;
+            }
+
+            return true;
         }
 
         function showResult(type, message, note) {
