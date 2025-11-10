@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест отправки Email - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-12 max-w-3xl">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">📧 Тестирование Email</h1>
+            <p class="text-gray-600">Проверка отправки писем через Timeweb SMTP</p>
+        </div>
+
+        <!-- Test Form -->
+        <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Отправить тестовое письмо</h2>
+            
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium mb-2">Email получателя:</label>
+                <input 
+                    type="email" 
+                    id="testEmail" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="example@email.com"
+                    value="greyversarex@gmail.com"
+                >
+            </div>
+
+            <button 
+                onclick="sendTestEmail()" 
+                class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 shadow-md"
+            >
+                📨 Отправить тестовое письмо с PDF билетом
+            </button>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="hidden"></div>
+
+        <!-- Info -->
+        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+            <h3 class="text-blue-800 font-semibold mb-2">ℹ️ Информация</h3>
+            <ul class="text-blue-700 space-y-1 text-sm">
+                <li>• Письмо будет отправлено с адреса <strong>booking@bunyodtour.tj</strong></li>
+                <li>• В письме будет красивый HTML шаблон с логотипом компании</li>
+                <li>• К письму будет прикреплен PDF билет тура</li>
+                <li>• Проверьте папку "Спам" если письмо не пришло</li>
+                <li>• SMTP сервер: mail.timeweb.com (порт 465, SSL)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function sendTestEmail() {
+            const email = document.getElementById('testEmail').value;
+            const resultDiv = document.getElementById('result');
+            
+            if (!email) {
+                showResult('error', 'Пожалуйста, введите email адрес');
+                return;
+            }
+
+            // Validate email
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showResult('error', 'Пожалуйста, введите корректный email адрес');
+                return;
+            }
+
+            // Show loading
+            showResult('loading', 'Отправка письма...');
+
+            try {
+                const response = await fetch(`/api/test/send-simple-email?email=${encodeURIComponent(email)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', data.message, data.note);
+                } else {
+                    showResult('error', data.message || 'Не удалось отправить письмо');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', 'Ошибка при отправке: ' + error.message);
+            }
+        }
+
+        function showResult(type, message, note) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.classList.remove('hidden');
+            
+            let bgColor, borderColor, textColor, icon;
+            
+            if (type === 'success') {
+                bgColor = 'bg-green-50';
+                borderColor = 'border-green-500';
+                textColor = 'text-green-800';
+                icon = '✅';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-50';
+                borderColor = 'border-red-500';
+                textColor = 'text-red-800';
+                icon = '❌';
+            } else if (type === 'loading') {
+                bgColor = 'bg-yellow-50';
+                borderColor = 'border-yellow-500';
+                textColor = 'text-yellow-800';
+                icon = '⏳';
+            }
+            
+            resultDiv.className = `${bgColor} border-l-4 ${borderColor} p-4 rounded-lg`;
+            resultDiv.innerHTML = `
+                <p class="${textColor} font-semibold">${icon} ${message}</p>
+                ${note ? `<p class="${textColor} text-sm mt-2">${note}</p>` : ''}
+            `;
+        }
+    </script>
+</body>
+</html>

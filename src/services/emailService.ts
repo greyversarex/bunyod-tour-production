@@ -4,13 +4,15 @@ import puppeteer from 'puppeteer';
 
 // Email configuration - in production, use environment variables
 const EMAIL_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: parseInt(process.env.SMTP_PORT || '587') === 465, // true for 465 (SSL), false for 587 (TLS)
+  host: process.env.SMTP_HOST || 'mail.timeweb.com',
+  port: parseInt(process.env.SMTP_PORT || '465'),
+  secure: parseInt(process.env.SMTP_PORT || '465') === 465, // true for 465 (SSL), false for 587 (TLS)
   auth: {
-    // Yandex требует логин БЕЗ @yandex.ru
-    user: (process.env.SMTP_USER || 'noreply@bunyod-tour.com').replace('@yandex.ru', ''),
+    user: process.env.SMTP_USER || 'booking@bunyodtour.tj',
     pass: process.env.SMTP_PASS || 'your-password'
+  },
+  tls: {
+    rejectUnauthorized: false // Allow self-signed certificates
   }
 };
 

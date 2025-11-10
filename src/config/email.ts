@@ -3,16 +3,24 @@ import nodemailer from 'nodemailer';
 // Email configuration with error handling
 const createTransporter = () => {
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
       console.log('📧 Email credentials not configured - email notifications will be disabled');
       return null;
     }
 
+    const port = parseInt(process.env.SMTP_PORT || '465');
+    const isSecure = port === 465; // SSL for 465, TLS for 587
+
     return nodemailer.createTransport({
-      service: 'gmail', // You can change this to other services like outlook, yahoo, etc.
+      host: process.env.SMTP_HOST,
+      port: port,
+      secure: isSecure,
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD // Use App Password for Gmail
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      },
+      tls: {
+        rejectUnauthorized: false // Allow self-signed certificates
       }
     });
   } catch (error) {
@@ -35,14 +43,14 @@ export const sendAdminNotification = async (bookingData: {
     return { success: false, reason: 'Email service not configured' };
   }
 
-  if (!process.env.ADMIN_EMAIL && !process.env.EMAIL_USER) {
+  if (!process.env.ADMIN_EMAIL && !process.env.SMTP_FROM) {
     console.log('📧 Admin email not configured - skipping admin notification');
     return { success: false, reason: 'Admin email not configured' };
   }
   
   const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.ADMIN_EMAIL || process.env.EMAIL_USER,
+    from: process.env.SMTP_FROM,
+    to: process.env.ADMIN_EMAIL || process.env.SMTP_FROM,
     subject: `New Booking Request - ${bookingData.tourTitle}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -78,7 +86,7 @@ export const sendAdminNotification = async (bookingData: {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('📧 Admin notification email sent successfully to:', process.env.ADMIN_EMAIL || process.env.EMAIL_USER);
+    console.log('📧 Admin notification email sent successfully to:', process.env.ADMIN_EMAIL || process.env.SMTP_FROM);
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -102,7 +110,7 @@ export const sendCustomerConfirmation = async (bookingData: {
   }
   
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: process.env.SMTP_FROM,
     to: bookingData.email,
     subject: `Booking Request Confirmation - ${bookingData.tourTitle}`,
     html: `
@@ -147,7 +155,7 @@ export const sendCustomerConfirmation = async (bookingData: {
         </div>
         
         <p style="color: #374151; line-height: 1.6;">
-          If you have any questions or need to modify your request, please don't hesitate to contact us at ${process.env.EMAIL_USER || 'info@tajiktrails.com'}.
+          If you have any questions or need to modify your request, please don't hesitate to contact us at ${process.env.SMTP_FROM || 'booking@bunyodtour.tj'}.
         </p>
         
         <p style="color: #374151; line-height: 1.6; margin-top: 30px;">
