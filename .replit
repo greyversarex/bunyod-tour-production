@@ -1,12 +1,12 @@
-modules = ["web", "nodejs-18", "bash", "postgresql-16"]
+modules = ["web", "nodejs-18", "bash", "postgresql-16", "python-3.11"]
 run = "npm run start"
 [agent]
 expertMode = true
-integrations = ["javascript_database==1.0.0==1.0.0:1.0.0", "javascript_object_storage:1.0.0", "javascript_database:1.0.0"]
+integrations = ["javascript_database==1.0.0==1.0.0:1.0.0", "javascript_object_storage:1.0.0", "javascript_database:1.0.0", "sendgrid:1.0.0"]
 
 [nix]
 channel = "stable-25_05"
-packages = ["sqlite", "chromium", "nss", "atk", "cups", "libdrm", "mesa", "glib", "alsa-lib", "pango", "gtk3"]
+packages = ["alsa-lib", "atk", "chromium", "cups", "glib", "gtk3", "libdrm", "mesa", "nss", "pango", "sqlite"]
 
 [workflows]
 runButton = "Project"
