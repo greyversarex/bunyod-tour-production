@@ -869,6 +869,34 @@
                 
                 // CRITICAL: Include language in API request
                 const lang = window.currentLanguage || 'ru';
+                
+                // 🆕 Initialize bookingCityNights to avoid stale data
+                window.bookingCityNights = {};
+                
+                // 🆕 Load tour data to get nightsCount for each city
+                try {
+                    console.log('📋 Loading tour cities with nights count...');
+                    const tourResponse = await fetch(`/api/tours/${tourId}`);
+                    const tourData = await tourResponse.json();
+                    
+                    if (tourData.success && tourData.data.tourCities) {
+                        // Store nightsCount per city in global variable
+                        tourData.data.tourCities.forEach(tc => {
+                            const cityId = tc.cityId || tc.city?.id;
+                            // Accept 0 as valid nightsCount (check for null/undefined instead of truthiness)
+                            if (cityId != null && tc.nightsCount != null) {
+                                window.bookingCityNights[cityId] = tc.nightsCount;
+                                console.log(`🌙 City ${cityId}: ${tc.nightsCount} nights`);
+                            }
+                        });
+                        console.log('✅ City nights loaded:', window.bookingCityNights);
+                    }
+                } catch (tourError) {
+                    console.warn('⚠️ Failed to load tour cities nights, using fallback:', tourError);
+                    window.bookingCityNights = {};
+                }
+                
+                // Load hotels
                 const url = `/api/booking/tour/${tourId}/hotels?lang=${lang}`;
                 console.log('🔗 API URL:', url);
                 
@@ -985,6 +1013,27 @@
             return '';
         }
 
+        // 🆕 Helper function for Russian plural forms (1 ночь, 2 ночи, 5 ночей)
+        function pluralNights(count) {
+            const lang = window.currentLanguage || 'ru';
+            
+            if (lang === 'en') {
+                return count === 1 ? 'night' : 'nights';
+            }
+            
+            // Russian pluralization
+            const mod10 = count % 10;
+            const mod100 = count % 100;
+            
+            if (mod10 === 1 && mod100 !== 11) {
+                return 'ночь'; // 1 ночь, 21 ночь
+            } else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) {
+                return 'ночи'; // 2 ночи, 3 ночи, 4 ночи, 22 ночи
+            } else {
+                return 'ночей'; // 5 ночей, 11 ночей, 100 ночей
+            }
+        }
+
         function displayHotels(hotels) {
             const container = document.getElementById('hotels-container');
             
@@ -1023,10 +1072,15 @@
             let htmlContent = '';
             
             hotelsByCity.forEach((cityData, cityId) => {
+                // 🆕 Get nights count for this city (use nullish coalescing to accept 0)
+                const cityNightsValue = window.bookingCityNights?.[cityId];
+                const nightsCount = cityNightsValue ?? Math.max(1, (bookingState.tour.durationDays || 1) - 1);
+                const nightsText = `${nightsCount} ${pluralNights(nightsCount)}`;
+                
                 htmlContent += `
-                    <div class="mb-6">
+                    <div class="mb-6" data-city-id="${cityId}" data-nights="${nightsCount}">
                         <div class="bg-gray-600 text-white px-6 py-4 rounded-lg shadow-md mb-4 text-center" style="background-color: #6B7280;">
-                            <h3 class="text-lg font-semibold">${cityData.countryName} - ${cityData.cityName}</h3>
+                            <h3 class="text-lg font-semibold">${cityData.countryName} - ${cityData.cityName} (${nightsText})</h3>
                         </div>
                         
                         <div class="space-y-6">
@@ -1775,16 +1829,22 @@
                     
                     console.log('🏨 Room types available:', Object.keys(roomTypes));
                     
+                    // 🆕 Get nights count for this hotel's city (use nullish coalescing to accept 0)
+                    const cityId = hotelData.cityId || hotelData.city?.id;
+                    const cityNightsValue = window.bookingCityNights?.[cityId];
+                    const cityNights = cityNightsValue ?? Math.max(1, tourDuration - 1);
+                    
+                    console.log(`🌙 Hotel ${hotelId} in city ${cityId}: ${cityNights} nights`);
+                    
                     for (const [roomType, quantity] of Object.entries(rooms)) {
                         console.log(`🔍 Checking room: ${roomType}, quantity: ${quantity}, has price: ${!!roomTypes[roomType]}`);
                         
                         if (quantity > 0 && roomTypes[roomType]) {
                             const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
-                            const nightsCount = Math.max(1, tourDuration - 1); // 7 дней = 6 ночей, минимум 1 ночь
-                            const roomCost = roomPrice * quantity * nightsCount;
+                            const roomCost = roomPrice * quantity * cityNights;
                             totalRoomCost += roomCost;
                             
-                            console.log(`✅ Room calculation: Hotel ${hotelId}, ${roomType} = ${roomPrice} × ${quantity} × ${nightsCount} ночей = ${roomCost} TJS`);
+                            console.log(`✅ Room calculation: Hotel ${hotelId}, ${roomType} = ${roomPrice} × ${quantity} × ${cityNights} ночей = ${roomCost} TJS`);
                             
                             if (roomCostsCalc) {
                                 // Get localized room name
@@ -1793,7 +1853,7 @@
                                 
                                 roomCostsCalc.innerHTML += `
                                     <div class="flex justify-between text-sm">
-                                        <span>${hotelName}: ${roomName} × ${quantity} × ${nightsCount} <span data-translate="booking.nights_short">ноч.</span>:</span>
+                                        <span>${hotelName}: ${roomName} × ${quantity} × ${cityNights} <span data-translate="booking.nights_short">ноч.</span>:</span>
                                         <span>${formatCurrencyWithEquivalent(roomCost)}</span>
                                     </div>
                                 `;
@@ -1825,16 +1885,20 @@
                     }
                 }
                 
+                // 🆕 Get nights count for this hotel's city (use nullish coalescing to accept 0)
+                const cityId = hotelData?.cityId || hotelData?.city?.id;
+                const cityNightsValue = window.bookingCityNights?.[cityId];
+                const cityNights = cityNightsValue ?? Math.max(1, tourDuration - 1);
+                
                 for (const [mealType, price] of Object.entries(meals)) {
                     // Check if meal is included in any selected room type
                     const isMealIncludedInRoom = checkIfMealIncludedInRoom(hotelId, mealType);
                     
                     if (!isMealIncludedInRoom) {
-                        const nightsCount = Math.max(1, tourDuration - 1); // 7 дней = 6 ночей, минимум 1 ночь
-                        const mealCost = price * numberOfTourists * nightsCount;
+                        const mealCost = price * numberOfTourists * cityNights;
                         totalMealCost += mealCost;
                         
-                        console.log(`🍽️ Meal calculation: Hotel ${hotelId}, ${mealType} = ${price} × ${numberOfTourists} × ${nightsCount} ночей = ${mealCost} TJS`);
+                        console.log(`🍽️ Meal calculation: Hotel ${hotelId}, ${mealType} = ${price} × ${numberOfTourists} × ${cityNights} ночей = ${mealCost} TJS`);
                         
                         // Get localized meal name
                         const mealName = getLocalizedName(mealTypes[mealType]) || mealType;
