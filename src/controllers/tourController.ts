@@ -257,7 +257,7 @@ export class TourController {
   static async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating tour with data:', req.body);
-      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
 
       console.log('💰 Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
 
@@ -487,6 +487,7 @@ export class TourController {
         // Новые массивы для множественного выбора
         countriesIds: countriesIdsNumbers,
         citiesIds: citiesIdsNumbers,
+        cityNights: cityNights, // 🆕 Количество ночей для каждого города
         categoriesIds: categoriesIdsNumbers,
         format: format || null,
         tourType: tourType || null,
@@ -689,7 +690,7 @@ export class TourController {
 
       console.log('🔍 FULL REQUEST BODY:', JSON.stringify(req.body, null, 2));
       
-      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
 
       console.log('💰 UPDATE: Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
       console.log('📊 All keys in req.body:', Object.keys(req.body));
@@ -866,6 +867,7 @@ export class TourController {
       // Новые поля для множественного выбора
       if (countriesIdsNumbers !== undefined) updateData.countriesIds = countriesIdsNumbers;
       if (citiesIdsNumbers !== undefined) updateData.citiesIds = citiesIdsNumbers;
+      if (cityNights !== undefined) updateData.cityNights = cityNights; // 🆕 Количество ночей для каждого города
       if (categoriesIdsNumbers !== undefined) updateData.categoriesIds = categoriesIdsNumbers;
       if (durationDaysNumber !== undefined) updateData.durationDays = durationDaysNumber;
       if (durationType !== undefined) updateData.durationType = durationType;
