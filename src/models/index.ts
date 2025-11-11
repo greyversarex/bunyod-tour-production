@@ -200,6 +200,7 @@ export class TourModel {
           data: data.citiesIds.map((cityId, index) => ({
             tourId: tour.id,
             cityId: cityId,
+            nightsCount: Number(data.cityNights?.[String(cityId)] ?? 1) || 1, // 🆕 Количество ночей
             isPrimary: index === 0 // Первый город считается основным
           }))
         });
@@ -209,6 +210,7 @@ export class TourModel {
           data: {
             tourId: tour.id,
             cityId: data.cityId,
+            nightsCount: 1, // По умолчанию 1 ночь
             isPrimary: true
           }
         });
@@ -424,6 +426,7 @@ export class TourModel {
             data: data.citiesIds.map((cityId, index) => ({
               tourId: id,
               cityId: cityId,
+              nightsCount: Number(data.cityNights?.[String(cityId)] ?? 1) || 1, // 🆕 Количество ночей
               isPrimary: index === 0 // Первый город считается основным
             }))
           });

@@ -2566,6 +2566,15 @@
                         <input type="hidden" id="tourCity">
                     </div>
                     
+                    <!-- 🆕 Секция для указания количества ночей по городам -->
+                    <div class="form-group" id="cityNightsSection" style="display: none;">
+                        <label class="form-label">Выберите количество ночей для городов</label>
+                        <div id="cityNightsInputs" class="space-y-2 border rounded p-3 bg-gray-50">
+                            <!-- Динамически создаются поля для каждого города -->
+                        </div>
+                        <small class="text-gray-500 mt-1">Укажите, сколько ночей туристы проведут в каждом городе</small>
+                    </div>
+                    
                     <div class="form-group">
                         <label class="form-label">Длительность тура</label>
                         
@@ -4289,6 +4298,7 @@
         let selectedGuideLanguages = []; // Для гидов
         let selectedCountries = []; // Для множественного выбора стран
         let selectedCities = []; // Для множественного выбора городов
+        let cityNights = {}; // Объект для хранения количества ночей по городам {cityId: nights}
         
         // Инициализация всех глобальных переменных
         window.tourLanguages = window.tourLanguages || [];
@@ -5624,6 +5634,12 @@
                 }
                 
                 selectedCities.push({id: cityId, name: cityName, countryId: countryId});
+                
+                // 🆕 Инициализируем количество ночей для нового города (по умолчанию 1)
+                if (!cityNights[cityId]) {
+                    cityNights[cityId] = 1;
+                }
+                
                 updateSelectedCitiesDisplay();
                 
                 // Reset select
@@ -5634,6 +5650,10 @@
         // Remove city from tour
         function removeCityFromTour(cityId) {
             selectedCities = selectedCities.filter(city => city.id !== cityId);
+            
+            // 🆕 Удаляем данные о ночах для этого города
+            delete cityNights[cityId];
+            
             updateSelectedCitiesDisplay();
         }
 
@@ -5663,8 +5683,72 @@
                 legacyCityInput.value = selectedCities[0].name;
             }
             
+            // ✅ Обновляем секцию для ввода количества ночей
+            updateCityNightsInputs();
+            
             // ✅ Автоматически обновляем список доступных отелей при изменении городов
             loadHotelsForCheckboxes();
+        }
+        
+        // 🆕 Обновление полей для ввода количества ночей по городам
+        function updateCityNightsInputs() {
+            const nightsSection = document.getElementById('cityNightsSection');
+            const nightsContainer = document.getElementById('cityNightsInputs');
+            
+            if (selectedCities.length === 0) {
+                // Скрываем секцию если нет городов
+                nightsSection.style.display = 'none';
+                nightsContainer.innerHTML = '';
+            } else {
+                // Показываем секцию
+                nightsSection.style.display = 'block';
+                
+                // Создаем поля ввода для каждого города
+                nightsContainer.innerHTML = selectedCities.map(city => {
+                    const nights = cityNights[city.id] || 1;
+                    return `
+                        <div class="flex items-center gap-3 bg-white p-3 rounded border">
+                            <span class="flex-1 font-medium">${city.name}</span>
+                            <input 
+                                type="number" 
+                                min="1" 
+                                max="365" 
+                                value="${nights}"
+                                onchange="updateCityNights('${city.id}', this.value)"
+                                class="w-20 px-2 py-1 border rounded focus:ring-2 focus:ring-blue-500"
+                            />
+                            <span class="text-gray-600">ночей</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        // 🆕 Обновление количества ночей для города
+        function updateCityNights(cityId, nights) {
+            const nightsValue = parseInt(nights) || 1;
+            cityNights[cityId] = Math.max(1, nightsValue); // Минимум 1 ночь
+            
+            // Опциональная валидация: проверка суммы ночей
+            validateTotalNights();
+        }
+        
+        // 🆕 Валидация суммы ночей (опционально)
+        function validateTotalNights() {
+            const durationInput = document.getElementById('tourDurationDays');
+            const durationType = document.querySelector('input[name="durationType"]:checked');
+            
+            if (!durationInput || !durationType || durationType.value !== 'days') {
+                return; // Проверяем только для туров в днях
+            }
+            
+            const totalDays = parseInt(durationInput.value) || 0;
+            const totalNights = Object.values(cityNights).reduce((sum, n) => sum + n, 0);
+            
+            if (totalDays > 0 && totalNights > totalDays) {
+                console.warn(`⚠️ Сумма ночей (${totalNights}) превышает длительность тура (${totalDays} дней)`);
+                // Можно показать предупреждение пользователю, но не блокируем сохранение
+            }
         }
 
         // Update available cities based on selected countries
@@ -6100,6 +6184,12 @@
                                 const cityId = tc.city?.id?.toString() || tc.cityId?.toString();
                                 const cityName = tc.city?.nameRu || tc.city?.nameEn || tc.cityName || 'Unknown';
                                 const countryId = tc.city?.countryId?.toString() || tc.countryId?.toString();
+                                
+                                // 🆕 Восстанавливаем количество ночей для города
+                                if (cityId && tc.nightsCount) {
+                                    cityNights[cityId] = parseInt(tc.nightsCount) || 1;
+                                }
+                                
                                 return {
                                     id: cityId,
                                     name: cityName,
@@ -6109,6 +6199,7 @@
                             updateSelectedCitiesDisplay();
                             updateAvailableCitiesForSelectedCountries();
                             console.log('✅ Города загружены (новая система):', selectedCities);
+                            console.log('✅ Количество ночей загружено:', cityNights);
                         } else if (tour.cityId) {
                             // 🔄 FALLBACK: Legacy загрузка из одиночных полей
                             console.log('🏙️ Загрузка города из legacy полей (cityId):', tour.cityId);
@@ -6805,6 +6896,8 @@
                         return [];
                     }
                 })(),
+                // 🆕 Количество ночей по городам {cityId: nightsCount}
+                cityNights: cityNights || {},
                 categoriesIds: selectedCategories.map(cat => parseInt(cat.id)),
                 durationDays: parseInt(durationDaysValue),
                 duration: durationDaysValue.toString(),
@@ -6910,6 +7003,13 @@
             window.tourStartTimes = [];
             window.tourLanguages = window.tourLanguages || [];
             window.tourImageURLs = [];
+            
+            // 🆕 Очищаем выбранные страны, города и количество ночей
+            selectedCountries = [];
+            selectedCities = [];
+            cityNights = {};
+            updateSelectedCountriesDisplay();
+            updateSelectedCitiesDisplay();
             
             // Очищаем чекбоксы услуг
             const serviceCheckboxes = document.querySelectorAll('input[name="includedServices"]');

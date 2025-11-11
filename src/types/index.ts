@@ -58,6 +58,7 @@ export interface CreateTourData {
   // Новые поля для множественного выбора
   countriesIds?: number[];
   citiesIds?: number[];
+  cityNights?: Record<string, number>; // {cityId: nightsCount}
   categoriesIds?: number[];
   durationDays?: number;
   durationType?: string;

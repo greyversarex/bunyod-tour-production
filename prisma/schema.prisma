@@ -333,13 +333,14 @@ model TourCountry {
 }
 
 model TourCity {
-  id        Int      @id @default(autoincrement())
-  tourId    Int      @map("tour_id")
-  cityId    Int      @map("city_id")
-  isPrimary Boolean  @default(false) @map("is_primary")
-  createdAt DateTime @default(now()) @map("created_at")
-  city      City     @relation("TourCities", fields: [cityId], references: [id], onDelete: Cascade)
-  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  id          Int      @id @default(autoincrement())
+  tourId      Int      @map("tour_id")
+  cityId      Int      @map("city_id")
+  nightsCount Int      @default(1) @map("nights_count")
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  createdAt   DateTime @default(now()) @map("created_at")
+  city        City     @relation("TourCities", fields: [cityId], references: [id], onDelete: Cascade)
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
 
   @@unique([tourId, cityId])
   @@map("tour_cities")
