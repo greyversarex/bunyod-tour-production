@@ -32,8 +32,16 @@
         }
         
         .component-card.selected {
-            border-color: #3B82F6;
-            background-color: #EFF6FF;
+            border-color: #3E3E3E;
+            background-color: #F3F4F6;
+        }
+        
+        .add-tourist-btn {
+            background-color: #3E3E3E;
+        }
+        
+        .add-tourist-btn:hover {
+            background-color: #2F2F2F;
         }
     </style>
 </head>
@@ -65,7 +73,7 @@
                                     <span data-i18n="custom_tour_fullname">ФИО</span> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" id="fullName" name="fullName" required 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                     placeholder="Введите ваше полное имя">
                             </div>
                             <div>
@@ -73,7 +81,7 @@
                                     <span data-i18n="custom_tour_email">Email</span>
                                 </label>
                                 <input type="email" id="email" name="email" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                     placeholder="your@email.com">
                             </div>
                             <div>
@@ -81,7 +89,7 @@
                                     <span data-i18n="custom_tour_phone">Телефон</span> <span class="text-red-500">*</span>
                                 </label>
                                 <input type="tel" id="phone" name="phone" required 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                     placeholder="+992 XX XXX XXXX">
                             </div>
                         </div>
@@ -118,10 +126,10 @@
                             <label for="touristName" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_tourist_name">Имя туриста</label>
                             <div class="flex gap-3">
                                 <input type="text" id="touristName" 
-                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                     placeholder="Введите имя и нажмите 'Добавить'">
                                 <button type="button" onclick="addTourist()" 
-                                    class="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                                    class="add-tourist-btn px-6 py-3 text-white font-semibold rounded-lg transition-colors">
                                     <i class="fas fa-plus mr-2"></i>
                                     <span data-i18n="custom_tour_add_tourist">Добавить</span>
                                 </button>
@@ -142,7 +150,7 @@
                     <div class="border-b pb-6">
                         <label for="customerNotes" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_notes">Дополнительные пожелания</label>
                         <textarea id="customerNotes" name="customerNotes" rows="4"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                             placeholder="Расскажите нам о ваших предпочтениях, особых требованиях..."></textarea>
                     </div>
 
@@ -150,7 +158,7 @@
                     <div class="bg-gray-50 p-6 rounded-lg">
                         <div class="flex justify-between items-center">
                             <span class="text-xl font-semibold text-gray-800" data-i18n="custom_tour_total_price">Предварительная стоимость:</span>
-                            <span id="totalPrice" class="text-2xl font-bold text-blue-600">0 TJS</span>
+                            <span id="totalPrice" class="text-2xl font-bold text-gray-800">0 TJS</span>
                         </div>
                         <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_price_note">Окончательная цена будет рассчитана после обработки заказа</p>
                     </div>
@@ -205,7 +213,7 @@
                 <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                     <input type="checkbox" value="${country.id}" 
                         onchange="toggleCountry(${country.id})"
-                        class="mr-3 h-5 w-5 text-blue-600">
+                        class="mr-3 h-5 w-5 text-gray-600">
                     <span class="font-medium">${country.nameRu}</span>
                 </label>
             `).join('');
@@ -265,7 +273,7 @@
                     <input type="checkbox" value="${city.id}" 
                         ${selectedCities.includes(city.id) ? 'checked' : ''}
                         onchange="toggleCity(${city.id})"
-                        class="mr-2 h-4 w-4 text-blue-600">
+                        class="mr-2 h-4 w-4 text-gray-600">
                     <span>${city.nameRu}</span>
                 </label>
             `).join('');
@@ -335,7 +343,7 @@
                                             <div class="text-sm text-gray-600 mt-1">${comp.price} TJS / ${comp.unit}</div>
                                         </div>
                                         <input type="checkbox" ${isSelected ? 'checked' : ''} 
-                                            class="h-5 w-5 text-blue-600 pointer-events-none">
+                                            class="h-5 w-5 text-gray-600 pointer-events-none">
                                     </div>
                                     ${isSelected ? `
                                         <div class="mt-3">

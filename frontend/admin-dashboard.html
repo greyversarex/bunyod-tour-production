@@ -1656,21 +1656,20 @@
                     </div>
                 </section>
 
-                <!-- Custom Tour Sections - одна универсальная секция для всех стран -->
-                <section id="custom-tour-tajikistanSection" style="display: none;" class="custom-tour-section" data-country-id="1">
-                    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-                        <h2 class="text-2xl font-semibold mb-6">
-                            <i class="fas fa-suitcase-rolling text-blue-600 mr-3"></i>
-                            Компоненты собственного тура - Таджикистан
-                        </h2>
-                        <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Таджикистану</p>
+                <!-- Universal Custom Component Form (used for all countries) -->
+                <div id="customComponentFormContainer" style="display: none;" class="mb-8">
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800">
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-2"></i>
+                            Управление компонентами собственного тура
+                        </h3>
                         
                         <!-- Форма добавления компонента -->
-                        <div class="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                            <h3 class="font-semibold text-blue-800 mb-4">
+                        <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-4">
                                 <i class="fas fa-plus mr-2"></i>
                                 Добавить новый компонент
-                            </h3>
+                            </h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Название (Русский) <span class="text-red-500">*</span></label>
@@ -1681,18 +1680,26 @@
                                     <input type="text" id="newCustomComponentNameEn" class="form-input" placeholder="For example: Isfara Excursion">
                                 </div>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Цена (TJS) <span class="text-red-500">*</span></label>
                                     <input type="number" id="newCustomComponentPrice" class="form-input" min="0" step="0.01" placeholder="0.00">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1">Единица <span class="text-red-500">*</span></label>
-                                    <input type="text" id="newCustomComponentUnit" class="form-input" placeholder="человек, день, км">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Категория <span class="text-red-500">*</span></label>
-                                    <input type="text" id="newCustomComponentCategory" class="form-input" placeholder="экскурсия, питание">
+                                    <select id="newCustomComponentUnit" class="form-input">
+                                        <option value="">Выберите единицу</option>
+                                        <option value="человек">человек / person</option>
+                                        <option value="день">день / day</option>
+                                        <option value="час">час / hour</option>
+                                        <option value="км">км / km</option>
+                                        <option value="машина">машина / car</option>
+                                        <option value="комната">комната / room</option>
+                                        <option value="ночь">ночь / night</option>
+                                        <option value="группа">группа / group</option>
+                                        <option value="билет">билет / ticket</option>
+                                        <option value="услуга">услуга / service</option>
+                                    </select>
                                 </div>
                                 <div class="flex items-end">
                                     <button onclick="addNewCustomComponent()" class="btn btn-primary w-full">
@@ -1729,13 +1736,25 @@
                             </button>
                         </div>
                     </div>
+                </div>
+
+                <!-- Tajikistan Section -->
+                <section id="custom-tour-tajikistanSection" style="display: none;" class="custom-tour-section" data-country-id="1">
+                    <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                        <h2 class="text-2xl font-semibold mb-6">
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-3"></i>
+                            Компоненты собственного тура - Таджикистан
+                        </h2>
+                        <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Таджикистану</p>
+                        <div id="customTourComponentsTajikistan" class="custom-tour-content"></div>
+                    </div>
                 </section>
 
                 <!-- Uzbekistan -->
                 <section id="custom-tour-uzbekistanSection" style="display: none;" class="custom-tour-section" data-country-id="2">
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                         <h2 class="text-2xl font-semibold mb-6">
-                            <i class="fas fa-suitcase-rolling text-blue-600 mr-3"></i>
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-3"></i>
                             Компоненты собственного тура - Узбекистан
                         </h2>
                         <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Узбекистану</p>
@@ -1747,7 +1766,7 @@
                 <section id="custom-tour-kyrgyzstanSection" style="display: none;" class="custom-tour-section" data-country-id="3">
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                         <h2 class="text-2xl font-semibold mb-6">
-                            <i class="fas fa-suitcase-rolling text-blue-600 mr-3"></i>
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-3"></i>
                             Компоненты собственного тура - Кыргызстан
                         </h2>
                         <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Кыргызстану</p>
@@ -1759,7 +1778,7 @@
                 <section id="custom-tour-turkmenistanSection" style="display: none;" class="custom-tour-section" data-country-id="4">
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                         <h2 class="text-2xl font-semibold mb-6">
-                            <i class="fas fa-suitcase-rolling text-blue-600 mr-3"></i>
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-3"></i>
                             Компоненты собственного тура - Туркменистан
                         </h2>
                         <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Туркменистану</p>
@@ -1771,7 +1790,7 @@
                 <section id="custom-tour-kazakhstanSection" style="display: none;" class="custom-tour-section" data-country-id="5">
                     <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
                         <h2 class="text-2xl font-semibold mb-6">
-                            <i class="fas fa-suitcase-rolling text-blue-600 mr-3"></i>
+                            <i class="fas fa-suitcase-rolling text-gray-600 mr-3"></i>
                             Компоненты собственного тура - Казахстан
                         </h2>
                         <p class="text-gray-600 mb-6">Управление компонентами для создания собственных туров по Казахстану</p>
@@ -16518,8 +16537,7 @@
             const nameRu = document.getElementById('newCustomComponentNameRu')?.value.trim();
             const nameEn = document.getElementById('newCustomComponentNameEn')?.value.trim();
             const price = parseFloat(document.getElementById('newCustomComponentPrice')?.value);
-            const unit = document.getElementById('newCustomComponentUnit')?.value.trim();
-            const category = document.getElementById('newCustomComponentCategory')?.value.trim();
+            const unit = document.getElementById('newCustomComponentUnit')?.value;
             const descRu = document.getElementById('newCustomComponentDescRu')?.value.trim();
             const descEn = document.getElementById('newCustomComponentDescEn')?.value.trim();
             
@@ -16533,11 +16551,7 @@
                 return;
             }
             if (!unit) {
-                alert('Введите единицу измерения');
-                return;
-            }
-            if (!category) {
-                alert('Введите категорию');
+                alert('Выберите единицу измерения');
                 return;
             }
             if (!currentCountryId) {
@@ -16551,7 +16565,7 @@
                     headers: getAuthHeaders(),
                     body: JSON.stringify({
                         countryId: currentCountryId,
-                        category: category,
+                        category: 'general',
                         nameRu: nameRu,
                         nameEn: nameEn || nameRu,
                         price: price,
@@ -16570,7 +16584,6 @@
                     document.getElementById('newCustomComponentNameEn').value = '';
                     document.getElementById('newCustomComponentPrice').value = '';
                     document.getElementById('newCustomComponentUnit').value = '';
-                    document.getElementById('newCustomComponentCategory').value = '';
                     document.getElementById('newCustomComponentDescRu').value = '';
                     document.getElementById('newCustomComponentDescEn').value = '';
                     
