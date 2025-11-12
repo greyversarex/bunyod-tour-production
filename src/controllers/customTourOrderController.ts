@@ -85,8 +85,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       totalPrice
     } = req.body;
     
-    // Validation
-    if (!fullName || !phone) {
+    // Strict validation of required fields
+    if (!fullName || typeof fullName !== 'string' || !phone || typeof phone !== 'string') {
       res.status(400).json({
         success: false,
         message: 'ФИО и телефон обязательны для заполнения'
@@ -94,6 +94,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
     
+    // Validate selectedCountries: must be non-empty array of numbers
     if (!selectedCountries || !Array.isArray(selectedCountries) || selectedCountries.length === 0) {
       res.status(400).json({
         success: false,
@@ -101,7 +102,31 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       });
       return;
     }
+    if (!selectedCountries.every((id: any) => typeof id === 'number' && Number.isInteger(id))) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат данных стран'
+      });
+      return;
+    }
     
+    // Validate selectedCities: must be array of numbers (can be empty)
+    if (selectedCities && !Array.isArray(selectedCities)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат данных городов'
+      });
+      return;
+    }
+    if (selectedCities && !selectedCities.every((id: any) => typeof id === 'number' && Number.isInteger(id))) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат данных городов'
+      });
+      return;
+    }
+    
+    // Validate tourists: must be non-empty array of strings
     if (!tourists || !Array.isArray(tourists) || tourists.length === 0) {
       res.status(400).json({
         success: false,
@@ -109,11 +134,60 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       });
       return;
     }
+    if (!tourists.every((name: any) => typeof name === 'string' && name.trim().length > 0)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат данных туристов'
+      });
+      return;
+    }
     
+    // Validate selectedComponents: must be non-empty array of objects with id, quantity, price
     if (!selectedComponents || !Array.isArray(selectedComponents) || selectedComponents.length === 0) {
       res.status(400).json({
         success: false,
         message: 'Необходимо выбрать хотя бы один компонент тура'
+      });
+      return;
+    }
+    if (!selectedComponents.every((comp: any) => 
+      comp && 
+      typeof comp === 'object' &&
+      typeof comp.id === 'number' && 
+      typeof comp.quantity === 'number' && 
+      typeof comp.price === 'number' &&
+      comp.quantity > 0
+    )) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат данных компонентов тура'
+      });
+      return;
+    }
+    
+    // Validate optional email field
+    if (email !== undefined && email !== null && typeof email !== 'string') {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат email'
+      });
+      return;
+    }
+    
+    // Validate optional customerNotes field
+    if (customerNotes !== undefined && customerNotes !== null && typeof customerNotes !== 'string') {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат заметок клиента'
+      });
+      return;
+    }
+    
+    // Validate optional totalPrice field
+    if (totalPrice !== undefined && totalPrice !== null && (typeof totalPrice !== 'number' || !Number.isFinite(totalPrice) || totalPrice < 0)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат общей цены'
       });
       return;
     }
@@ -122,14 +196,14 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     const order = await prisma.customTourOrder.create({
       data: {
         fullName: fullName.trim(),
-        email: email?.trim() || null,
+        email: email ? email.trim() : null,
         phone: phone.trim(),
         selectedCountries,
-        selectedCities: selectedCities || [],
+        selectedCities: selectedCities ?? [],
         tourists,
         selectedComponents,
-        customerNotes: customerNotes?.trim() || null,
-        totalPrice: totalPrice || null,
+        customerNotes: customerNotes ? customerNotes.trim() : null,
+        totalPrice: totalPrice ?? null,
         status: 'pending',
       },
     });
@@ -162,6 +236,31 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
       adminNotes,
       totalPrice
     } = req.body;
+    
+    // Validate optional fields before update
+    if (status !== undefined && typeof status !== 'string') {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат статуса'
+      });
+      return;
+    }
+    
+    if (adminNotes !== undefined && adminNotes !== null && typeof adminNotes !== 'string') {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат заметок администратора'
+      });
+      return;
+    }
+    
+    if (totalPrice !== undefined && totalPrice !== null && (typeof totalPrice !== 'number' || !Number.isFinite(totalPrice) || totalPrice < 0)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат общей цены'
+      });
+      return;
+    }
     
     const updateData: any = {};
     

@@ -5,6 +5,20 @@ Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offeri
 
 ## Recent Updates (November 2025)
 
+**Custom Tour Order Feature (November 12, 2025)** - Реализована полная система заказов собственных туров:
+- **Описание**: Пользователи могут создавать персонализированные туры, выбирая страны, города, список туристов и компоненты тура из price calculator
+- **Database**: Новая модель `CustomTourOrder` с JSONB полями для гибкого хранения массивов данных (selectedCountries, selectedCities, tourists, selectedComponents)
+- **Manual Migration**: Создана безопасная миграция `manual_migrations/002_custom_tour_orders_jsonb.sql` для production:
+  - Идемпотентная (проверяет тип колонки перед конвертацией)
+  - Использует `EXECUTE` + `USING` clause для безопасного TEXT→JSONB преобразования
+  - Сохраняет все существующие данные
+  - Интегрирована в `update.sh` с fail-fast механизмом (прерывает deploy при ошибке миграции)
+- **Backend API**: CRUD операции в `customTourOrderController.ts` без ручной работы с JSON (Prisma автоматически сериализует/десериализует)
+- **Frontend**: Страница `/custom-tour-order.html` с каскадным выбором стран/городов, динамическим управлением списком туристов, автоматической загрузкой компонентов по странам
+- **Admin Panel**: Новый раздел "Заказы собственных туров" с таблицей, модальным просмотром деталей заказа
+- **Production Safety**: Миграция протестирована, update.sh обновлен для безопасного deployment
+- **Architect Review**: ✅ PASSED - production-ready
+
 **CityNights Persistence Fix (November 12, 2025)** - Исправлен критический баг с потерей информации о количестве ночей при переходе между этапами бронирования:
 - **Проблема**: При переходе от Step 1 к Step 2 информация о `cityNights` (количество ночей для каждого города) терялась, что приводило к неправильному расчету цены. Step 2 использовал `tourDuration - 1` для ВСЕХ отелей вместо индивидуального количества ночей. Пример: Хилтон 3 ночи + Серена 7 ночей = 25620 TJS на Step 1, но на Step 2 ВСЕ отели × 7 ночей = 28980 TJS (разница 3360 TJS!)
 - **Root Cause**: Две проблемы:
@@ -61,6 +75,7 @@ PostgreSQL with Prisma ORM manages data, including `Tours`, `Categories`, `TourB
 -   **Guide Review System**: Full system for collecting guide reviews via email invitations and admin notifications.
 -   **Interactive Tour Map**: Integration of Leaflet.js and OpenStreetMap for visualizing tour routes.
 -   **Flexible Multi-Tier Deposit System**: Adaptable payment options based on tour type and booking window.
+-   **Custom Tour Orders**: Full system for users to create personalized tour requests with country/city selection, tourist lists, and tour components from price calculator.
 
 ### UI/UX
 -   **Admin Dashboard**: Comprehensive management for core entities, including booking table with guide assignment and tour status, smart hotel filtering, correct currency symbols, and enhanced payment status badges.
@@ -76,7 +91,11 @@ PostgreSQL with Prisma ORM manages data, including `Tours`, `Categories`, `TourB
 ### Production Deployment Infrastructure
 -   **TypeScript Compilation Strategy**: Production uses pre-compiled JavaScript from `./dist/`.
 -   **Deployment System**: Automated via `./update.sh` script, uses PM2 for process management, Nginx as a reverse proxy, and a `GET /healthz` endpoint for monitoring.
--   **Migration Strategy**: Two-tier system for database changes: Manual migrations for complex schema changes and standard Prisma migrations for routine updates.
+-   **Migration Strategy**: Two-tier system for database changes:
+    - **Manual migrations** (`manual_migrations/*.sql`) for complex schema changes with fail-fast mechanism
+    - **Prisma db push** for routine schema synchronization
+    - Current manual migrations: `000_slides_prepare.sql`, `001_slides_jsonb.sql`, `002_custom_tour_orders_jsonb.sql`
+    - update.sh performs database backup before migrations and fails deploy if critical migrations error
 -   **Multilingual Data Architecture**: Uses PostgreSQL JSONB fields with `{ru: "text", en: "text"}` structure for all multilingual content.
 -   **Rate Limiting Security**: All rate limiters configured with `validate: {trustProxy: false}` for Nginx compatibility.
 -   **PostgreSQL Connection Pool Optimization**: Uses a single PrismaClient singleton instance to prevent connection pool overflow.
