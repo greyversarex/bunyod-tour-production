@@ -906,6 +906,17 @@
                 const data = await response.json();
                 
                 if (data.success) {
+                    // 🆕 CRITICAL: Build hotel→city mapping BEFORE any validation occurs
+                    const hotelCityMap = {};
+                    data.data.forEach(hotel => {
+                        const cityId = hotel.cityId || hotel.city?.id;
+                        if (hotel.id && cityId) {
+                            hotelCityMap[hotel.id] = String(cityId); // Ensure string for consistency
+                        }
+                    });
+                    window.bookingStateManager.setHotelCityMap(hotelCityMap);
+                    console.log('🗺️ Hotel-City mapping preloaded:', hotelCityMap);
+                    
                     displayHotels(data.data);
                     
                     // Restore room and meal selections in UI after hotels are loaded
@@ -1333,27 +1344,36 @@
             const updatedHotelRooms = { ...currentHotelRooms, [roomType]: newQuantity };
             
             if (change > 0) { // Только при добавлении номера
-                // 🆕 Получаем cityId для текущего отеля
+                // 🆕 CRITICAL: Получаем cityId для текущего отеля
                 const cityId = getCityIdForHotel(hotelId);
                 
-                if (cityId) {
-                    // Рассчитываем вместимость ТОЛЬКО для текущего города
-                    const updatedAllSelections = { ...allRoomSelections, [hotelId]: updatedHotelRooms };
-                    const cityCapacity = calculateRoomCapacityForCity(cityId, updatedAllSelections);
+                // 🔒 FAIL-CLOSED: Блокируем операцию если cityId недоступен
+                if (!cityId) {
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? `Cannot add room: hotel data unavailable.<div style="margin-top: 8px; line-height: 1.3; font-size: 0.875rem; color: #6B7280;">Please refresh the page and try again.</div>`
+                        : `Невозможно добавить номер: данные отеля недоступны.<div style="margin-top: 8px; line-height: 1.3; font-size: 0.875rem; color: #6B7280;">Пожалуйста, обновите страницу и попробуйте снова.</div>`;
+                    showCenterModal(message, 'error');
+                    console.error(`🔒 FAIL-CLOSED: cityId not found for hotel ${hotelId}`);
+                    return; // EXIT before any mutation
+                }
+                
+                // Рассчитываем вместимость ТОЛЬКО для текущего города
+                const updatedAllSelections = { ...allRoomSelections, [hotelId]: updatedHotelRooms };
+                const cityCapacity = calculateRoomCapacityForCity(cityId, updatedAllSelections);
+                
+                if (cityCapacity > numberOfTourists) {
+                    const lang = window.currentLanguage || 'ru';
                     
-                    if (cityCapacity > numberOfTourists) {
-                        const lang = window.currentLanguage || 'ru';
-                        
-                        // 🆕 Получаем название города для более информативного сообщения
-                        const citySection = document.querySelector(`[data-city-id="${cityId}"]`);
-                        const cityName = citySection ? citySection.querySelector('h3')?.textContent || '' : '';
-                        
-                        const message = lang === 'en' 
-                            ? `Cannot add more rooms for this city.<div style="margin-top: 8px; line-height: 1.3;">${cityName ? `<strong>City: ${cityName}</strong><br>` : ''}<strong>Room capacity in this city: ${cityCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Capacity limit applies per city.<br>SGL = 1 person, TWN/DBL = 2 people</div>`
-                            : `Невозможно добавить больше номеров для этого города.<div style="margin-top: 8px; line-height: 1.3;">${cityName ? `<strong>${cityName}</strong><br>` : ''}<strong>Вместимость номеров в этом городе: ${cityCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Лимит вместимости действует отдельно для каждого города.<br>SGL = 1 чел., TWN/DBL = 2 чел.</div>`;
-                        showCenterModal(message, 'warning');
-                        return;
-                    }
+                    // 🆕 Получаем название города для более информативного сообщения
+                    const citySection = document.querySelector(`[data-city-id="${cityId}"]`);
+                    const cityName = citySection ? citySection.querySelector('h3')?.textContent || '' : '';
+                    
+                    const message = lang === 'en' 
+                        ? `Cannot add more rooms for this city.<div style="margin-top: 8px; line-height: 1.3;">${cityName ? `<strong>City: ${cityName}</strong><br>` : ''}<strong>Room capacity in this city: ${cityCapacity}</strong><br><strong>Tourists: ${numberOfTourists}</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Capacity limit applies per city.<br>SGL = 1 person, TWN/DBL = 2 people</div>`
+                        : `Невозможно добавить больше номеров для этого города.<div style="margin-top: 8px; line-height: 1.3;">${cityName ? `<strong>${cityName}</strong><br>` : ''}<strong>Вместимость номеров в этом городе: ${cityCapacity} чел.</strong><br><strong>Туристов: ${numberOfTourists} чел.</strong></div><div style="font-size: 0.875rem; color: #6B7280; margin-top: 10px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #E5E7EB; line-height: 1.4;">Лимит вместимости действует отдельно для каждого города.<br>SGL = 1 чел., TWN/DBL = 2 чел.</div>`;
+                    showCenterModal(message, 'warning');
+                    return;
                 }
             }
             
@@ -1406,15 +1426,28 @@
             return totalCapacity;
         }
         
-        // 🆕 Получить cityId для конкретного отеля из DOM
+        // 🆕 Получить cityId для конкретного отеля из persistent state
         function getCityIdForHotel(hotelId) {
+            // Primary: Use persistent mapping from bookingStateManager
+            const mapping = window.bookingStateManager.state.hotelCityMap || {};
+            const cityId = mapping[hotelId];
+            
+            if (cityId) {
+                return String(cityId); // Ensure string for consistency
+            }
+            
+            // Fallback: Try DOM (for edge cases where mapping not yet populated)
             const hotelCard = document.querySelector(`[data-hotel-id="${hotelId}"]`);
-            if (!hotelCard) return null;
+            if (hotelCard) {
+                const citySection = hotelCard.closest('[data-city-id]');
+                if (citySection) {
+                    return citySection.getAttribute('data-city-id');
+                }
+            }
             
-            const citySection = hotelCard.closest('[data-city-id]');
-            if (!citySection) return null;
-            
-            return citySection.getAttribute('data-city-id');
+            // No city ID found
+            console.warn(`⚠️ City ID not found for hotel ${hotelId}`);
+            return null;
         }
         
         // 🆕 Рассчитать вместимость номеров ТОЛЬКО для конкретного города

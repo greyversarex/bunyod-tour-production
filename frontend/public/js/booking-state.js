@@ -46,6 +46,7 @@ const bookingStateManager = {
         payment: {
             method: null
         },
+        hotelCityMap: {},
         language: 'ru',
         selectedCurrency: 'TJS',
         lastUpdated: Date.now()
@@ -104,6 +105,27 @@ const bookingStateManager = {
                             grandTotal: 0,
                             currency: 'TJS'
                         };
+                    }
+                    
+                    // 🆕 CRITICAL: Validate hotelCityMap for per-city room validation
+                    if (!this.state.hotelCityMap) {
+                        console.warn('⚠️ hotelCityMap missing in loaded state, initializing...');
+                        this.state.hotelCityMap = {};
+                    }
+                    
+                    // 🆕 Clear room selections if hotelCityMap is empty but selections exist
+                    // This prevents bypassing per-city validation with stale data
+                    if (this.state.selections && this.state.selections.rooms) {
+                        const hasRoomSelections = Object.keys(this.state.selections.rooms).length > 0;
+                        const hasMapping = Object.keys(this.state.hotelCityMap).length > 0;
+                        
+                        if (hasRoomSelections && !hasMapping) {
+                            console.warn('⚠️ Room selections exist without hotel-city mapping!');
+                            console.warn('⚠️ Clearing room selections to prevent validation bypass');
+                            this.state.selections.rooms = {};
+                            this.state.selections.meals = {};
+                            console.log('✅ Cleared stale room/meal selections for safety');
+                        }
                     }
                     
                     console.log('📦 Booking state loaded from sessionStorage:', this.state);
@@ -244,6 +266,12 @@ const bookingStateManager = {
         this.computeTotals();
         this.persist();
         console.log('🍽️ Meal selection updated:', this.state.selections.meals);
+    },
+    
+    setHotelCityMap(mapping) {
+        this.state.hotelCityMap = mapping || {};
+        this.persist();
+        console.log('🗺️ Hotel-City mapping updated:', this.state.hotelCityMap);
     },
 
     /**
