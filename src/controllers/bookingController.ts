@@ -834,6 +834,7 @@ export const bookingController = {
         tourists: booking.tourists ? JSON.parse(booking.tourists) : [],
         roomSelection: booking.roomSelection ? JSON.parse(booking.roomSelection) : null,
         mealSelection: booking.mealSelection ? JSON.parse(booking.mealSelection) : null,
+        cityNights: booking.cityNights ? JSON.parse(booking.cityNights) : null,
         tour: {
           ...booking.tour,
           title: parseMultilingualField(booking.tour.title, language),
@@ -880,11 +881,12 @@ export const bookingController = {
         hotelId, 
         roomSelection, 
         mealSelection,
+        cityNights,
         totalPrice,
         status = 'draft'
       } = req.body;
 
-      console.log('📝 Updating booking step 1:', { id, hotelId, roomSelection, mealSelection, totalPrice });
+      console.log('📝 Updating booking step 1:', { id, hotelId, roomSelection, mealSelection, cityNights, totalPrice });
 
       // Validate booking exists
       const existingBooking = await prisma.booking.findUnique({
@@ -898,6 +900,17 @@ export const bookingController = {
         });
       }
 
+      // Validate and serialize cityNights
+      let cityNightsString: string | null = null;
+      if (cityNights) {
+        if (typeof cityNights === 'object' && !Array.isArray(cityNights)) {
+          cityNightsString = JSON.stringify(cityNights);
+          console.log('✅ cityNights serialized:', cityNightsString);
+        } else {
+          console.warn('⚠️ Invalid cityNights format, ignoring:', cityNights);
+        }
+      }
+
       // Update booking with hotel and room selection
       const updatedBooking = await prisma.booking.update({
         where: { id: parseInt(id) },
@@ -905,6 +918,7 @@ export const bookingController = {
           hotelId: hotelId ? parseInt(hotelId) : null,
           roomSelection: roomSelection ? JSON.stringify(roomSelection) : null,
           mealSelection: mealSelection ? JSON.stringify(mealSelection) : null,
+          cityNights: cityNightsString,
           totalPrice: totalPrice ? parseFloat(totalPrice) : existingBooking.totalPrice,
           status,
           updatedAt: new Date()

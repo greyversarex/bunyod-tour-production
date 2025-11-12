@@ -2351,11 +2351,12 @@
                     hotelId: hotelId,
                     roomSelection: roomSelection,
                     mealSelection: mealSelection,
+                    cityNights: window.bookingCityNights || null,
                     totalPrice: bookingState.totalPrice,
                     status: 'draft'
                 };
                 
-                console.log('🔄 Saving booking draft with room selections:', updateData);
+                console.log('🔄 Saving booking draft with room selections and cityNights:', updateData);
                 
                 const updateResponse = await fetch(`/api/booking/${bookingState.bookingId}/step1`, {
                     method: 'PUT',

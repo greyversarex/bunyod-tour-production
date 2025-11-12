@@ -415,6 +415,10 @@
                     // Update local reference
                     bookingState = window.bookingStateManager.state;
                     
+                    // 🆕 CRITICAL: Restore window.bookingCityNights for price calculations
+                    window.bookingCityNights = bookingState.cityNights || {};
+                    console.log('✅ Restored cityNights for price calculations:', window.bookingCityNights);
+                    
                     console.log('✅ Booking details loaded and synced to state manager');
                 } else {
                     console.error('❌ Failed to load booking details');

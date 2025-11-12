@@ -631,6 +631,7 @@ model Booking {
   contactEmail        String?  @map("contact_email")
   roomSelection       String?  @map("room_selection")
   mealSelection       String?  @map("meal_selection")
+  cityNights          String?  @map("city_nights")
   totalPrice          Float    @map("total_price")
   tourDate            String   @map("tour_date")
   numberOfTourists    Int      @map("number_of_tourists")
