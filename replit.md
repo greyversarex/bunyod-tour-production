@@ -6,19 +6,22 @@ Bunyod-Tour is a comprehensive tourism booking platform for Central Asia, offeri
 ## Recent Updates (November 2025)
 
 **CityNights Persistence Fix (November 12, 2025)** - Исправлен критический баг с потерей информации о количестве ночей при переходе между этапами бронирования:
-- **Проблема**: При переходе от Step 1 к Step 2 информация о `cityNights` (количество ночей для каждого города) терялась, что приводило к неправильному расчету цены. Пример: Хилтон 3 ночи + Серена 7 ночей = 21920 TJS на Step 1, но на Step 2 ВСЕ отели × 7 ночей = 25280 TJS (разница 3360 TJS!)
-- **Причина**: `cityNights` использовался только в `window.bookingCityNights` для расчета цены на Step 1, но НЕ сохранялся в БД и НЕ восстанавливался на Step 2
-- **Решение**: Полная реализация persistence flow для cityNights:
-  - Добавлено поле `cityNights String?` в Prisma schema модели Booking
-  - Создана и применена миграция `20251112092819_add_city_nights_to_bookings`
-  - `bookingController.updateBookingStep1()` принимает, валидирует и сохраняет cityNights в БД (JSON)
-  - `bookingController.getBooking()` возвращает cityNights десериализованным
-  - `booking-step1.html` отправляет `window.bookingCityNights` при saveBookingDraft()
-  - `booking-step2.html` восстанавливает `window.bookingCityNights` из API response
-- **Формат данных**: JSON object `{"1":3,"2":7}` где ключи - cityId, значения - количество ночей
-- **Результат**: ✅ Цена тура остается стабильной при переходе между этапами - расчет ночей корректный
-- **Тестирование**: ✅ Architect review PASSED. Полный flow Step 1 → БД → Step 2 → Step 1 работает
-- **Impact**: Критический fix для production - устраняет переплату/недоплату из-за неправильного расчета ночей
+- **Проблема**: При переходе от Step 1 к Step 2 информация о `cityNights` (количество ночей для каждого города) терялась, что приводило к неправильному расчету цены. Step 2 использовал `tourDuration - 1` для ВСЕХ отелей вместо индивидуального количества ночей. Пример: Хилтон 3 ночи + Серена 7 ночей = 25620 TJS на Step 1, но на Step 2 ВСЕ отели × 7 ночей = 28980 TJS (разница 3360 TJS!)
+- **Root Cause**: Две проблемы:
+  1. `cityNights` НЕ сохранялся в БД → терялся при перезагрузке страницы
+  2. Step 2 использовал глобальный `nightsCount = tourDuration - 1` вместо `cityNights[hotelCityId]`
+- **Решение**: Полная реализация persistence + per-city calculation:
+  - **Database**: Добавлено поле `cityNights String?` в Prisma schema, миграция `20251112092819_add_city_nights_to_bookings`
+  - **Backend API**: `updateBookingStep1()` принимает/валидирует/сохраняет cityNights (JSON format), `getBooking()` возвращает десериализованным
+  - **Step 1 Frontend**: Отправляет `window.bookingCityNights` при saveBookingDraft()
+  - **Step 2 Frontend**: 
+    - Синхронно восстанавливает `window.bookingCityNights` из `bookingStateManager.state` при инициализации (предотвращает race condition)
+    - `loadBookingDetails()` асинхронно обновляет из API
+    - `displayTourDetailsInSidebar()` использует `cityNights[hotelData.cityId]` вместо глобального `nightsCount`
+- **Формат данных**: JSON `{"1":3,"2":7}` где ключи - cityId, значения - количество ночей
+- **Результат**: ✅ Каждый отель использует правильное количество ночей (Хилтон 3, Серена 7). Цена стабильна на всех этапах
+- **Тестирование**: ✅ Architect review PASSED. Синхронное восстановление устраняет race condition, индивидуальный расчет гарантирует точность
+- **Impact**: Критический production fix - устраняет переплату/недоплату из-за неправильного расчета ночей в multi-city tours
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.

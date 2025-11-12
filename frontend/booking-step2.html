@@ -324,6 +324,10 @@
             bookingState = window.bookingStateManager.state;
             console.log('📦 Step 2 loaded booking state:', bookingState);
 
+            // 🆕 CRITICAL: Restore cityNights SYNCHRONOUSLY before any calculations
+            window.bookingCityNights = bookingState.cityNights || {};
+            console.log('🌙 Step 2 - Restored cityNights SYNCHRONOUSLY from state:', window.bookingCityNights);
+
             // Load booking details from server
             await loadBookingDetails(bookingId);
             
@@ -763,6 +767,10 @@
             // ✅ Get hotels from tour.tourHotels (на step2 нет bookingState.availableHotels)
             const availableHotels = tour.tourHotels?.map(th => th.hotel) || [];
             
+            // 🆕 Get cityNights from bookingState (restored by loadBookingDetails)
+            const cityNights = window.bookingCityNights || bookingState.cityNights || {};
+            console.log('🌙 Step 2 - Using cityNights for hotel calculations:', cityNights);
+            
             for (const [hotelId, rooms] of Object.entries(roomSelection)) {
                 const hotelData = availableHotels.find(h => h.id == hotelId);
                 if (!hotelData) {
@@ -780,10 +788,15 @@
                 const hotelName = typeof hotelData.name === 'object' ? 
                     (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : (hotelData.name || 'Hotel');
                 
+                // 🆕 CRITICAL: Get nights for THIS hotel's city (not global nightsCount!)
+                const hotelCityId = hotelData.cityId;
+                const nightsForHotel = cityNights[hotelCityId] || nightsCount;
+                console.log(`🏨 ${hotelName} (cityId=${hotelCityId}): ${nightsForHotel} nights from cityNights`);
+                
                 for (const [roomType, quantity] of Object.entries(rooms)) {
                     if (quantity > 0 && roomTypes[roomType]) {
                         const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
-                        const roomCost = roomPrice * quantity * nightsCount;
+                        const roomCost = roomPrice * quantity * nightsForHotel;
                         totalRoomCost += roomCost;
                         
                         const roomName = (typeof roomTypes[roomType].name === 'object' ? 
@@ -793,7 +806,7 @@
                         if (roomCostsCalc) {
                             roomCostsCalc.innerHTML += `
                                 <div class="flex justify-between text-sm">
-                                    <span>${hotelName}: ${roomName} × ${quantity} × ${nightsCount} <span data-translate="booking.nights_short">ноч.</span>:</span>
+                                    <span>${hotelName}: ${roomName} × ${quantity} × ${nightsForHotel} <span data-translate="booking.nights_short">ноч.</span>:</span>
                                     <span>${formatCurrencyWithEquivalent(roomCost)}</span>
                                 </div>
                             `;
