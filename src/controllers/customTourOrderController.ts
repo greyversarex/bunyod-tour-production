@@ -1,19 +1,6 @@
 import { Request, Response } from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../config/database';
-
-/**
- * Безопасный парсинг JSON
- */
-const safeJsonParse = (value: any): any => {
-  if (typeof value === 'string') {
-    try {
-      return JSON.parse(value);
-    } catch {
-      return value;
-    }
-  }
-  return value;
-};
 
 /**
  * Get all custom tour orders (Admin only)
@@ -34,18 +21,9 @@ export const getAllOrders = async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' },
     });
     
-    // Parse JSON fields
-    const parsedOrders = orders.map(order => ({
-      ...order,
-      selectedCountries: safeJsonParse(order.selectedCountries),
-      selectedCities: safeJsonParse(order.selectedCities),
-      tourists: safeJsonParse(order.tourists),
-      selectedComponents: safeJsonParse(order.selectedComponents),
-    }));
-    
     res.json({
       success: true,
-      data: parsedOrders,
+      data: orders,
     });
   } catch (error) {
     console.error('❌ Error fetching custom tour orders:', error);
@@ -76,18 +54,9 @@ export const getOrderById = async (req: Request, res: Response): Promise<void> =
       return;
     }
     
-    // Parse JSON fields
-    const parsedOrder = {
-      ...order,
-      selectedCountries: safeJsonParse(order.selectedCountries),
-      selectedCities: safeJsonParse(order.selectedCities),
-      tourists: safeJsonParse(order.tourists),
-      selectedComponents: safeJsonParse(order.selectedComponents),
-    };
-    
     res.json({
       success: true,
-      data: parsedOrder,
+      data: order,
     });
   } catch (error) {
     console.error('❌ Error fetching custom tour order:', error);
@@ -155,10 +124,10 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         fullName: fullName.trim(),
         email: email?.trim() || null,
         phone: phone.trim(),
-        selectedCountries: JSON.stringify(selectedCountries),
-        selectedCities: JSON.stringify(selectedCities || []),
-        tourists: JSON.stringify(tourists),
-        selectedComponents: JSON.stringify(selectedComponents),
+        selectedCountries,
+        selectedCities: selectedCities || [],
+        tourists,
+        selectedComponents,
         customerNotes: customerNotes?.trim() || null,
         totalPrice: totalPrice || null,
         status: 'pending',
@@ -169,13 +138,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     
     res.status(201).json({
       success: true,
-      data: {
-        ...order,
-        selectedCountries: safeJsonParse(order.selectedCountries),
-        selectedCities: safeJsonParse(order.selectedCities),
-        tourists: safeJsonParse(order.tourists),
-        selectedComponents: safeJsonParse(order.selectedComponents),
-      },
+      data: order,
       message: 'Заказ успешно создан'
     });
   } catch (error) {
@@ -215,13 +178,7 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
     
     res.json({
       success: true,
-      data: {
-        ...order,
-        selectedCountries: safeJsonParse(order.selectedCountries),
-        selectedCities: safeJsonParse(order.selectedCities),
-        tourists: safeJsonParse(order.tourists),
-        selectedComponents: safeJsonParse(order.selectedComponents),
-      },
+      data: order,
       message: 'Заказ успешно обновлен'
     });
   } catch (error) {

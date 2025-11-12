@@ -753,10 +753,10 @@ model CustomTourOrder {
   fullName           String   @map("full_name")
   email              String?
   phone              String?
-  selectedCountries  String   @map("selected_countries")
-  selectedCities     String   @map("selected_cities")
-  tourists           String
-  selectedComponents String   @map("selected_components")
+  selectedCountries  Json     @map("selected_countries")
+  selectedCities     Json     @map("selected_cities")
+  tourists           Json
+  selectedComponents Json     @map("selected_components")
   status             String   @default("pending")
   totalPrice         Float?   @map("total_price")
   customerNotes      String?  @map("customer_notes")

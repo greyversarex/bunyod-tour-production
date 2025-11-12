@@ -547,6 +547,10 @@
                     <i class="fas fa-shuttle-van"></i>
                     <span data-translate="admin.transfers">Трансферы</span>
                 </a>
+                <a href="#" class="nav-item" data-section="custom-tour-orders">
+                    <i class="fas fa-suitcase-rolling"></i>
+                    <span data-translate="admin.custom_tour_orders">Заказы собственных туров</span>
+                </a>
                 <a href="#" class="nav-item" data-section="countries">
                     <i class="fas fa-globe"></i>
                     <span data-translate="admin.countries">Страны</span>
@@ -1058,6 +1062,44 @@
                                 <div class="stat-number" id="totalTransfersCount">0</div>
                                 <div class="stat-label">Всего заявок</div>
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Custom Tour Orders Section -->
+                <section id="custom-tour-ordersSection" style="display: none;">
+                    <div class="mb-6 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold" data-translate="admin.custom_tour_orders_title">Заказы собственных туров</h2>
+                        <div class="flex gap-2">
+                            <button class="btn btn-outline-primary" onclick="loadCustomTourOrders()">
+                                <i class="fas fa-sync"></i>
+                                Обновить
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-sm">
+                        <div class="overflow-x-auto">
+                            <table class="data-table w-full">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>ФИО клиента</th>
+                                        <th>Контакты</th>
+                                        <th>Страны</th>
+                                        <th>Города</th>
+                                        <th>Туристы</th>
+                                        <th>Компоненты</th>
+                                        <th>Стоимость</th>
+                                        <th data-translate="table.status">Статус</th>
+                                        <th>Дата создания</th>
+                                        <th data-translate="table.actions">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customTourOrdersTable">
+                                    <!-- Custom tour orders will be loaded here -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -13909,7 +13951,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections
-            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -15882,6 +15924,111 @@
                 'rejected': 'Отклонена'
             };
             return names[status] || status;
+        }
+
+        // ============== УПРАВЛЕНИЕ ЗАКАЗАМИ СОБСТВЕННЫХ ТУРОВ ==============
+        
+        async function loadCustomTourOrders() {
+            try {
+                const response = await fetch(`${getApiUrl()}/custom-tour-orders`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to load custom tour orders');
+                }
+                
+                const orders = result.data || [];
+                const table = document.getElementById('customTourOrdersTable');
+                
+                if (orders.length > 0) {
+                    table.innerHTML = orders.map(order => `
+                        <tr>
+                            <td>#${order.id}</td>
+                            <td>
+                                <div class="font-medium">${order.fullName}</div>
+                                <div class="text-sm text-gray-500">${new Date(order.createdAt).toLocaleDateString('ru-RU')}</div>
+                            </td>
+                            <td>
+                                ${order.email ? `<div>📧 ${order.email}</div>` : ''}
+                                ${order.phone ? `<div>📱 ${order.phone}</div>` : ''}
+                            </td>
+                            <td>${Array.isArray(order.selectedCountries) ? order.selectedCountries.length : 0}</td>
+                            <td>${Array.isArray(order.selectedCities) ? order.selectedCities.length : 0}</td>
+                            <td>${Array.isArray(order.tourists) ? order.tourists.length : 0}</td>
+                            <td>${Array.isArray(order.selectedComponents) ? order.selectedComponents.length : 0}</td>
+                            <td>${order.totalPrice ? `${order.totalPrice} TJS` : '-'}</td>
+                            <td>
+                                <span class="badge badge-${getStatusBadgeColor(order.status)}">${getStatusName(order.status)}</span>
+                            </td>
+                            <td>${new Date(order.createdAt).toLocaleDateString('ru-RU')}</td>
+                            <td>
+                                <button onclick="viewCustomTourOrder(${order.id})" class="btn btn-sm btn-outline-info" title="Просмотр">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    table.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-gray-500">Нет заказов собственных туров</td></tr>';
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки заказов собственных туров:', error);
+                document.getElementById('customTourOrdersTable').innerHTML = 
+                    '<tr><td colspan="11" class="text-center py-8 text-red-500">Ошибка загрузки</td></tr>';
+            }
+        }
+
+        async function viewCustomTourOrder(orderId) {
+            try {
+                const response = await fetch(`${getApiUrl()}/custom-tour-orders/${orderId}`);
+                const result = await response.json();
+                
+                if (!result.success) {
+                    throw new Error(result.message || 'Failed to load order details');
+                }
+                
+                const order = result.data;
+                const detailsHTML = `
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Информация о клиенте</h4>
+                                <div class="mt-2 space-y-1">
+                                    <div><strong>ФИО:</strong> ${order.fullName}</div>
+                                    ${order.email ? `<div><strong>Email:</strong> ${order.email}</div>` : ''}
+                                    ${order.phone ? `<div><strong>Телефон:</strong> ${order.phone}</div>` : ''}
+                                    <div><strong>Дата создания:</strong> ${new Date(order.createdAt).toLocaleString('ru-RU')}</div>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Статус и стоимость</h4>
+                                <div class="mt-2 space-y-1">
+                                    <div><strong>Статус:</strong> <span class="badge badge-${getStatusBadgeColor(order.status)}">${getStatusName(order.status)}</span></div>
+                                    ${order.totalPrice ? `<div><strong>Стоимость:</strong> ${order.totalPrice} TJS</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-700">Туристы</h4>
+                            <div class="mt-2">
+                                ${Array.isArray(order.tourists) ? order.tourists.map((t, i) => `<div>${i+1}. ${t}</div>`).join('') : 'Не указаны'}
+                            </div>
+                        </div>
+                        ${order.customerNotes ? `
+                            <div>
+                                <h4 class="font-semibold text-gray-700">Пожелания клиента</h4>
+                                <div class="mt-2 p-3 bg-gray-50 rounded-lg">${order.customerNotes}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                showModal('Детали заказа собственного тура', detailsHTML);
+                
+            } catch (error) {
+                console.error('Ошибка загрузки деталей заказа:', error);
+                alert('Ошибка загрузки деталей заказа');
+            }
         }
 
         function openTransferModal() {
