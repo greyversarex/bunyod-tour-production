@@ -4083,128 +4083,9 @@
             }
         }
         
-        // Navigation
-        document.querySelectorAll('.nav-item[data-section], .nav-subitem[data-section]').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.preventDefault();
-                const section = this.dataset.section;
-                
-                // Handle custom tour parent item - toggle submenu
-                if (section === 'custom-tour' && this.classList.contains('nav-item-parent')) {
-                    const submenu = document.getElementById('custom-tour-submenu');
-                    const isExpanded = submenu.style.display === 'block';
-                    submenu.style.display = isExpanded ? 'none' : 'block';
-                    this.classList.toggle('expanded');
-                    return; // Don't switch section, just toggle submenu
-                }
-                
-                switchSection(section);
-                
-                // Update active state
-                document.querySelectorAll('.nav-item, .nav-subitem').forEach(nav => nav.classList.remove('active'));
-                this.classList.add('active');
-                
-            });
-        });
-        
+        // switchSection - now a thin proxy to showSection for backward compatibility
         function switchSection(section) {
-            // Hide all sections
-            document.querySelectorAll('section').forEach(sec => sec.style.display = 'none');
-            
-            // Show selected section
-            const sectionElement = document.getElementById(section + 'Section');
-            if (sectionElement) {
-                sectionElement.style.display = 'block';
-            }
-            
-            // Update title
-            const titles = {
-                dashboard: 'Главная',
-                tours: 'Управление турами',
-                bookings: 'Управление заказами',
-                hotels: 'Управление отелями',
-                guides: 'Управление гидами',
-                drivers: 'Управление водителями',
-                trips: 'Управление поездками',
-                transfers: 'Управление трансферами',
-                countries: 'Управление странами',
-                cities: 'Управление городами',
-                customers: 'Клиенты',
-                reviews: 'Модерация отзывов',
-                payments: 'Платежи',
-                cms: 'CMS - Управление контентом',
-                settings: 'Настройки',
-                'custom-tour-tajikistan': 'Собственный тур - Таджикистан',
-                'custom-tour-uzbekistan': 'Собственный тур - Узбекистан',
-                'custom-tour-kyrgyzstan': 'Собственный тур - Кыргызстан',
-                'custom-tour-turkmenistan': 'Собственный тур - Туркменистан',
-                'custom-tour-kazakhstan': 'Собственный тур - Казахстан'
-            };
-            const sectionTitleElement = document.getElementById('sectionTitle');
-            if (sectionTitleElement) {
-                sectionTitleElement.textContent = titles[section] || 'Админ-панель';
-            }
-            
-            // Load section data
-            switch(section) {
-                case 'dashboard':
-                    loadDashboard();
-                    break;
-                case 'tours':
-                    loadTours();
-                    break;
-                case 'bookings':
-                    loadBookings();
-                    break;
-                case 'hotels':
-                    loadHotels();
-                    break;
-                case 'guides':
-                    loadGuides();
-                    break;
-                case 'drivers':
-                    loadDrivers();
-                    break;
-                case 'trips':
-                    loadTrips();
-                    break;
-                case 'transfers':
-                    loadTransfers();
-                    break;
-                case 'countries':
-                    loadCountries();
-                    break;
-                case 'cities':
-                    loadCities();
-                    break;
-                case 'city-card-photos':
-                    loadCityCardPhotos();
-                    break;
-                case 'reviews':
-                    loadReviews();
-                    break;
-                case 'news':
-                    loadNews();
-                    break;
-                case 'cms':
-                    loadCMSContentBlocks();
-                    break;
-                case 'custom-tour-tajikistan':
-                    loadCustomTourComponents(1); // Country ID 1
-                    break;
-                case 'custom-tour-uzbekistan':
-                    loadCustomTourComponents(2); // Country ID 2
-                    break;
-                case 'custom-tour-kyrgyzstan':
-                    loadCustomTourComponents(3); // Country ID 3
-                    break;
-                case 'custom-tour-turkmenistan':
-                    loadCustomTourComponents(4); // Country ID 4
-                    break;
-                case 'custom-tour-kazakhstan':
-                    loadCustomTourComponents(5); // Country ID 5
-                    break;
-            }
+            showSection(section);
         }
         
         function toggleSidebar() {
@@ -13663,16 +13544,36 @@
             // Check authentication first
             checkAuthOnLoad();
             
-            // Add click handlers for all navigation items
-            const navItems = document.querySelectorAll('.nav-item[data-section]');
+            // Initialize submenu as closed
+            const submenu = document.getElementById('custom-tour-submenu');
+            if (submenu) {
+                submenu.style.display = 'none';
+            }
+            const parentItem = document.querySelector('.nav-item-parent[data-section="custom-tour"]');
+            if (parentItem) {
+                parentItem.classList.remove('expanded');
+            }
+            
+            // Add click handlers for all navigation items (including submenu items)
+            const navItems = document.querySelectorAll('.nav-item[data-section], .nav-subitem[data-section]');
             navItems.forEach(item => {
                 item.addEventListener('click', function(e) {
                     e.preventDefault();
                     const section = this.getAttribute('data-section');
+                    
+                    // Handle custom tour parent item - toggle submenu only
+                    if (section === 'custom-tour' && this.classList.contains('nav-item-parent')) {
+                        const submenu = document.getElementById('custom-tour-submenu');
+                        const isExpanded = submenu.style.display === 'block';
+                        submenu.style.display = isExpanded ? 'none' : 'block';
+                        this.classList.toggle('expanded');
+                        return; // Don't switch section, just toggle submenu
+                    }
+                    
                     showSection(section);
                     
                     // Update active state
-                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.nav-item, .nav-subitem').forEach(nav => nav.classList.remove('active'));
                     this.classList.add('active');
                 });
             });
@@ -13969,12 +13870,64 @@
 
         // Show section function
         function showSection(sectionName) {
-            // Hide all sections
+            // Hide all sections first (including custom tour sections)
             const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
             });
+
+            // Hide all custom tour country sections
+            const countrySections = document.querySelectorAll('.custom-tour-section');
+            countrySections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Early return for custom tour sections AFTER hiding all sections
+            if (sectionName.startsWith('custom-tour-')) {
+                // Map country name to ID
+                const countryMap = {
+                    'custom-tour-tajikistan': 1,
+                    'custom-tour-uzbekistan': 2,
+                    'custom-tour-kyrgyzstan': 3,
+                    'custom-tour-turkmenistan': 4,
+                    'custom-tour-kazakhstan': 5
+                };
+                const titles = {
+                    'custom-tour-tajikistan': 'Собственный тур - Таджикистан',
+                    'custom-tour-uzbekistan': 'Собственный тур - Узбекистан',
+                    'custom-tour-kyrgyzstan': 'Собственный тур - Кыргызстан',
+                    'custom-tour-turkmenistan': 'Собственный тур - Туркменистан',
+                    'custom-tour-kazakhstan': 'Собственный тур - Казахстан'
+                };
+                const countryId = countryMap[sectionName];
+                if (countryId) {
+                    // Update section title
+                    const sectionTitleElement = document.getElementById('sectionTitle');
+                    if (sectionTitleElement) {
+                        sectionTitleElement.textContent = titles[sectionName] || 'Собственный тур';
+                    }
+                    
+                    showCustomTourSection(sectionName.replace('custom-tour-', ''), countryId);
+                    return;
+                }
+            }
+
+            // Hide custom component form and collapse submenu for non-custom-tour sections
+            const formContainer = document.getElementById('customComponentFormContainer');
+            if (formContainer) {
+                formContainer.style.display = 'none';
+            }
+            
+            // Collapse custom tour submenu when leaving custom tour sections
+            const submenu = document.getElementById('custom-tour-submenu');
+            if (submenu) {
+                submenu.style.display = 'none';
+            }
+            const parentItem = document.querySelector('.nav-item-parent[data-section="custom-tour"]');
+            if (parentItem) {
+                parentItem.classList.remove('expanded');
+            }
 
             // Show selected section - map section names to section IDs
             let sectionId;
@@ -16628,6 +16581,45 @@
                 console.error('Error deleting custom component:', error);
                 alert('Ошибка соединения с сервером');
             }
+        }
+
+        // Reset custom component form
+        function resetCustomComponentForm() {
+            document.getElementById('newCustomComponentNameRu').value = '';
+            document.getElementById('newCustomComponentNameEn').value = '';
+            document.getElementById('newCustomComponentPrice').value = '';
+            document.getElementById('newCustomComponentUnit').value = '';
+            document.getElementById('newCustomComponentDescRu').value = '';
+            document.getElementById('newCustomComponentDescEn').value = '';
+        }
+
+        // Show custom tour section with form
+        function showCustomTourSection(sectionName, countryId) {
+            // Hide all custom tour country sections
+            const countrySections = document.querySelectorAll('.custom-tour-section');
+            countrySections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            // Show the universal form
+            const formContainer = document.getElementById('customComponentFormContainer');
+            if (formContainer) {
+                formContainer.style.display = 'block';
+            }
+
+            // Show the selected country section - build proper ID
+            const sectionId = 'custom-tour-' + sectionName + 'Section';
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            // Reset form and update country context
+            resetCustomComponentForm();
+            currentCountryId = countryId;
+
+            // Load components for this country
+            loadCustomTourComponents(countryId);
         }
 
     </script>
