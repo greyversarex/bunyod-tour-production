@@ -146,6 +146,9 @@
                         <div id="componentsContainer" class="space-y-6"></div>
                     </div>
 
+                    <!-- Total Days Display -->
+                    <div id="totalDaysDisplay" class="mb-6"></div>
+
                     <!-- Дополнительные пожелания -->
                     <div class="border-b pb-6">
                         <label for="customerNotes" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_notes">Дополнительные пожелания</label>
@@ -191,6 +194,8 @@
         let allCountries = [];
         let allCities = [];
         let allComponents = [];
+        let cityDaysData = {}; // { cityId: daysCount }
+        let totalDays = 0; // Total days calculated from selected cities
 
         // Load countries
         async function loadCountries() {
@@ -254,10 +259,76 @@
                         selectedCountries.includes(city.countryId)
                     );
                     renderCities();
+                    // Load city days data
+                    await loadCityDaysData();
                 }
             } catch (error) {
                 console.error('Error loading cities:', error);
             }
+        }
+
+        // Load city days data for selected countries
+        async function loadCityDaysData() {
+            cityDaysData = {}; // Reset
+            
+            if (selectedCountries.length === 0) {
+                updateTotalDays();
+                return;
+            }
+            
+            try {
+                const promises = selectedCountries.map(countryId =>
+                    fetch(`/api/custom-tour/cities?countryId=${countryId}`).then(r => r.json())
+                );
+                
+                const results = await Promise.all(promises);
+                
+                results.forEach(result => {
+                    if (result.success && result.data) {
+                        result.data.forEach(cityData => {
+                            if (cityData.isActive) {
+                                cityDaysData[cityData.cityId] = cityData.daysCount;
+                            }
+                        });
+                    }
+                });
+                
+                console.log('✅ Loaded city days data:', cityDaysData);
+                updateTotalDays();
+            } catch (error) {
+                console.error('Error loading city days data:', error);
+            }
+        }
+
+        // Calculate and display total days
+        function updateTotalDays() {
+            totalDays = 0; // Reset global variable
+            
+            selectedCities.forEach(cityId => {
+                const days = cityDaysData[cityId] || 0;
+                totalDays += days;
+            });
+            
+            // Update display
+            const totalDaysElement = document.getElementById('totalDaysDisplay');
+            if (totalDaysElement) {
+                if (totalDays > 0) {
+                    const daysText = totalDays === 1 ? 'день' : totalDays < 5 ? 'дня' : 'дней';
+                    totalDaysElement.innerHTML = `
+                        <div class="flex items-center justify-between bg-gray-50 border-l-4 border-gray-800 p-4 rounded">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar-alt text-gray-600 text-xl mr-3"></i>
+                                <span class="text-gray-700 font-medium">Общая продолжительность тура:</span>
+                            </div>
+                            <span class="text-2xl font-bold text-gray-800">${totalDays} ${daysText}</span>
+                        </div>
+                    `;
+                } else {
+                    totalDaysElement.innerHTML = '';
+                }
+            }
+            
+            console.log(`📅 Total days calculated: ${totalDays}`);
         }
 
         function renderCities() {
@@ -285,6 +356,7 @@
             } else {
                 selectedCities = selectedCities.filter(id => id !== cityId);
             }
+            updateTotalDays(); // Update total days when cities change
         }
 
         function updateCitiesVisibility() {
@@ -469,6 +541,7 @@
             loadingText.classList.remove('hidden');
             
             try {
+                // Use the global totalDays value (calculated by updateTotalDays())
                 const formData = {
                     fullName: document.getElementById('fullName').value.trim(),
                     email: document.getElementById('email').value.trim() || null,
@@ -478,7 +551,8 @@
                     tourists,
                     selectedComponents,
                     customerNotes: document.getElementById('customerNotes').value.trim() || null,
-                    totalPrice: parseFloat(document.getElementById('totalPrice').textContent)
+                    totalPrice: parseFloat(document.getElementById('totalPrice').textContent),
+                    totalDays: totalDays || 0
                 };
                 
                 const response = await fetch('/api/custom-tour-orders', {

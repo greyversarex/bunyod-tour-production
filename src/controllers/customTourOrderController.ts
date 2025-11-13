@@ -82,7 +82,8 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       tourists,
       selectedComponents,
       customerNotes,
-      totalPrice
+      totalPrice,
+      totalDays
     } = req.body;
     
     // Strict validation of required fields
@@ -192,6 +193,15 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
     
+    // Validate optional totalDays field
+    if (totalDays !== undefined && totalDays !== null && (typeof totalDays !== 'number' || !Number.isInteger(totalDays) || totalDays < 0)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат общего количества дней'
+      });
+      return;
+    }
+    
     // Create order
     const order = await prisma.customTourOrder.create({
       data: {
@@ -204,6 +214,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         selectedComponents,
         customerNotes: customerNotes ? customerNotes.trim() : null,
         totalPrice: totalPrice ?? null,
+        totalDays: totalDays ?? null,
         status: 'pending',
       },
     });

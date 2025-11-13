@@ -23,6 +23,7 @@ import objectsRoutes from './objectsRoutes';
 import priceCalculatorRoutes from './priceCalculatorRoutes';
 import customTourRoutes from './customTourRoutes';
 import customTourOrderRoutes from './customTourOrderRoutes';
+import customTourCityRoutes from './customTourCityRoutes';
 // Tour guide cabinet system
 import tourGuideRoutes from './tourGuideRoutes';
 import adminTourHistoryRoutes from './adminTourHistoryRoutes';
@@ -71,6 +72,7 @@ router.use('/objects', objectsRoutes); // Add objects endpoint for ObjectUploade
 router.use('/price-calculator', priceCalculatorRoutes); // Add price calculator endpoints
 router.use('/custom-tour-components', customTourRoutes); // Custom tour components management
 router.use('/custom-tour-orders', customTourOrderRoutes); // Custom tour orders management
+router.use('/custom-tour', customTourCityRoutes); // Custom tour cities with days management
 router.use('/guide', tourGuideRoutes); // Tour guide authentication and management
 router.use('/drivers', driverRoutes); // Driver management and authentication
 router.use('/countries', countryRoutes); // Countries management
