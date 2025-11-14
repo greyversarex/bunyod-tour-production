@@ -244,6 +244,23 @@
             const checkbox = event.target;
             
             if (checkbox.checked) {
+                // Проверка: если выбираем вторую страну, проверим длительность
+                const durationInput = document.getElementById('tourDuration');
+                const duration = parseInt(durationInput?.value) || 0;
+                
+                if (selectedCountries.length >= 1 && duration > 0 && duration < 6) {
+                    // Отменяем выбор - снимаем галочку
+                    checkbox.checked = false;
+                    
+                    // Показываем предупреждение
+                    const warningDiv = document.getElementById('durationWarning');
+                    if (warningDiv) {
+                        warningDiv.classList.remove('hidden');
+                    }
+                    
+                    return; // Прерываем выполнение функции
+                }
+                
                 selectedCountries.push(countryId);
                 await loadCitiesForCountries();
                 await loadComponentsForCountries();
