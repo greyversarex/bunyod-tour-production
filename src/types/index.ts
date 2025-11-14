@@ -97,6 +97,7 @@ export interface CreateTourData {
   pricingComponents?: string; // JSON string of selected pricing components with quantities (maps to pricingData in DB)
   pricingData?: string; // Prisma field name for pricing components data
   profitMargin?: number; // Profit margin percentage (e.g., 30 for 30%)
+  mapPoints?: string; // JSON string of map points (parsed as TourMapPoint[] in model)
 }
 
 // API Response types

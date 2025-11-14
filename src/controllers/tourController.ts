@@ -264,7 +264,7 @@ export class TourController {
   static async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating tour with data:', req.body);
-      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
 
       console.log('💰 Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
 
@@ -525,7 +525,8 @@ export class TourController {
         rating: ratingNumber,
         reviewsCount: reviewsCountNumber,
         pricingComponents: pricingComponents || null,
-        profitMargin: profitMarginNumber
+        profitMargin: profitMarginNumber,
+        mapPoints: mapPoints || null // 🗺️ Точки карты тура
       });
       } catch (createError) {
         console.error('❌ Error in TourModel.create:', createError);
@@ -697,7 +698,7 @@ export class TourController {
 
       console.log('🔍 FULL REQUEST BODY:', JSON.stringify(req.body, null, 2));
       
-      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin } = req.body;
+      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
 
       console.log('💰 UPDATE: Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
       console.log('📊 All keys in req.body:', Object.keys(req.body));
@@ -910,6 +911,7 @@ export class TourController {
       }
       if (pricingComponents !== undefined) updateData.pricingComponents = pricingComponents;
       if (profitMarginNumber !== undefined) updateData.profitMargin = profitMarginNumber;
+      if (mapPoints !== undefined) updateData.mapPoints = mapPoints; // 🗺️ Точки карты тура
       
       // Add support for assignedGuideId
       if (req.body.assignedGuideId !== undefined) {
