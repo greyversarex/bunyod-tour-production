@@ -102,6 +102,7 @@ model Tour {
   tourDrivers             TourDriver[]
   tourGuides              TourGuide[]
   tourHotels              TourHotel[]
+  tourMapPoints           TourMapPoint[]
   pricingComponents       TourPricingComponent[]
   assignedGuide           Guide?                   @relation("AssignedGuide", fields: [assignedGuideId], references: [id])
   category                Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -783,6 +784,21 @@ model CustomTourCity {
 
   @@unique([countryId, cityId])
   @@map("custom_tour_cities")
+}
+
+model TourMapPoint {
+  id          Int      @id @default(autoincrement())
+  tourId      Int      @map("tour_id")
+  stepNumber  Int      @map("step_number")
+  latitude    Float
+  longitude   Float
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, stepNumber])
+  @@map("tour_map_points")
 }
 
 model DriverProfile {

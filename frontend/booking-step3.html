@@ -434,12 +434,18 @@
                 
                 paymentOptionsSection.style.display = 'block';
                 
-                // Для Групповых (общий + персональный): 30% и 100%
-                if (isGroupShared || isGroupPersonal) {
+                // Для Групповых общий: 10% и 100%
+                if (isGroupShared) {
+                    deposit10Option.style.display = 'block';
+                    deposit30Option.style.display = 'none';
+                    console.log('✅ Payment options: 10% and 100% (group shared tour, in', diffDays, 'days)');
+                } 
+                // Для Групповых персональный: 30% и 100%
+                else if (isGroupPersonal) {
                     deposit10Option.style.display = 'none';
                     deposit30Option.style.display = 'block';
-                    console.log('✅ Payment options: 30% and 100% (group tour, in', diffDays, 'days)');
-                } 
+                    console.log('✅ Payment options: 30% and 100% (group personal tour, in', diffDays, 'days)');
+                }
                 // Для индивидуально-персональных: 10%, 30% и 100%
                 else if (isPersonal) {
                     deposit10Option.style.display = 'block';
