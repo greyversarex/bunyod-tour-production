@@ -2650,6 +2650,36 @@
                         <small class="text-gray-500">Создайте детальную программу тура по дням. Каждый день может содержать несколько активностей.</small>
                     </div>
 
+                    <!-- Карта тура (географические точки маршрута) -->
+                    <div class="form-group col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="form-label">🗺️ Карта тура (географические точки маршрута)</label>
+                        </div>
+
+                        <!-- Список точек карты -->
+                        <div id="mapPointsList" class="space-y-2 mb-4 max-h-64 overflow-y-auto border rounded p-3 bg-gray-50">
+                            <small class="text-gray-400">Добавленные точки маршрута появятся здесь</small>
+                        </div>
+
+                        <!-- Форма добавления точки карты -->
+                        <div class="bg-white border rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-700 mb-3">Добавить точку на карту</h4>
+                            <div class="grid grid-cols-4 gap-3 mb-3">
+                                <input type="number" min="1" class="form-input" id="newMapPointNumber" placeholder="№ точки">
+                                <input type="number" step="any" class="form-input" id="newMapPointLat" placeholder="Широта (38.5598)">
+                                <input type="number" step="any" class="form-input" id="newMapPointLng" placeholder="Долгота (68.7738)">
+                                <button type="button" onclick="addMapPoint()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    Добавить
+                                </button>
+                            </div>
+                            <input type="text" class="form-input mb-2" id="newMapPointDescRu" placeholder="Описание точки (Русский) - опционально">
+                            <input type="text" class="form-input" id="newMapPointDescEn" placeholder="Description (English) - optional">
+                        </div>
+
+                        <small class="text-gray-500 mt-2 block">Создайте последовательность географических точек маршрута тура. Они будут отображаться на карте для пользователей.</small>
+                    </div>
+
                     <!-- Доступное время начала тура -->
                     <div class="form-group col-span-2">
                         <label class="form-label">Доступное время начала тура</label>
@@ -4416,6 +4446,7 @@
         window.tourItinerary = [];
         window.tourStartTimes = [];
         window.editStartTimes = [];
+        window.tourMapPoints = [];
 
 
         // Функции removeHighlight и updateHighlightsList удалены - используем выбор услуг из калькулятора
@@ -5283,6 +5314,75 @@
             updateStartTimesList();
         }
 
+        // Функции управления точками карты тура
+        function addMapPoint() {
+            const number = parseInt(document.getElementById('newMapPointNumber').value);
+            const lat = parseFloat(document.getElementById('newMapPointLat').value);
+            const lng = parseFloat(document.getElementById('newMapPointLng').value);
+            const descRu = document.getElementById('newMapPointDescRu').value.trim();
+            const descEn = document.getElementById('newMapPointDescEn').value.trim();
+            
+            if (!number || isNaN(lat) || isNaN(lng)) {
+                alert('Пожалуйста, заполните номер точки, широту и долготу');
+                return;
+            }
+            
+            // Проверка на дубликат номера
+            if (window.tourMapPoints.some(p => p.number === number)) {
+                alert('Точка с таким номером уже существует');
+                return;
+            }
+            
+            const mapPoint = {
+                number: number,
+                latitude: lat,
+                longitude: lng,
+                descriptionRu: descRu || null,
+                descriptionEn: descEn || null
+            };
+            
+            window.tourMapPoints.push(mapPoint);
+            window.tourMapPoints.sort((a, b) => a.number - b.number); // Сортируем по номеру
+            updateMapPointsList();
+            
+            // Очищаем форму
+            document.getElementById('newMapPointNumber').value = '';
+            document.getElementById('newMapPointLat').value = '';
+            document.getElementById('newMapPointLng').value = '';
+            document.getElementById('newMapPointDescRu').value = '';
+            document.getElementById('newMapPointDescEn').value = '';
+        }
+        
+        function removeMapPoint(index) {
+            window.tourMapPoints.splice(index, 1);
+            updateMapPointsList();
+        }
+        
+        function updateMapPointsList() {
+            const container = document.getElementById('mapPointsList');
+            
+            if (window.tourMapPoints.length === 0) {
+                container.innerHTML = '<small class="text-gray-400">Добавленные точки маршрута появятся здесь</small>';
+                return;
+            }
+            
+            container.innerHTML = window.tourMapPoints.map((point, index) => `
+                <div class="flex items-start justify-between bg-white p-3 rounded border">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm font-bold">№${point.number}</span>
+                            <span class="text-gray-700 font-medium">📍 ${point.latitude.toFixed(4)}, ${point.longitude.toFixed(4)}</span>
+                        </div>
+                        ${point.descriptionRu ? `<p class="text-sm text-gray-600 ml-10">🇷🇺 ${point.descriptionRu}</p>` : ''}
+                        ${point.descriptionEn ? `<p class="text-sm text-gray-500 ml-10">🇬🇧 ${point.descriptionEn}</p>` : ''}
+                    </div>
+                    <button type="button" onclick="removeMapPoint(${index})" class="text-red-500 hover:text-red-700 ml-3">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
         // Функции для работы с языками в форме редактирования
         function addEditLanguageToTour() {
             const select = document.getElementById('eAvailableLanguages');
@@ -5970,6 +6070,11 @@
             // 🔒 Загружаем фиксированный список "Не включено в тур"
             loadPredefinedExcludedServices();
             
+            // 🗺️ Очищаем точки карты при создании нового тура
+            if (!tourId) {
+                window.tourMapPoints = [];
+                updateMapPointsList();
+            }
             
             // КРИТИЧНО: Инициализируем многодневную программу для всех случаев
             if (!window.tourDaysItinerary || Object.keys(window.tourDaysItinerary).length === 0) {
@@ -6338,17 +6443,12 @@
                                             };
                                         }
                                         const activity = {
-                                            time: item.time,
+                                            duration: item.duration || item.time || '', // Поддержка legacy поля time
                                             title: item.title,
                                             titleEn: item.titleEn || '',
                                             description: item.description || '',
                                             descriptionEn: item.descriptionEn || ''
                                         };
-                                        
-                                        // ИСПРАВЛЕНИЕ: Сохраняем coordinates при загрузке тура
-                                        if (item.coordinates) {
-                                            activity.coordinates = item.coordinates;
-                                        }
                                         
                                         groupedByDay[day].activities.push(activity);
                                     });
@@ -6395,6 +6495,20 @@
                             } catch (e) {
                                 console.warn('Failed to parse start times:', e);
                             }
+                        }
+                        
+                        // 🗺️ Загрузка точек карты тура
+                        if (tour.mapPoints) {
+                            try {
+                                const mapPoints = typeof tour.mapPoints === 'string' ? JSON.parse(tour.mapPoints) : tour.mapPoints;
+                                window.tourMapPoints = mapPoints || [];
+                                updateMapPointsList();
+                            } catch (e) {
+                                console.warn('Failed to parse map points:', e);
+                                window.tourMapPoints = [];
+                            }
+                        } else {
+                            window.tourMapPoints = [];
                         }
                         
                         if (tour.languages) {
@@ -6913,6 +7027,7 @@
                 profitMargin: safeGetValue('profitMargin', 0, 'float'),
                 itinerary: JSON.stringify(convertDaysItineraryToArray()), // Обратная совместимость: сохраняем как массив
                 itineraryEn: JSON.stringify(convertDaysItineraryToArrayEn()), // Английская версия
+                mapPoints: JSON.stringify(window.tourMapPoints || []), // 🗺️ Точки карты тура
                 startTimeOptions: JSON.stringify(window.tourStartTimes || []),
                 languages: JSON.stringify(window.tourLanguages || ['Русский']),
                 availableMonths: JSON.stringify(getSelectedCheckboxValues('month-')),
