@@ -139,7 +139,7 @@ export class TourController {
       }
 
       console.log('🔍 Searching for tour with ID:', id);
-      const tour = await TourModel.findById(id);
+      const tour = await TourModel.findById(id) as any; // Явное приведение из-за Prisma типов
       console.log('📦 Found tour:', tour ? 'Yes' : 'No');
       
       if (!tour) {
@@ -184,7 +184,14 @@ export class TourController {
               name: parseMultilingualField(tour.category.name, language)
             } : null,
             // Парсим services для включения nameEn
-            services: tour.services ? safeJsonParse(tour.services, []) : []
+            services: tour.services ? safeJsonParse(tour.services, []) : [],
+            // 🗺️ Преобразуем tourMapPoints в формат для фронтенда
+            mapPoints: tour.tourMapPoints ? tour.tourMapPoints.map((point: any) => ({
+              lat: point.latitude,
+              lng: point.longitude,
+              title: point.description || `Point ${point.stepNumber}`,
+              description: point.description || ''
+            })) : []
           };
         }
         
