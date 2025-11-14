@@ -1215,6 +1215,13 @@
                                                             ? (item.descriptionEn || item.description || 'Event description')
                                                             : (item.description || item.descriptionEn || 'Описание события');
                                                         
+                                                        // Добавляем продолжительность к названию
+                                                        const duration = item.duration || item.time;
+                                                        const titleWithDuration = duration ? `${eventTitle} <span class="text-gray-500 font-normal">(${duration})</span>` : eventTitle;
+                                                        
+                                                        // Проверяем длину описания для кнопки "Подробнее"
+                                                        const hasLongDescription = eventDescription && eventDescription.length > 100;
+                                                        
                                                         const isLastItem = itemIndex === dayPrograms.length - 1;
                                                         
                                                         return `
@@ -1230,24 +1237,18 @@
                                                             <!-- Контент программы -->
                                                             <div class="flex-1 min-w-0">
                                                                 <h4 class="text-base font-semibold text-gray-900 mb-2">
-                                                                    ${eventTitle}
+                                                                    ${titleWithDuration}
                                                                 </h4>
-                                                                <p id="event-desc-${day}-${itemIndex}" class="text-sm text-gray-600 leading-relaxed mb-2 line-clamp-2">
+                                                                <p id="event-desc-${day}-${itemIndex}" class="text-sm text-gray-600 leading-relaxed mb-2 ${hasLongDescription ? 'line-clamp-2' : ''}">
                                                                     ${eventDescription}
                                                                 </p>
+                                                                ${hasLongDescription ? `
                                                                 <button 
                                                                     id="event-desc-btn-${day}-${itemIndex}"
                                                                     onclick="toggleEventDescription(${day}, ${itemIndex})"
                                                                     class="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors">
                                                                     ${currentLang === 'en' ? 'Read more' : 'Подробнее'}
                                                                 </button>
-                                                                ${item.time ? `
-                                                                    <div class="flex items-center gap-1 text-xs text-gray-500 mt-2">
-                                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                        </svg>
-                                                                        <span>${item.time}</span>
-                                                                    </div>
                                                                 ` : ''}
                                                             </div>
                                                         </div>
@@ -1460,28 +1461,53 @@
         let tourMapLines = [];
         
         function initializeTourMap() {
-            if (!tourData || !tourData.itinerary) {
-                console.log('📍 Нет данных итинерария для карты');
+            if (!tourData) {
+                console.log('📍 Нет данных тура для карты');
                 return;
             }
             
             const currentLang = getCurrentLanguage();
-            const itinerary = currentLang === 'en' && tourData.itineraryEn ? tourData.itineraryEn : tourData.itinerary;
             
-            // Группируем активности по дням и проверяем наличие координат
+            // Приоритетно используем mapPoints, если они есть
+            let mapPoints = [];
+            if (Array.isArray(tourData.mapPoints) && tourData.mapPoints.length > 0) {
+                mapPoints = tourData.mapPoints.filter(p => 
+                    p && isFinite(p.lat) && isFinite(p.lng)
+                );
+                console.log('📍 Используем mapPoints для карты:', mapPoints.length);
+            }
+            
+            // Группируем точки по дням
             const dayGroups = {};
             let hasAnyCoordinates = false;
             
-            itinerary.forEach(item => {
-                const day = item.day || 1;
-                if (!dayGroups[day]) {
-                    dayGroups[day] = [];
-                }
-                if (item.coordinates && item.coordinates.lat && item.coordinates.lng) {
-                    dayGroups[day].push(item);
-                    hasAnyCoordinates = true;
-                }
-            });
+            if (mapPoints.length > 0) {
+                // Используем mapPoints - все точки на одном "дне" (день 1)
+                dayGroups[1] = mapPoints.map((point, index) => ({
+                    coordinates: { lat: point.lat, lng: point.lng },
+                    title: point.title || `Point ${index + 1}`,
+                    titleEn: point.title || `Point ${index + 1}`,
+                    description: point.description || '',
+                    descriptionEn: point.description || '',
+                    day: 1
+                }));
+                hasAnyCoordinates = true;
+            } else if (tourData.itinerary) {
+                // Fallback: используем координаты из itinerary
+                const itinerary = currentLang === 'en' && tourData.itineraryEn ? tourData.itineraryEn : tourData.itinerary;
+                
+                itinerary.forEach(item => {
+                    const day = item.day || 1;
+                    if (!dayGroups[day]) {
+                        dayGroups[day] = [];
+                    }
+                    if (item.coordinates && item.coordinates.lat && item.coordinates.lng) {
+                        dayGroups[day].push(item);
+                        hasAnyCoordinates = true;
+                    }
+                });
+                console.log('📍 Используем координаты из itinerary для карты');
+            }
             
             // Показываем/скрываем вкладку карты
             const tabMapButton = document.getElementById('tab-map');
@@ -1489,7 +1515,7 @@
                 if (tabMapButton) {
                     tabMapButton.classList.add('hidden');
                 }
-                console.log('📍 Нет координат в итинерарии - вкладка карты скрыта');
+                console.log('📍 Нет координат - вкладка карты скрыта');
                 return;
             }
             
