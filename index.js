@@ -45,6 +45,11 @@ app.use(cors({
     // Разрешить запросы без origin (curl, healthcheck, same-origin)
     if (!origin) return callback(null, true);
     
+    // В режиме разработки разрешить все
+    if (process.env.NODE_ENV === 'development') {
+      return callback(null, true);
+    }
+    
     // Разрешить все если установлено *
     if (corsOrigins === '*' || allowlist.includes('*')) {
       return callback(null, true);
