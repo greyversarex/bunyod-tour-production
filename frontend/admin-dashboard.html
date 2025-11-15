@@ -6452,16 +6452,29 @@
                         }
                         
                         // 🗺️ Загрузка точек карты тура
-                        if (tour.mapPoints) {
+                        if (tour.tourMapPoints || tour.mapPoints) {
                             try {
-                                const mapPoints = typeof tour.mapPoints === 'string' ? JSON.parse(tour.mapPoints) : tour.mapPoints;
-                                window.tourMapPoints = mapPoints || [];
+                                // API возвращает tourMapPoints в формате [{lat, lng, title, description, stepNumber}]
+                                const apiPoints = tour.tourMapPoints || tour.mapPoints;
+                                const mapPoints = typeof apiPoints === 'string' ? JSON.parse(apiPoints) : apiPoints;
+                                
+                                // Преобразуем формат API в формат админки (number, latitude, longitude, descriptionRu/En)
+                                window.tourMapPoints = (mapPoints || []).map(point => ({
+                                    number: point.stepNumber || point.number || 1,
+                                    latitude: point.lat || point.latitude || 0,
+                                    longitude: point.lng || point.longitude || 0,
+                                    descriptionRu: point.title || point.description || point.descriptionRu || '',
+                                    descriptionEn: point.description || point.descriptionEn || ''
+                                }));
+                                
+                                console.log('🗺️ Загружено точек карты:', window.tourMapPoints.length, window.tourMapPoints);
                                 updateMapPointsList();
                             } catch (e) {
                                 console.warn('Failed to parse map points:', e);
                                 window.tourMapPoints = [];
                             }
                         } else {
+                            console.log('🗺️ Нет точек карты для загрузки');
                             window.tourMapPoints = [];
                         }
                         
