@@ -6549,13 +6549,42 @@
                                 const mapPoints = typeof apiPoints === 'string' ? JSON.parse(apiPoints) : apiPoints;
                                 
                                 // Преобразуем формат API в формат админки (number, latitude, longitude, descriptionRu/En)
-                                window.tourMapPoints = (mapPoints || []).map(point => ({
-                                    number: point.stepNumber || point.number || 1,
-                                    latitude: point.lat || point.latitude || 0,
-                                    longitude: point.lng || point.longitude || 0,
-                                    descriptionRu: point.title || point.description || point.descriptionRu || '',
-                                    descriptionEn: point.description || point.descriptionEn || ''
-                                }));
+                                window.tourMapPoints = (mapPoints || []).map(point => {
+                                    // 🔧 ИСПРАВЛЕНО: Правильная обработка многоязычного поля description
+                                    let descRu = '';
+                                    let descEn = '';
+                                    
+                                    if (point.description) {
+                                        if (typeof point.description === 'object' && point.description !== null) {
+                                            // JSON объект {"ru": "...", "en": "..."}
+                                            descRu = point.description.ru || '';
+                                            descEn = point.description.en || '';
+                                        } else if (typeof point.description === 'string') {
+                                            // Попытка парсинга строки как JSON
+                                            try {
+                                                const parsed = JSON.parse(point.description);
+                                                descRu = parsed.ru || '';
+                                                descEn = parsed.en || '';
+                                            } catch (e) {
+                                                // Если не JSON, используем как русское описание
+                                                descRu = point.description;
+                                                descEn = point.description;
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Fallback на отдельные поля, если они есть
+                                    if (!descRu) descRu = point.descriptionRu || point.title || '';
+                                    if (!descEn) descEn = point.descriptionEn || point.title || '';
+                                    
+                                    return {
+                                        number: point.stepNumber || point.number || 1,
+                                        latitude: point.lat || point.latitude || 0,
+                                        longitude: point.lng || point.longitude || 0,
+                                        descriptionRu: descRu,
+                                        descriptionEn: descEn
+                                    };
+                                });
                                 
                                 console.log('🗺️ Загружено точек карты:', window.tourMapPoints.length, window.tourMapPoints);
                                 updateMapPointsList();
