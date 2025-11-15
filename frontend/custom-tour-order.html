@@ -74,6 +74,7 @@
                                 </label>
                                 <input type="text" id="fullName" name="fullName" required 
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_fullname_placeholder"
                                     placeholder="Введите ваше полное имя">
                             </div>
                             <div>
@@ -82,6 +83,7 @@
                                 </label>
                                 <input type="email" id="email" name="email" 
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_email_placeholder"
                                     placeholder="your@email.com">
                             </div>
                             <div>
@@ -90,6 +92,7 @@
                                 </label>
                                 <input type="tel" id="phone" name="phone" required 
                                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_phone_placeholder"
                                     placeholder="+992 XX XXX XXXX">
                             </div>
                         </div>
@@ -104,6 +107,7 @@
                             </label>
                             <input type="number" id="tourDuration" name="tourDuration" required min="3"
                                 class="w-full md:w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                data-i18n-placeholder="custom_tour_days_placeholder"
                                 placeholder="Например: 7"
                                 onchange="validateDuration()">
                             <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_days_hint">Каждая страна требует минимум 3 дня. Например: 6 дней = до 2 стран, 9 дней = до 3 стран</p>
@@ -148,6 +152,7 @@
                             <div class="flex gap-3">
                                 <input type="text" id="touristName" 
                                     class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_tourist_name_placeholder"
                                     placeholder="Введите имя и нажмите 'Добавить'">
                                 <button type="button" onclick="addTourist()" 
                                     class="add-tourist-btn px-6 py-3 text-white font-semibold rounded-lg transition-colors">
@@ -163,7 +168,7 @@
                     <!-- Компоненты тура -->
                     <div class="border-b pb-6">
                         <h3 class="text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_components">Компоненты тура</h3>
-                        <p class="text-sm text-gray-600 mb-4" data-i18n="custom_tour_components_hint">Выберите страны выше, чтобы увидеть доступные компоненты</p>
+                        <p class="text-sm text-gray-600 mb-4" data-i18n="custom_tour_select_countries_hint">Выберите страны выше, чтобы увидеть доступные компоненты</p>
                         <div id="componentsContainer" class="space-y-6"></div>
                     </div>
 
@@ -172,6 +177,7 @@
                         <label for="customerNotes" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_notes">Дополнительные пожелания</label>
                         <textarea id="customerNotes" name="customerNotes" rows="4"
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                            data-i18n-placeholder="custom_tour_notes_placeholder"
                             placeholder="Расскажите нам о ваших предпочтениях, особых требованиях..."></textarea>
                     </div>
 
@@ -230,14 +236,18 @@
 
         function renderCountries() {
             const container = document.getElementById('countriesContainer');
-            container.innerHTML = allCountries.map(country => `
-                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                    <input type="checkbox" value="${country.id}" 
-                        onchange="toggleCountry(${country.id})"
-                        class="mr-3 h-5 w-5 text-gray-600">
-                    <span class="font-medium">${country.nameRu}</span>
-                </label>
-            `).join('');
+            const lang = window.currentLanguage || 'ru';
+            container.innerHTML = allCountries.map(country => {
+                const countryName = lang === 'en' ? country.nameEn : country.nameRu;
+                return `
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" value="${country.id}" 
+                            onchange="toggleCountry(${country.id})"
+                            class="mr-3 h-5 w-5 text-gray-600">
+                        <span class="font-medium">${countryName}</span>
+                    </label>
+                `;
+            }).join('');
         }
 
         async function toggleCountry(countryId) {
@@ -391,21 +401,26 @@
 
         function renderCities() {
             const container = document.getElementById('citiesContainer');
+            const lang = window.currentLanguage || 'ru';
             
             if (allCities.length === 0) {
-                container.innerHTML = '<p class="text-gray-500 col-span-full text-center py-4">Выберите страны, чтобы увидеть города</p>';
+                const hint = getTranslation('custom_tour_select_cities_hint');
+                container.innerHTML = `<p class="text-gray-500 col-span-full text-center py-4">${hint}</p>`;
                 return;
             }
             
-            container.innerHTML = allCities.map(city => `
-                <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-sm">
-                    <input type="checkbox" value="${city.id}" 
-                        ${selectedCities.includes(city.id) ? 'checked' : ''}
-                        onchange="toggleCity(${city.id})"
-                        class="mr-2 h-4 w-4 text-gray-600">
-                    <span>${city.nameRu}</span>
-                </label>
-            `).join('');
+            container.innerHTML = allCities.map(city => {
+                const cityName = lang === 'en' ? city.nameEn : city.nameRu;
+                return `
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-sm">
+                        <input type="checkbox" value="${city.id}" 
+                            ${selectedCities.includes(city.id) ? 'checked' : ''}
+                            onchange="toggleCity(${city.id})"
+                            class="mr-2 h-4 w-4 text-gray-600">
+                        <span>${cityName}</span>
+                    </label>
+                `;
+            }).join('');
         }
 
         function toggleCity(cityId) {
@@ -575,17 +590,17 @@
             
             // Validation
             if (selectedCountries.length === 0) {
-                showNotification('Выберите хотя бы одну страну', 'error');
+                showNotification(getTranslation('custom_tour_error_no_countries'), 'error');
                 return;
             }
             
             if (tourists.length === 0) {
-                showNotification('Добавьте хотя бы одного туриста', 'error');
+                showNotification(getTranslation('custom_tour_error_no_tourists'), 'error');
                 return;
             }
             
             if (selectedComponents.length === 0) {
-                showNotification('Выберите хотя бы один компонент тура', 'error');
+                showNotification(getTranslation('custom_tour_error_no_components'), 'error');
                 return;
             }
             
@@ -603,7 +618,7 @@
                 
                 // Validate duration
                 if (tourDuration < 3) {
-                    showNotification('Минимальное количество дней для тура - 3 дня', 'error');
+                    showNotification(getTranslation('custom_tour_error_min_days'), 'error');
                     submitBtn.disabled = false;
                     submitText.classList.remove('hidden');
                     loadingText.classList.add('hidden');
@@ -632,16 +647,16 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showNotification('Заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.', 'success');
+                    showNotification(getTranslation('custom_tour_success_message'), 'success');
                     setTimeout(() => {
                         window.location.reload();
                     }, 2000);
                 } else {
-                    showNotification(data.message || 'Ошибка при отправке заказа', 'error');
+                    showNotification(data.message || getTranslation('custom_tour_error_submit'), 'error');
                 }
             } catch (error) {
                 console.error('Error submitting order:', error);
-                showNotification('Ошибка при отправке заказа. Попробуйте позже.', 'error');
+                showNotification(getTranslation('custom_tour_error_try_later'), 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitText.classList.remove('hidden');
@@ -667,9 +682,41 @@
             }, 5000);
         }
 
+        // Обработчик смены языка - перерисовать страны и города
+        document.addEventListener('languageChanged', (event) => {
+            console.log('Language changed to:', event.detail.language);
+            // Перерисовать страны
+            if (allCountries.length > 0) {
+                renderCountries();
+                // Восстановить выбранные страны
+                selectedCountries.forEach(countryId => {
+                    const checkbox = document.querySelector(`input[type="checkbox"][value="${countryId}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            // Перерисовать города
+            if (allCities.length > 0) {
+                renderCities();
+            }
+            // Обновить плейсхолдеры
+            updatePlaceholders();
+        });
+
+        // Обновить плейсхолдеры при смене языка
+        function updatePlaceholders() {
+            const elementsWithPlaceholder = document.querySelectorAll('[data-i18n-placeholder]');
+            elementsWithPlaceholder.forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) {
+                    el.placeholder = getTranslation(key);
+                }
+            });
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             loadCountries();
+            updatePlaceholders();
         });
     </script>
 </body>

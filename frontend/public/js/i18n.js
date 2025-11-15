@@ -161,6 +161,26 @@ window.translations = window.translations || {
     'custom_tour_country_2_4': { ru: 'страны', en: 'countries' },
     'custom_tour_country_5plus': { ru: 'стран', en: 'countries' },
     
+    // Плейсхолдеры для формы заказа тура
+    'custom_tour_fullname_placeholder': { ru: 'Введите ваше полное имя', en: 'Enter your full name' },
+    'custom_tour_email_placeholder': { ru: 'your@email.com', en: 'your@email.com' },
+    'custom_tour_phone_placeholder': { ru: '+992 XX XXX XXXX', en: '+992 XX XXX XXXX' },
+    'custom_tour_days_placeholder': { ru: 'Например: 7', en: 'For example: 7' },
+    'custom_tour_tourist_name_placeholder': { ru: 'Введите имя и нажмите \'Добавить\'', en: 'Enter name and click \'Add\'' },
+    'custom_tour_notes_placeholder': { ru: 'Расскажите нам о ваших предпочтениях, особых требованиях...', en: 'Tell us about your preferences, special requirements...' },
+    'custom_tour_select_countries_hint': { ru: 'Выберите страны выше, чтобы увидеть доступные компоненты', en: 'Select countries above to see available components' },
+    'custom_tour_select_cities_hint': { ru: 'Выберите страны, чтобы увидеть города', en: 'Select countries to see cities' },
+    'custom_tour_remove': { ru: 'Удалить', en: 'Remove' },
+    
+    // Сообщения валидации и уведомления
+    'custom_tour_error_no_countries': { ru: 'Выберите хотя бы одну страну', en: 'Select at least one country' },
+    'custom_tour_error_no_tourists': { ru: 'Добавьте хотя бы одного туриста', en: 'Add at least one tourist' },
+    'custom_tour_error_no_components': { ru: 'Выберите хотя бы один компонент тура', en: 'Select at least one tour component' },
+    'custom_tour_error_min_days': { ru: 'Минимальное количество дней для тура - 3 дня', en: 'Minimum tour duration is 3 days' },
+    'custom_tour_success_message': { ru: 'Заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.', en: 'Order successfully submitted! We will contact you shortly.' },
+    'custom_tour_error_submit': { ru: 'Ошибка при отправке заказа', en: 'Error submitting order' },
+    'custom_tour_error_try_later': { ru: 'Ошибка при отправке заказа. Попробуйте позже.', en: 'Error submitting order. Please try again later.' },
+    
     // Ценовые обозначения
     'price.from': { ru: 'Цена от:', en: 'Price from:' },
     'price.from_prefix': { ru: 'от', en: 'from' },
