@@ -1602,13 +1602,15 @@
                 });
                 
                 const title = currentLang === 'en' ? (activity.titleEn || activity.title) : (activity.title || activity.titleEn);
+                const description = currentLang === 'en' ? (activity.descriptionEn || activity.description) : (activity.description || activity.descriptionEn);
                 const marker = L.marker([lat, lng], { icon: numberIcon }).addTo(tourMap);
                 
                 // Добавляем popup с информацией
                 const popupContent = `
                     <div style="min-width: 200px;">
                         <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${index + 1}. ${title || ''}</div>
-                        ${activity.time ? `<div style="color: #666; font-size: 12px;">⏰ ${activity.time}</div>` : ''}
+                        ${activity.time ? `<div style="color: #666; font-size: 12px; margin-bottom: 4px;">⏰ ${activity.time}</div>` : ''}
+                        ${description ? `<div style="color: #555; font-size: 13px; margin-top: 6px;">${description}</div>` : ''}
                     </div>
                 `;
                 marker.bindPopup(popupContent);
