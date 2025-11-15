@@ -152,6 +152,14 @@ window.translations = window.translations || {
     'custom_tour_price_note': { ru: 'Окончательная цена будет рассчитана после обработки вашей заявки', en: 'Final price will be calculated after processing your request' },
     'custom_tour_submit_btn': { ru: 'Отправить заявку', en: 'Submit Request' },
     'custom_tour_submit_sending': { ru: 'Отправляется...', en: 'Sending...' },
+    'custom_tour_duration_title': { ru: 'Продолжительность тура', en: 'Tour Duration' },
+    'custom_tour_days_label': { ru: 'Количество дней', en: 'Number of Days' },
+    'custom_tour_days_hint': { ru: 'Каждая страна требует минимум 3 дня. Например: 6 дней = до 2 стран, 9 дней = до 3 стран', en: 'Each country requires a minimum of 3 days. For example: 6 days = up to 2 countries, 9 days = up to 3 countries' },
+    'custom_tour_specify_days_first': { ru: 'Сначала укажите количество дней тура', en: 'Please specify the number of tour days first' },
+    'custom_tour_validation_warning': { ru: 'При {days} днях можно выбрать максимум {maxCountries} {countryWord}. Для {neededCountries} {neededCountryWord} нужно минимум {minDays} дней.', en: 'With {days} days you can select maximum {maxCountries} {countryWord}. For {neededCountries} {neededCountryWord} you need at least {minDays} days.' },
+    'custom_tour_country_1': { ru: 'страну', en: 'country' },
+    'custom_tour_country_2_4': { ru: 'страны', en: 'countries' },
+    'custom_tour_country_5plus': { ru: 'стран', en: 'countries' },
     
     // Ценовые обозначения
     'price.from': { ru: 'Цена от:', en: 'Price from:' },
