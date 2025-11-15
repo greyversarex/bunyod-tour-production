@@ -106,11 +106,11 @@
                                 class="w-full md:w-1/3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                 placeholder="Например: 7"
                                 onchange="validateDuration()">
-                            <p class="text-sm text-gray-500 mt-2">Минимальное количество дней для проведения тура в 1 стране от 3 дней</p>
+                            <p class="text-sm text-gray-500 mt-2">Каждая страна требует минимум 3 дня. Например: 6 дней = до 2 стран, 9 дней = до 3 стран</p>
                             <div id="durationWarning" class="hidden mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div class="flex items-start gap-2">
                                     <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
-                                    <p class="text-sm text-yellow-800">Для тура по нескольким странам рекомендуется минимум 6 дней</p>
+                                    <p id="durationWarningText" class="text-sm text-yellow-800">Недостаточно дней для выбранного количества стран</p>
                                 </div>
                             </div>
                         </div>
@@ -244,17 +244,28 @@
             const checkbox = event.target;
             
             if (checkbox.checked) {
-                // Проверка: если выбираем вторую страну, проверим длительность
+                // Проверка: каждая страна требует минимум 3 дня
                 const durationInput = document.getElementById('tourDuration');
                 const duration = parseInt(durationInput?.value) || 0;
                 
-                if (selectedCountries.length >= 1 && duration > 0 && duration < 6) {
+                // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
+                const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
+                
+                // Если пытаемся выбрать больше стран, чем позволяет количество дней
+                if (selectedCountries.length >= maxCountries) {
                     // Отменяем выбор - снимаем галочку
                     checkbox.checked = false;
                     
-                    // Показываем предупреждение
+                    // Показываем предупреждение с конкретным количеством доступных стран
                     const warningDiv = document.getElementById('durationWarning');
-                    if (warningDiv) {
+                    const warningText = document.getElementById('durationWarningText');
+                    if (warningDiv && warningText) {
+                        if (duration === 0) {
+                            warningText.textContent = 'Сначала укажите количество дней тура';
+                        } else {
+                            const minDaysNeeded = (selectedCountries.length + 1) * 3;
+                            warningText.textContent = `При ${duration} днях можно выбрать максимум ${maxCountries} ${getCountryWord(maxCountries)}. Для ${selectedCountries.length + 1} ${getCountryWord(selectedCountries.length + 1)} нужно минимум ${minDaysNeeded} дней.`;
+                        }
                         warningDiv.classList.remove('hidden');
                     }
                     
@@ -276,6 +287,13 @@
             updateCitiesVisibility();
             updateTotalPrice();
             validateDuration();
+        }
+        
+        // Функция для правильного склонения слова "страна"
+        function getCountryWord(count) {
+            if (count === 1) return 'страну';
+            if (count >= 2 && count <= 4) return 'страны';
+            return 'стран';
         }
 
         async function loadCitiesForCountries() {
@@ -306,15 +324,36 @@
         function validateDuration() {
             const durationInput = document.getElementById('tourDuration');
             const warningDiv = document.getElementById('durationWarning');
+            const warningText = document.getElementById('durationWarningText');
             
-            if (!durationInput || !warningDiv) return;
+            if (!durationInput || !warningDiv || !warningText) return;
             
             const duration = parseInt(durationInput.value) || 0;
             const countriesCount = selectedCountries.length;
             
-            // Show warning if 2+ countries and duration < 6 days
-            if (countriesCount >= 2 && duration > 0 && duration < 6) {
+            // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
+            const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
+            
+            // Если выбрано больше стран, чем позволяет длительность
+            if (countriesCount > maxCountries) {
+                // Показываем предупреждение
+                const minDaysNeeded = countriesCount * 3;
+                warningText.textContent = `При ${duration} днях можно выбрать максимум ${maxCountries} ${getCountryWord(maxCountries)}. Для ${countriesCount} ${getCountryWord(countriesCount)} нужно минимум ${minDaysNeeded} дней.`;
                 warningDiv.classList.remove('hidden');
+                
+                // Автоматически снимаем лишние галочки (оставляем только первые maxCountries стран)
+                const countriesToRemove = selectedCountries.slice(maxCountries);
+                selectedCountries = selectedCountries.slice(0, maxCountries);
+                
+                // Обновляем чекбоксы в интерфейсе
+                countriesToRemove.forEach(countryId => {
+                    const checkbox = document.querySelector(`input[type="checkbox"][value="${countryId}"]`);
+                    if (checkbox) checkbox.checked = false;
+                });
+                
+                // Обновляем города и компоненты
+                loadCitiesForCountries();
+                loadComponentsForCountries();
             } else {
                 warningDiv.classList.add('hidden');
             }
