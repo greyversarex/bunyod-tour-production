@@ -251,10 +251,13 @@ export class TourModel {
             await prisma.tourMapPoint.createMany({
               data: mapPointsData.map((point: any, index: number) => ({
                 tourId: tour.id,
-                stepNumber: point.stepNumber || index + 1,
+                stepNumber: point.number || point.stepNumber || index + 1,
                 latitude: parseFloat(point.lat || point.latitude),
                 longitude: parseFloat(point.lng || point.longitude),
-                description: point.description || point.title || ''
+                description: JSON.stringify({
+                  ru: point.descriptionRu || point.description?.ru || '',
+                  en: point.descriptionEn || point.description?.en || ''
+                })
               }))
             });
             console.log(`✅ Создано ${mapPointsData.length} точек карты для тура ${tour.id}`);
@@ -540,10 +543,13 @@ export class TourModel {
               await prisma.tourMapPoint.createMany({
                 data: mapPointsData.map((point: any, index: number) => ({
                   tourId: id,
-                  stepNumber: point.stepNumber || index + 1,
+                  stepNumber: point.number || point.stepNumber || index + 1,
                   latitude: parseFloat(point.lat || point.latitude),
                   longitude: parseFloat(point.lng || point.longitude),
-                  description: point.description || point.title || ''
+                  description: JSON.stringify({
+                    ru: point.descriptionRu || point.description?.ru || '',
+                    en: point.descriptionEn || point.description?.en || ''
+                  })
                 }))
               });
               console.log(`✅ Обновлено ${mapPointsData.length} точек карты для тура ${id}`);
