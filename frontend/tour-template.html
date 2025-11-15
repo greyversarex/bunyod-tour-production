@@ -724,6 +724,36 @@
                 return getTranslation('tour.stops_many'); // 5+ Остановок
             }
         }
+        
+        // Функция для локализации временных меток (duration) в программе тура
+        function localizeDuration(duration, lang) {
+            if (!duration) return '';
+            
+            // Если язык русский или duration уже в нужном формате, возвращаем как есть
+            const durationStr = String(duration).trim();
+            
+            if (lang === 'ru') {
+                // Для русского языка возвращаем как есть
+                return durationStr;
+            }
+            
+            // Для английского языка переводим русские обозначения времени
+            let result = durationStr;
+            
+            // Замены для часов
+            result = result.replace(/(\d+)\s*ч(?:ас|аса|асов)?(?!\w)/gi, '$1 h');
+            
+            // Замены для минут
+            result = result.replace(/(\d+)\s*мин(?:ут|уты|уты)?(?!\w)/gi, '$1 min');
+            
+            // Замены для дней
+            result = result.replace(/(\d+)\s*д(?:ень|ня|ней)?(?!\w)/gi, '$1 day');
+            result = result.replace(/(\d+)\s*day(?:\s|$)/gi, (match, num) => {
+                return parseInt(num) === 1 ? `${num} day` : `${num} days`;
+            });
+            
+            return result.trim();
+        }
 
         // Функция для обновления breadcrumb навигации
         function updateBreadcrumb() {
@@ -1241,9 +1271,10 @@
                                                             ? (item.descriptionEn || item.description || 'Event description')
                                                             : (item.description || item.descriptionEn || 'Описание события');
                                                         
-                                                        // Добавляем продолжительность к названию
+                                                        // Добавляем продолжительность к названию с локализацией
                                                         const duration = item.duration || item.time;
-                                                        const titleWithDuration = duration ? `${eventTitle} <span class="text-gray-500 font-normal">(${duration})</span>` : eventTitle;
+                                                        const localizedDuration = duration ? localizeDuration(duration, currentLang) : '';
+                                                        const titleWithDuration = localizedDuration ? `${eventTitle} <span class="text-gray-500 font-normal">(${localizedDuration})</span>` : eventTitle;
                                                         
                                                         // Проверяем длину описания для кнопки "Подробнее"
                                                         const hasLongDescription = eventDescription && eventDescription.length > 100;
