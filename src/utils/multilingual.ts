@@ -255,6 +255,17 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
     const localizedTourType = denormalizeTourType(tour.tourType || tour.format, language);
     const localizedPriceType = denormalizePriceType(tour.priceType, language);
     
+    // 🗺️ Трансформируем точки карты тура в формат для фронтенда
+    const transformedMapPoints = tour.tourMapPoints && Array.isArray(tour.tourMapPoints)
+      ? tour.tourMapPoints.map((point: any) => ({
+          lat: point.latitude,
+          lng: point.longitude,
+          title: point.description || '',
+          description: point.description || '',
+          stepNumber: point.stepNumber
+        }))
+      : undefined;
+
     const mappedTour = {
       ...tour,
       title: safeJsonParse(tour.title),
@@ -267,7 +278,9 @@ export function mapTour(tour: any, language: SupportedLanguage = 'ru', options: 
       categories: categories,
       // Add country and city from relations
       country: tour.tourCountry ? parseMultilingualField(tour.tourCountry.name, language) : null,
-      city: tour.tourCity ? parseMultilingualField(tour.tourCity.name, language) : null
+      city: tour.tourCity ? parseMultilingualField(tour.tourCity.name, language) : null,
+      // 🗺️ ПЕРЕЗАПИСЫВАЕМ точки карты трансформированными данными
+      tourMapPoints: transformedMapPoints
     };
     
     // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: ПЕРЕЗАПИСЫВАЕМ enum значения денормализованными

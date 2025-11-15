@@ -165,6 +165,14 @@ export class TourController {
             } : null,
             // Парсим services для включения nameEn
             services: tour.services ? safeJsonParse(tour.services, []) : [],
+            // 🗺️ Преобразуем tourMapPoints в формат для фронтенда (АДМИНКА)
+            tourMapPoints: tour.tourMapPoints ? tour.tourMapPoints.map((point: any) => ({
+              lat: point.latitude,
+              lng: point.longitude,
+              title: point.description || `Point ${point.stepNumber}`,
+              description: point.description || '',
+              stepNumber: point.stepNumber
+            })) : [],
             // Добавляем локализованные версии для превью
             _localized: {
               title: parseMultilingualField(tour.title, language),
