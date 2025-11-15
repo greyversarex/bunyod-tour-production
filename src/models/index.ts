@@ -242,6 +242,28 @@ export class TourModel {
         });
       }
 
+      // 🗺️ Создаём точки карты тура (если переданы)
+      if (data.mapPoints) {
+        try {
+          const mapPointsData = typeof data.mapPoints === 'string' ? JSON.parse(data.mapPoints) : data.mapPoints;
+          
+          if (Array.isArray(mapPointsData) && mapPointsData.length > 0) {
+            await prisma.tourMapPoint.createMany({
+              data: mapPointsData.map((point: any, index: number) => ({
+                tourId: tour.id,
+                stepNumber: point.stepNumber || index + 1,
+                latitude: parseFloat(point.lat || point.latitude),
+                longitude: parseFloat(point.lng || point.longitude),
+                description: point.description || point.title || ''
+              }))
+            });
+            console.log(`✅ Создано ${mapPointsData.length} точек карты для тура ${tour.id}`);
+          }
+        } catch (parseError) {
+          console.error('⚠️ Ошибка парсинга mapPoints:', parseError);
+        }
+      }
+
       // Возвращаем тур с включёнными связями
       return await prisma.tour.findUnique({
         where: { id: tour.id },
@@ -499,6 +521,40 @@ export class TourModel {
               isPrimary: true
             }
           });
+        }
+      }
+
+      // 🗺️ Обновляем точки карты тура (если переданы)
+      if (data.mapPoints !== undefined) {
+        // Удаляем старые точки карты
+        await prisma.tourMapPoint.deleteMany({
+          where: { tourId: id }
+        });
+
+        // Создаём новые точки (если есть)
+        if (data.mapPoints) {
+          try {
+            const mapPointsData = typeof data.mapPoints === 'string' ? JSON.parse(data.mapPoints) : data.mapPoints;
+            
+            if (Array.isArray(mapPointsData) && mapPointsData.length > 0) {
+              await prisma.tourMapPoint.createMany({
+                data: mapPointsData.map((point: any, index: number) => ({
+                  tourId: id,
+                  stepNumber: point.stepNumber || index + 1,
+                  latitude: parseFloat(point.lat || point.latitude),
+                  longitude: parseFloat(point.lng || point.longitude),
+                  description: point.description || point.title || ''
+                }))
+              });
+              console.log(`✅ Обновлено ${mapPointsData.length} точек карты для тура ${id}`);
+            } else {
+              console.log(`✅ Удалены все точки карты для тура ${id}`);
+            }
+          } catch (parseError) {
+            console.error('⚠️ Ошибка парсинга mapPoints:', parseError);
+          }
+        } else {
+          console.log(`✅ Удалены все точки карты для тура ${id}`);
         }
       }
 
