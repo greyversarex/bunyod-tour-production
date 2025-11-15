@@ -2573,17 +2573,21 @@
                         <!-- Форма добавления точки карты -->
                         <div class="bg-white border rounded-lg p-4">
                             <h4 class="font-semibold text-gray-700 mb-3">Добавить точку на карту</h4>
-                            <div class="grid grid-cols-4 gap-3 mb-3">
+                            <div class="grid grid-cols-3 gap-3 mb-3">
                                 <input type="number" min="1" class="form-input" id="newMapPointNumber" placeholder="№ точки">
                                 <input type="number" step="any" class="form-input" id="newMapPointLat" placeholder="Широта (38.5598)">
                                 <input type="number" step="any" class="form-input" id="newMapPointLng" placeholder="Долгота (68.7738)">
-                                <button type="button" onclick="addMapPoint()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded">
-                                    <i class="fas fa-map-marker-alt mr-1"></i>
-                                    Добавить
-                                </button>
                             </div>
                             <input type="text" class="form-input mb-2" id="newMapPointDescRu" placeholder="Описание точки (Русский) - опционально">
-                            <input type="text" class="form-input" id="newMapPointDescEn" placeholder="Description (English) - optional">
+                            <input type="text" class="form-input mb-3" id="newMapPointDescEn" placeholder="Description (English) - optional">
+                            <div class="flex gap-2">
+                                <button type="button" onclick="addMapPoint()" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded flex items-center">
+                                    <i class="fas fa-plus mr-2"></i>Добавить точку
+                                </button>
+                                <button type="button" onclick="cancelEditMapPoint()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded" style="display: none;" id="cancelEditMapPointBtn">
+                                    <i class="fas fa-times mr-2"></i>Отмена
+                                </button>
+                            </div>
                         </div>
 
                         <small class="text-gray-500 mt-2 block">Создайте последовательность географических точек маршрута тура. Они будут отображаться на карте для пользователей.</small>
@@ -5281,12 +5285,6 @@
                 return;
             }
             
-            // Проверка на дубликат номера
-            if (window.tourMapPoints.some(p => p.number === number)) {
-                alert('Точка с таким номером уже существует');
-                return;
-            }
-            
             const mapPoint = {
                 number: number,
                 latitude: lat,
@@ -5295,16 +5293,42 @@
                 descriptionEn: descEn || null
             };
             
-            window.tourMapPoints.push(mapPoint);
-            window.tourMapPoints.sort((a, b) => a.number - b.number); // Сортируем по номеру
-            updateMapPointsList();
+            // Режим редактирования
+            if (window.editingMapPointIndex !== null) {
+                const oldPoint = window.tourMapPoints[window.editingMapPointIndex];
+                
+                // Проверка на дубликат номера (если номер изменился)
+                if (number !== oldPoint.number && window.tourMapPoints.some(p => p.number === number)) {
+                    alert('Точка с таким номером уже существует');
+                    return;
+                }
+                
+                // Обновляем точку
+                window.tourMapPoints[window.editingMapPointIndex] = mapPoint;
+                window.tourMapPoints.sort((a, b) => a.number - b.number);
+                
+                // Сбрасываем режим редактирования
+                cancelEditMapPoint();
+            } else {
+                // Режим добавления новой точки
+                // Проверка на дубликат номера
+                if (window.tourMapPoints.some(p => p.number === number)) {
+                    alert('Точка с таким номером уже существует');
+                    return;
+                }
+                
+                window.tourMapPoints.push(mapPoint);
+                window.tourMapPoints.sort((a, b) => a.number - b.number);
+                
+                // Очищаем форму
+                document.getElementById('newMapPointNumber').value = '';
+                document.getElementById('newMapPointLat').value = '';
+                document.getElementById('newMapPointLng').value = '';
+                document.getElementById('newMapPointDescRu').value = '';
+                document.getElementById('newMapPointDescEn').value = '';
+            }
             
-            // Очищаем форму
-            document.getElementById('newMapPointNumber').value = '';
-            document.getElementById('newMapPointLat').value = '';
-            document.getElementById('newMapPointLng').value = '';
-            document.getElementById('newMapPointDescRu').value = '';
-            document.getElementById('newMapPointDescEn').value = '';
+            updateMapPointsList();
         }
         
         function removeMapPoint(index) {
@@ -5330,11 +5354,77 @@
                         ${point.descriptionRu ? `<p class="text-sm text-gray-600 ml-10">🇷🇺 ${point.descriptionRu}</p>` : ''}
                         ${point.descriptionEn ? `<p class="text-sm text-gray-500 ml-10">🇬🇧 ${point.descriptionEn}</p>` : ''}
                     </div>
-                    <button type="button" onclick="removeMapPoint(${index})" class="text-red-500 hover:text-red-700 ml-3">
-                        <i class="fas fa-times"></i>
-                    </button>
+                    <div class="flex gap-2 ml-3">
+                        <button type="button" onclick="editMapPoint(${index})" class="text-blue-500 hover:text-blue-700" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" onclick="removeMapPoint(${index})" class="text-red-500 hover:text-red-700" title="Удалить">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             `).join('');
+        }
+        
+        // Глобальная переменная для отслеживания редактируемой точки
+        window.editingMapPointIndex = null;
+        
+        function editMapPoint(index) {
+            const point = window.tourMapPoints[index];
+            if (!point) return;
+            
+            // Заполняем форму данными точки
+            document.getElementById('newMapPointNumber').value = point.number;
+            document.getElementById('newMapPointLat').value = point.latitude;
+            document.getElementById('newMapPointLng').value = point.longitude;
+            document.getElementById('newMapPointDescRu').value = point.descriptionRu || '';
+            document.getElementById('newMapPointDescEn').value = point.descriptionEn || '';
+            
+            // Сохраняем индекс редактируемой точки
+            window.editingMapPointIndex = index;
+            
+            // Меняем текст кнопки
+            const addButton = document.querySelector('button[onclick="addMapPoint()"]');
+            const cancelButton = document.getElementById('cancelEditMapPointBtn');
+            
+            if (addButton) {
+                addButton.innerHTML = '<i class="fas fa-save mr-2"></i>Сохранить изменения';
+                addButton.classList.remove('bg-gray-700', 'hover:bg-gray-800');
+                addButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            }
+            
+            if (cancelButton) {
+                cancelButton.style.display = 'block';
+            }
+            
+            // Прокручиваем к форме
+            document.getElementById('newMapPointNumber').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        function cancelEditMapPoint() {
+            // Очищаем форму
+            document.getElementById('newMapPointNumber').value = '';
+            document.getElementById('newMapPointLat').value = '';
+            document.getElementById('newMapPointLng').value = '';
+            document.getElementById('newMapPointDescRu').value = '';
+            document.getElementById('newMapPointDescEn').value = '';
+            
+            // Сбрасываем индекс редактирования
+            window.editingMapPointIndex = null;
+            
+            // Возвращаем текст кнопки
+            const addButton = document.querySelector('button[onclick="addMapPoint()"]');
+            const cancelButton = document.getElementById('cancelEditMapPointBtn');
+            
+            if (addButton) {
+                addButton.innerHTML = '<i class="fas fa-plus mr-2"></i>Добавить точку';
+                addButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                addButton.classList.add('bg-gray-700', 'hover:bg-gray-800');
+            }
+            
+            if (cancelButton) {
+                cancelButton.style.display = 'none';
+            }
         }
 
         // Функции для работы с языками в форме редактирования
