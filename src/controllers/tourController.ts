@@ -193,8 +193,8 @@ export class TourController {
             } : null,
             // Парсим services для включения nameEn
             services: tour.services ? safeJsonParse(tour.services, []) : [],
-            // 🗺️ Преобразуем tourMapPoints в формат для фронтенда
-            mapPoints: tour.tourMapPoints ? tour.tourMapPoints.map((point: any) => ({
+            // 🗺️ Преобразуем tourMapPoints в формат для фронтенда (ПУБЛИЧНЫЙ ПРОСМОТР)
+            tourMapPoints: tour.tourMapPoints ? tour.tourMapPoints.map((point: any) => ({
               lat: point.latitude,
               lng: point.longitude,
               title: point.description || `Point ${point.stepNumber}`,
