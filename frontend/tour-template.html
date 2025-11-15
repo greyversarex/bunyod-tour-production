@@ -1518,23 +1518,40 @@
             
             // Используем mapPoints - все точки на одном "дне" (день 1)
             dayGroups[1] = mapPoints.map((point, index) => {
-                // 🔧 ИСПРАВЛЕНО: Правильный парсинг многоязычного поля description
+                // 🔧 ИСПРАВЛЕНО: Правильный парсинг многоязычных полей title и description
+                let titleRu = '';
+                let titleEn = '';
                 let descRu = '';
                 let descEn = '';
                 
+                // Парсинг title
+                if (point.title) {
+                    if (typeof point.title === 'object' && point.title !== null) {
+                        titleRu = point.title.ru || '';
+                        titleEn = point.title.en || '';
+                    } else if (typeof point.title === 'string') {
+                        try {
+                            const parsed = JSON.parse(point.title);
+                            titleRu = parsed.ru || '';
+                            titleEn = parsed.en || '';
+                        } catch (e) {
+                            titleRu = point.title;
+                            titleEn = point.title;
+                        }
+                    }
+                }
+                
+                // Парсинг description
                 if (point.description) {
                     if (typeof point.description === 'object' && point.description !== null) {
-                        // JSON объект {"ru": "...", "en": "..."}
                         descRu = point.description.ru || '';
                         descEn = point.description.en || '';
                     } else if (typeof point.description === 'string') {
-                        // Попытка парсинга строки как JSON
                         try {
                             const parsed = JSON.parse(point.description);
                             descRu = parsed.ru || '';
                             descEn = parsed.en || '';
                         } catch (e) {
-                            // Если не JSON, используем как оба языка
                             descRu = point.description;
                             descEn = point.description;
                         }
@@ -1543,8 +1560,8 @@
                 
                 return {
                     coordinates: { lat: point.lat, lng: point.lng },
-                    title: point.title || `Point ${index + 1}`,
-                    titleEn: point.title || `Point ${index + 1}`,
+                    title: titleRu || `Точка ${index + 1}`,
+                    titleEn: titleEn || `Point ${index + 1}`,
                     description: descRu,
                     descriptionEn: descEn,
                     day: 1
