@@ -1493,14 +1493,39 @@
             const dayGroups = {};
             
             // Используем mapPoints - все точки на одном "дне" (день 1)
-            dayGroups[1] = mapPoints.map((point, index) => ({
-                coordinates: { lat: point.lat, lng: point.lng },
-                title: point.title || `Point ${index + 1}`,
-                titleEn: point.title || `Point ${index + 1}`,
-                description: point.description || '',
-                descriptionEn: point.description || '',
-                day: 1
-            }));
+            dayGroups[1] = mapPoints.map((point, index) => {
+                // 🔧 ИСПРАВЛЕНО: Правильный парсинг многоязычного поля description
+                let descRu = '';
+                let descEn = '';
+                
+                if (point.description) {
+                    if (typeof point.description === 'object' && point.description !== null) {
+                        // JSON объект {"ru": "...", "en": "..."}
+                        descRu = point.description.ru || '';
+                        descEn = point.description.en || '';
+                    } else if (typeof point.description === 'string') {
+                        // Попытка парсинга строки как JSON
+                        try {
+                            const parsed = JSON.parse(point.description);
+                            descRu = parsed.ru || '';
+                            descEn = parsed.en || '';
+                        } catch (e) {
+                            // Если не JSON, используем как оба языка
+                            descRu = point.description;
+                            descEn = point.description;
+                        }
+                    }
+                }
+                
+                return {
+                    coordinates: { lat: point.lat, lng: point.lng },
+                    title: point.title || `Point ${index + 1}`,
+                    titleEn: point.title || `Point ${index + 1}`,
+                    description: descRu,
+                    descriptionEn: descEn,
+                    day: 1
+                };
+            });
             
             // Показываем вкладку карты
             if (tabMapButton) {
@@ -1605,15 +1630,19 @@
                 const description = currentLang === 'en' ? (activity.descriptionEn || activity.description) : (activity.description || activity.descriptionEn);
                 const marker = L.marker([lat, lng], { icon: numberIcon }).addTo(tourMap);
                 
-                // Добавляем popup с информацией
-                const popupContent = `
+                // 🔧 ИСПРАВЛЕНО: Используем tooltip вместо popup для автоматического показа при наведении
+                const tooltipContent = `
                     <div style="min-width: 200px;">
                         <div style="font-weight: bold; font-size: 14px; margin-bottom: 4px;">${index + 1}. ${title || ''}</div>
                         ${activity.time ? `<div style="color: #666; font-size: 12px; margin-bottom: 4px;">⏰ ${activity.time}</div>` : ''}
                         ${description ? `<div style="color: #555; font-size: 13px; margin-top: 6px;">${description}</div>` : ''}
                     </div>
                 `;
-                marker.bindPopup(popupContent);
+                marker.bindTooltip(tooltipContent, {
+                    permanent: false,
+                    direction: 'top',
+                    offset: [0, -10]
+                });
                 
                 tourMapMarkers.push(marker);
             });
