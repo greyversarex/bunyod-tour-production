@@ -1470,56 +1470,37 @@
             
             const currentLang = getCurrentLanguage();
             
-            // Приоритетно используем mapPoints, если они есть
+            // ✅ ТОЛЬКО mapPoints (новая система точек карты) - игнорируем старые координаты из itinerary
             let mapPoints = [];
             if (Array.isArray(tourData.mapPoints) && tourData.mapPoints.length > 0) {
                 mapPoints = tourData.mapPoints.filter(p => 
                     p && isFinite(p.lat) && isFinite(p.lng)
                 );
-                console.log('📍 Используем mapPoints для карты:', mapPoints.length);
+                console.log('📍 Найдено точек карты:', mapPoints.length);
+            }
+            
+            // Показываем/скрываем вкладку карты ТОЛЬКО на основе mapPoints
+            const tabMapButton = document.getElementById('tab-map');
+            if (mapPoints.length === 0) {
+                if (tabMapButton) {
+                    tabMapButton.classList.add('hidden');
+                }
+                console.log('📍 Нет точек карты - вкладка скрыта');
+                return;
             }
             
             // Группируем точки по дням
             const dayGroups = {};
-            let hasAnyCoordinates = false;
             
-            if (mapPoints.length > 0) {
-                // Используем mapPoints - все точки на одном "дне" (день 1)
-                dayGroups[1] = mapPoints.map((point, index) => ({
-                    coordinates: { lat: point.lat, lng: point.lng },
-                    title: point.title || `Point ${index + 1}`,
-                    titleEn: point.title || `Point ${index + 1}`,
-                    description: point.description || '',
-                    descriptionEn: point.description || '',
-                    day: 1
-                }));
-                hasAnyCoordinates = true;
-            } else if (tourData.itinerary) {
-                // Fallback: используем координаты из itinerary
-                const itinerary = currentLang === 'en' && tourData.itineraryEn ? tourData.itineraryEn : tourData.itinerary;
-                
-                itinerary.forEach(item => {
-                    const day = item.day || 1;
-                    if (!dayGroups[day]) {
-                        dayGroups[day] = [];
-                    }
-                    if (item.coordinates && item.coordinates.lat && item.coordinates.lng) {
-                        dayGroups[day].push(item);
-                        hasAnyCoordinates = true;
-                    }
-                });
-                console.log('📍 Используем координаты из itinerary для карты');
-            }
-            
-            // Показываем/скрываем вкладку карты
-            const tabMapButton = document.getElementById('tab-map');
-            if (!hasAnyCoordinates) {
-                if (tabMapButton) {
-                    tabMapButton.classList.add('hidden');
-                }
-                console.log('📍 Нет координат - вкладка карты скрыта');
-                return;
-            }
+            // Используем mapPoints - все точки на одном "дне" (день 1)
+            dayGroups[1] = mapPoints.map((point, index) => ({
+                coordinates: { lat: point.lat, lng: point.lng },
+                title: point.title || `Point ${index + 1}`,
+                titleEn: point.title || `Point ${index + 1}`,
+                description: point.description || '',
+                descriptionEn: point.description || '',
+                day: 1
+            }));
             
             // Показываем вкладку карты
             if (tabMapButton) {
