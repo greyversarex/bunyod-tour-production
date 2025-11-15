@@ -871,8 +871,32 @@
                         tourBlockAssignments: apiTour.tourBlockAssignments || [],
                         // ✅ Привязанные отели для условного перехода при бронировании
                         tourHotels: apiTour.tourHotels || [],
-                        // ✅ Точки карты тура
-                        mapPoints: apiTour.tourMapPoints || [],
+                        // ✅ Точки карты тура (с парсингом многоязычных описаний)
+                        mapPoints: (apiTour.tourMapPoints || []).map(point => {
+                            let descRu = '';
+                            let descEn = '';
+                            
+                            if (point.description) {
+                                if (typeof point.description === 'object' && point.description !== null) {
+                                    descRu = point.description.ru || '';
+                                    descEn = point.description.en || '';
+                                } else if (typeof point.description === 'string') {
+                                    try {
+                                        const parsed = JSON.parse(point.description);
+                                        descRu = parsed.ru || '';
+                                        descEn = parsed.en || '';
+                                    } catch (e) {
+                                        descRu = point.description;
+                                        descEn = point.description;
+                                    }
+                                }
+                            }
+                            
+                            return {
+                                ...point,
+                                description: { ru: descRu, en: descEn }
+                            };
+                        }),
                         reviews: [],
                         related_tours: []
                     };
@@ -1537,20 +1561,25 @@
             const days = Object.keys(dayGroups).sort((a, b) => parseInt(a) - parseInt(b));
             
             if (mapDaySelector && days.length > 0) {
-                const dayLabel = currentLang === 'en' ? 'Day' : 'День';
-                mapDaySelector.innerHTML = `
-                    <div class="flex items-center gap-3 flex-wrap">
-                        <span class="text-sm font-medium text-gray-700">${currentLang === 'en' ? 'Show route for:' : 'Показать маршрут для:'}</span>
-                        ${days.map(day => `
-                            <button onclick="showMapForDay(${day})" 
-                                    id="map-day-btn-${day}"
-                                    class="map-day-btn px-4 py-2 rounded-lg border font-medium text-sm transition-all ${day === days[0] ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}"
-                                    style="${day === days[0] ? 'background-color: #3E3E3E; border-color: #3E3E3E;' : ''}">
-                                ${dayLabel} ${day}
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
+                // 🔧 ИСПРАВЛЕНО: Скрываем селектор дней, если только один день
+                if (days.length === 1) {
+                    mapDaySelector.innerHTML = ''; // Убираем селектор для одного дня
+                } else {
+                    const dayLabel = currentLang === 'en' ? 'Day' : 'День';
+                    mapDaySelector.innerHTML = `
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="text-sm font-medium text-gray-700">${currentLang === 'en' ? 'Show route for:' : 'Показать маршрут для:'}</span>
+                            ${days.map(day => `
+                                <button onclick="showMapForDay(${day})" 
+                                        id="map-day-btn-${day}"
+                                        class="map-day-btn px-4 py-2 rounded-lg border font-medium text-sm transition-all ${day === days[0] ? 'text-white' : 'bg-white text-gray-700 border-gray-300'}"
+                                        style="${day === days[0] ? 'background-color: #3E3E3E; border-color: #3E3E3E;' : ''}">
+                                    ${dayLabel} ${day}
+                                </button>
+                            `).join('')}
+                        </div>
+                    `;
+                }
                 
                 // Сохраняем данные для использования в функции showMapForDay
                 window.tourMapDayGroups = dayGroups;
