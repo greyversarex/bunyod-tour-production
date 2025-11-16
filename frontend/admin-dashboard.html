@@ -11608,7 +11608,10 @@
         function displayAgentApplications(applications) {
             console.log('🎨 Displaying applications...', applications);
             const tbody = document.getElementById('agentApplicationsTable');
+            const section = document.getElementById('agentApplicationsSection');
             console.log('📋 Table element found:', tbody ? 'YES' : 'NO');
+            console.log('📦 Section element found:', section ? 'YES' : 'NO');
+            console.log('👁️ Section display style:', section ? section.style.display : 'N/A');
             
             if (!tbody) {
                 console.error('❌ Table element not found!');
