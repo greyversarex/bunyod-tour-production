@@ -255,7 +255,7 @@ async function ensureToursHaveAccommodation(): Promise<number> {
     }
     
     // Получаем все туры
-    const tours = await prisma.tour.findMany({
+    const tours = await prisma.tours.findMany({
       select: { id: true, services: true, title: true }
     });
     
@@ -291,7 +291,7 @@ async function ensureToursHaveAccommodation(): Promise<number> {
           });
           
           // Обновляем тур
-          await prisma.tour.update({
+          await prisma.tours.update({
             where: { id: tour.id },
             data: { services: JSON.stringify(services) }
           });
