@@ -14,7 +14,7 @@ export class TourModel {
    * Get all tours with their categories
    */
   static async findAll() {
-    return await prisma.tour.findMany({
+    return await prisma.tours.findMany({
       include: {
         category: true
       },
@@ -28,7 +28,7 @@ export class TourModel {
    * Get a tour by ID
    */
   static async findById(id: number) {
-    return await prisma.tour.findUnique({
+    return await prisma.tours.findUnique({
       where: { id },
       include: {
         category: true,
@@ -103,7 +103,7 @@ export class TourModel {
    */
   static async create(data: CreateTourData) {
     // Validate that the category exists
-    const category = await prisma.category.findUnique({
+    const category = await prisma.categories.findUnique({
       where: { id: data.categoryId }
     });
 
@@ -130,7 +130,7 @@ export class TourModel {
     // Создаём тур и связи в транзакции (увеличен timeout для сложных операций)
     return await prisma.$transaction(async (prisma: Prisma.TransactionClient) => {
       // Создаём основной тур
-      const tour = await prisma.tour.create({
+      const tour = await prisma.tours.create({
         data: {
           title: typeof data.title === 'object' ? data.title : { ru: String(data.title || ''), en: String(data.title || '') },
           description: typeof data.description === 'object' ? data.description : { ru: String(data.description || ''), en: String(data.description || '') },
@@ -202,7 +202,7 @@ export class TourModel {
 
       // Создаём связи с городами (batch insert для производительности)
       if (data.citiesIds && data.citiesIds.length > 0) {
-        await prisma.tourCity.createMany({
+        await prisma.tour_cities.createMany({
           data: data.citiesIds.map((cityId, index) => ({
             tourId: tour.id,
             cityId: cityId,
@@ -212,7 +212,7 @@ export class TourModel {
         });
       } else if (data.cityId) {
         // Если передан только старый одиночный cityId, создаём primary связь
-        await prisma.tourCity.create({
+        await prisma.tour_cities.create({
           data: {
             tourId: tour.id,
             cityId: data.cityId,
@@ -224,7 +224,7 @@ export class TourModel {
 
       // Создаём связи с категориями (batch insert для производительности)
       if (data.categoriesIds && data.categoriesIds.length > 0) {
-        await prisma.tourCategoryAssignment.createMany({
+        await prisma.tour_category_assignments.createMany({
           data: data.categoriesIds.map((categoryId: number, index: number) => ({
             tourId: tour.id,
             categoryId: categoryId,
@@ -233,7 +233,7 @@ export class TourModel {
         });
       } else {
         // Если передана только одна категория (старый способ), создаём primary связь
-        await prisma.tourCategoryAssignment.create({
+        await prisma.tour_category_assignments.create({
           data: {
             tourId: tour.id,
             categoryId: data.categoryId,
@@ -248,7 +248,7 @@ export class TourModel {
           const mapPointsData = typeof data.mapPoints === 'string' ? JSON.parse(data.mapPoints) : data.mapPoints;
           
           if (Array.isArray(mapPointsData) && mapPointsData.length > 0) {
-            await prisma.tourMapPoint.createMany({
+            await prisma.tour_map_points.createMany({
               data: mapPointsData.map((point: any, index: number) => ({
                 tourId: tour.id,
                 stepNumber: point.number || point.stepNumber || index + 1,
@@ -268,7 +268,7 @@ export class TourModel {
       }
 
       // Возвращаем тур с включёнными связями
-      return await prisma.tour.findUnique({
+      return await prisma.tours.findUnique({
         where: { id: tour.id },
         include: {
           category: true,
@@ -374,7 +374,7 @@ export class TourModel {
 
     if (data.categoryId) {
       // Validate that the category exists
-      const category = await prisma.category.findUnique({
+      const category = await prisma.categories.findUnique({
         where: { id: data.categoryId }
       });
       if (!category) {
@@ -398,7 +398,7 @@ export class TourModel {
 
     return await prisma.$transaction(async (prisma: Prisma.TransactionClient) => {
       // Обновляем основные поля тура
-      const updatedTour = await prisma.tour.update({
+      const updatedTour = await prisma.tours.update({
         where: { id },
         data: updateData
       });
@@ -447,13 +447,13 @@ export class TourModel {
       // Обновляем связи с городами, если переданы новые массивы
       if (data.citiesIds !== undefined) {
         // Удаляем старые связи
-        await prisma.tourCity.deleteMany({
+        await prisma.tour_cities.deleteMany({
           where: { tourId: id }
         });
 
         // Создаём новые связи (batch insert для производительности)
         if (data.citiesIds.length > 0) {
-          await prisma.tourCity.createMany({
+          await prisma.tour_cities.createMany({
             data: data.citiesIds.map((cityId, index) => ({
               tourId: id,
               cityId: cityId,
@@ -464,19 +464,19 @@ export class TourModel {
         }
       } else if (data.cityId !== undefined && data.cityId !== null) {
         // Если передан только старый одиночный cityId, обновляем/создаём primary связь
-        const existingCityLink = await prisma.tourCity.findFirst({
+        const existingCityLink = await prisma.tour_cities.findFirst({
           where: { tourId: id, isPrimary: true }
         });
 
         if (existingCityLink && existingCityLink.cityId !== data.cityId) {
           // Обновляем существующую primary связь
-          await prisma.tourCity.update({
+          await prisma.tour_cities.update({
             where: { id: existingCityLink.id },
             data: { cityId: data.cityId }
           });
         } else if (!existingCityLink) {
           // Создаём новую primary связь
-          await prisma.tourCity.create({
+          await prisma.tour_cities.create({
             data: {
               tourId: id,
               cityId: data.cityId,
@@ -489,13 +489,13 @@ export class TourModel {
       // Обновляем связи с категориями, если переданы новые массивы
       if (data.categoriesIds !== undefined) {
         // Удаляем старые связи
-        await prisma.tourCategoryAssignment.deleteMany({
+        await prisma.tour_category_assignments.deleteMany({
           where: { tourId: id }
         });
 
         // Создаём новые связи (batch insert для производительности)
         if (data.categoriesIds.length > 0) {
-          await prisma.tourCategoryAssignment.createMany({
+          await prisma.tour_category_assignments.createMany({
             data: data.categoriesIds.map((categoryId: number, index: number) => ({
               tourId: id,
               categoryId: categoryId,
@@ -505,19 +505,19 @@ export class TourModel {
         }
       } else if (data.categoryId !== undefined && data.categoryId !== null) {
         // Если передана только одна категория (старый способ), обновляем/создаём primary связь
-        const existingCategoryLink = await prisma.tourCategoryAssignment.findFirst({
+        const existingCategoryLink = await prisma.tour_category_assignments.findFirst({
           where: { tourId: id, isPrimary: true }
         });
 
         if (existingCategoryLink && existingCategoryLink.categoryId !== data.categoryId) {
           // Обновляем существующую primary связь
-          await prisma.tourCategoryAssignment.update({
+          await prisma.tour_category_assignments.update({
             where: { id: existingCategoryLink.id },
             data: { categoryId: data.categoryId }
           });
         } else if (!existingCategoryLink) {
           // Создаём новую primary связь
-          await prisma.tourCategoryAssignment.create({
+          await prisma.tour_category_assignments.create({
             data: {
               tourId: id,
               categoryId: data.categoryId,
@@ -530,7 +530,7 @@ export class TourModel {
       // 🗺️ Обновляем точки карты тура (если переданы)
       if (data.mapPoints !== undefined) {
         // Удаляем старые точки карты
-        await prisma.tourMapPoint.deleteMany({
+        await prisma.tour_map_points.deleteMany({
           where: { tourId: id }
         });
 
@@ -540,7 +540,7 @@ export class TourModel {
             const mapPointsData = typeof data.mapPoints === 'string' ? JSON.parse(data.mapPoints) : data.mapPoints;
             
             if (Array.isArray(mapPointsData) && mapPointsData.length > 0) {
-              await prisma.tourMapPoint.createMany({
+              await prisma.tour_map_points.createMany({
                 data: mapPointsData.map((point: any, index: number) => ({
                   tourId: id,
                   stepNumber: point.number || point.stepNumber || index + 1,
@@ -565,7 +565,7 @@ export class TourModel {
       }
 
       // Возвращаем обновлённый тур с включёнными связями
-      return await prisma.tour.findUnique({
+      return await prisma.tours.findUnique({
         where: { id },
         include: {
           category: true,
@@ -609,7 +609,7 @@ export class TourModel {
    * Delete a tour
    */
   static async delete(id: number) {
-    return await prisma.tour.delete({
+    return await prisma.tours.delete({
       where: { id }
     });
   }
@@ -618,7 +618,7 @@ export class TourModel {
    * Search tours with filters
    */
   static async search(filters: any = {}) {
-    return await prisma.tour.findMany({
+    return await prisma.tours.findMany({
       where: filters,
       include: {
         category: true,
@@ -673,7 +673,7 @@ export class CategoryModel {
    * Get all categories
    */
   static async findAll() {
-    return await prisma.category.findMany({
+    return await prisma.categories.findMany({
       include: {
         _count: {
           select: { tours: true }
@@ -689,7 +689,7 @@ export class CategoryModel {
    * Get a category by ID
    */
   static async findById(id: number) {
-    return await prisma.category.findUnique({
+    return await prisma.categories.findUnique({
       where: { id },
       include: {
         tours: true,
@@ -704,7 +704,7 @@ export class CategoryModel {
    * Create a new category
    */
   static async create(data: CreateCategoryData) {
-    return await prisma.category.create({
+    return await prisma.categories.create({
       data: {
         name: JSON.stringify(data.name)
       }
@@ -718,7 +718,7 @@ export class CategoryModel {
     const updateData: any = {};
     if (data.name) updateData.name = JSON.stringify(data.name);
 
-    return await prisma.category.update({
+    return await prisma.categories.update({
       where: { id },
       data: updateData
     });
@@ -728,7 +728,7 @@ export class CategoryModel {
    * Delete a category
    */
   static async delete(id: number) {
-    return await prisma.category.delete({
+    return await prisma.categories.delete({
       where: { id }
     });
   }
@@ -739,7 +739,7 @@ export class BookingRequestModel {
    * Get all booking requests with tour information
    */
   static async findAll() {
-    return await prisma.bookingRequest.findMany({
+    return await prisma.booking_requests.findMany({
       include: {
         tour: {
           include: {
@@ -757,7 +757,7 @@ export class BookingRequestModel {
    * Get a booking request by ID
    */
   static async findById(id: number) {
-    return await prisma.bookingRequest.findUnique({
+    return await prisma.booking_requests.findUnique({
       where: { id },
       include: {
         tour: {
@@ -774,7 +774,7 @@ export class BookingRequestModel {
    */
   static async create(data: CreateBookingRequestData) {
     // Validate that the tour exists
-    const tour = await prisma.tour.findUnique({
+    const tour = await prisma.tours.findUnique({
       where: { id: data.tourId }
     });
 
@@ -782,7 +782,7 @@ export class BookingRequestModel {
       throw new Error('Tour not found');
     }
 
-    return await prisma.bookingRequest.create({
+    return await prisma.booking_requests.create({
       data: {
         customerName: data.customerName,
         customerEmail: data.customerEmail,
@@ -804,7 +804,7 @@ export class BookingRequestModel {
    * Delete a booking request
    */
   static async delete(id: number) {
-    return await prisma.bookingRequest.delete({
+    return await prisma.booking_requests.delete({
       where: { id }
     });
   }
@@ -815,7 +815,7 @@ export class TourBlockModel {
    * Get all tour blocks
    */
   static async findAll() {
-    return await prisma.tourBlock.findMany({
+    return await prisma.tour_blocks.findMany({
       include: {
         tourBlocks: {
           include: {
@@ -837,7 +837,7 @@ export class TourBlockModel {
    * Get a tour block by ID
    */
   static async findById(id: number) {
-    return await prisma.tourBlock.findUnique({
+    return await prisma.tour_blocks.findUnique({
       where: { id },
       include: {
         tourBlocks: {
@@ -857,7 +857,7 @@ export class TourBlockModel {
    * Create a new tour block
    */
   static async create(data: any) {
-    return await prisma.tourBlock.create({
+    return await prisma.tour_blocks.create({
       data: {
         title: JSON.stringify(data.title),
         description: JSON.stringify(data.description),
@@ -877,7 +877,7 @@ export class TourBlockModel {
     if (data.slug) updateData.slug = data.slug;
     if (data.sortOrder) updateData.sortOrder = data.sortOrder;
 
-    return await prisma.tourBlock.update({
+    return await prisma.tour_blocks.update({
       where: { id },
       data: updateData
     });
@@ -887,7 +887,7 @@ export class TourBlockModel {
    * Delete a tour block
    */
   static async delete(id: number) {
-    return await prisma.tourBlock.delete({
+    return await prisma.tour_blocks.delete({
       where: { id }
     });
   }
@@ -898,7 +898,7 @@ export class HotelModel {
    * Get all hotels
    */
   static async findAll() {
-    const hotels = await prisma.hotel.findMany({
+    const hotels = await prisma.hotels.findMany({
       // 📝 Убран фильтр isActive для админ панели - возвращаем все отели (включая черновики)
       include: {
         hotelCountry: true,
@@ -920,7 +920,7 @@ export class HotelModel {
    * Get hotels for a specific tour
    */
   static async findByTourId(tourId: number) {
-    const tourHotels = await prisma.tourHotel.findMany({
+    const tourHotels = await prisma.tour_hotels.findMany({
       where: { tourId },
       include: {
         hotel: true
@@ -946,7 +946,7 @@ export class HotelModel {
    * Get a hotel by ID
    */
   static async findById(id: number) {
-    const hotel = await prisma.hotel.findUnique({
+    const hotel = await prisma.hotels.findUnique({
       where: { id },
       include: {
         hotelCountry: true,
@@ -1003,7 +1003,7 @@ export class HotelModel {
       }
     })() : null;
     
-    return await prisma.hotel.create({
+    return await prisma.hotels.create({
       data: {
         name: parsedName,
         description: parsedDescription,
@@ -1068,10 +1068,10 @@ export class HotelModel {
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft; // 📝 Поддержка черновиков
 
-    const hotel = await prisma.hotel.findUnique({ where: { id } });
+    const hotel = await prisma.hotels.findUnique({ where: { id } });
     if (!hotel) return null;
 
-    return await prisma.hotel.update({
+    return await prisma.hotels.update({
       where: { id },
       data: updateData
     });
@@ -1081,10 +1081,10 @@ export class HotelModel {
    * Delete a hotel
    */
   static async delete(id: number) {
-    const hotel = await prisma.hotel.findUnique({ where: { id } });
+    const hotel = await prisma.hotels.findUnique({ where: { id } });
     if (!hotel) return false;
 
-    await prisma.hotel.delete({ where: { id } });
+    await prisma.hotels.delete({ where: { id } });
     return true;
   }
 
@@ -1092,7 +1092,7 @@ export class HotelModel {
    * Add hotel to tour
    */
   static async addToTour(tourId: number, hotelId: number, pricePerNight?: number, isDefault: boolean = false) {
-    return await prisma.tourHotel.create({
+    return await prisma.tour_hotels.create({
       data: {
         tourId,
         hotelId,
@@ -1106,7 +1106,7 @@ export class HotelModel {
    * Remove hotel from tour
    */
   static async removeFromTour(tourId: number, hotelId: number) {
-    const tourHotel = await prisma.tourHotel.findUnique({
+    const tourHotel = await prisma.tour_hotels.findUnique({
       where: {
         tourId_hotelId: {
           tourId,
@@ -1117,7 +1117,7 @@ export class HotelModel {
 
     if (!tourHotel) return false;
 
-    await prisma.tourHotel.delete({
+    await prisma.tour_hotels.delete({
       where: {
         tourId_hotelId: {
           tourId,
@@ -1157,7 +1157,7 @@ export class TransferRequestModel {
    * Get a transfer request by ID
    */
   static async findById(id: number) {
-    return await prisma.transferRequest.findUnique({
+    return await prisma.transfer_requests.findUnique({
       where: { id },
       include: {
         assignedDriver: {
@@ -1177,7 +1177,7 @@ export class TransferRequestModel {
    * Create a new transfer request
    */
   static async create(data: any) {
-    return await prisma.transferRequest.create({
+    return await prisma.transfer_requests.create({
       data: {
         fullName: data.fullName,
         email: data.email || null,
@@ -1226,7 +1226,7 @@ export class TransferRequestModel {
     if (data.finalPrice !== undefined) updateData.finalPrice = data.finalPrice;
     if (data.assignedDriverId !== undefined) updateData.assignedDriverId = data.assignedDriverId;
 
-    return await prisma.transferRequest.update({
+    return await prisma.transfer_requests.update({
       where: { id },
       data: updateData,
       include: {
@@ -1247,7 +1247,7 @@ export class TransferRequestModel {
    * Delete a transfer request
    */
   static async delete(id: number) {
-    return await prisma.transferRequest.delete({
+    return await prisma.transfer_requests.delete({
       where: { id }
     });
   }
@@ -1286,7 +1286,7 @@ export class TransferRequestModel {
       assignedDriverId: assignedDriverId || null
     };
 
-    return await prisma.transferRequest.update({
+    return await prisma.transfer_requests.update({
       where: { id },
       data: updateData,
       include: {
@@ -1307,7 +1307,7 @@ export class TransferRequestModel {
    * Reject transfer request
    */
   static async reject(id: number, adminNotes?: string) {
-    return await prisma.transferRequest.update({
+    return await prisma.transfer_requests.update({
       where: { id },
       data: {
         status: 'rejected',
@@ -1333,7 +1333,7 @@ export class PriceCalculatorModel {
    * Get all pricing components
    */
   static async findAll() {
-    return await prisma.priceCalculatorComponent.findMany({
+    return await prisma.price_calculator_components.findMany({
       where: { isActive: true },
       orderBy: [
         { category: 'asc' },
@@ -1347,7 +1347,7 @@ export class PriceCalculatorModel {
    * Get pricing component by key
    */
   static async findByKey(key: string) {
-    return await prisma.priceCalculatorComponent.findUnique({
+    return await prisma.price_calculator_components.findUnique({
       where: { key }
     });
   }
@@ -1356,7 +1356,7 @@ export class PriceCalculatorModel {
    * Create a new pricing component
    */
   static async create(data: any) {
-    return await prisma.priceCalculatorComponent.create({
+    return await prisma.price_calculator_components.create({
       data: {
         key: data.key,
         category: data.category,
@@ -1374,7 +1374,7 @@ export class PriceCalculatorModel {
    * Update a pricing component
    */
   static async update(id: number, data: any) {
-    return await prisma.priceCalculatorComponent.update({
+    return await prisma.price_calculator_components.update({
       where: { id },
       data: {
         name: data.name,
@@ -1392,7 +1392,7 @@ export class PriceCalculatorModel {
    * Delete a pricing component
    */
   static async delete(id: number) {
-    return await prisma.priceCalculatorComponent.delete({
+    return await prisma.price_calculator_components.delete({
       where: { id }
     });
   }
@@ -1468,7 +1468,7 @@ export class ReviewModel {
    * Get all reviews with tour information
    */
   static async findAll() {
-    return await prisma.review.findMany({
+    return await prisma.reviews.findMany({
       include: {
         customer: true,
         tour: {
@@ -1487,7 +1487,7 @@ export class ReviewModel {
    * Get moderated reviews for public display
    */
   static async findModerated() {
-    return await prisma.review.findMany({
+    return await prisma.reviews.findMany({
       where: {
         isModerated: true,
         isApproved: true
@@ -1510,7 +1510,7 @@ export class ReviewModel {
    * Get reviews for a specific tour
    */
   static async findByTourId(tourId: number) {
-    return await prisma.review.findMany({
+    return await prisma.reviews.findMany({
       where: {
         tourId,
         isModerated: true,
@@ -1529,7 +1529,7 @@ export class ReviewModel {
    * Get a review by ID
    */
   static async findById(id: number) {
-    return await prisma.review.findUnique({
+    return await prisma.reviews.findUnique({
       where: { id },
       include: {
         customer: true,
@@ -1547,7 +1547,7 @@ export class ReviewModel {
    */
   static async create(data: CreateReviewData) {
     // Validate that the tour exists
-    const tour = await prisma.tour.findUnique({
+    const tour = await prisma.tours.findUnique({
       where: { id: data.tourId }
     });
 
@@ -1560,7 +1560,7 @@ export class ReviewModel {
       throw new Error('Rating must be between 1 and 5');
     }
 
-    return await prisma.review.create({
+    return await prisma.reviews.create({
       data: {
         customerId: data.customerId || null,
         reviewerName: data.reviewerName,
@@ -1584,7 +1584,7 @@ export class ReviewModel {
    * Update a review (mainly for moderation)
    */
   static async update(id: number, data: UpdateReviewData) {
-    return await prisma.review.update({
+    return await prisma.reviews.update({
       where: { id },
       data,
       include: {
@@ -1602,7 +1602,7 @@ export class ReviewModel {
    * Delete a review
    */
   static async delete(id: number) {
-    return await prisma.review.delete({
+    return await prisma.reviews.delete({
       where: { id }
     });
   }

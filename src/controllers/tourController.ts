@@ -551,15 +551,15 @@ export class TourController {
       if (hotelIds && Array.isArray(hotelIds) && hotelIds.length > 0) {
         console.log('🏨 Creating hotel associations:', hotelIds);
         try {
-          const tourHotelData = hotelIds.map((hotelId: number) => ({
-            tourId: tour.id,
-            hotelId: hotelId,
+          const tourHotelData = hotelIds.map((hotel_id: number) => ({
+            tour_id: tour.id,
+            hotel_id: hotel_id,
             isDefault: false
           }));
           
           console.log('🏨 TourHotel data to create:', tourHotelData);
           
-          await prisma.tourHotel.createMany({
+          await prisma.tour_hotels.createMany({
             data: tourHotelData
           });
           
@@ -574,15 +574,15 @@ export class TourController {
       if (guideIds && Array.isArray(guideIds) && guideIds.length > 0) {
         console.log('👨‍🏫 Creating guide associations:', guideIds);
         try {
-          const tourGuideData = guideIds.map((guideId: number) => ({
-            tourId: tour.id,
-            guideId: guideId,
+          const tourGuideData = guideIds.map((guide_id: number) => ({
+            tour_id: tour.id,
+            guide_id: guide_id,
             isDefault: false
           }));
           
           console.log('👨‍🏫 TourGuide data to create:', tourGuideData);
           
-          await prisma.tourGuide.createMany({
+          await prisma.tour_guides.createMany({
             data: tourGuideData
           });
           
@@ -597,15 +597,15 @@ export class TourController {
       if (driverIds && Array.isArray(driverIds) && driverIds.length > 0) {
         console.log('🚗 Creating driver associations:', driverIds);
         try {
-          const tourDriverData = driverIds.map((driverId: number) => ({
-            tourId: tour.id,
-            driverId: driverId,
+          const tourDriverData = driverIds.map((driver_id: number) => ({
+            tour_id: tour.id,
+            driver_id: driver_id,
             isDefault: false
           }));
           
           console.log('🚗 TourDriver data to create:', tourDriverData);
           
-          await prisma.tourDriver.createMany({
+          await prisma.tour_drivers.createMany({
             data: tourDriverData
           });
           
@@ -621,14 +621,14 @@ export class TourController {
         console.log('📦 Creating tour block associations:', tourBlockIds);
         try {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
-            tourId: tour.id,
-            tourBlockId: blockId,
+            tour_id: tour.id,
+            tour_block_id: blockId,
             isPrimary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);
           
-          await prisma.tourBlockAssignment.createMany({
+          await prisma.tour_block_assignments.createMany({
             data: tourBlockData
           });
           
@@ -941,19 +941,19 @@ export class TourController {
         console.log('🏨 Updating hotel associations:', hotelIds);
         
         // Delete existing associations
-        await prisma.tourHotel.deleteMany({
-          where: { tourId: id }
+        await prisma.tour_hotels.deleteMany({
+          where: { tour_id: id }
         });
         
         // Create new associations
         if (hotelIds.length > 0) {
           const tourHotelData = hotelIds.map(hotelId => ({
-            tourId: id,
-            hotelId: hotelId,
+            tour_id: id,
+            hotel_id: hotelId,
             isDefault: false
           }));
           
-          await prisma.tourHotel.createMany({
+          await prisma.tour_hotels.createMany({
             data: tourHotelData
           });
         }
@@ -964,19 +964,19 @@ export class TourController {
         console.log('👨‍🏫 Updating guide associations:', guideIds);
         
         // Delete existing associations
-        await prisma.tourGuide.deleteMany({
-          where: { tourId: id }
+        await prisma.tour_guides.deleteMany({
+          where: { tour_id: id }
         });
         
         // Create new associations
         if (guideIds.length > 0) {
           const tourGuideData = guideIds.map(guideId => ({
-            tourId: id,
-            guideId: guideId,
+            tour_id: id,
+            guide_id: guideId,
             isDefault: false
           }));
           
-          await prisma.tourGuide.createMany({
+          await prisma.tour_guides.createMany({
             data: tourGuideData
           });
         }
@@ -987,19 +987,19 @@ export class TourController {
         console.log('🚗 Updating driver associations:', driverIds);
         
         // Delete existing associations
-        await prisma.tourDriver.deleteMany({
-          where: { tourId: id }
+        await prisma.tour_drivers.deleteMany({
+          where: { tour_id: id }
         });
         
         // Create new associations
         if (driverIds.length > 0) {
           const tourDriverData = driverIds.map(driverId => ({
-            tourId: id,
-            driverId: driverId,
+            tour_id: id,
+            driver_id: driverId,
             isDefault: false
           }));
           
-          await prisma.tourDriver.createMany({
+          await prisma.tour_drivers.createMany({
             data: tourDriverData
           });
         }
@@ -1010,21 +1010,21 @@ export class TourController {
         console.log('📦 Updating tour block associations:', tourBlockIds);
         
         // Delete existing tour block associations
-        await prisma.tourBlockAssignment.deleteMany({
-          where: { tourId: id }
+        await prisma.tour_block_assignments.deleteMany({
+          where: { tour_id: id }
         });
         
         // Create new tour block associations
         if (tourBlockIds.length > 0) {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
-            tourId: id,
-            tourBlockId: blockId,
+            tour_id: id,
+            tour_block_id: blockId,
             isPrimary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);
           
-          await prisma.tourBlockAssignment.createMany({
+          await prisma.tour_block_assignments.createMany({
             data: tourBlockData
           });
           
@@ -1107,7 +1107,7 @@ export class TourController {
       }
 
       // Получаем тур для проверки что он существует и является черновиком
-      const existingTour = await prisma.tour.findUnique({
+      const existingTour = await prisma.tours.findUnique({
         where: { id }
       });
 
@@ -1153,7 +1153,7 @@ export class TourController {
       }
 
       // Публикуем тур (isDraft = false)
-      const publishedTour = await prisma.tour.update({
+      const publishedTour = await prisma.tours.update({
         where: { id },
         data: { isDraft: false }
       });
@@ -1437,7 +1437,7 @@ export class TourController {
       });
 
       // 2. Add country suggestions
-      const countries = await prisma.country.findMany({
+      const countries = await prisma.countries.findMany({
         where: { isActive: true }
       });
       
@@ -1465,7 +1465,7 @@ export class TourController {
       });
 
       // 3. Add city suggestions
-      const cities = await prisma.city.findMany({
+      const cities = await prisma.cities.findMany({
         where: { isActive: true }
       });
       
