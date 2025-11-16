@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import FileType from 'file-type';
 import { sendAgentWelcomeEmail } from '../services/emailServiceSendGrid';
 import { adminAuthMiddleware } from '../controllers/adminController';
 
@@ -28,6 +29,31 @@ function generateSafeFilename(originalname: string): string {
   const ext = path.extname(originalname).toLowerCase();
   const randomName = crypto.randomBytes(16).toString('hex');
   return `${randomName}${ext}`;
+}
+
+// Валидация типа файла по магическим байтам
+async function validateFileType(filePath: string): Promise<boolean> {
+  try {
+    const buffer = await fs.readFile(filePath);
+    const fileType = await FileType.fromBuffer(buffer);
+    
+    if (!fileType) {
+      // Если не удалось определить тип, проверим PDF заголовок
+      const ext = path.extname(filePath).toLowerCase();
+      if (ext === '.pdf') {
+        // Проверяем PDF signature: "%PDF"
+        const pdfHeader = buffer.slice(0, 5).toString('ascii');
+        return pdfHeader.startsWith('%PDF');
+      }
+      return false;
+    }
+    
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    return allowedMimeTypes.includes(fileType.mime);
+  } catch (error) {
+    console.error('Error validating file type:', error);
+    return false;
+  }
 }
 
 // Настройка multer для загрузки документов
@@ -62,7 +88,7 @@ const upload = multer({
     const mimeOk = allowedMimeTypes.includes(file.mimetype);
     const extOk = allowedExtensions.includes(ext);
     
-    if (mimeOk && extOk) {
+    if (extOk) {
       return cb(null, true);
     } else {
       return cb(new Error('Только JPG, PNG и PDF файлы разрешены'));
@@ -131,6 +157,31 @@ router.post('/', upload.fields([
     }
     
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    
+    // Валидация загруженных файлов по магическим байтам
+    const allFiles: Express.Multer.File[] = [
+      ...(files.idDocument || []),
+      ...(files.otherDocuments || [])
+    ];
+    
+    for (const file of allFiles) {
+      const isValid = await validateFileType(file.path);
+      if (!isValid) {
+        // Удаляем все загруженные файлы
+        for (const f of allFiles) {
+          try {
+            await fs.unlink(f.path);
+          } catch (err) {
+            console.error('Error deleting file:', err);
+          }
+        }
+        return res.status(400).json({
+          success: false,
+          message: 'Недопустимый тип файла. Разрешены только JPG, PNG и PDF файлы.'
+        });
+      }
+    }
+    
     const idDocument = files.idDocument?.[0]?.filename || null;
     const otherDocuments = files.otherDocuments?.map(f => f.filename).join(',') || null;
     
