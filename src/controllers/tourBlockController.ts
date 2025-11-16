@@ -66,7 +66,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
                     country: true
                   },
                   orderBy: {
-                    isPrimary: 'desc' // Показываем основную страну первой
+                    is_primary: 'desc' // Показываем основную страну первой
                   }
                 },
                 tourCities: {
@@ -78,7 +78,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
                     }
                   },
                   orderBy: {
-                    isPrimary: 'desc' // Показываем основной город первым
+                    is_primary: 'desc' // Показываем основной город первым
                   }
                 },
                 _count: {
@@ -88,7 +88,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
             }
           },
           orderBy: [
-            { isPrimary: 'desc' }, // Primary assignments first
+            { is_primary: 'desc' }, // Primary assignments first
             { createdAt: 'asc' }   // Then by creation time
           ]
         }
@@ -286,12 +286,12 @@ export const addTourToBlock = async (req: Request, res: Response): Promise<Respo
         }
       },
       update: {
-        isPrimary: false // Keep existing isPrimary value, just ensure it exists
+        is_primary: false // Keep existing is_primary value, just ensure it exists
       },
       create: {
         tourId: parseInt(tourId),
         tourBlockId: parseInt(blockId),
-        isPrimary: false
+        is_primary: false
       }
     });
 

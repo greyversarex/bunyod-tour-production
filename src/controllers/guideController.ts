@@ -91,7 +91,7 @@ export const createGuide = async (req: Request, res: Response) => {
     
     // Проверка уникальности логина если он задан
     if (login) {
-      const existingGuide = await prisma.guide.findFirst({ where: { login } });
+      const existingGuide = await prisma.guides.findFirst({ where: { login } });
       if (existingGuide) {
         res.status(400).json({
           success: false,
@@ -105,7 +105,7 @@ export const createGuide = async (req: Request, res: Response) => {
     const parsedName = safeJsonParse(name);
     const parsedDescription = safeJsonParse(description);
     
-    const guide = await prisma.guide.create({
+    const guide = await prisma.guides.create({
       data: {
         name: parsedName,
         description: parsedDescription,
@@ -127,20 +127,20 @@ export const createGuide = async (req: Request, res: Response) => {
         isHireable: hireable
       },
       include: {
-        guideCountry: {
+        countries: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
-        guideCity: {
+        cities: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
       },
@@ -150,15 +150,15 @@ export const createGuide = async (req: Request, res: Response) => {
     const photoPath = normalizePhotoPath(guide.photo);
 
     // ✅ Обработка связанной страны с безопасным парсингом
-    const processedGuideCountry = guide.guideCountry ? {
-      id: guide.guideCountry.id,
-      name: safeJsonParse(guide.guideCountry.name)
+    const processedGuideCountry = guide.countries ? {
+      id: guide.countries.id,
+      name: safeJsonParse(guide.countries.name)
     } : null;
 
     // ✅ Обработка связанного города с безопасным парсингом  
-    const processedGuideCity = guide.guideCity ? {
-      id: guide.guideCity.id,
-      name: safeJsonParse(guide.guideCity.name)
+    const processedGuideCity = guide.cities ? {
+      id: guide.cities.id,
+      name: safeJsonParse(guide.cities.name)
     } : null;
 
     // 🔒 БЕЗОПАСНОСТЬ: Возвращаем только публичные поля, исключаем PII
@@ -176,8 +176,8 @@ export const createGuide = async (req: Request, res: Response) => {
       isActive: guide.is_active,
       createdAt: guide.createdAt,
       updatedAt: guide.updatedAt,
-      guideCountry: processedGuideCountry,
-      guideCity: processedGuideCity,
+      countries: processedGuideCountry,
+      cities: processedGuideCity,
       hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
     };
     
@@ -203,14 +203,14 @@ export const getAllGuides = async (req: Request, res: Response) => {
     const language = getLanguageFromRequest(req);
     const includeRaw = req.query.includeRaw === 'true';
     
-    const guides = await prisma.guide.findMany({
+    const guides = await prisma.guides.findMany({
       where: {
         isActive: true,
       },
       include: {
-        tourGuides: {
+        tour_guides: {
           include: {
-            tour: {
+            tours: {
               select: {
                 id: true,
                 title: true,
@@ -218,20 +218,20 @@ export const getAllGuides = async (req: Request, res: Response) => {
             },
           },
         },
-        guideCountry: {
+        countries: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
-        guideCity: {
+        cities: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
       },
@@ -244,18 +244,18 @@ export const getAllGuides = async (req: Request, res: Response) => {
         const photoPath = normalizePhotoPath(guide.photo);
 
         // Process country and city for multilingual support - include both languages
-        const processedGuideCountry = guide.guideCountry ? {
-          id: guide.guideCountry.id,
-          name: guide.guideCountry.name,
-          nameRu: guide.guideCountry.nameRu,
-          nameEn: guide.guideCountry.nameEn,
+        const processedGuideCountry = guide.countries ? {
+          id: guide.countries.id,
+          name: guide.countries.name,
+          name_ru: guide.countries.nameRu,
+          name_en: guide.countries.nameEn,
         } : null;
 
-        const processedGuideCity = guide.guideCity ? {
-          id: guide.guideCity.id,
-          name: guide.guideCity.name,
-          nameRu: guide.guideCity.nameRu,
-          nameEn: guide.guideCity.nameEn,
+        const processedGuideCity = guide.cities ? {
+          id: guide.cities.id,
+          name: guide.cities.name,
+          name_ru: guide.cities.nameRu,
+          name_en: guide.cities.nameEn,
         } : null;
 
         if (includeRaw) {
@@ -284,8 +284,8 @@ export const getAllGuides = async (req: Request, res: Response) => {
               name: safeJsonParse(guide.name),
               description: safeJsonParse(guide.description),
             },
-            guideCountry: processedGuideCountry,
-            guideCity: processedGuideCity,
+            countries: processedGuideCountry,
+            cities: processedGuideCity,
             hasPassword: !!guide.password && guide.password.trim() !== '',
             // 🔐 АДМИН ПОЛЯ: для includeRaw=true возвращаем безопасные админ данные
             login: guide.login,
@@ -301,8 +301,8 @@ export const getAllGuides = async (req: Request, res: Response) => {
           return {
             id: guide.id,
             name: parseMultilingualField(guide.name, language), // Текущий язык для обратной совместимости
-            nameRu: typeof parsedName === 'object' ? parsedName.ru : parsedName,
-            nameEn: typeof parsedName === 'object' ? parsedName.en : parsedName,
+            name_ru: typeof parsedName === 'object' ? parsedName.ru : parsedName,
+            name_en: typeof parsedName === 'object' ? parsedName.en : parsedName,
             description: parseMultilingualField(guide.description, language),
             descriptionRu: typeof parsedDescription === 'object' ? parsedDescription.ru : parsedDescription,
             descriptionEn: typeof parsedDescription === 'object' ? parsedDescription.en : parsedDescription,
@@ -316,15 +316,15 @@ export const getAllGuides = async (req: Request, res: Response) => {
             isActive: guide.is_active,
             createdAt: guide.createdAt,
             updatedAt: guide.updatedAt,
-            tourGuides: guide.tourGuides.map((tg: any) => ({
+            tour_guides: guide.tour_guides.map((tg: any) => ({
               ...tg,
               tour: tg.tour ? {
                 ...tg.tour,
                 title: parseMultilingualField(tg.tour.title, language)
               } : null
             })),
-            guideCountry: processedGuideCountry,
-            guideCity: processedGuideCity,
+            countries: processedGuideCountry,
+            cities: processedGuideCity,
             hasPassword: !!guide.password && guide.password.trim() !== '',
           };
         }
@@ -343,9 +343,9 @@ export const getAllGuides = async (req: Request, res: Response) => {
           isActive: guide.is_active,
           createdAt: guide.createdAt,
           updatedAt: guide.updatedAt,
-          tourGuides: guide.tourGuides || [],
-          guideCountry: guide.guideCountry,
-          guideCity: guide.guideCity,
+          tour_guides: guide.tour_guides || [],
+          countries: guide.countries,
+          cities: guide.cities,
           hasPassword: !!guide.password && guide.password.trim() !== '',
           // 🔒 ИСКЛЮЧЕНЫ: password, login, passportSeries, registration, residenceAddress
         };
@@ -375,12 +375,12 @@ export const getGuideById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const includeRaw = req.query.includeRaw === 'true';
     
-    const guide = await prisma.guide.findUnique({
+    const guide = await prisma.guides.findUnique({
       where: { id: parseInt(id) },
       include: {
-        tourGuides: {
+        tour_guides: {
           include: {
-            tour: {
+            tours: {
               select: {
                 id: true,
                 title: true,
@@ -388,20 +388,20 @@ export const getGuideById = async (req: Request, res: Response) => {
             },
           },
         },
-        guideCountry: {
+        countries: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
-        guideCity: {
+        cities: {
           select: {
             id: true,
             name: true,
-            nameRu: true,
-            nameEn: true,
+            name_ru: true,
+            name_en: true,
           },
         },
       },
@@ -418,15 +418,15 @@ export const getGuideById = async (req: Request, res: Response) => {
     const photoPath = normalizePhotoPath(guide.photo);
 
     // ✅ Обработка связанной страны с безопасным парсингом
-    const processedGuideCountry = guide.guideCountry ? {
-      id: guide.guideCountry.id,
-      name: safeJsonParse(guide.guideCountry.name)
+    const processedGuideCountry = guide.countries ? {
+      id: guide.countries.id,
+      name: safeJsonParse(guide.countries.name)
     } : null;
 
     // ✅ Обработка связанного города с безопасным парсингом  
-    const processedGuideCity = guide.guideCity ? {
-      id: guide.guideCity.id,
-      name: safeJsonParse(guide.guideCity.name)
+    const processedGuideCity = guide.cities ? {
+      id: guide.cities.id,
+      name: safeJsonParse(guide.cities.name)
     } : null;
 
     // 🔒 БЕЗОПАСНОСТЬ: Условно возвращаем поля в зависимости от includeRaw
@@ -445,9 +445,9 @@ export const getGuideById = async (req: Request, res: Response) => {
       isActive: guide.is_active,
       createdAt: guide.createdAt,
       updatedAt: guide.updatedAt,
-      tourGuides: guide.tourGuides,
-      guideCountry: processedGuideCountry,
-      guideCity: processedGuideCity,
+      tour_guides: guide.tour_guides,
+      countries: processedGuideCountry,
+      cities: processedGuideCity,
       hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
     };
 
@@ -480,7 +480,7 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
   try {
     const { tourId } = req.params;
 
-    const tourGuides = await prisma.tourGuide.findMany({
+    const tour_guides = await prisma.tourGuide.findMany({
       where: {
         tourId: parseInt(tourId),
         guide: {
@@ -490,13 +490,13 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
       include: {
         guide: {
           include: {
-            guideCountry: {
+            countries: {
               select: {
                 id: true,
                 name: true,
               },
             },
-            guideCity: {
+            cities: {
               select: {
                 id: true,
                 name: true,
@@ -511,20 +511,20 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
     });
 
     // 🔒 БЕЗОПАСНОСТЬ: Возвращаем только публичные поля, исключаем PII
-    const formattedGuides = tourGuides.map((tg: any) => {
+    const formattedGuides = tour_guides.map((tg: any) => {
       // ✅ Нормализация пути к фото
       const photoPath = normalizePhotoPath(tg.guide.photo);
 
       // ✅ Обработка связанной страны с безопасным парсингом
-      const processedGuideCountry = tg.guide.guideCountry ? {
-        id: tg.guide.guideCountry.id,
-        name: safeJsonParse(tg.guide.guideCountry.name)
+      const processedGuideCountry = tg.guide.countries ? {
+        id: tg.guide.countries.id,
+        name: safeJsonParse(tg.guide.countries.name)
       } : null;
 
       // ✅ Обработка связанного города с безопасным парсингом  
-      const processedGuideCity = tg.guide.guideCity ? {
-        id: tg.guide.guideCity.id,
-        name: safeJsonParse(tg.guide.guideCity.name)
+      const processedGuideCity = tg.guide.cities ? {
+        id: tg.guide.cities.id,
+        name: safeJsonParse(tg.guide.cities.name)
       } : null;
 
       return {
@@ -540,8 +540,8 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
         isActive: tg.guide.is_active,
         createdAt: tg.guide.createdAt,
         updatedAt: tg.guide.updatedAt,
-        guideCountry: processedGuideCountry,
-        guideCity: processedGuideCity,
+        countries: processedGuideCountry,
+        cities: processedGuideCity,
         isDefault: tg.isDefault,
         hasPassword: !!tg.guide.password && tg.guide.password.trim() !== '', // ✅ Показываем наличие пароля
       };
@@ -608,7 +608,7 @@ export const updateGuide = async (req: Request, res: Response) => {
     
     // Обрабатываем контактную информацию
     if (email || phone) {
-      const currentGuide = await prisma.guide.findUnique({ where: { id: parseInt(id) } });
+      const currentGuide = await prisma.guides.findUnique({ where: { id: parseInt(id) } });
       const currentContact = currentGuide?.contact ? JSON.parse(currentGuide.contact) : {};
       updateData.contact = JSON.stringify({
         email: email || currentContact.email || '',
@@ -621,12 +621,12 @@ export const updateGuide = async (req: Request, res: Response) => {
     
     // Связи с Country и City (используем Prisma connect синтаксис)
     if (countryId) {
-      updateData.guideCountry = {
+      updateData.countries = {
         connect: { id: parseInt(countryId) }
       };
     }
     if (cityId) {
-      updateData.guideCity = {
+      updateData.cities = {
         connect: { id: parseInt(cityId) }
       };
     }
@@ -648,7 +648,7 @@ export const updateGuide = async (req: Request, res: Response) => {
     // 🔒 Обработка полей авторизации
     if (login !== undefined && login.trim()) {
       // Проверка уникальности логина
-      const existingGuide = await prisma.guide.findFirst({ 
+      const existingGuide = await prisma.guides.findFirst({ 
         where: { login: login.trim(), id: { not: parseInt(id) } } 
       });
       if (existingGuide) {
@@ -681,7 +681,7 @@ export const updateGuide = async (req: Request, res: Response) => {
 
     // 📄 Обрабатываем загруженные документы (добавляем к существующим)
     if (files && files.documents && files.documents.length > 0) {
-      const currentGuide = await prisma.guide.findUnique({ where: { id: parseInt(id) } });
+      const currentGuide = await prisma.guides.findUnique({ where: { id: parseInt(id) } });
       const existingDocuments = currentGuide?.documents ? JSON.parse(currentGuide.documents) : [];
       
       const newDocuments = files.documents.map(file => ({
@@ -698,7 +698,7 @@ export const updateGuide = async (req: Request, res: Response) => {
 
     console.log('💾 Данные для обновления:', updateData);
 
-    const guide = await prisma.guide.update({
+    const guide = await prisma.guides.update({
       where: { id: parseInt(id) },
       data: updateData,
     });
@@ -731,7 +731,7 @@ export const deleteGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    await prisma.guide.update({
+    await prisma.guides.update({
       where: { id: parseInt(id) },
       data: { isActive: false },
     });

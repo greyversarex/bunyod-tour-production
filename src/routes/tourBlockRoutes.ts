@@ -46,7 +46,7 @@ router.get('/:id/tours', async (req, res) => {
                 country: true
               },
               orderBy: {
-                isPrimary: 'desc' // Показываем основную страну первой
+                is_primary: 'desc' // Показываем основную страну первой
               }
             },
             tourCities: {
@@ -58,7 +58,7 @@ router.get('/:id/tours', async (req, res) => {
                 }
               },
               orderBy: {
-                isPrimary: 'desc' // Показываем основной город первым
+                is_primary: 'desc' // Показываем основной город первым
               }
             },
             tourBlockAssignments: {
@@ -70,7 +70,7 @@ router.get('/:id/tours', async (req, res) => {
         }
       },
       orderBy: [
-        { isPrimary: 'desc' }, // Сначала основные туры
+        { is_primary: 'desc' }, // Сначала основные туры
         { tour: { createdAt: 'desc' } }
       ]
     });

@@ -17,7 +17,7 @@ export class TourModel {
   static async findAll() {
     return await prisma.tours.findMany({
       include: {
-        category: true
+        categories: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -32,65 +32,65 @@ export class TourModel {
     return await prisma.tours.findUnique({
       where: { id },
       include: {
-        category: true,
+        categories: true,
         // Старые одиночные связи для совместимости
-        tourCountry: true,
-        tourCity: true,
+        countries: true,
+        cities: true,
         // Новые множественные связи
-        tourCategoryAssignments: {
+        tour_category_assignments: {
           include: {
-            category: true
+            categories: true
           },
           orderBy: {
-            isPrimary: 'desc' // Показываем основную категорию первой
+            is_primary: 'desc' // Показываем основную категорию первой
           }
         },
-        tourCountries: {
+        tour_countries: {
           include: {
-            country: true
+            countries: true
           },
           orderBy: {
-            isPrimary: 'desc' // Показываем основную страну первой
+            is_primary: 'desc' // Показываем основную страну первой
           }
         },
-        tourCities: {
+        tour_cities: {
           include: {
-            city: {
+            cities: {
               include: {
-                country: true // Включаем информацию о стране для города
+                countries: true // Включаем информацию о стране для города
               }
             }
           },
           orderBy: {
-            isPrimary: 'desc' // Показываем основной город первым
+            is_primary: 'desc' // Показываем основной город первым
           }
         },
-        tourHotels: {
+        tour_hotels: {
           include: {
             hotel: true
           }
         },
-        tourGuides: {
+        tour_guides: {
           include: {
             guide: true
           }
         },
-        tourDrivers: {
+        tour_drivers: {
           include: {
             driver: true
           }
         },
         // 🔧 ДОБАВЛЕНО: Включаем назначенные блоки туров для админ панели
-        tourBlockAssignments: {
+        tour_block_assignments: {
           include: {
-            tourBlock: true
+            tour_blocks: true
           },
           orderBy: {
-            isPrimary: 'desc' // Показываем основной блок первым
+            is_primary: 'desc' // Показываем основной блок первым
           }
         },
         // 🗺️ ДОБАВЛЕНО: Включаем точки карты тура
-        tourMapPoints: {
+        tour_map_points: {
           orderBy: {
             stepNumber: 'asc'
           }
@@ -183,20 +183,20 @@ export class TourModel {
 
       // Создаём связи со странами (batch insert для производительности)
       if (data.countriesIds && data.countriesIds.length > 0) {
-        await prisma.tourCountry.createMany({
+        await prisma.countries.createMany({
           data: data.countriesIds.map((countryId, index) => ({
             tourId: tour.id,
             countryId: countryId,
-            isPrimary: index === 0 // Первая страна считается основной
+            is_primary: index === 0 // Первая страна считается основной
           }))
         });
       } else if (data.countryId) {
         // Если передан только старый одиночный countryId, создаём primary связь
-        await prisma.tourCountry.create({
+        await prisma.countries.create({
           data: {
             tourId: tour.id,
             countryId: data.countryId,
-            isPrimary: true
+            is_primary: true
           }
         });
       }
@@ -208,7 +208,7 @@ export class TourModel {
             tourId: tour.id,
             cityId: cityId,
             nightsCount: Number(data.cityNights?.[String(cityId)] ?? 1) || 1, // 🆕 Количество ночей
-            isPrimary: index === 0 // Первый город считается основным
+            is_primary: index === 0 // Первый город считается основным
           }))
         });
       } else if (data.cityId) {
@@ -218,7 +218,7 @@ export class TourModel {
             tourId: tour.id,
             cityId: data.cityId,
             nightsCount: 1, // По умолчанию 1 ночь
-            isPrimary: true
+            is_primary: true
           }
         });
       }
@@ -229,7 +229,7 @@ export class TourModel {
           data: data.categoriesIds.map((categoryId: number, index: number) => ({
             tourId: tour.id,
             categoryId: categoryId,
-            isPrimary: index === 0 // Первая категория считается основной
+            is_primary: index === 0 // Первая категория считается основной
           }))
         });
       } else {
@@ -238,7 +238,7 @@ export class TourModel {
           data: {
             tourId: tour.id,
             categoryId: data.categoryId,
-            isPrimary: true
+            is_primary: true
           }
         });
       }
@@ -272,25 +272,25 @@ export class TourModel {
       return await prisma.tours.findUnique({
         where: { id: tour.id },
         include: {
-          category: true,
-          tourCategoryAssignments: {
+          categories: true,
+          tour_category_assignments: {
             include: {
-              category: true
+              categories: true
             },
             orderBy: {
-              isPrimary: 'desc' // Показываем основную категорию первой
+              is_primary: 'desc' // Показываем основную категорию первой
             }
           },
-          tourCountries: {
+          tour_countries: {
             include: {
-              country: true
+              countries: true
             }
           },
-          tourCities: {
+          tour_cities: {
             include: {
-              city: {
+              cities: {
                 include: {
-                  country: true
+                  countries: true
                 }
               }
             }
@@ -407,39 +407,39 @@ export class TourModel {
       // Обновляем связи со странами, если переданы новые массивы
       if (data.countriesIds !== undefined) {
         // Удаляем старые связи
-        await prisma.tourCountry.deleteMany({
+        await prisma.countries.deleteMany({
           where: { tourId: id }
         });
 
         // Создаём новые связи (batch insert для производительности)
         if (data.countriesIds.length > 0) {
-          await prisma.tourCountry.createMany({
+          await prisma.countries.createMany({
             data: data.countriesIds.map((countryId, index) => ({
               tourId: id,
               countryId: countryId,
-              isPrimary: index === 0 // Первая страна считается основной
+              is_primary: index === 0 // Первая страна считается основной
             }))
           });
         }
       } else if (data.countryId !== undefined && data.countryId !== null) {
         // Если передан только старый одиночный countryId, обновляем/создаём primary связь
-        const existingCountryLink = await prisma.tourCountry.findFirst({
-          where: { tourId: id, isPrimary: true }
+        const existingCountryLink = await prisma.countries.findFirst({
+          where: { tourId: id, is_primary: true }
         });
 
         if (existingCountryLink && existingCountryLink.countryId !== data.countryId) {
           // Обновляем существующую primary связь
-          await prisma.tourCountry.update({
+          await prisma.countries.update({
             where: { id: existingCountryLink.id },
             data: { countryId: data.countryId }
           });
         } else if (!existingCountryLink) {
           // Создаём новую primary связь
-          await prisma.tourCountry.create({
+          await prisma.countries.create({
             data: {
               tourId: id,
               countryId: data.countryId,
-              isPrimary: true
+              is_primary: true
             }
           });
         }
@@ -459,14 +459,14 @@ export class TourModel {
               tourId: id,
               cityId: cityId,
               nightsCount: Number(data.cityNights?.[String(cityId)] ?? 1) || 1, // 🆕 Количество ночей
-              isPrimary: index === 0 // Первый город считается основным
+              is_primary: index === 0 // Первый город считается основным
             }))
           });
         }
       } else if (data.cityId !== undefined && data.cityId !== null) {
         // Если передан только старый одиночный cityId, обновляем/создаём primary связь
         const existingCityLink = await prisma.tour_cities.findFirst({
-          where: { tourId: id, isPrimary: true }
+          where: { tourId: id, is_primary: true }
         });
 
         if (existingCityLink && existingCityLink.cityId !== data.cityId) {
@@ -481,7 +481,7 @@ export class TourModel {
             data: {
               tourId: id,
               cityId: data.cityId,
-              isPrimary: true
+              is_primary: true
             }
           });
         }
@@ -500,14 +500,14 @@ export class TourModel {
             data: data.categoriesIds.map((categoryId: number, index: number) => ({
               tourId: id,
               categoryId: categoryId,
-              isPrimary: index === 0 // Первая категория считается основной
+              is_primary: index === 0 // Первая категория считается основной
             }))
           });
         }
       } else if (data.categoryId !== undefined && data.categoryId !== null) {
         // Если передана только одна категория (старый способ), обновляем/создаём primary связь
         const existingCategoryLink = await prisma.tour_category_assignments.findFirst({
-          where: { tourId: id, isPrimary: true }
+          where: { tourId: id, is_primary: true }
         });
 
         if (existingCategoryLink && existingCategoryLink.categoryId !== data.categoryId) {
@@ -522,7 +522,7 @@ export class TourModel {
             data: {
               tourId: id,
               categoryId: data.categoryId,
-              isPrimary: true
+              is_primary: true
             }
           });
         }
@@ -569,33 +569,33 @@ export class TourModel {
       return await prisma.tours.findUnique({
         where: { id },
         include: {
-          category: true,
-          tourCategoryAssignments: {
+          categories: true,
+          tour_category_assignments: {
             include: {
-              category: true
+              categories: true
             },
             orderBy: {
-              isPrimary: 'desc'
+              is_primary: 'desc'
             }
           },
-          tourCountries: {
+          tour_countries: {
             include: {
-              country: true
+              countries: true
             },
             orderBy: {
-              isPrimary: 'desc'
+              is_primary: 'desc'
             }
           },
-          tourCities: {
+          tour_cities: {
             include: {
-              city: {
+              cities: {
                 include: {
-                  country: true
+                  countries: true
                 }
               }
             },
             orderBy: {
-              isPrimary: 'desc'
+              is_primary: 'desc'
             }
           }
         }
@@ -622,43 +622,43 @@ export class TourModel {
     return await prisma.tours.findMany({
       where: filters,
       include: {
-        category: true,
-        tourCountry: true,
-        tourCity: true,
-        tourCategoryAssignments: {
+        categories: true,
+        countries: true,
+        cities: true,
+        tour_category_assignments: {
           include: {
-            category: true
+            categories: true
           },
           orderBy: {
-            isPrimary: 'desc'
+            is_primary: 'desc'
           }
         },
-        tourCountries: {
+        tour_countries: {
           include: {
-            country: true
+            countries: true
           },
           orderBy: {
-            isPrimary: 'desc'
+            is_primary: 'desc'
           }
         },
-        tourCities: {
+        tour_cities: {
           include: {
-            city: {
+            cities: {
               include: {
-                country: true
+                countries: true
               }
             }
           },
           orderBy: {
-            isPrimary: 'desc'
+            is_primary: 'desc'
           }
         },
-        tourBlockAssignments: {
+        tour_block_assignments: {
           include: {
-            tourBlock: true
+            tour_blocks: true
           },
           orderBy: {
-            isPrimary: 'desc'
+            is_primary: 'desc'
           }
         }
       },
@@ -744,7 +744,7 @@ export class BookingRequestModel {
       include: {
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       },
@@ -763,7 +763,7 @@ export class BookingRequestModel {
       include: {
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       }
@@ -794,7 +794,7 @@ export class BookingRequestModel {
       include: {
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       }
@@ -822,7 +822,7 @@ export class TourBlockModel {
           include: {
             tour: {
               include: {
-                category: true
+                categories: true
               }
             }
           }
@@ -845,7 +845,7 @@ export class TourBlockModel {
           include: {
             tour: {
               include: {
-                category: true
+                categories: true
               }
             }
           }
@@ -902,8 +902,8 @@ export class HotelModel {
     const hotels = await prisma.hotels.findMany({
       // 📝 Убран фильтр isActive для админ панели - возвращаем все отели (включая черновики)
       include: {
-        hotelCountry: true,
-        hotelCity: true
+        countries: true,
+        cities: true
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -921,7 +921,7 @@ export class HotelModel {
    * Get hotels for a specific tour
    */
   static async findByTourId(tourId: number) {
-    const tourHotels = await prisma.tour_hotels.findMany({
+    const tour_hotels = await prisma.tour_hotels.findMany({
       where: { tourId },
       include: {
         hotel: true
@@ -932,7 +932,7 @@ export class HotelModel {
       ]
     });
 
-    return tourHotels.map((th: any) => ({
+    return tour_hotels.map((th: any) => ({
       ...th.hotel,
       name: typeof th.hotel.name === 'string' ? (() => { try { return JSON.parse(th.hotel.name); } catch { return { ru: th.hotel.name, en: th.hotel.name }; } })() : th.hotel.name,
       description: th.hotel.description && typeof th.hotel.description === 'string' ? (() => { try { return JSON.parse(th.hotel.description); } catch { return { ru: th.hotel.description, en: th.hotel.description }; } })() : th.hotel.description,
@@ -950,9 +950,9 @@ export class HotelModel {
     const hotel = await prisma.hotels.findUnique({
       where: { id },
       include: {
-        hotelCountry: true,
-        hotelCity: true,
-        tourHotels: {
+        countries: true,
+        cities: true,
+        tour_hotels: {
           include: {
             tour: {
               select: {
@@ -973,7 +973,7 @@ export class HotelModel {
       description: hotel.description && typeof hotel.description === 'string' ? (() => { try { return JSON.parse(hotel.description); } catch { return { ru: hotel.description, en: hotel.description }; } })() : hotel.description,
       images: hotel.images && typeof hotel.images === 'string' ? (() => { try { return JSON.parse(hotel.images); } catch { return []; } })() : (hotel.images || []),
       amenities: hotel.amenities && typeof hotel.amenities === 'string' ? (() => { try { return JSON.parse(hotel.amenities); } catch { return []; } })() : (hotel.amenities || []),
-      tourHotels: hotel.tourHotels.map((th: any) => ({
+      tour_hotels: hotel.tour_hotels.map((th: any) => ({
         ...th,
         tour: {
           ...th.tour,
@@ -1474,7 +1474,7 @@ export class ReviewModel {
         customer: true,
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       },
@@ -1497,7 +1497,7 @@ export class ReviewModel {
         customer: true,
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       },
@@ -1536,7 +1536,7 @@ export class ReviewModel {
         customer: true,
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       }
@@ -1574,7 +1574,7 @@ export class ReviewModel {
         customer: true,
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       }
@@ -1592,7 +1592,7 @@ export class ReviewModel {
         customer: true,
         tour: {
           include: {
-            category: true
+            categories: true
           }
         }
       }

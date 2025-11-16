@@ -624,7 +624,7 @@ export class TourController {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
             tour_id: tour.id,
             tour_block_id: blockId,
-            isPrimary: index === 0 // Первый блок считается основным
+            is_primary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);
@@ -1020,7 +1020,7 @@ export class TourController {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
             tour_id: id,
             tour_block_id: blockId,
-            isPrimary: index === 0 // Первый блок считается основным
+            is_primary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);

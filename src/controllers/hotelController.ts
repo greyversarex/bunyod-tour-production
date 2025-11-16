@@ -57,8 +57,8 @@ export const getHotels = async (req: Request, res: Response): Promise<Response> 
             categoryTranslated: getHotelCategoryTranslation(hotel.category, language),
             countryId: hotel.countryId,
             cityId: hotel.cityId,
-            country: hotel.hotelCountry, // ДОБАВЛЕНО: связанная страна (правильное имя поля)
-            city: hotel.hotelCity, // ДОБАВЛЕНО: связанный город (правильное имя поля)
+            country: hotel.countries, // ДОБАВЛЕНО: связанная страна (правильное имя поля)
+            city: hotel.cities, // ДОБАВЛЕНО: связанный город (правильное имя поля)
             pension: hotel.pension,
             roomTypes: hotel.roomTypes,
             mealTypes: hotel.mealTypes,
@@ -96,8 +96,8 @@ export const getHotels = async (req: Request, res: Response): Promise<Response> 
             addressRu: typeof parsedAddress === 'object' ? parsedAddress.ru : parsedAddress,
             addressEn: typeof parsedAddress === 'object' ? parsedAddress.en : parsedAddress,
             categoryTranslated: getHotelCategoryTranslation(hotel.category, language),
-            country: hotel.hotelCountry, // Добавляем связанную страну для публичного API (уже содержит nameRu/nameEn)
-            city: hotel.hotelCity // Добавляем связанный город для публичного API (уже содержит nameRu/nameEn)
+            country: hotel.countries, // Добавляем связанную страну для публичного API (уже содержит nameRu/nameEn)
+            city: hotel.cities // Добавляем связанный город для публичного API (уже содержит nameRu/nameEn)
           };
         }
       } catch (jsonError) {
@@ -196,8 +196,8 @@ export const getHotel = async (req: Request, res: Response): Promise<Response> =
           address: parseMultilingualField(hotel.address, language),
           addressRu: typeof parsedAddress === 'object' ? parsedAddress.ru : parsedAddress,
           addressEn: typeof parsedAddress === 'object' ? parsedAddress.en : parsedAddress,
-          country: hotel.hotelCountry, // Добавляем связанную страну для публичного API (уже содержит nameRu/nameEn)
-          city: hotel.hotelCity // Добавляем связанный город для публичного API (уже содержит nameRu/nameEn)
+          country: hotel.countries, // Добавляем связанную страну для публичного API (уже содержит nameRu/nameEn)
+          city: hotel.cities // Добавляем связанный город для публичного API (уже содержит nameRu/nameEn)
         };
       }
     } catch (jsonError) {
