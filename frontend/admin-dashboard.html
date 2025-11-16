@@ -11572,21 +11572,33 @@
         
         // Load agent applications
         async function loadAgentApplications() {
+            console.log('🔄 Loading agent applications...');
             try {
-                const response = await fetch(`${getApiUrl()}/agent-applications`, {
-                    headers: getAuthHeaders()
+                const apiUrl = getApiUrl();
+                const headers = getAuthHeaders();
+                console.log('📡 API URL:', apiUrl);
+                console.log('🔑 Headers:', headers);
+                
+                const response = await fetch(`${apiUrl}/agent-applications`, {
+                    headers: headers
                 });
+                
+                console.log('📊 Response status:', response.status);
                 const data = await response.json();
+                console.log('📦 Response data:', data);
                 
                 if (data.success) {
                     allAgentApplications = data.applications || [];
                     filteredAgentApplications = [...allAgentApplications];
+                    console.log('✅ Loaded', allAgentApplications.length, 'applications');
                     displayAgentApplications(filteredAgentApplications);
                 } else {
-                    console.error('Error loading applications:', data.message);
+                    console.error('❌ Error loading applications:', data.message);
+                    alert('Ошибка загрузки заявок: ' + (data.message || data.error));
                 }
             } catch (error) {
-                console.error('Error loading agent applications:', error);
+                console.error('💥 Error loading agent applications:', error);
+                alert('Критическая ошибка при загрузке заявок: ' + error.message);
                 document.getElementById('agentApplicationsTable').innerHTML = 
                     '<tr><td colspan="8" class="text-center py-8 text-red-600">Ошибка загрузки заявок</td></tr>';
             }
