@@ -1,0 +1,12 @@
+export type {
+  orders as Order,
+  customers as Customer,
+  tours as Tour,
+  guides as Guide,
+  drivers as Driver,
+  categories as Category,
+  cities as City,
+  countries as Country,
+  hotels as Hotel,
+  reviews as Review
+} from '@prisma/client';

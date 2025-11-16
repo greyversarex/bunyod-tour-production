@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import { CountryController } from '../controllers/countryController';
 

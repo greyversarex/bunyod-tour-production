@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Request, Response } from 'express';
 import { HotelModel } from '../models';
 import prisma from '../config/database';

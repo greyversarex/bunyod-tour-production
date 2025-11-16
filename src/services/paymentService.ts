@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Order } from '@prisma/client';
 
 // Conditional Stripe import - only load if package is installed

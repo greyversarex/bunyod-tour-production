@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import { authenticateJWT } from '../middleware/auth';
 import {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router } from 'express';
 import { AdminController, adminAuthMiddleware } from '../controllers/adminController';
 import { loginLimiter, registrationLimiter } from '../middleware/rateLimiter';

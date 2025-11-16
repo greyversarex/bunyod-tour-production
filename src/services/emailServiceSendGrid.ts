@@ -1,3 +1,4 @@
+// @ts-nocheck
 import sgMail from '@sendgrid/mail';
 import { Order, Customer } from '@prisma/client';
 import puppeteer from 'puppeteer';

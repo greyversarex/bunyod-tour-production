@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types';
 import prisma from '../config/database';

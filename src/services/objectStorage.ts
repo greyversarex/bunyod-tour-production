@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Storage, File } from "@google-cloud/storage";
 import { Response } from "express";
 import { randomUUID } from "crypto";

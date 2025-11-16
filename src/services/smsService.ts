@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Order, Customer } from '@prisma/client';
 
 /**

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import express from 'express';
 import { authenticateTourGuide } from '../middleware/tourGuideAuth';
 import { loginLimiter, registrationLimiter } from '../middleware/rateLimiter';

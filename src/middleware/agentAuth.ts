@@ -57,14 +57,14 @@ export const agentAuthMiddleware = async (req: Request, res: Response, next: Nex
       return;
     }
     
-    const agent = await prisma.agentUser.findUnique({
+    const agent = await prisma.agent_users.findUnique({
       where: { id: decoded.agentId },
       select: {
         id: true,
-        uniqueId: true,
-        fullName: true,
+        unique_id: true,
+        full_name: true,
         email: true,
-        isActive: true
+        is_active: true
       }
     });
     
@@ -76,7 +76,7 @@ export const agentAuthMiddleware = async (req: Request, res: Response, next: Nex
       return;
     }
     
-    if (!agent.isActive) {
+    if (!agent.is_active) {
       res.status(403).json({
         success: false,
         message: 'Аккаунт деактивирован'
@@ -86,8 +86,8 @@ export const agentAuthMiddleware = async (req: Request, res: Response, next: Nex
     
     req.agent = {
       id: agent.id,
-      uniqueId: agent.uniqueId,
-      fullName: agent.fullName,
+      uniqueId: agent.unique_id,
+      fullName: agent.full_name,
       email: agent.email
     };
     

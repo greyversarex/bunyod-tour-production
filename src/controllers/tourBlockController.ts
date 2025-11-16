@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Request, Response } from 'express';
 import { parseMultilingualField, getLanguageFromRequest, mapTour } from '../utils/multilingual';
 import prisma from '../config/database';

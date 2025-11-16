@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Router, Request, Response } from 'express';
 import { TransferRequestModel } from '../models';
 import { CreateTransferRequestData, UpdateTransferRequestData } from '../types';

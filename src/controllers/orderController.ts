@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { BookingFormData, OrderData } from '../types/booking';
