@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import * as guideController from '../controllers/guideController';
 import { upload } from '../controllers/tourGuideController';

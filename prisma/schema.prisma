@@ -7,148 +7,454 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model admins {
+model Category {
+  id                      Int                      @id @default(autoincrement())
+  name                    String
+  type                    String                   @default("tour")
+  tourCategoryAssignments TourCategoryAssignment[]
+  tours                   Tour[]
+
+  @@map("categories")
+}
+
+model TourBlock {
+  id          Int                   @id @default(autoincrement())
+  title       String
+  description String?
+  slug        String                @unique
+  isActive    Boolean               @default(true)
+  sortOrder   Int                   @default(0)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  tourBlocks  TourBlockAssignment[]
+
+  @@map("tour_blocks")
+}
+
+model Tour {
+  id                      Int                      @id @default(autoincrement())
+  title                   Json
+  description             Json
+  shortDesc               Json?
+  duration                String
+  price                   String
+  currency                String                   @default("TJS")
+  priceType               String                   @default("за человека")
+  originalPrice           String?
+  countryId               Int?                     @map("country_id")
+  cityId                  Int?                     @map("city_id")
+  country                 String?
+  city                    String?
+  format                  String?
+  tourType                String?
+  durationDays            Int?
+  theme                   String?
+  startDate               String?
+  endDate                 String?
+  startTime               String?
+  startTimeOptions        String?
+  pickupInfo              String?
+  pickupInfoEn            String?                  @map("pickup_info_en")
+  languages               String?
+  availableMonths         String?
+  availableDays           String?
+  images                  String?
+  mainImage               String?
+  services                String?
+  highlights              String?
+  itinerary               String?
+  itineraryEn             String?                  @map("itinerary_en")
+  includes                String?
+  excluded                String?
+  requirements            String?
+  difficulty              String?
+  rating                  Float?
+  reviewsCount            Int?
+  maxPeople               Int?
+  minPeople               Int?
+  location                String?
+  tags                    String?
+  isActive                Boolean                  @default(true)
+  isDraft                 Boolean                  @default(false)
+  isFeatured              Boolean                  @default(false)
+  categoryId              Int
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  pricingData             String?
+  profitMargin            Float?                   @default(0) @map("profit_margin")
+  assignedGuideId         Int?                     @map("assigned_guide_id")
+  scheduledEndDate        DateTime?
+  scheduledStartDate      DateTime?
+  status                  String                   @default("pending")
+  currentDay              Int?                     @map("current_day")
+  completedDays           Int[]                    @default([]) @map("completed_days")
+  totalDays               Int?                     @map("total_days")
+  uniqueCode              String?                  @unique
+  durationType            String?                  @default("days")
+  bookingRequests         BookingRequest[]
+  bookings                Booking[]
+  orders                  Order[]
+  reviews                 Review[]
+  tourBlockAssignments    TourBlockAssignment[]
+  tourCategoryAssignments TourCategoryAssignment[]
+  tourCities              TourCity[]
+  tourCountries           TourCountry[]
+  tourDrivers             TourDriver[]
+  tourGuides              TourGuide[]
+  tourHotels              TourHotel[]
+  tourMapPoints           TourMapPoint[]
+  pricingComponents       TourPricingComponent[]
+  assignedGuide           Guide?                   @relation("AssignedGuide", fields: [assignedGuideId], references: [id])
+  category                Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tourCity                City?                    @relation(fields: [cityId], references: [id])
+  tourCountry             Country?                 @relation(fields: [countryId], references: [id])
+
+  @@map("tours")
+}
+
+model Hotel {
+  id           Int            @id @default(autoincrement())
+  name         Json
+  description  Json?
+  images       String?
+  address      Json?
+  rating       Float?
+  stars        Int?
+  amenities    String?
+  brand        String?
+  category     HotelCategory?
+  countryId    Int?           @map("country_id")
+  cityId       Int?           @map("city_id")
+  country      String?
+  city         String?
+  pension      String?        @default("none")
+  roomTypes    String?
+  mealTypes    String?
+  isActive     Boolean        @default(true)
+  isDraft      Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  bookings     Booking[]
+  hotelCity    City?          @relation(fields: [cityId], references: [id])
+  hotelCountry Country?       @relation(fields: [countryId], references: [id])
+  orders       Order[]
+  tourHotels   TourHotel[]
+
+  @@map("hotels")
+}
+
+model TourHotel {
+  id            Int     @id @default(autoincrement())
+  tourId        Int     @map("tour_id")
+  hotelId       Int     @map("hotel_id")
+  pricePerNight Float?  @map("price_per_night")
+  isDefault     Boolean @default(false) @map("is_default")
+  hotel         Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  tour          Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, hotelId])
+  @@map("tour_hotels")
+}
+
+model TourBlockAssignment {
+  id          Int       @id @default(autoincrement())
+  tourId      Int       @map("tour_id")
+  tourBlockId Int       @map("tour_block_id")
+  isPrimary   Boolean   @default(false) @map("is_primary")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  tourBlock   TourBlock @relation(fields: [tourBlockId], references: [id], onDelete: Cascade)
+  tour        Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, tourBlockId])
+  @@map("tour_block_assignments")
+}
+
+model TourCategoryAssignment {
+  id         Int      @id @default(autoincrement())
+  tourId     Int      @map("tour_id")
+  categoryId Int      @map("category_id")
+  isPrimary  Boolean  @default(false) @map("is_primary")
+  createdAt  DateTime @default(now()) @map("created_at")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  tour       Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, categoryId])
+  @@map("tour_category_assignments")
+}
+
+model Guide {
+  id                Int                @id @default(autoincrement())
+  name              Json
+  description       Json?
+  photo             String?
+  avatar            String?
+  documents         String?
+  languages         String
+  contact           String?
+  experience        Int?
+  rating            Float?
+  countryId         Int?               @map("country_id")
+  cityId            Int?               @map("city_id")
+  passportSeries    String?            @map("passport_series")
+  registration      String?
+  residenceAddress  String?            @map("residence_address")
+  login             String?
+  password          String?
+  pricePerDay       Float?             @map("price_per_day")
+  currency          String?            @default("TJS")
+  availableDates    String?            @map("available_dates")
+  isHireable        Boolean            @default(true) @map("is_hireable")
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  guideHireRequests GuideHireRequest[]
+  guideCity         City?              @relation(fields: [cityId], references: [id])
+  guideCountry      Country?           @relation(fields: [countryId], references: [id])
+  orders            Order[]
+  tourGuides        TourGuide[]
+  assignedTours     Tour[]             @relation("AssignedGuide")
+  guideReviews      GuideReview[]
+
+  @@map("guides")
+}
+
+model GuideReview {
+  id          Int      @id @default(autoincrement())
+  guideId     Int      @map("guide_id")
+  customerId  Int?     @map("customer_id")
+  reviewerName String  @map("reviewer_name")
+  rating      Int
+  text        String
+  photos      String?
+  isModerated Boolean  @default(false) @map("is_moderated")
+  isApproved  Boolean  @default(false) @map("is_approved")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guide       Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_reviews")
+}
+
+model GuideHireRequest {
+  id             Int      @id @default(autoincrement())
+  guideId        Int      @map("guide_id")
+  touristName    String   @map("tourist_name")
+  touristEmail   String?  @map("tourist_email")
+  touristPhone   String?  @map("tourist_phone")
+  selectedDates  String   @map("selected_dates")
+  numberOfDays   Int      @map("number_of_days")
+  comments       String?
+  totalPrice     Float    @map("total_price")
+  baseTotalPrice Float?   @map("base_total_price")
+  currency       String   @default("TJS")
+  baseCurrency   String?  @map("base_currency")
+  exchangeRate   Float?   @map("exchange_rate")
+  status         String   @default("pending")
+  paymentStatus  String   @default("unpaid") @map("payment_status")
+  adminNotes     String?  @map("admin_notes")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  guide          Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@map("guide_hire_requests")
+}
+
+model Driver {
+  id               Int               @id @default(autoincrement())
+  name             String
+  description      String?
+  photo            String?
+  avatar           String?
+  documents        String?
+  licenseNumber    String?
+  licenseCategory  String?
+  vehicleTypes     String?
+  vehicleInfo      String?
+  vehicleBrand     String?
+  vehicleYear      Int?
+  vehiclePhotos    String?
+  experience       Int?
+  contact          String?
+  login            String?
+  password         String?
+  isActive         Boolean           @default(true)
+  languages        String?
+  workingAreas     String?
+  countryId        Int?              @map("country_id")
+  cityId           Int?              @map("city_id")
+  pricePerDay      Float?
+  pricePerHour     Float?
+  currency         String?           @default("TJS")
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  driverCity       City?             @relation(fields: [cityId], references: [id])
+  driverCountry    Country?          @relation(fields: [countryId], references: [id])
+  tourDrivers      TourDriver[]
+  transferRequests TransferRequest[]
+
+  @@map("drivers")
+}
+
+model TourDriver {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  driverId  Int     @map("driver_id")
+  isDefault Boolean @default(false) @map("is_default")
+  driver    Driver  @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, driverId])
+  @@map("tour_drivers")
+}
+
+model TourGuide {
+  id        Int     @id @default(autoincrement())
+  tourId    Int     @map("tour_id")
+  guideId   Int     @map("guide_id")
+  isDefault Boolean @default(false) @map("is_default")
+  guide     Guide   @relation(fields: [guideId], references: [id], onDelete: Cascade)
+  tour      Tour    @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, guideId])
+  @@map("tour_guides")
+}
+
+model TourCountry {
+  id        Int      @id @default(autoincrement())
+  tourId    Int      @map("tour_id")
+  countryId Int      @map("country_id")
+  isPrimary Boolean  @default(false) @map("is_primary")
+  createdAt DateTime @default(now()) @map("created_at")
+  country   Country  @relation("TourCountries", fields: [countryId], references: [id], onDelete: Cascade)
+  tour      Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, countryId])
+  @@map("tour_countries")
+}
+
+model TourCity {
+  id          Int      @id @default(autoincrement())
+  tourId      Int      @map("tour_id")
+  cityId      Int      @map("city_id")
+  nightsCount Int      @default(1) @map("nights_count")
+  isPrimary   Boolean  @default(false) @map("is_primary")
+  createdAt   DateTime @default(now()) @map("created_at")
+  city        City     @relation("TourCities", fields: [cityId], references: [id], onDelete: Cascade)
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, cityId])
+  @@map("tour_cities")
+}
+
+model Customer {
+  id           Int           @id @default(autoincrement())
+  fullName     String        @map("full_name")
+  email        String        @unique
+  phone        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  orders       Order[]
+  reviews      Review[]
+  guideReviews GuideReview[]
+
+  @@map("customers")
+}
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  orderNumber     String   @unique @map("order_number")
+  customerId      Int      @map("customer_id")
+  tourId          Int      @map("tour_id")
+  hotelId         Int?     @map("hotel_id")
+  guideId         Int?     @map("guide_id")
+  tourDate        String   @map("tour_date")
+  tourists        String
+  wishes          String?
+  totalAmount     Float    @map("total_amount")
+  status          String   @default("pending")
+  paymentStatus   String   @default("unpaid") @map("payment_status")
+  paymentMethod   String?  @map("payment_method")
+  paymentIntentId String?  @map("payment_intent_id")
+  receiptData     String?  @map("receipt_data")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guide           Guide?   @relation(fields: [guideId], references: [id])
+  hotel           Hotel?   @relation(fields: [hotelId], references: [id])
+  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("orders")
+}
+
+model BookingRequest {
+  id             Int      @id @default(autoincrement())
+  customerName   String   @map("customer_name")
+  customerEmail  String   @map("customer_email")
+  preferredDate  String   @map("preferred_date")
+  numberOfPeople Int      @map("number_of_people")
+  tourId         Int      @map("tour_id")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  tour           Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("booking_requests")
+}
+
+model Review {
+  id           Int       @id @default(autoincrement())
+  customerId   Int?      @map("customer_id")
+  tourId       Int       @map("tour_id")
+  reviewerName String    @map("reviewer_name")
+  rating       Int
+  guideRating  Int?      @map("guide_rating")
+  text         String
+  photos       String?
+  isModerated  Boolean   @default(false) @map("is_moderated")
+  isApproved   Boolean   @default(false) @map("is_approved")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tour         Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("reviews")
+}
+
+model Admin {
   id        Int      @id @default(autoincrement())
   username  String   @unique
   email     String   @unique
   password  String
-  full_name String
+  fullName  String   @map("full_name")
   role      String   @default("admin")
-  is_active Boolean  @default(true)
+  isActive  Boolean  @default(true) @map("is_active")
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
 }
 
-model agent_applications {
-  id                       Int      @id @default(autoincrement())
-  full_name                String
-  citizenship              String
-  address                  String
-  phone                    String
-  email                    String
-  id_document              String?
-  other_documents          String?
-  partnership_agreement    Boolean
-  privacy_policy_agreement Boolean
-  status                   String   @default("pending")
-  admin_notes              String?
-  created_at               DateTime @default(now())
-  updated_at               DateTime
+model News {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  excerpt     String?
+  image       String?
+  images      String?
+  tags        String?
+  isPublished Boolean  @default(true) @map("is_published")
+  isFeatured  Boolean  @default(false) @map("is_featured")
+  publishedAt DateTime @default(now()) @map("published_at")
+  slug        String   @unique
+  views       Int      @default(0)
+  readTime    Int?     @map("read_time")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("news")
 }
 
-model agent_tour_bookings {
-  id                  Int         @id @default(autoincrement())
-  agent_user_id       Int
-  registration_number String      @unique
-  tour_name           String
-  application_date    DateTime
-  tour_start_date     String
-  tour_end_date       String
-  tourist_count       Int
-  tourists_list       String
-  status              String      @default("pending")
-  admin_notes         String?
-  created_at          DateTime    @default(now())
-  updated_at          DateTime
-  agent_users         agent_users @relation(fields: [agent_user_id], references: [id], onDelete: Cascade)
-}
-
-model agent_users {
-  id                  Int                   @id @default(autoincrement())
-  unique_id           String                @unique
-  full_name           String
-  email               String                @unique
-  password            String
-  citizenship         String
-  address             String
-  phone               String
-  is_active           Boolean               @default(true)
-  created_at          DateTime              @default(now())
-  updated_at          DateTime
-  agent_tour_bookings agent_tour_bookings[]
-}
-
-model booking_requests {
-  id               Int      @id @default(autoincrement())
-  customer_name    String
-  customer_email   String
-  preferred_date   String
-  number_of_people Int
-  tour_id          Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime
-  tours            tours    @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-}
-
-model bookings {
-  id                    Int      @id @default(autoincrement())
-  tour_id               Int
-  hotel_id              Int?
-  tourists              String
-  contact_name          String?
-  contact_phone         String?
-  contact_email         String?
-  room_selection        String?
-  meal_selection        String?
-  city_nights           String?
-  total_price           Float
-  tour_date             String
-  number_of_tourists    Int
-  special_requests      String?
-  status                String   @default("draft")
-  payment_method        String?
-  payment_option        String?  @default("full")
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime
-  selected_currency     String   @default("TJS")
-  total_price_converted Float?
-  hotels                hotels?  @relation(fields: [hotel_id], references: [id])
-  tours                 tours    @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-}
-
-model categories {
-  id                        Int                         @id @default(autoincrement())
-  name                      String
-  type                      String                      @default("tour")
-  tour_category_assignments tour_category_assignments[]
-  tours                     tours[]
-}
-
-model cities {
-  id                 Int                  @id @default(autoincrement())
-  name               String
-  name_ru            String
-  name_en            String
-  country_id         Int
-  isActive           Boolean              @default(true)
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime
-  countries          countries            @relation(fields: [country_id], references: [id], onDelete: Cascade)
-  city_card_photos   city_card_photos[]
-  custom_tour_cities custom_tour_cities[]
-  drivers            drivers[]
-  guides             guides[]
-  hotels             hotels[]
-  slides             slides[]
-  tour_agents        tour_agents[]
-  tour_cities        tour_cities[]
-  tours              tours[]
-
-  @@unique([name, country_id])
-}
-
-model city_card_photos {
-  id         Int      @id @default(autoincrement())
-  city_id    Int
-  image      String
-  is_active  Boolean  @default(true)
-  sort_order Int      @default(0)
-  created_at DateTime @default(now())
-  updated_at DateTime
-  cities     cities   @relation(fields: [city_id], references: [id], onDelete: Cascade)
-}
-
-model content_blocks {
+model ContentBlock {
   id        Int      @id @default(autoincrement())
   key       String   @unique
   title     String
@@ -159,89 +465,343 @@ model content_blocks {
   sortOrder Int      @default(0)
   metadata  String?
   createdAt DateTime @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
+
+  @@map("content_blocks")
 }
 
-model countries {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique
-  name_ru                String
-  name_en                String
-  code                   String                   @unique
-  isActive               Boolean                  @default(true)
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime
-  cities                 cities[]
-  custom_tour_cities     custom_tour_cities[]
-  custom_tour_components custom_tour_components[]
-  drivers                drivers[]
-  guides                 guides[]
-  hotels                 hotels[]
-  tour_agents            tour_agents[]
-  tour_countries         tour_countries[]
-  tours                  tours[]
+model SiteSetting {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  type      String
+  group     String
+  label     String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_settings")
 }
 
-model custom_tour_cities {
-  id         Int       @id @default(autoincrement())
-  country_id Int
-  city_id    Int
-  days_count Int
-  is_active  Boolean   @default(true)
-  created_at DateTime  @default(now())
-  updated_at DateTime
-  cities     cities    @relation(fields: [city_id], references: [id], onDelete: Cascade)
-  countries  countries @relation(fields: [country_id], references: [id], onDelete: Cascade)
+model Page {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  content     String
+  metaTitle   String?
+  metaDesc    String?
+  isPublished Boolean  @default(true)
+  template    String   @default("default")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@unique([country_id, city_id])
+  @@map("pages")
 }
 
-model custom_tour_components {
-  id          Int       @id @default(autoincrement())
-  country_id  Int
+model MenuItem {
+  id        Int        @id @default(autoincrement())
+  parentId  Int?       @map("parent_id")
+  title     String
+  url       String
+  type      String
+  isActive  Boolean    @default(true)
+  sortOrder Int        @default(0)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  parent    MenuItem?  @relation("MenuItemParent", fields: [parentId], references: [id])
+  children  MenuItem[] @relation("MenuItemParent")
+
+  @@map("menu_items")
+}
+
+model Country {
+  id                   Int                   @id @default(autoincrement())
+  name                 String                @unique
+  nameRu               String                @map("name_ru")
+  nameEn               String                @map("name_en")
+  code                 String                @unique
+  isActive             Boolean               @default(true)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  cities               City[]
+  customTourCities     CustomTourCity[]
+  drivers              Driver[]
+  guides               Guide[]
+  hotels               Hotel[]
+  tourAgents           TourAgent[]
+  tourCountries        TourCountry[]         @relation("TourCountries")
+  tours                Tour[]
+  customTourComponents CustomTourComponent[]
+
+  @@map("countries")
+}
+
+model City {
+  id               Int               @id @default(autoincrement())
+  name             String
+  nameRu           String            @map("name_ru")
+  nameEn           String            @map("name_en")
+  countryId        Int               @map("country_id")
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  country          Country           @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  cityCardPhotos   CityCardPhoto[]
+  customTourCities CustomTourCity[]
+  drivers          Driver[]
+  guides           Guide[]
+  hotels           Hotel[]
+  slides           Slide[]
+  tourAgents       TourAgent[]
+  tourCities       TourCity[]        @relation("TourCities")
+  tours            Tour[]
+
+  @@unique([name, countryId])
+  @@map("cities")
+}
+
+model CityCardPhoto {
+  id        Int      @id @default(autoincrement())
+  cityId    Int      @map("city_id")
+  image     String
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  @@map("city_card_photos")
+}
+
+model NewsPost {
+  id          Int          @id @default(autoincrement())
+  title       String
+  slug        String       @unique
+  excerpt     String?
+  content     String
+  imageUrl    String?
+  category    NewsCategory
+  author      String?
+  publishDate DateTime     @default(now())
+  isFeatured  Boolean      @default(false)
+  isPublished Boolean      @default(true)
+  views       Int          @default(0)
+  metaTitle   String?
+  metaDesc    String?
+  tags        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("news_posts")
+}
+
+model NewsletterSubscriber {
+  id             Int       @id @default(autoincrement())
+  email          String    @unique
+  isActive       Boolean   @default(true)
+  subscribedAt   DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+model Slide {
+  id          Int      @id @default(autoincrement())
+  title       Json
+  description Json
+  image       String?
+  link        String?
+  buttonText  Json?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  cityId      Int?     @map("city_id")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  city        City?    @relation(fields: [cityId], references: [id])
+
+  @@map("slides")
+}
+
+model Booking {
+  id                  Int      @id @default(autoincrement())
+  tourId              Int      @map("tour_id")
+  hotelId             Int?     @map("hotel_id")
+  tourists            String
+  contactName         String?  @map("contact_name")
+  contactPhone        String?  @map("contact_phone")
+  contactEmail        String?  @map("contact_email")
+  roomSelection       String?  @map("room_selection")
+  mealSelection       String?  @map("meal_selection")
+  cityNights          String?  @map("city_nights")
+  totalPrice          Float    @map("total_price")
+  tourDate            String   @map("tour_date")
+  numberOfTourists    Int      @map("number_of_tourists")
+  specialRequests     String?  @map("special_requests")
+  status              String   @default("draft")
+  paymentMethod       String?  @map("payment_method")
+  paymentOption       String?  @default("full") @map("payment_option")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  selectedCurrency    String   @default("TJS") @map("selected_currency")
+  totalPriceConverted Float?   @map("total_price_converted")
+  hotel               Hotel?   @relation(fields: [hotelId], references: [id])
+  tour                Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@map("bookings")
+}
+
+model ExchangeRate {
+  id        Int      @id @default(autoincrement())
+  currency  String   @unique
+  rate      Float
+  symbol    String
+  name      String
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("exchange_rates")
+}
+
+model PriceCalculatorComponent {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  category    String
+  name        String
+  nameEn      String?  @map("name_en")
+  price       Float
+  unit        String
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("price_calculator_components")
+}
+
+model CustomTourComponent {
+  id          Int      @id @default(autoincrement())
+  countryId   Int      @map("country_id")
   category    String
   name        Json
   price       Float
   unit        String
   description Json?
-  isActive    Boolean   @default(true)
-  sortOrder   Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime
-  countries   countries @relation(fields: [country_id], references: [id], onDelete: Cascade)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  country     Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@map("custom_tour_components")
 }
 
-model custom_tour_orders {
-  id                  Int      @id @default(autoincrement())
-  full_name           String
-  email               String?
-  phone               String?
-  selected_countries  Json
-  selected_cities     Json
-  tourists            Json
-  selected_components Json
-  status              String   @default("pending")
-  total_price         Float?
-  total_days          Int?
-  customer_notes      String?
-  admin_notes         String?
-  created_at          DateTime @default(now())
-  updated_at          DateTime
+model TourPricingComponent {
+  id           Int      @id @default(autoincrement())
+  tourId       Int      @map("tour_id")
+  componentKey String   @map("component_key")
+  quantity     Float    @default(1)
+  customPrice  Float?   @map("custom_price")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  tour         Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, componentKey])
+  @@map("tour_pricing_components")
 }
 
-model customers {
-  id            Int             @id @default(autoincrement())
-  full_name     String
-  email         String          @unique
-  phone         String?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime
-  guide_reviews guide_reviews[]
-  orders        orders[]
-  reviews       reviews[]
+model TourGuideProfile {
+  id        Int      @id @default(autoincrement())
+  name      String
+  login     String   @unique
+  password  String
+  email     String?
+  phone     String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tour_guide_profiles")
 }
 
-model driver_profiles {
+model TransferRequest {
+  id               Int      @id @default(autoincrement())
+  fullName         String   @map("full_name")
+  email            String?
+  phone            String?
+  pickupLocation   String   @map("pickup_location")
+  dropoffLocation  String   @map("dropoff_location")
+  pickupTime       String   @map("pickup_time")
+  pickupDate       String   @map("pickup_date")
+  numberOfPeople   Int      @default(1) @map("number_of_people")
+  vehicleType      String?  @map("vehicle_type")
+  specialRequests  String?  @map("special_requests")
+  status           String   @default("pending")
+  adminNotes       String?  @map("admin_notes")
+  estimatedPrice   Float?   @map("estimated_price")
+  finalPrice       Float?   @map("final_price")
+  assignedDriverId Int?     @map("assigned_driver_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  assignedDriver   Driver?  @relation(fields: [assignedDriverId], references: [id])
+
+  @@map("transfer_requests")
+}
+
+model CustomTourOrder {
+  id                 Int      @id @default(autoincrement())
+  fullName           String   @map("full_name")
+  email              String?
+  phone              String?
+  selectedCountries  Json     @map("selected_countries")
+  selectedCities     Json     @map("selected_cities")
+  tourists           Json
+  selectedComponents Json     @map("selected_components")
+  status             String   @default("pending")
+  totalPrice         Float?   @map("total_price")
+  totalDays          Int?     @map("total_days")
+  customerNotes      String?  @map("customer_notes")
+  adminNotes         String?  @map("admin_notes")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  @@map("custom_tour_orders")
+}
+
+model CustomTourCity {
+  id        Int      @id @default(autoincrement())
+  countryId Int      @map("country_id")
+  cityId    Int      @map("city_id")
+  daysCount Int      @map("days_count")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  country   Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([countryId, cityId])
+  @@map("custom_tour_cities")
+}
+
+model TourMapPoint {
+  id          Int      @id @default(autoincrement())
+  tourId      Int      @map("tour_id")
+  stepNumber  Int      @map("step_number")
+  latitude    Float
+  longitude   Float
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  tour        Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+
+  @@unique([tourId, stepNumber])
+  @@map("tour_map_points")
+}
+
+model DriverProfile {
   id                Int       @id @default(autoincrement())
   name              String
   phone             String
@@ -265,580 +825,37 @@ model driver_profiles {
   isActive          Boolean   @default(true)
   password          String
   createdAt         DateTime  @default(now())
-  updatedAt         DateTime
-  trips             trips[]
+  updatedAt         DateTime  @updatedAt
+  trips             Trip[]
+
+  @@map("driver_profiles")
 }
 
-model drivers {
-  id                Int                 @id @default(autoincrement())
-  name              String
-  description       String?
-  photo             String?
-  avatar            String?
-  documents         String?
-  licenseNumber     String?
-  licenseCategory   String?
-  vehicleTypes      String?
-  vehicleInfo       String?
-  vehicleBrand      String?
-  vehicleYear       Int?
-  vehiclePhotos     String?
-  experience        Int?
-  contact           String?
-  login             String?
-  password          String?
-  isActive          Boolean             @default(true)
-  languages         String?
-  workingAreas      String?
-  country_id        Int?
-  city_id           Int?
-  pricePerDay       Float?
-  pricePerHour      Float?
-  currency          String?             @default("TJS")
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime
-  cities            cities?             @relation(fields: [city_id], references: [id])
-  countries         countries?          @relation(fields: [country_id], references: [id])
-  tour_drivers      tour_drivers[]
-  transfer_requests transfer_requests[]
-}
-
-model exchange_rates {
-  id        Int      @id @default(autoincrement())
-  currency  String   @unique
-  rate      Float
-  symbol    String
-  name      String
-  isActive  Boolean  @default(true)
-  updatedAt DateTime @default(now())
-  createdAt DateTime @default(now())
-}
-
-model guide_hire_requests {
-  id               Int      @id @default(autoincrement())
-  guide_id         Int
-  tourist_name     String
-  tourist_email    String?
-  tourist_phone    String?
-  selected_dates   String
-  number_of_days   Int
-  comments         String?
-  total_price      Float
-  base_total_price Float?
-  currency         String   @default("TJS")
-  base_currency    String?
-  exchange_rate    Float?
-  status           String   @default("pending")
-  payment_status   String   @default("unpaid")
-  admin_notes      String?
-  created_at       DateTime @default(now())
-  updated_at       DateTime
-  guides           guides   @relation(fields: [guide_id], references: [id], onDelete: Cascade)
-}
-
-model guide_reviews {
-  id            Int        @id @default(autoincrement())
-  guide_id      Int
-  customer_id   Int?
-  reviewer_name String
-  rating        Int
-  text          String
-  photos        String?
-  is_moderated  Boolean    @default(false)
-  is_approved   Boolean    @default(false)
-  created_at    DateTime   @default(now())
-  updated_at    DateTime
-  customers     customers? @relation(fields: [customer_id], references: [id], onDelete: Cascade)
-  guides        guides     @relation(fields: [guide_id], references: [id], onDelete: Cascade)
-}
-
-model guides {
-  id                  Int                   @id @default(autoincrement())
-  name                Json
-  description         Json?
-  photo               String?
-  avatar              String?
-  documents           String?
-  languages           String
-  contact             String?
-  experience          Int?
-  rating              Float?
-  country_id          Int?
-  city_id             Int?
-  passport_series     String?
-  registration        String?
-  residence_address   String?
-  login               String?
-  password            String?
-  price_per_day       Float?
-  currency            String?               @default("TJS")
-  available_dates     String?
-  is_hireable         Boolean               @default(true)
-  isActive            Boolean               @default(true)
-  createdAt           DateTime              @default(now())
-  updatedAt           DateTime
-  guide_hire_requests guide_hire_requests[]
-  guide_reviews       guide_reviews[]
-  cities              cities?               @relation(fields: [city_id], references: [id])
-  countries           countries?            @relation(fields: [country_id], references: [id])
-  orders              orders[]
-  tour_guides         tour_guides[]
-  tours               tours[]
-}
-
-model hotels {
-  id          Int            @id @default(autoincrement())
-  name        Json
-  description Json?
-  images      String?
-  address     Json?
-  rating      Float?
-  stars       Int?
-  amenities   String?
-  brand       String?
-  category    HotelCategory?
-  country_id  Int?
-  city_id     Int?
-  country     String?
-  city        String?
-  pension     String?        @default("none")
-  roomTypes   String?
-  mealTypes   String?
-  isActive    Boolean        @default(true)
-  isDraft     Boolean        @default(false)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime
-  bookings    bookings[]
-  cities      cities?        @relation(fields: [city_id], references: [id])
-  countries   countries?     @relation(fields: [country_id], references: [id])
-  orders      orders[]
-  tour_hotels tour_hotels[]
-}
-
-model menu_items {
-  id               Int          @id @default(autoincrement())
-  parent_id        Int?
-  title            String
-  url              String
-  type             String
-  isActive         Boolean      @default(true)
-  sortOrder        Int          @default(0)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime
-  menu_items       menu_items?  @relation("menu_itemsTomenu_items", fields: [parent_id], references: [id])
-  other_menu_items menu_items[] @relation("menu_itemsTomenu_items")
-}
-
-model migrations {
-  id          Int      @id @default(autoincrement())
-  version     String   @unique
-  name        String
-  description String?
-  appliedAt   DateTime @default(now())
-  isSystem    Boolean  @default(false)
-}
-
-model news {
-  id           Int      @id @default(autoincrement())
-  title        String
-  content      String
-  excerpt      String?
-  image        String?
-  images       String?
-  tags         String?
-  is_published Boolean  @default(true)
-  is_featured  Boolean  @default(false)
-  published_at DateTime @default(now())
-  slug         String   @unique
-  views        Int      @default(0)
-  read_time    Int?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime
-}
-
-model news_posts {
-  id          Int          @id @default(autoincrement())
-  title       String
-  slug        String       @unique
-  excerpt     String?
-  content     String
-  imageUrl    String?
-  category    NewsCategory
-  author      String?
-  publishDate DateTime     @default(now())
-  isFeatured  Boolean      @default(false)
-  isPublished Boolean      @default(true)
-  views       Int          @default(0)
-  metaTitle   String?
-  metaDesc    String?
-  tags        String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime
-}
-
-model newsletter_subscribers {
-  id             Int       @id @default(autoincrement())
-  email          String    @unique
-  isActive       Boolean   @default(true)
-  subscribedAt   DateTime  @default(now())
-  unsubscribedAt DateTime?
-}
-
-model orders {
-  id                Int       @id @default(autoincrement())
-  order_number      String    @unique
-  customer_id       Int
-  tour_id           Int
-  hotel_id          Int?
-  guide_id          Int?
-  tour_date         String
-  tourists          String
-  wishes            String?
-  total_amount      Float
-  status            String    @default("pending")
-  payment_status    String    @default("unpaid")
-  payment_method    String?
-  payment_intent_id String?
-  receipt_data      String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime
-  customers         customers @relation(fields: [customer_id], references: [id], onDelete: Cascade)
-  guides            guides?   @relation(fields: [guide_id], references: [id])
-  hotels            hotels?   @relation(fields: [hotel_id], references: [id])
-  tours             tours     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-}
-
-model pages {
-  id          Int      @id @default(autoincrement())
-  slug        String   @unique
-  title       String
-  content     String
-  metaTitle   String?
-  metaDesc    String?
-  isPublished Boolean  @default(true)
-  template    String   @default("default")
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-}
-
-model price_calculator_components {
-  id          Int      @id @default(autoincrement())
-  key         String   @unique
-  category    String
-  name        String
-  name_en     String?
-  price       Float
-  unit        String
-  description String?
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-}
-
-model reviews {
-  id            Int        @id @default(autoincrement())
-  customer_id   Int?
-  tour_id       Int
-  reviewer_name String
-  rating        Int
-  guide_rating  Int?
-  text          String
-  photos        String?
-  is_moderated  Boolean    @default(false)
-  is_approved   Boolean    @default(false)
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime
-  customers     customers? @relation(fields: [customer_id], references: [id], onDelete: Cascade)
-  tours         tours      @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-}
-
-model site_settings {
-  id        Int      @id @default(autoincrement())
-  key       String   @unique
-  value     String
-  type      String
-  group     String
-  label     String
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-}
-
-model slides {
-  id          Int      @id @default(autoincrement())
-  title       Json
-  description Json
-  image       String?
-  link        String?
-  buttonText  Json?
-  order       Int      @default(0)
-  isActive    Boolean  @default(true)
-  city_id     Int?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime
-  cities      cities?  @relation(fields: [city_id], references: [id])
-}
-
-model tour_agents {
-  id                Int        @id @default(autoincrement())
+model TourAgent {
+  id                Int      @id @default(autoincrement())
   name              String
   organization      String
   website           String?
   stateRegistration String?
   description       String?
-  contact_name      String?
-  contact_phone     String?
-  contact_email     String?
+  contactName       String?  @map("contact_name")
+  contactPhone      String?  @map("contact_phone")
+  contactEmail      String?  @map("contact_email")
   address           String?
   photo             String?
-  country_id        Int?
-  city_id           Int?
-  is_active         Boolean    @default(true)
-  created_at        DateTime   @default(now())
-  updated_at        DateTime
-  cities            cities?    @relation(fields: [city_id], references: [id])
-  countries         countries? @relation(fields: [country_id], references: [id])
+  countryId         Int?     @map("country_id")
+  cityId            Int?     @map("city_id")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  city              City?    @relation(fields: [cityId], references: [id])
+  country           Country? @relation(fields: [countryId], references: [id])
+
+  @@map("tour_agents")
 }
 
-model tour_block_assignments {
-  id            Int         @id @default(autoincrement())
-  tour_id       Int
-  tour_block_id Int
-  is_primary    Boolean     @default(false)
-  created_at    DateTime    @default(now())
-  tour_blocks   tour_blocks @relation(fields: [tour_block_id], references: [id], onDelete: Cascade)
-  tours         tours       @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, tour_block_id])
-}
-
-model tour_blocks {
-  id                     Int                      @id @default(autoincrement())
-  title                  String
-  description            String?
-  slug                   String                   @unique
-  isActive               Boolean                  @default(true)
-  sortOrder              Int                      @default(0)
-  createdAt              DateTime                 @default(now())
-  updatedAt              DateTime
-  tour_block_assignments tour_block_assignments[]
-}
-
-model tour_category_assignments {
-  id          Int        @id @default(autoincrement())
-  tour_id     Int
-  category_id Int
-  is_primary  Boolean    @default(false)
-  created_at  DateTime   @default(now())
-  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade)
-  tours       tours      @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, category_id])
-}
-
-model tour_cities {
-  id           Int      @id @default(autoincrement())
-  tour_id      Int
-  city_id      Int
-  nights_count Int      @default(1)
-  is_primary   Boolean  @default(false)
-  created_at   DateTime @default(now())
-  cities       cities   @relation(fields: [city_id], references: [id], onDelete: Cascade)
-  tours        tours    @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, city_id])
-}
-
-model tour_countries {
-  id         Int       @id @default(autoincrement())
-  tour_id    Int
-  country_id Int
-  is_primary Boolean   @default(false)
-  created_at DateTime  @default(now())
-  countries  countries @relation(fields: [country_id], references: [id], onDelete: Cascade)
-  tours      tours     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, country_id])
-}
-
-model tour_drivers {
-  id         Int     @id @default(autoincrement())
-  tour_id    Int
-  driver_id  Int
-  is_default Boolean @default(false)
-  drivers    drivers @relation(fields: [driver_id], references: [id], onDelete: Cascade)
-  tours      tours   @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, driver_id])
-}
-
-model tour_guide_profiles {
-  id        Int      @id @default(autoincrement())
-  name      String
-  login     String   @unique
-  password  String
-  email     String?
-  phone     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime
-}
-
-model tour_guides {
-  id         Int     @id @default(autoincrement())
-  tour_id    Int
-  guide_id   Int
-  is_default Boolean @default(false)
-  guides     guides  @relation(fields: [guide_id], references: [id], onDelete: Cascade)
-  tours      tours   @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, guide_id])
-}
-
-model tour_hotels {
-  id              Int     @id @default(autoincrement())
-  tour_id         Int
-  hotel_id        Int
-  price_per_night Float?
-  is_default      Boolean @default(false)
-  hotels          hotels  @relation(fields: [hotel_id], references: [id], onDelete: Cascade)
-  tours           tours   @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, hotel_id])
-}
-
-model tour_map_points {
-  id          Int      @id @default(autoincrement())
-  tour_id     Int
-  step_number Int
-  latitude    Float
-  longitude   Float
-  description String?
-  created_at  DateTime @default(now())
-  updated_at  DateTime
-  tours       tours    @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, step_number])
-}
-
-model tour_pricing_components {
-  id            Int      @id @default(autoincrement())
-  tour_id       Int
-  component_key String
-  quantity      Float    @default(1)
-  custom_price  Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime
-  tours         tours    @relation(fields: [tour_id], references: [id], onDelete: Cascade)
-
-  @@unique([tour_id, component_key])
-}
-
-model tours {
-  id                        Int                         @id @default(autoincrement())
-  title                     Json
-  description               Json
-  shortDesc                 Json?
-  duration                  String
-  price                     String
-  currency                  String                      @default("TJS")
-  priceType                 String                      @default("за человека")
-  originalPrice             String?
-  country_id                Int?
-  city_id                   Int?
-  country                   String?
-  city                      String?
-  format                    String?
-  tourType                  String?
-  durationDays              Int?
-  theme                     String?
-  startDate                 String?
-  endDate                   String?
-  startTime                 String?
-  startTimeOptions          String?
-  pickupInfo                String?
-  pickup_info_en            String?
-  languages                 String?
-  availableMonths           String?
-  availableDays             String?
-  images                    String?
-  mainImage                 String?
-  services                  String?
-  highlights                String?
-  itinerary                 String?
-  itinerary_en              String?
-  includes                  String?
-  excluded                  String?
-  requirements              String?
-  difficulty                String?
-  rating                    Float?
-  reviewsCount              Int?
-  maxPeople                 Int?
-  minPeople                 Int?
-  location                  String?
-  tags                      String?
-  isActive                  Boolean                     @default(true)
-  isDraft                   Boolean                     @default(false)
-  isFeatured                Boolean                     @default(false)
-  categoryId                Int
-  createdAt                 DateTime                    @default(now())
-  updatedAt                 DateTime
-  pricingData               String?
-  profit_margin             Float?                      @default(0)
-  assigned_guide_id         Int?
-  scheduledEndDate          DateTime?
-  scheduledStartDate        DateTime?
-  status                    String                      @default("pending")
-  current_day               Int?
-  completed_days            Int[]                       @default([])
-  total_days                Int?
-  uniqueCode                String?                     @unique
-  durationType              String?                     @default("days")
-  booking_requests          booking_requests[]
-  bookings                  bookings[]
-  orders                    orders[]
-  reviews                   reviews[]
-  tour_block_assignments    tour_block_assignments[]
-  tour_category_assignments tour_category_assignments[]
-  tour_cities               tour_cities[]
-  tour_countries            tour_countries[]
-  tour_drivers              tour_drivers[]
-  tour_guides               tour_guides[]
-  tour_hotels               tour_hotels[]
-  tour_map_points           tour_map_points[]
-  tour_pricing_components   tour_pricing_components[]
-  guides                    guides?                     @relation(fields: [assigned_guide_id], references: [id])
-  categories                categories                  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  cities                    cities?                     @relation(fields: [city_id], references: [id])
-  countries                 countries?                  @relation(fields: [country_id], references: [id])
-}
-
-model transfer_requests {
-  id                 Int      @id @default(autoincrement())
-  full_name          String
-  email              String?
-  phone              String?
-  pickup_location    String
-  dropoff_location   String
-  pickup_time        String
-  pickup_date        String
-  number_of_people   Int      @default(1)
-  vehicle_type       String?
-  special_requests   String?
-  status             String   @default("pending")
-  admin_notes        String?
-  estimated_price    Float?
-  final_price        Float?
-  assigned_driver_id Int?
-  created_at         DateTime @default(now())
-  updated_at         DateTime
-  drivers            drivers? @relation(fields: [assigned_driver_id], references: [id])
-}
-
-model trips {
-  id              Int             @id @default(autoincrement())
+model Trip {
+  id              Int           @id @default(autoincrement())
   direction       String
   pickupTime      String
   pickupLocation  String
@@ -847,10 +864,23 @@ model trips {
   dropoffLocation String
   dropoffTime     String
   driverId        Int
-  status          String          @default("pending")
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime
-  driver_profiles driver_profiles @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  status          String        @default("pending")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  driver          DriverProfile @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  @@map("trips")
+}
+
+model Migration {
+  id          Int      @id @default(autoincrement())
+  version     String   @unique
+  name        String
+  description String?
+  appliedAt   DateTime @default(now())
+  isSystem    Boolean  @default(false)
+
+  @@map("migrations")
 }
 
 enum HotelCategory {

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import {
   getTourBlocks,
@@ -32,55 +31,53 @@ router.get('/:id/tours', async (req, res) => {
     }
 
     // Ищем туры через новую таблицу связей TourBlockAssignment
-    const tourAssignments = await prisma.tour_block_assignments.findMany({
+    const tourAssignments = await prisma.tourBlockAssignment.findMany({
       where: {
-        tour_block_id: blockId
+        tourBlockId: blockId
       },
       include: {
-        tours: {
+        tour: {
           include: {
-            categories: true,
-            countries: true,
-            cities: true,
+            category: true,
             // Новые множественные связи
-            tour_countries: {
+            tourCountries: {
               include: {
-                countries: true
+                country: true
               },
               orderBy: {
-                is_primary: 'desc' // Показываем основную страну первой
+                isPrimary: 'desc' // Показываем основную страну первой
               }
             },
-            tour_cities: {
+            tourCities: {
               include: {
-                cities: {
+                city: {
                   include: {
-                    countries: true // Включаем информацию о стране для города
+                    country: true // Включаем информацию о стране для города
                   }
                 }
               },
               orderBy: {
-                is_primary: 'desc' // Показываем основной город первым
+                isPrimary: 'desc' // Показываем основной город первым
               }
             },
-            tour_block_assignments: {
+            tourBlockAssignments: {
               include: {
-                tour_blocks: true
+                tourBlock: true
               }
             }
           }
         }
       },
       orderBy: [
-        { is_primary: 'desc' }, // Сначала основные туры
-        { tours: { createdAt: 'desc' } }
+        { isPrimary: 'desc' }, // Сначала основные туры
+        { tour: { createdAt: 'desc' } }
       ]
     });
 
     // Извлекаем туры из связей и фильтруем активные
     const activeTours = tourAssignments
-      .map(assignment => assignment.tours)
-      .filter(tour => tour && tour.isActive);
+      .map(assignment => assignment.tour)
+      .filter(tour => tour.isActive);
     
     // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Применяем mapTour для денормализации enum значений
     const language = getLanguageFromRequest(req);

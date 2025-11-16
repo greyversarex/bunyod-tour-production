@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { parseMultilingualField, getLanguageFromRequest } from '../utils/multilingual';
@@ -76,7 +75,7 @@ export const getOrCreateCustomer = async (req: Request, res: Response) => {
     } else {
       // Update customer info if needed
       const updateData: any = {};
-      if (customer.full_name !== fullName) updateData.full_name = fullName;
+      if (customer.fullName !== fullName) updateData.fullName = fullName;
       if (phone && customer.phone !== phone) updateData.phone = phone;
 
       if (Object.keys(updateData).length > 0) {
@@ -239,7 +238,7 @@ export const updateCustomer = async (req: Request, res: Response) => {
     const { fullName, email, phone } = req.body;
 
     const updateData: any = {};
-    if (fullName) updateData.full_name = fullName;
+    if (fullName) updateData.fullName = fullName;
     if (email) updateData.email = email;
     if (phone !== undefined) updateData.phone = phone;
 

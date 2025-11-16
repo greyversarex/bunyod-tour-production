@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import { TourModel, CategoryModel, BookingRequestModel, ReviewModel, TourBlockModel, HotelModel } from '../models';
 import { sendAdminNotification, sendCustomerConfirmation } from '../config/email';
@@ -43,7 +42,7 @@ export class TourController {
       const localizedTours = limitedTours.map((tour: any) => 
         mapTour(tour, language, {
           includeRaw: req.query.includeRaw === 'true',
-          removeImages: false // Keep images for display
+          removeImages: true // Performance optimization for list view
         })
       );
 
@@ -552,15 +551,15 @@ export class TourController {
       if (hotelIds && Array.isArray(hotelIds) && hotelIds.length > 0) {
         console.log('🏨 Creating hotel associations:', hotelIds);
         try {
-          const tourHotelData = hotelIds.map((hotel_id: number) => ({
-            tour_id: tour.id,
-            hotel_id: hotel_id,
+          const tourHotelData = hotelIds.map((hotelId: number) => ({
+            tourId: tour.id,
+            hotelId: hotelId,
             isDefault: false
           }));
           
           console.log('🏨 TourHotel data to create:', tourHotelData);
           
-          await prisma.tour_hotels.createMany({
+          await prisma.tourHotel.createMany({
             data: tourHotelData
           });
           
@@ -575,15 +574,15 @@ export class TourController {
       if (guideIds && Array.isArray(guideIds) && guideIds.length > 0) {
         console.log('👨‍🏫 Creating guide associations:', guideIds);
         try {
-          const tourGuideData = guideIds.map((guide_id: number) => ({
-            tour_id: tour.id,
-            guide_id: guide_id,
+          const tourGuideData = guideIds.map((guideId: number) => ({
+            tourId: tour.id,
+            guideId: guideId,
             isDefault: false
           }));
           
           console.log('👨‍🏫 TourGuide data to create:', tourGuideData);
           
-          await prisma.tour_guides.createMany({
+          await prisma.tourGuide.createMany({
             data: tourGuideData
           });
           
@@ -598,15 +597,15 @@ export class TourController {
       if (driverIds && Array.isArray(driverIds) && driverIds.length > 0) {
         console.log('🚗 Creating driver associations:', driverIds);
         try {
-          const tourDriverData = driverIds.map((driver_id: number) => ({
-            tour_id: tour.id,
-            driver_id: driver_id,
+          const tourDriverData = driverIds.map((driverId: number) => ({
+            tourId: tour.id,
+            driverId: driverId,
             isDefault: false
           }));
           
           console.log('🚗 TourDriver data to create:', tourDriverData);
           
-          await prisma.tour_drivers.createMany({
+          await prisma.tourDriver.createMany({
             data: tourDriverData
           });
           
@@ -622,14 +621,14 @@ export class TourController {
         console.log('📦 Creating tour block associations:', tourBlockIds);
         try {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
-            tour_id: tour.id,
-            tour_block_id: blockId,
-            is_primary: index === 0 // Первый блок считается основным
+            tourId: tour.id,
+            tourBlockId: blockId,
+            isPrimary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);
           
-          await prisma.tour_block_assignments.createMany({
+          await prisma.tourBlockAssignment.createMany({
             data: tourBlockData
           });
           
@@ -916,7 +915,7 @@ export class TourController {
       if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
       if (isDraft !== undefined) {
         updateData.isDraft = isSavingDraft; // 📝 Обновляем статус черновика
-        updateData.is_active = !isSavingDraft; // 📝 Черновики неактивны
+        updateData.isActive = !isSavingDraft; // 📝 Черновики неактивны
       }
       if (pricingComponents !== undefined) updateData.pricingComponents = pricingComponents;
       if (profitMarginNumber !== undefined) updateData.profitMargin = profitMarginNumber;
@@ -942,19 +941,19 @@ export class TourController {
         console.log('🏨 Updating hotel associations:', hotelIds);
         
         // Delete existing associations
-        await prisma.tour_hotels.deleteMany({
-          where: { tour_id: id }
+        await prisma.tourHotel.deleteMany({
+          where: { tourId: id }
         });
         
         // Create new associations
         if (hotelIds.length > 0) {
           const tourHotelData = hotelIds.map(hotelId => ({
-            tour_id: id,
-            hotel_id: hotelId,
+            tourId: id,
+            hotelId: hotelId,
             isDefault: false
           }));
           
-          await prisma.tour_hotels.createMany({
+          await prisma.tourHotel.createMany({
             data: tourHotelData
           });
         }
@@ -965,19 +964,19 @@ export class TourController {
         console.log('👨‍🏫 Updating guide associations:', guideIds);
         
         // Delete existing associations
-        await prisma.tour_guides.deleteMany({
-          where: { tour_id: id }
+        await prisma.tourGuide.deleteMany({
+          where: { tourId: id }
         });
         
         // Create new associations
         if (guideIds.length > 0) {
           const tourGuideData = guideIds.map(guideId => ({
-            tour_id: id,
-            guide_id: guideId,
+            tourId: id,
+            guideId: guideId,
             isDefault: false
           }));
           
-          await prisma.tour_guides.createMany({
+          await prisma.tourGuide.createMany({
             data: tourGuideData
           });
         }
@@ -988,19 +987,19 @@ export class TourController {
         console.log('🚗 Updating driver associations:', driverIds);
         
         // Delete existing associations
-        await prisma.tour_drivers.deleteMany({
-          where: { tour_id: id }
+        await prisma.tourDriver.deleteMany({
+          where: { tourId: id }
         });
         
         // Create new associations
         if (driverIds.length > 0) {
           const tourDriverData = driverIds.map(driverId => ({
-            tour_id: id,
-            driver_id: driverId,
+            tourId: id,
+            driverId: driverId,
             isDefault: false
           }));
           
-          await prisma.tour_drivers.createMany({
+          await prisma.tourDriver.createMany({
             data: tourDriverData
           });
         }
@@ -1011,21 +1010,21 @@ export class TourController {
         console.log('📦 Updating tour block associations:', tourBlockIds);
         
         // Delete existing tour block associations
-        await prisma.tour_block_assignments.deleteMany({
-          where: { tour_id: id }
+        await prisma.tourBlockAssignment.deleteMany({
+          where: { tourId: id }
         });
         
         // Create new tour block associations
         if (tourBlockIds.length > 0) {
           const tourBlockData = tourBlockIds.map((blockId: number, index: number) => ({
-            tour_id: id,
-            tour_block_id: blockId,
-            is_primary: index === 0 // Первый блок считается основным
+            tourId: id,
+            tourBlockId: blockId,
+            isPrimary: index === 0 // Первый блок считается основным
           }));
           
           console.log('📦 TourBlockAssignment data to create:', tourBlockData);
           
-          await prisma.tour_block_assignments.createMany({
+          await prisma.tourBlockAssignment.createMany({
             data: tourBlockData
           });
           
@@ -1108,7 +1107,7 @@ export class TourController {
       }
 
       // Получаем тур для проверки что он существует и является черновиком
-      const existingTour = await prisma.tours.findUnique({
+      const existingTour = await prisma.tour.findUnique({
         where: { id }
       });
 
@@ -1154,7 +1153,7 @@ export class TourController {
       }
 
       // Публикуем тур (isDraft = false)
-      const publishedTour = await prisma.tours.update({
+      const publishedTour = await prisma.tour.update({
         where: { id },
         data: { isDraft: false }
       });
@@ -1438,7 +1437,7 @@ export class TourController {
       });
 
       // 2. Add country suggestions
-      const countries = await prisma.countries.findMany({
+      const countries = await prisma.country.findMany({
         where: { isActive: true }
       });
       
@@ -1466,7 +1465,7 @@ export class TourController {
       });
 
       // 3. Add city suggestions
-      const cities = await prisma.cities.findMany({
+      const cities = await prisma.city.findMany({
         where: { isActive: true }
       });
       
@@ -1981,9 +1980,23 @@ export class BookingRequestController {
         tourId
       });
 
+      // Parse JSON fields for response
+      const parsedBookingRequest = {
+        ...bookingRequest,
+        tour: {
+          ...bookingRequest.tour,
+          title: safeJsonParse(bookingRequest.tour.title),
+          description: safeJsonParse(bookingRequest.tour.description),
+          category: {
+            ...bookingRequest.tour.category,
+            name: safeJsonParse(bookingRequest.tour.category.name)
+          }
+        }
+      };
+
       // Send email notifications
       try {
-        const tourTitle = 'Tour';
+        const tourTitle = parsedBookingRequest.tour.title.en || parsedBookingRequest.tour.title.ru || 'Tour';
         
         const emailData = {
           fullName: customerName,
@@ -2012,7 +2025,7 @@ export class BookingRequestController {
 
       const response: ApiResponse = {
         success: true,
-        data: bookingRequest,
+        data: parsedBookingRequest,
         message: 'Booking request created successfully'
       };
 
@@ -2170,9 +2183,23 @@ export class ReviewController {
 
       const review = await ReviewModel.update(id, { isModerated });
 
+      // Parse JSON fields for response
+      const parsedReview = {
+        ...review,
+        tour: {
+          ...review.tour,
+          title: safeJsonParse(review.tour.title),
+          description: safeJsonParse(review.tour.description),
+          category: {
+            ...review.tour.category,
+            name: safeJsonParse(review.tour.category.name)
+          }
+        }
+      };
+
       const response: ApiResponse = {
         success: true,
-        data: review,
+        data: parsedReview,
         message: 'Review updated successfully'
       };
 

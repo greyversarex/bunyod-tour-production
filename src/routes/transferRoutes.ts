@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router, Request, Response } from 'express';
 import { TransferRequestModel } from '../models';
 import { CreateTransferRequestData, UpdateTransferRequestData } from '../types';
@@ -93,7 +92,7 @@ router.post('/transfer-requests', async (req: Request, res: Response) => {
     const data: CreateTransferRequestData = req.body;
 
     // Validate required fields
-    if (!data.full_name || !data.pickupLocation || !data.dropoffLocation || 
+    if (!data.fullName || !data.pickupLocation || !data.dropoffLocation || 
         !data.pickupTime || !data.pickupDate) {
       res.status(400).json({
         success: false,

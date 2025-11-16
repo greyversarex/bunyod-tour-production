@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -371,7 +370,7 @@ export const createDriverProfile = async (req: Request, res: Response): Promise<
         languages: driver.languages,
         contact: driver.contact,
         experience: driver.experience,
-        isActive: driver.is_active,
+        isActive: driver.isActive,
         photo: driver.photo,
         documents: driver.documents,
         licenseNumber: driver.licenseNumber,
@@ -445,7 +444,7 @@ export const updateDriverProfile = async (req: Request, res: Response): Promise<
     if (description) updateData.description = description;
     if (languages) updateData.languages = languages;
     if (experience !== undefined) updateData.experience = parseInt(experience);
-    if (isActive !== undefined) updateData.is_active = isActive === 'true' || isActive === true;
+    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
     if (licenseNumber) updateData.licenseNumber = licenseNumber;
     if (licenseCategory) updateData.licenseCategory = licenseCategory;
     if (workingAreas) updateData.workingAreas = workingAreas;
@@ -542,7 +541,7 @@ export const updateDriverProfile = async (req: Request, res: Response): Promise<
         languages: updatedDriver.languages,
         contact: updatedDriver.contact,
         experience: updatedDriver.experience,
-        isActive: updatedDriver.is_active,
+        isActive: updatedDriver.isActive,
         photo: updatedDriver.photo,
         documents: updatedDriver.documents,
         licenseNumber: updatedDriver.licenseNumber,

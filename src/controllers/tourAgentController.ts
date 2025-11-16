@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
@@ -302,7 +301,7 @@ export const updateTourAgent = async (req: Request, res: Response): Promise<void
       photo: photoPath,
       countryId: countryId ? parseInt(countryId) : existingTourAgent.countryId,
       cityId: cityId ? parseInt(cityId) : existingTourAgent.cityId,
-      isActive: isActive !== undefined ? isActive === 'true' : existingTourAgent.is_active
+      isActive: isActive !== undefined ? isActive === 'true' : existingTourAgent.isActive
     };
 
     const updatedTourAgent = await prisma.tourAgent.update({
@@ -392,14 +391,14 @@ export const toggleTourAgentStatus = async (req: Request, res: Response): Promis
     // Переключаем статус
     const updatedTourAgent = await prisma.tourAgent.update({
       where: { id: parseInt(id) },
-      data: { isActive: !currentTourAgent.is_active }
+      data: { isActive: !currentTourAgent.isActive }
     });
 
-    console.log(`✅ Статус турагента изменён на: ${updatedTourAgent.is_active ? 'активен' : 'неактивен'}`);
+    console.log(`✅ Статус турагента изменён на: ${updatedTourAgent.isActive ? 'активен' : 'неактивен'}`);
 
     res.json({
       success: true,
-      message: `Турагент ${updatedTourAgent.is_active ? 'активирован' : 'деактивирован'}`,
+      message: `Турагент ${updatedTourAgent.isActive ? 'активирован' : 'деактивирован'}`,
       data: updatedTourAgent
     });
   } catch (error) {

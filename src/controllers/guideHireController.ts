@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 
@@ -6,7 +5,7 @@ import prisma from '../config/database';
 const convertCurrency = async (amount: number, fromCurrency: string, toCurrency: string): Promise<{ convertedAmount: number; rate: number; symbol: string } | null> => {
   try {
     if (fromCurrency === toCurrency) {
-      const currency = await prisma.exchange_rates.findFirst({
+      const currency = await prisma.exchangeRate.findFirst({
         where: { currency: toCurrency, isActive: true }
       });
       return {
@@ -18,10 +17,10 @@ const convertCurrency = async (amount: number, fromCurrency: string, toCurrency:
 
     // Получаем курсы валют
     const [fromRate, toRate] = await Promise.all([
-      prisma.exchange_rates.findFirst({ 
+      prisma.exchangeRate.findFirst({ 
         where: { currency: fromCurrency, isActive: true } 
       }),
-      prisma.exchange_rates.findFirst({ 
+      prisma.exchangeRate.findFirst({ 
         where: { currency: toCurrency, isActive: true } 
       })
     ]);
@@ -100,7 +99,7 @@ export const getGuideAvailability = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!guide.is_active || !guide.isHireable) {
+    if (!guide.isActive || !guide.isHireable) {
       res.status(400).json({
         success: false,
         message: 'Тургид недоступен для найма'
@@ -276,7 +275,7 @@ export const createGuideHireRequest = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!guide.is_active || !guide.isHireable) {
+    if (!guide.isActive || !guide.isHireable) {
       res.status(400).json({
         success: false,
         message: 'Тургид недоступен для найма'

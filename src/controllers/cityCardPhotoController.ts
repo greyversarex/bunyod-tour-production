@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import prisma, { withRetry } from '../config/database';
 import { ApiResponse } from '../types';
@@ -9,19 +8,19 @@ export class CityCardPhotoController {
    */
   static async getAllCityCardPhotos(req: Request, res: Response, next: NextFunction) {
     try {
-      const photos = await withRetry(() => prisma.city_card_photos.findMany({
-        where: { is_active: true },
+      const photos = await withRetry(() => prisma.cityCardPhoto.findMany({
+        where: { isActive: true },
         include: {
-          cities: {
+          city: {
             select: {
               id: true,
               name: true,
-              name_ru: true,
-              name_en: true
+              nameRu: true,
+              nameEn: true
             }
           }
         },
-        orderBy: { sort_order: 'asc' }
+        orderBy: { sortOrder: 'asc' }
       }));
 
       // Add imageUrl field with absolute path
@@ -57,7 +56,7 @@ export class CityCardPhotoController {
         });
       }
 
-      const photo = await withRetry(() => prisma.city_card_photos.findUnique({
+      const photo = await withRetry(() => prisma.cityCardPhoto.findUnique({
         where: { id: photoId },
         include: {
           city: true
@@ -113,7 +112,7 @@ export class CityCardPhotoController {
       }
 
       // Проверяем существование города
-      const cityExists = await withRetry(() => prisma.cities.findUnique({
+      const cityExists = await withRetry(() => prisma.city.findUnique({
         where: { id: cityIdNum }
       }));
 
@@ -126,7 +125,7 @@ export class CityCardPhotoController {
 
       const imagePath = (req.file as any)?.path;
 
-      const photo = await withRetry(() => prisma.city_card_photos.create({
+      const photo = await withRetry(() => prisma.cityCardPhoto.create({
         data: {
           cityId: cityIdNum,
           image: imagePath,
@@ -182,7 +181,7 @@ export class CityCardPhotoController {
         }
 
         // Проверяем существование города
-        const cityExists = await withRetry(() => prisma.cities.findUnique({
+        const cityExists = await withRetry(() => prisma.city.findUnique({
           where: { id: cityIdNum }
         }));
 
@@ -196,10 +195,10 @@ export class CityCardPhotoController {
         updateData.cityId = cityIdNum;
       }
 
-      if (sortOrder !== undefined) updateData.sort_order = parseInt(sortOrder);
-      if (isActive !== undefined) updateData.is_active = isActive;
+      if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder);
+      if (isActive !== undefined) updateData.isActive = isActive;
 
-      const photo = await withRetry(() => prisma.city_card_photos.update({
+      const photo = await withRetry(() => prisma.cityCardPhoto.update({
         where: { id: photoId },
         data: updateData,
         include: {
@@ -240,7 +239,7 @@ export class CityCardPhotoController {
         });
       }
 
-      await withRetry(() => prisma.city_card_photos.delete({
+      await withRetry(() => prisma.cityCardPhoto.delete({
         where: { id: photoId }
       }));
 

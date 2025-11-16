@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * RATE LIMITING MIDDLEWARE
  * Защита от brute-force атак и злоупотребления API

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import prisma from '../config/database';
@@ -304,7 +303,7 @@ export const createTourGuide = async (req: Request, res: Response): Promise<void
         login: guide.login,
         email: guide.email,
         phone: guide.phone,
-        isActive: guide.is_active,
+        isActive: guide.isActive,
         createdAt: guide.createdAt
       },
       message: 'Тургид создан'
@@ -374,7 +373,7 @@ export const updateTourGuide = async (req: Request, res: Response): Promise<void
     if (login !== undefined) updateData.login = login;
     if (email !== undefined) updateData.email = email;
     if (phone !== undefined) updateData.phone = phone;
-    if (isActive !== undefined) updateData.is_active = isActive;
+    if (isActive !== undefined) updateData.isActive = isActive;
 
     // Хэшировать новый пароль если указан
     if (password && password.length > 0) {

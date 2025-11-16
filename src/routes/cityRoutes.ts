@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import { CityController } from '../controllers/cityController';
 

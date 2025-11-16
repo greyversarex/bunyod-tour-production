@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { translationService } from '../services/translationService';
 import { TourModel } from '../models/index';

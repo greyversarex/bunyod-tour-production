@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import prisma, { withRetry } from '../config/database';
 import { ApiResponse } from '../types';
@@ -18,22 +17,22 @@ export class CountryController {
       const language = getLanguageFromRequest(req);
       const includeRaw = req.query.includeRaw === 'true';
       
-      const countries = await withRetry(() => prisma.countries.findMany({
+      const countries = await withRetry(() => prisma.country.findMany({
         where: { isActive: true },
         include: {
           cities: {
             where: { isActive: true },
-            orderBy: { name_ru: 'asc' }
+            orderBy: { nameRu: 'asc' }
           }
         },
-        orderBy: { name_ru: 'asc' }
+        orderBy: { nameRu: 'asc' }
       })) as any[];
 
       // Локализация данных стран и городов
       const localizedCountries = countries.map((country: any) => {
         const localizedCities = country.cities?.map((city: any) => ({
           ...city,
-          name: language === 'en' ? city.name_en || city.name_ru : city.name_ru || city.name_en
+          name: language === 'en' ? city.nameEn || city.nameRu : city.nameRu || city.nameEn
         }));
 
         if (includeRaw) {
@@ -42,16 +41,14 @@ export class CountryController {
             ...country,
             cities: localizedCities,
             _localized: {
-              name: language === 'en' ? country.name_en || country.name_ru : country.name_ru || country.name_en
+              name: language === 'en' ? country.nameEn || country.nameRu : country.nameRu || country.nameEn
             }
           };
         } else {
           // ДЛЯ ПУБЛИЧНОГО ИСПОЛЬЗОВАНИЯ: только локализованный контент
           return {
             ...country,
-            name: language === 'en' ? country.name_en || country.name_ru : country.name_ru || country.name_en,
-            nameRu: country.name_ru,
-            nameEn: country.name_en,
+            name: language === 'en' ? country.nameEn || country.nameRu : country.nameRu || country.nameEn,
             cities: localizedCities
           };
         }
@@ -85,12 +82,12 @@ export class CountryController {
         });
       }
 
-      const country = await withRetry(() => prisma.countries.findUnique({
+      const country = await withRetry(() => prisma.country.findUnique({
         where: { id: countryId },
         include: {
           cities: {
             where: { isActive: true },
-            orderBy: { name_ru: 'asc' }
+            orderBy: { nameRu: 'asc' }
           }
         }
       }));
@@ -128,7 +125,7 @@ export class CountryController {
         });
       }
 
-      const country = await withRetry(() => prisma.countries.create({
+      const country = await withRetry(() => prisma.country.create({
         data: {
           name,
           nameRu,
@@ -174,18 +171,18 @@ export class CountryController {
 
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
-      if (nameRu !== undefined) updateData.name_ru = nameRu;
-      if (nameEn !== undefined) updateData.name_en = nameEn;
+      if (nameRu !== undefined) updateData.nameRu = nameRu;
+      if (nameEn !== undefined) updateData.nameEn = nameEn;
       if (code !== undefined) updateData.code = code;
-      if (isActive !== undefined) updateData.is_active = isActive;
+      if (isActive !== undefined) updateData.isActive = isActive;
 
-      const country = await withRetry(() => prisma.countries.update({
+      const country = await withRetry(() => prisma.country.update({
         where: { id: countryId },
         data: updateData,
         include: {
           cities: {
             where: { isActive: true },
-            orderBy: { name_ru: 'asc' }
+            orderBy: { nameRu: 'asc' }
           }
         }
       }));
@@ -229,7 +226,7 @@ export class CountryController {
         });
       }
 
-      await withRetry(() => prisma.countries.delete({
+      await withRetry(() => prisma.country.delete({
         where: { id: countryId }
       }));
 

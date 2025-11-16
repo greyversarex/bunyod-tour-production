@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -85,7 +84,7 @@ export const loginTourGuide = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    if (!guide.is_active) {
+    if (!guide.isActive) {
       res.status(403).json({ 
         success: false, 
         message: 'Аккаунт деактивирован' 
@@ -1031,7 +1030,7 @@ export const createTourGuideProfile = async (req: Request, res: Response): Promi
         contact: guide.contact,
         experience: guide.experience,
         rating: guide.rating,
-        isActive: guide.is_active,
+        isActive: guide.isActive,
         photo: guide.photo,
         documents: guide.documents
       },
@@ -1106,7 +1105,7 @@ export const updateGuideProfile = async (req: Request, res: Response): Promise<v
     }
     if (languages) updateData.languages = languages;
     if (experience !== undefined) updateData.experience = parseInt(experience);
-    if (isActive !== undefined) updateData.is_active = isActive === 'true' || isActive === true;
+    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
     
     // Обновляем контакты
     if (email || phone) {
@@ -1164,7 +1163,7 @@ export const updateGuideProfile = async (req: Request, res: Response): Promise<v
         languages: updatedGuide.languages,
         contact: updatedGuide.contact,
         experience: updatedGuide.experience,
-        isActive: updatedGuide.is_active,
+        isActive: updatedGuide.isActive,
         photo: updatedGuide.photo,
         documents: updatedGuide.documents
       },

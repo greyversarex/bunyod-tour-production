@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 
@@ -257,11 +256,11 @@ export const updateComponent = async (req: Request, res: Response): Promise<void
     }
     
     if (sortOrder !== undefined) {
-      updateData.sort_order = parseInt(sortOrder);
+      updateData.sortOrder = parseInt(sortOrder);
     }
     
     if (isActive !== undefined) {
-      updateData.is_active = Boolean(isActive);
+      updateData.isActive = Boolean(isActive);
     }
     
     const component = await prisma.customTourComponent.update({

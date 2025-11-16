@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { emailService } from '../services/emailService';
 import { parseMultilingualField, getLanguageFromRequest } from '../utils/multilingual';

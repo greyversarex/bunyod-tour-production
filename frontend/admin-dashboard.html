@@ -519,10 +519,6 @@
                     <i class="fas fa-handshake"></i>
                     <span data-translate="admin.tour_agents">Турагенты</span>
                 </a>
-                <a href="#" class="nav-item" data-section="agent-applications">
-                    <i class="fas fa-file-contract"></i>
-                    <span data-translate="admin.agent_applications">Заявки на партнерство</span>
-                </a>
                 <a href="#" class="nav-item" data-section="drivers">
                     <i class="fas fa-id-card"></i>
                     <span data-translate="admin.drivers">Водители</span>
@@ -934,45 +930,6 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tourAgentsList">
                         <!-- Tour agents will be loaded here -->
-                    </div>
-                </section>
-
-                <!-- Agent Applications Section -->
-                <section id="agentApplicationsSection" style="display: none;">
-                    <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold" data-translate="admin.manage_agent_applications">Заявки на партнерство</h2>
-                            <div class="flex gap-2">
-                                <select id="agentApplicationFilter" onchange="filterAgentApplications()" class="form-input">
-                                    <option value="">Все заявки</option>
-                                    <option value="pending">Ожидают рассмотрения</option>
-                                    <option value="approved">Одобрены</option>
-                                    <option value="rejected">Отклонены</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white rounded-xl shadow-sm overflow-hidden">
-                        <div class="overflow-x-auto">
-                            <table class="data-table w-full">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>ФИО</th>
-                                        <th>Email</th>
-                                        <th>Телефон</th>
-                                        <th>Гражданство</th>
-                                        <th>Дата подачи</th>
-                                        <th>Статус</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="agentApplicationsTable">
-                                    <!-- Applications will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </section>
 
@@ -11564,222 +11521,6 @@
         }
 
         // =============================================
-        // AGENT APPLICATIONS FUNCTIONS
-        // =============================================
-        
-        let allAgentApplications = [];
-        let filteredAgentApplications = [];
-        
-        // Load agent applications
-        async function loadAgentApplications() {
-            console.log('🔄 Loading agent applications...');
-            try {
-                const apiUrl = getApiUrl();
-                const headers = getAuthHeaders();
-                console.log('📡 API URL:', apiUrl);
-                console.log('🔑 Headers:', headers);
-                
-                const response = await fetch(`${apiUrl}/agent-applications`, {
-                    headers: headers
-                });
-                
-                console.log('📊 Response status:', response.status);
-                const data = await response.json();
-                console.log('📦 Response data:', data);
-                
-                if (data.success) {
-                    allAgentApplications = data.applications || [];
-                    filteredAgentApplications = [...allAgentApplications];
-                    console.log('✅ Loaded', allAgentApplications.length, 'applications');
-                    displayAgentApplications(filteredAgentApplications);
-                } else {
-                    console.error('❌ Error loading applications:', data.message);
-                    alert('Ошибка загрузки заявок: ' + (data.message || data.error));
-                }
-            } catch (error) {
-                console.error('💥 Error loading agent applications:', error);
-                alert('Критическая ошибка при загрузке заявок: ' + error.message);
-                document.getElementById('agentApplicationsTable').innerHTML = 
-                    '<tr><td colspan="8" class="text-center py-8 text-red-600">Ошибка загрузки заявок</td></tr>';
-            }
-        }
-        
-        // Display agent applications
-        function displayAgentApplications(applications) {
-            console.log('🎨 Displaying applications...', applications);
-            const tbody = document.getElementById('agentApplicationsTable');
-            const section = document.getElementById('agentApplicationsSection');
-            console.log('📋 Table element found:', tbody ? 'YES' : 'NO');
-            console.log('📦 Section element found:', section ? 'YES' : 'NO');
-            console.log('👁️ Section display style:', section ? section.style.display : 'N/A');
-            
-            if (!tbody) {
-                console.error('❌ Table element not found!');
-                return;
-            }
-            
-            if (!applications || applications.length === 0) {
-                console.log('⚠️ No applications to display');
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="text-center py-8">
-                            <div class="text-gray-500">
-                                <i class="fas fa-inbox text-4xl mb-2"></i>
-                                <p>Нет заявок</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            console.log('✅ Rendering', applications.length, 'applications');
-            
-            tbody.innerHTML = applications.map(app => {
-                const statusClass = {
-                    'pending': 'bg-yellow-100 text-yellow-800',
-                    'approved': 'bg-green-100 text-green-800',
-                    'rejected': 'bg-red-100 text-red-800'
-                }[app.status] || 'bg-gray-100 text-gray-800';
-                
-                const statusText = {
-                    'pending': 'Ожидает',
-                    'approved': 'Одобрена',
-                    'rejected': 'Отклонена'
-                }[app.status] || app.status;
-                
-                const date = new Date(app.createdAt).toLocaleString('ru-RU', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
-                return `
-                    <tr>
-                        <td>${app.id}</td>
-                        <td>${escapeHtml(app.fullName)}</td>
-                        <td>${escapeHtml(app.email)}</td>
-                        <td>${escapeHtml(app.phone)}</td>
-                        <td>${escapeHtml(app.citizenship)}</td>
-                        <td>${date}</td>
-                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <div class="flex gap-2">
-                                <button onclick="viewApplicationDetails(${app.id})" class="btn-small btn-secondary" title="Просмотр">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                ${app.status === 'pending' ? `
-                                    <button onclick="approveApplication(${app.id})" class="btn-small btn-success" title="Одобрить">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button onclick="rejectApplication(${app.id})" class="btn-small btn-danger" title="Отклонить">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-        
-        // Filter agent applications
-        function filterAgentApplications() {
-            const filterValue = document.getElementById('agentApplicationFilter').value;
-            
-            if (filterValue === '') {
-                filteredAgentApplications = [...allAgentApplications];
-            } else {
-                filteredAgentApplications = allAgentApplications.filter(app => app.status === filterValue);
-            }
-            
-            displayAgentApplications(filteredAgentApplications);
-        }
-        
-        // View application details
-        function viewApplicationDetails(id) {
-            const app = allAgentApplications.find(a => a.id === id);
-            if (!app) return;
-            
-            const detailsHtml = `
-                <div class="space-y-4">
-                    <div><strong>ID:</strong> ${app.id}</div>
-                    <div><strong>ФИО:</strong> ${escapeHtml(app.fullName)}</div>
-                    <div><strong>Email:</strong> ${escapeHtml(app.email)}</div>
-                    <div><strong>Телефон:</strong> ${escapeHtml(app.phone)}</div>
-                    <div><strong>Гражданство:</strong> ${escapeHtml(app.citizenship)}</div>
-                    <div><strong>Адрес:</strong> ${escapeHtml(app.address)}</div>
-                    ${app.idDocument ? `<div><strong>Документ:</strong> ${app.idDocument}</div>` : ''}
-                    ${app.otherDocuments ? `<div><strong>Другие документы:</strong> ${app.otherDocuments}</div>` : ''}
-                    ${app.adminNotes ? `<div><strong>Заметки админа:</strong> ${escapeHtml(app.adminNotes)}</div>` : ''}
-                </div>
-            `;
-            
-            // Simple alert for now - можно позже заменить на модальное окно
-            alert('Детали заявки #' + app.id + '\n\n' + 
-                `ФИО: ${app.fullName}\n` +
-                `Email: ${app.email}\n` +
-                `Телефон: ${app.phone}\n` +
-                `Гражданство: ${app.citizenship}\n` +
-                `Адрес: ${app.address}`
-            );
-        }
-        
-        // Approve application
-        async function approveApplication(id) {
-            if (!confirm('Вы уверены, что хотите одобрить эту заявку? Турагенту будет отправлен email с логином и паролем.')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${getApiUrl()}/agent-applications/${id}/approve`, {
-                    method: 'POST',
-                    headers: getAuthHeaders()
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('Заявка успешно одобрена! Email отправлен турагенту.');
-                    loadAgentApplications();
-                } else {
-                    alert('Ошибка при одобрении заявки: ' + (data.message || 'Неизвестная ошибка'));
-                }
-            } catch (error) {
-                console.error('Error approving application:', error);
-                alert('Ошибка при одобрении заявки');
-            }
-        }
-        
-        // Reject application
-        async function rejectApplication(id) {
-            if (!confirm('Вы уверены, что хотите отклонить эту заявку?')) {
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${getApiUrl()}/agent-applications/${id}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeaders()
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('Заявка успешно отклонена');
-                    loadAgentApplications();
-                } else {
-                    alert('Ошибка при отклонении заявки: ' + (data.message || 'Неизвестная ошибка'));
-                }
-            } catch (error) {
-                console.error('Error rejecting application:', error);
-                alert('Ошибка при отклонении заявки');
-            }
-        }
-
-        // =============================================
         // CMS FUNCTIONS
         // =============================================
         
@@ -14387,7 +14128,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections first (including custom tour sections)
-            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'agentApplicationsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -14462,9 +14203,6 @@
                 case 'city-card-photos':
                     sectionId = 'cityCardPhotosSection';
                     break;
-                case 'agent-applications':
-                    sectionId = 'agentApplicationsSection';
-                    break;
                 default:
                     sectionId = sectionName + 'Section';
             }
@@ -14505,9 +14243,6 @@
                     break;
                 case 'tour-agents':
                     loadTourAgents();
-                    break;
-                case 'agent-applications':
-                    loadAgentApplications();
                     break;
                 case 'drivers':
                     loadDrivers();

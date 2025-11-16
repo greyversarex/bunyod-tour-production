@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { PriceCalculatorModel } from '../models';
 
@@ -255,7 +254,7 @@ async function ensureToursHaveAccommodation(): Promise<number> {
     }
     
     // Получаем все туры
-    const tours = await prisma.tours.findMany({
+    const tours = await prisma.tour.findMany({
       select: { id: true, services: true, title: true }
     });
     
@@ -291,7 +290,7 @@ async function ensureToursHaveAccommodation(): Promise<number> {
           });
           
           // Обновляем тур
-          await prisma.tours.update({
+          await prisma.tour.update({
             where: { id: tour.id },
             data: { services: JSON.stringify(services) }
           });

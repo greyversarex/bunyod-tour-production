@@ -1,11 +1,10 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 
 // Получить все курсы валют
 export const getExchangeRates = async (req: Request, res: Response) => {
     try {
-        const rates = await prisma.exchange_rates.findMany({
+        const rates = await prisma.exchangeRate.findMany({
             where: { isActive: true },
             orderBy: { currency: 'asc' }
         });
@@ -33,7 +32,7 @@ export const getExchangeRates = async (req: Request, res: Response) => {
 // Получить курсы валют в виде объекта для конвертации
 export const getExchangeRatesMap = async (req: Request, res: Response) => {
     try {
-        const rates = await prisma.exchange_rates.findMany({
+        const rates = await prisma.exchangeRate.findMany({
             where: { isActive: true }
         });
         
@@ -65,7 +64,7 @@ export const updateExchangeRate = async (req: Request, res: Response) => {
         const { currency } = req.params;
         const { rate, symbol, name } = req.body;
 
-        const updatedRate = await prisma.exchange_rates.upsert({
+        const updatedRate = await prisma.exchangeRate.upsert({
             where: { currency },
             update: {
                 rate,
@@ -138,7 +137,7 @@ export const initializeExchangeRates = async (req: Request, res: Response) => {
         ];
 
         // Проверим, есть ли уже курсы в базе
-        const existingRates = await prisma.exchange_rates.count();
+        const existingRates = await prisma.exchangeRate.count();
         if (existingRates > 0) {
             res.json({
                 success: true,
@@ -148,7 +147,7 @@ export const initializeExchangeRates = async (req: Request, res: Response) => {
         }
 
         // Создаем курсы валют
-        const createdRates = await prisma.exchange_rates.createMany({
+        const createdRates = await prisma.exchangeRate.createMany({
             data: defaultRates
         });
 
@@ -180,7 +179,7 @@ export const deleteExchangeRate = async (req: Request, res: Response) => {
             return;
         }
 
-        const deletedRate = await prisma.exchange_rates.delete({
+        const deletedRate = await prisma.exchangeRate.delete({
             where: { currency }
         });
 
@@ -219,7 +218,7 @@ export const createExchangeRate = async (req: Request, res: Response) => {
         }
 
         // Проверяем, что валюта еще не существует
-        const existingRate = await prisma.exchange_rates.findUnique({
+        const existingRate = await prisma.exchangeRate.findUnique({
             where: { currency }
         });
 
@@ -231,7 +230,7 @@ export const createExchangeRate = async (req: Request, res: Response) => {
             return;
         }
 
-        const newRate = await prisma.exchange_rates.create({
+        const newRate = await prisma.exchangeRate.create({
             data: {
                 currency: currency.toUpperCase(),
                 rate: parseFloat(rate),
@@ -268,7 +267,7 @@ export const convertPrice = async (req: Request, res: Response) => {
             return;
         }
 
-        const rate = await prisma.exchange_rates.findUnique({
+        const rate = await prisma.exchangeRate.findUnique({
             where: { 
                 currency: targetCurrency as string,
                 isActive: true
@@ -322,7 +321,7 @@ export const updateBaseCurrencySymbol = async (req: Request, res: Response) => {
         }
 
         // Обновляем только символ базовой валюты TJS
-        const updatedRate = await prisma.exchange_rates.update({
+        const updatedRate = await prisma.exchangeRate.update({
             where: { currency: 'TJS' },
             data: {
                 symbol: symbol.trim(),

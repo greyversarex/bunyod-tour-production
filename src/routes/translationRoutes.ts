@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import { translationController } from '../controllers/translationController';
 import { authenticateJWT } from '../middleware/auth';

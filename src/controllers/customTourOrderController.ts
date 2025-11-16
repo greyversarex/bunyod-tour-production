@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../config/database';
@@ -277,7 +276,7 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
     const updateData: any = {};
     
     if (status !== undefined) updateData.status = status;
-    if (adminNotes !== undefined) updateData.admin_notes = adminNotes;
+    if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
     if (totalPrice !== undefined) updateData.totalPrice = totalPrice;
     
     const order = await prisma.customTourOrder.update({

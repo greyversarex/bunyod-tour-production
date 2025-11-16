@@ -1,4 +1,3 @@
-// @ts-nocheck
 import bcrypt from 'bcrypt';
 import prisma from '../config/database';
 
@@ -10,7 +9,7 @@ export async function seedCMSData() {
     const hashedPassword = await bcrypt.hash('admin123', 10);
     
     try {
-      await prisma.admins.create({
+      await prisma.admin.create({
         data: {
           username: 'admin',
           email: 'admin@bunyod-tour.com',
@@ -140,7 +139,7 @@ export async function seedCMSData() {
 
     for (const block of contentBlocks) {
       try {
-        await prisma.content_blocks.create({ data: block });
+        await prisma.contentBlock.create({ data: block });
       } catch (error) {
         console.log(`⚠️ Content block ${block.key} already exists`);
       }
@@ -216,7 +215,7 @@ export async function seedCMSData() {
 
     for (const setting of siteSettings) {
       try {
-        await prisma.site_settings.upsert({
+        await prisma.siteSetting.upsert({
           where: { key: setting.key },
           update: setting,
           create: setting
@@ -275,7 +274,7 @@ export async function seedCMSData() {
 
     for (const page of pages) {
       try {
-        await prisma.pages.create({ data: page });
+        await prisma.page.create({ data: page });
       } catch (error) {
         console.log(`⚠️ Page ${page.slug} already exists`);
       }

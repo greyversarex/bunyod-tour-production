@@ -1,4 +1,3 @@
-// @ts-nocheck
 import OpenAI from "openai";
 
 // Translation service is optional - if no OPENAI_API_KEY, translation features will be disabled

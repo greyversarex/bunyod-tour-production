@@ -1,4 +1,3 @@
-// @ts-nocheck
 import express from 'express';
 import { authenticateDriver } from '../middleware/driverAuth';
 import { loginLimiter, registrationLimiter } from '../middleware/rateLimiter';

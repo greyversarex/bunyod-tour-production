@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types';
 import prisma from '../config/database';
@@ -14,7 +13,7 @@ export class PublicController {
       console.log('Loading homepage data...');
       
       // Получить блоки контента
-      const contentBlocks = await prisma.content_blocks.findMany({
+      const contentBlocks = await prisma.contentBlock.findMany({
         where: { isActive: true },
         orderBy: [{ section: 'asc' }, { sortOrder: 'asc' }]
       });
@@ -22,7 +21,7 @@ export class PublicController {
       console.log('Content blocks loaded:', contentBlocks.length);
 
       // Получить настройки сайта 
-      const siteSettings = await prisma.site_settings.findMany({
+      const siteSettings = await prisma.siteSetting.findMany({
         where: { isActive: true }
       });
 
@@ -177,7 +176,7 @@ export class PublicController {
       const { slug } = req.params;
       const { lang = 'ru' } = req.query;
 
-      const page = await prisma.pages.findUnique({
+      const page = await prisma.page.findUnique({
         where: { 
           slug,
           isPublished: true

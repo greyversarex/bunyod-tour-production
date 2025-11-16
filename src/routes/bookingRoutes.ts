@@ -1,4 +1,3 @@
-// @ts-nocheck
 import express from 'express';
 import { bookingController } from '../controllers/bookingController';
 import { orderLimiter } from '../middleware/rateLimiter';

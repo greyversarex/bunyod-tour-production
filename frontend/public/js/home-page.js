@@ -877,16 +877,10 @@ function createTourCard(tour) {
         categoryText = getCategoryNameByLanguage(tour.category.name, currentLang);
     }
     
-    // Get tour image
-    const tourImage = getFirstImage(tour.images);
-    
     return `
         <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col">
-            <div class="h-64 bg-gray-200 relative overflow-hidden">
-                <img src="${tourImage}" alt="${getTitleByLanguage(tour.title, currentLang)}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/400x300/e0e0e0/666666?text=No+Image'">
-                <div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
-                    <span class="text-white text-lg font-semibold">${typeof tour.country === 'object' ? getEntityName(tour.country, currentLang) : (tour.country || '')}</span>
-                </div>
+            <div class="h-64 bg-gray-200 flex items-center justify-center">
+                <span class="text-white text-lg font-semibold">${typeof tour.country === 'object' ? getEntityName(tour.country, currentLang) : (tour.country || '')}</span>
             </div>
             <div class="p-6 flex flex-col flex-grow">
                 <div class="flex justify-between items-start mb-4">

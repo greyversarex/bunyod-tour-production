@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import { safeJsonParse } from '../utils/multilingual';
@@ -50,10 +49,10 @@ const parseML = (v: any) => {
 // Get all slides - BULLETPROOF: Never throws on malformed data
 export const getSlides = async (req: Request, res: Response) => {
   try {
-    const rows = await prisma.slides.findMany({
+    const rows = await prisma.slide.findMany({
       where: { isActive: true },
       orderBy: { order: 'asc' },
-      include: { cities: true }
+      include: { city: true }
     });
 
     // 🛡️ SAFE MAPPING: Parse all JSON fields safely, no exceptions
@@ -66,7 +65,7 @@ export const getSlides = async (req: Request, res: Response) => {
       buttonText: s.buttonText ? parseML(s.buttonText) : null,
       order: s.order,
       isActive: s.isActive,
-      city: s.cities ? { id: s.cities.id, name: s.cities.name } : null
+      city: s.city ? { id: s.city.id, name: s.city.name } : null
     }));
 
     res.json({
@@ -85,9 +84,9 @@ export const getSlides = async (req: Request, res: Response) => {
 // Get all slides for admin (including inactive)
 export const getAllSlides = async (req: Request, res: Response) => {
   try {
-    const rows = await prisma.slides.findMany({
+    const rows = await prisma.slide.findMany({
       orderBy: { order: 'asc' },
-      include: { cities: true }
+      include: { city: true }
     });
 
     // 🛡️ SAFE MAPPING: Parse all JSON fields for admin panel
@@ -99,9 +98,9 @@ export const getAllSlides = async (req: Request, res: Response) => {
       link: s.link ?? null,
       buttonText: s.buttonText ? parseML(s.buttonText) : null,
       order: s.order,
-      isActive: s.is_active,
+      isActive: s.isActive,
       cityId: s.cityId,
-      city: s.cities ? { id: s.city.id, name: s.city.name } : null,
+      city: s.city ? { id: s.city.id, name: s.city.name } : null,
       createdAt: s.createdAt,
       updatedAt: s.updatedAt
     }));
@@ -125,9 +124,9 @@ export const getSlideById = async (req: Request, res: Response): Promise<void> =
     const { id } = req.params;
     const { includeRaw } = req.query;
     
-    const slide = await prisma.slides.findUnique({
+    const slide = await prisma.slide.findUnique({
       where: { id: parseInt(id) },
-      include: { cities: true }
+      include: { city: true }
     });
 
     if (!slide) {
@@ -147,7 +146,7 @@ export const getSlideById = async (req: Request, res: Response): Promise<void> =
       link: slide.link ?? null,
       buttonText: slide.buttonText ? parseML(slide.buttonText) : null,
       order: slide.order,
-      isActive: slide.is_active,
+      isActive: slide.isActive,
       cityId: slide.cityId,
       city: slide.city ? { id: slide.city.id, name: slide.city.name } : null,
       createdAt: slide.createdAt,
@@ -193,12 +192,12 @@ export const createSlide = async (req: any, res: Response): Promise<void> => {
     
     const link = req.body.link || '';
     const order = parseInt(req.body.order) || 0;
-    const isActive = req.body.is_active === 'true';
+    const isActive = req.body.isActive === 'true';
 
     const cityId = req.body.cityId ? parseInt(req.body.cityId) : null;
 
     // 🚀 PRISMA JSON: Save as object directly, NOT stringified
-    const slide = await prisma.slides.create({
+    const slide = await prisma.slide.create({
       data: {
         title: title as Prisma.InputJsonValue,
         description: description as Prisma.InputJsonValue,
@@ -230,7 +229,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
 
-    const existingSlide = await prisma.slides.findUnique({
+    const existingSlide = await prisma.slide.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -265,7 +264,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
         }
       }
       if (Object.prototype.hasOwnProperty.call(req.body, 'isActive')) {
-        parsedData.is_active = req.body.is_active === 'true';
+        parsedData.isActive = req.body.isActive === 'true';
       }
       if (Object.prototype.hasOwnProperty.call(req.body, 'cityId')) {
         const cityIdRaw = req.body.cityId;
@@ -294,8 +293,8 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
       }
       
       if (Object.prototype.hasOwnProperty.call(req.body, 'isActive')) {
-        const v = req.body.is_active;
-        parsedData.is_active = typeof v === 'string' ? v === 'true' : Boolean(v);
+        const v = req.body.isActive;
+        parsedData.isActive = typeof v === 'string' ? v === 'true' : Boolean(v);
       }
       
       if (Object.prototype.hasOwnProperty.call(req.body, 'cityId')) {
@@ -325,7 +324,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
         : Prisma.DbNull;
     }
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
-    if (parsedData.is_active !== undefined) updateData.is_active = parsedData.is_active;
+    if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
     
     // 🔧 CITY RELATION: Use Prisma relation syntax
     if (parsedData.cityId !== undefined) {
@@ -346,7 +345,7 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
       delete finalUpdateData.image;
     }
 
-    const slide = await prisma.slides.update({
+    const slide = await prisma.slide.update({
       where: { id: parseInt(id) },
       data: finalUpdateData
     });
@@ -370,7 +369,7 @@ export const deleteSlide = async (req: Request, res: Response): Promise<void> =>
   try {
     const { id } = req.params;
 
-    const existingSlide = await prisma.slides.findUnique({
+    const existingSlide = await prisma.slide.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -382,7 +381,7 @@ export const deleteSlide = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    await prisma.slides.delete({
+    await prisma.slide.delete({
       where: { id: parseInt(id) }
     });
 
@@ -405,7 +404,7 @@ export const updateSlideOrder = async (req: Request, res: Response) => {
     const { slides } = req.body; // Array of {id, order}
 
     const updatePromises = slides.map((slide: { id: number; order: number }) =>
-      prisma.slides.update({
+      prisma.slide.update({
         where: { id: slide.id },
         data: { order: slide.order, updatedAt: new Date() }
       })

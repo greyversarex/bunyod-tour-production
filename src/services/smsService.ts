@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Order, Customer } from '@prisma/client';
 
 /**
@@ -71,7 +70,7 @@ export const smsService = {
            `Заказ: ${order.orderNumber}\n` +
            `Тур: ${tourTitle}\n` +
            `Сумма: ${order.totalAmount} ${order.currency || 'TJS'}\n` +
-           `Клиент: ${customer.full_name}\n` +
+           `Клиент: ${customer.fullName}\n` +
            `Тел: ${customer.phone || 'не указан'}\n` +
            `Дата тура: ${new Date(order.tourDate).toLocaleDateString('ru-RU')}`;
   },

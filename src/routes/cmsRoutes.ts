@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import { CMSController } from '../controllers/cmsController';
 import { adminAuthMiddleware } from '../controllers/adminController';

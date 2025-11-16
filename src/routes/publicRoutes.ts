@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import { PublicController } from '../controllers/publicController';
 import prisma from '../config/database';
@@ -17,7 +16,7 @@ router.get('/test', (req, res) => {
 // Простой тест CMS блоков
 router.get('/test-cms', async (req, res) => {
   try {
-    const blocks = await prisma.content_blocks.findMany({
+    const blocks = await prisma.contentBlock.findMany({
       take: 3
     });
     

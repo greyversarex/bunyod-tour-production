@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response, NextFunction } from 'express';
 import { ApiResponse } from '../types';
 import { parseMultilingualField, getLanguageFromRequest, safeJsonParse } from '../utils/multilingual';
@@ -14,7 +13,7 @@ export class CMSController {
       const language = getLanguageFromRequest(req);
       const where = section ? { section: section as string } : {};
 
-      const blocks = await prisma.content_blocks.findMany({
+      const blocks = await prisma.contentBlock.findMany({
         where: {
           ...where,
           isActive: true
@@ -55,7 +54,7 @@ export class CMSController {
         });
       }
 
-      const block = await prisma.content_blocks.create({
+      const block = await prisma.contentBlock.create({
         data: {
           key,
           title: JSON.stringify(title),
@@ -106,11 +105,11 @@ export class CMSController {
       if (content) updateData.content = JSON.stringify(content);
       if (type) updateData.type = type;
       if (section) updateData.section = section;
-      if (sortOrder !== undefined) updateData.sort_order = sortOrder;
+      if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
       if (metadata) updateData.metadata = JSON.stringify(metadata);
-      if (isActive !== undefined) updateData.is_active = isActive;
+      if (isActive !== undefined) updateData.isActive = isActive;
 
-      const block = await prisma.content_blocks.update({
+      const block = await prisma.contentBlock.update({
         where: { id },
         data: updateData
       });
@@ -148,7 +147,7 @@ export class CMSController {
         });
       }
 
-      await prisma.content_blocks.delete({
+      await prisma.contentBlock.delete({
         where: { id }
       });
 
@@ -172,7 +171,7 @@ export class CMSController {
       const { group } = req.query;
       const where = group ? { group: group as string } : {};
 
-      const settings = await prisma.site_settings.findMany({
+      const settings = await prisma.siteSetting.findMany({
         where: {
           ...where,
           isActive: true
@@ -214,7 +213,7 @@ export class CMSController {
 
       const settingValue = type === 'json' ? JSON.stringify(value) : value;
 
-      const setting = await prisma.site_settings.upsert({
+      const setting = await prisma.siteSetting.upsert({
         where: { key },
         update: {
           value: settingValue,
@@ -254,7 +253,7 @@ export class CMSController {
    */
   static async getPages(req: Request, res: Response, next: NextFunction) {
     try {
-      const pages = await prisma.pages.findMany({
+      const pages = await prisma.page.findMany({
         where: { isPublished: true },
         orderBy: { sortOrder: 'asc' }
       });
@@ -293,7 +292,7 @@ export class CMSController {
         });
       }
 
-      const page = await prisma.pages.create({
+      const page = await prisma.page.create({
         data: {
           slug,
           title: JSON.stringify(title),
@@ -346,10 +345,10 @@ export class CMSController {
       if (metaTitle) updateData.metaTitle = JSON.stringify(metaTitle);
       if (metaDesc) updateData.metaDesc = JSON.stringify(metaDesc);
       if (template) updateData.template = template;
-      if (sortOrder !== undefined) updateData.sort_order = sortOrder;
+      if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
       if (isPublished !== undefined) updateData.isPublished = isPublished;
 
-      const page = await prisma.pages.update({
+      const page = await prisma.page.update({
         where: { id },
         data: updateData
       });

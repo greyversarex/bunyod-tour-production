@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Router } from 'express';
 import * as orderController from '../controllers/orderController';
 import { orderLimiter } from '../middleware/rateLimiter';

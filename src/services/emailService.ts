@@ -1,6 +1,5 @@
-// @ts-nocheck
 import nodemailer from 'nodemailer';
-import { Order, Customer, Tour } from '../types/prismaLegacy';
+import { Order, Customer, Tour } from '@prisma/client';
 import puppeteer from 'puppeteer';
 
 // Email configuration - in production, use environment variables
@@ -102,10 +101,10 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
           <div class="two-column">
             <!-- Left Column -->
             <div>
-              ${customer.full_name ? `
+              ${customer.fullName ? `
                 <div class="section">
                   <div class="section-title">Контактное лицо:</div>
-                  <div class="section-value">${customer.full_name}</div>
+                  <div class="section-value">${customer.fullName}</div>
                 </div>
               ` : ''}
               
@@ -117,7 +116,7 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
                     ${tourists.map((tourist: any, index: number) => `
                       <div class="tourist-item">
                         <span class="tourist-number">${index + 1}</span>
-                        <span>${tourist.full_name} ${tourist.birthDate ? `(${tourist.birthDate})` : ''}</span>
+                        <span>${tourist.fullName} ${tourist.birthDate ? `(${tourist.birthDate})` : ''}</span>
                       </div>
                     `).join('')}
                   </div>
@@ -280,7 +279,7 @@ const emailTemplates = {
           </div>
           
           <div class="content">
-            <p>Уважаемый(ая) ${customer.full_name},</p>
+            <p>Уважаемый(ая) ${customer.fullName},</p>
             <p>Мы рады подтвердить ваше бронирование тура. Ниже вы найдете детали вашего заказа:</p>
             
             <div class="order-details">
@@ -310,7 +309,7 @@ const emailTemplates = {
             <h3>Список туристов</h3>
             <ol>
               ${JSON.parse(order.tourists || '[]').map((t: any) => `
-                <li>${t.full_name} (${t.birthDate})</li>
+                <li>${t.fullName} (${t.birthDate})</li>
               `).join('')}
             </ol>
             
@@ -370,7 +369,7 @@ const emailTemplates = {
             <h1>Бронирование отменено</h1>
           </div>
           <div class="content">
-            <p>Уважаемый(ая) ${customer.full_name},</p>
+            <p>Уважаемый(ая) ${customer.fullName},</p>
             <p>Ваше бронирование №${order.orderNumber} было отменено.</p>
             <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</p>
             <p>С уважением,<br>Команда Bunyod-Tour</p>
@@ -444,7 +443,7 @@ const emailTemplates = {
           
           <!-- Greeting Message with PDF Note -->
           <div class="greeting-section">
-            <p class="greeting-text">Уважаемый(ая) <strong>${customer.full_name}</strong>,</p>
+            <p class="greeting-text">Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
             <p class="greeting-text">
               Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>. 
               Подробно со всеми деталями вашего заказа вы можете ознакомиться в билете тура.
@@ -581,7 +580,7 @@ const emailTemplates = {
               <div class="info-title">👤 Информация о клиенте</div>
               <div class="info-row">
                 <span class="info-label">Имя</span>
-                <span class="info-value">${customer.full_name}</span>
+                <span class="info-value">${customer.fullName}</span>
               </div>
               <div class="info-row">
                 <span class="info-label">Email</span>

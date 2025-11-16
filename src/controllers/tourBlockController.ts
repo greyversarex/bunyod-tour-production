@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import { parseMultilingualField, getLanguageFromRequest, mapTour } from '../utils/multilingual';
 import prisma from '../config/database';
@@ -9,7 +8,7 @@ export const getTourBlocks = async (req: Request, res: Response): Promise<Respon
     console.log('Fetching tour blocks...');
     const language = getLanguageFromRequest(req);
     
-    const tourBlocks = await prisma.tour_blocks.findMany({
+    const tourBlocks = await prisma.tourBlock.findMany({
       orderBy: { sortOrder: 'asc' }
     });
 
@@ -51,7 +50,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
   try {
     const { id } = req.params;
     
-    const tourBlock = await prisma.tour_blocks.findUnique({
+    const tourBlock = await prisma.tourBlock.findUnique({
       where: { id: parseInt(id) },
       include: {
         tourBlocks: {
@@ -66,7 +65,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
                     country: true
                   },
                   orderBy: {
-                    is_primary: 'desc' // Показываем основную страну первой
+                    isPrimary: 'desc' // Показываем основную страну первой
                   }
                 },
                 tourCities: {
@@ -78,7 +77,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
                     }
                   },
                   orderBy: {
-                    is_primary: 'desc' // Показываем основной город первым
+                    isPrimary: 'desc' // Показываем основной город первым
                   }
                 },
                 _count: {
@@ -88,7 +87,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
             }
           },
           orderBy: [
-            { is_primary: 'desc' }, // Primary assignments first
+            { isPrimary: 'desc' }, // Primary assignments first
             { createdAt: 'asc' }   // Then by creation time
           ]
         }
@@ -137,7 +136,7 @@ export const createTourBlock = async (req: Request, res: Response): Promise<Resp
   try {
     const { title, description, slug, isActive = true, sortOrder = 0 } = req.body;
 
-    const tourBlock = await prisma.tour_blocks.create({
+    const tourBlock = await prisma.tourBlock.create({
       data: {
         title: typeof title === 'string' ? title : JSON.stringify(title),
         description: description ? (typeof description === 'string' ? description : JSON.stringify(description)) : null,
@@ -167,7 +166,7 @@ export const updateTourBlock = async (req: Request, res: Response): Promise<Resp
     const { id } = req.params;
     const { title, description, slug, isActive, sortOrder } = req.body;
 
-    const existingBlock = await prisma.tour_blocks.findUnique({
+    const existingBlock = await prisma.tourBlock.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -178,7 +177,7 @@ export const updateTourBlock = async (req: Request, res: Response): Promise<Resp
       });
     }
 
-    const tourBlock = await prisma.tour_blocks.update({
+    const tourBlock = await prisma.tourBlock.update({
       where: { id: parseInt(id) },
       data: {
         ...(title && { title: typeof title === 'string' ? title : JSON.stringify(title) }),
@@ -208,7 +207,7 @@ export const deleteTourBlock = async (req: Request, res: Response): Promise<Resp
   try {
     const { id } = req.params;
 
-    const existingBlock = await prisma.tour_blocks.findUnique({
+    const existingBlock = await prisma.tourBlock.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -231,7 +230,7 @@ export const deleteTourBlock = async (req: Request, res: Response): Promise<Resp
       });
     }
 
-    await prisma.tour_blocks.delete({
+    await prisma.tourBlock.delete({
       where: { id: parseInt(id) }
     });
 
@@ -266,7 +265,7 @@ export const addTourToBlock = async (req: Request, res: Response): Promise<Respo
     }
 
     // Check if block exists
-    const block = await prisma.tour_blocks.findUnique({
+    const block = await prisma.tourBlock.findUnique({
       where: { id: parseInt(blockId) }
     });
 
@@ -286,12 +285,12 @@ export const addTourToBlock = async (req: Request, res: Response): Promise<Respo
         }
       },
       update: {
-        is_primary: false // Keep existing is_primary value, just ensure it exists
+        isPrimary: false // Keep existing isPrimary value, just ensure it exists
       },
       create: {
         tourId: parseInt(tourId),
         tourBlockId: parseInt(blockId),
-        is_primary: false
+        isPrimary: false
       }
     });
 

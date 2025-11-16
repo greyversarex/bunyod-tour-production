@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 
@@ -123,7 +122,7 @@ export const createCity = async (req: Request, res: Response): Promise<void> => 
     }
     
     // Check if city exists
-    const cityExists = await prisma.cities.findUnique({
+    const cityExists = await prisma.city.findUnique({
       where: { id: cityId }
     });
     
@@ -225,7 +224,7 @@ export const updateCity = async (req: Request, res: Response): Promise<void> => 
         });
         return;
       }
-      updateData.is_active = isActive;
+      updateData.isActive = isActive;
     }
     
     const customCity = await prisma.customTourCity.update({

@@ -1,4 +1,3 @@
-// @ts-nocheck
 import express from 'express';
 import * as customTourOrderController from '../controllers/customTourOrderController';
 import { adminAuthMiddleware } from '../controllers/adminController';
