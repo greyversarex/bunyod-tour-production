@@ -80,7 +80,7 @@ router.get('/:id/tours', async (req, res) => {
     // Извлекаем туры из связей и фильтруем активные
     const activeTours = tourAssignments
       .map(assignment => assignment.tours)
-      .filter(tour => tour && tour.is_active);
+      .filter(tour => tour && tour.isActive);
     
     // 🎯 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Применяем mapTour для денормализации enum значений
     const language = getLanguageFromRequest(req);

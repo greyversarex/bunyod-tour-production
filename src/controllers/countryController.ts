@@ -50,6 +50,8 @@ export class CountryController {
           return {
             ...country,
             name: language === 'en' ? country.name_en || country.name_ru : country.name_ru || country.name_en,
+            nameRu: country.name_ru,
+            nameEn: country.name_en,
             cities: localizedCities
           };
         }

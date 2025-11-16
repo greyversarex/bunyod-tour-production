@@ -20,9 +20,16 @@ export class CityController {
         ]
       }));
 
+      const citiesWithCamelCase = cities.map(city => ({
+        ...city,
+        nameRu: city.name_ru,
+        nameEn: city.name_en,
+        countryId: city.country_id
+      }));
+
       const response: ApiResponse = {
         success: true,
-        data: cities,
+        data: citiesWithCamelCase,
         message: 'Cities retrieved successfully'
       };
 
