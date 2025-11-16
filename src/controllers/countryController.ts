@@ -18,22 +18,22 @@ export class CountryController {
       const language = getLanguageFromRequest(req);
       const includeRaw = req.query.includeRaw === 'true';
       
-      const countries = await withRetry(() => prisma.country.findMany({
-        where: { is_active: true },
+      const countries = await withRetry(() => prisma.countries.findMany({
+        where: { isActive: true },
         include: {
           cities: {
-            where: { is_active: true },
-            orderBy: { nameRu: 'asc' }
+            where: { isActive: true },
+            orderBy: { name_ru: 'asc' }
           }
         },
-        orderBy: { nameRu: 'asc' }
+        orderBy: { name_ru: 'asc' }
       })) as any[];
 
       // Локализация данных стран и городов
       const localizedCountries = countries.map((country: any) => {
         const localizedCities = country.cities?.map((city: any) => ({
           ...city,
-          name: language === 'en' ? city.nameEn || city.nameRu : city.nameRu || city.nameEn
+          name: language === 'en' ? city.name_en || city.name_ru : city.name_ru || city.name_en
         }));
 
         if (includeRaw) {
@@ -42,14 +42,14 @@ export class CountryController {
             ...country,
             cities: localizedCities,
             _localized: {
-              name: language === 'en' ? country.nameEn || country.nameRu : country.nameRu || country.nameEn
+              name: language === 'en' ? country.name_en || country.name_ru : country.name_ru || country.name_en
             }
           };
         } else {
           // ДЛЯ ПУБЛИЧНОГО ИСПОЛЬЗОВАНИЯ: только локализованный контент
           return {
             ...country,
-            name: language === 'en' ? country.nameEn || country.nameRu : country.nameRu || country.nameEn,
+            name: language === 'en' ? country.name_en || country.name_ru : country.name_ru || country.name_en,
             cities: localizedCities
           };
         }
@@ -83,12 +83,12 @@ export class CountryController {
         });
       }
 
-      const country = await withRetry(() => prisma.country.findUnique({
+      const country = await withRetry(() => prisma.countries.findUnique({
         where: { id: countryId },
         include: {
           cities: {
-            where: { is_active: true },
-            orderBy: { nameRu: 'asc' }
+            where: { isActive: true },
+            orderBy: { name_ru: 'asc' }
           }
         }
       }));
@@ -126,7 +126,7 @@ export class CountryController {
         });
       }
 
-      const country = await withRetry(() => prisma.country.create({
+      const country = await withRetry(() => prisma.countries.create({
         data: {
           name,
           nameRu,
@@ -172,18 +172,18 @@ export class CountryController {
 
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
-      if (nameRu !== undefined) updateData.nameRu = nameRu;
-      if (nameEn !== undefined) updateData.nameEn = nameEn;
+      if (nameRu !== undefined) updateData.name_ru = nameRu;
+      if (nameEn !== undefined) updateData.name_en = nameEn;
       if (code !== undefined) updateData.code = code;
       if (isActive !== undefined) updateData.is_active = isActive;
 
-      const country = await withRetry(() => prisma.country.update({
+      const country = await withRetry(() => prisma.countries.update({
         where: { id: countryId },
         data: updateData,
         include: {
           cities: {
-            where: { is_active: true },
-            orderBy: { nameRu: 'asc' }
+            where: { isActive: true },
+            orderBy: { name_ru: 'asc' }
           }
         }
       }));
@@ -227,7 +227,7 @@ export class CountryController {
         });
       }
 
-      await withRetry(() => prisma.country.delete({
+      await withRetry(() => prisma.countries.delete({
         where: { id: countryId }
       }));
 

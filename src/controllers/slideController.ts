@@ -51,7 +51,7 @@ const parseML = (v: any) => {
 export const getSlides = async (req: Request, res: Response) => {
   try {
     const rows = await prisma.slides.findMany({
-      where: { is_active: true },
+      where: { isActive: true },
       orderBy: { order: 'asc' },
       include: { cities: true }
     });
@@ -65,8 +65,8 @@ export const getSlides = async (req: Request, res: Response) => {
       link: s.link ?? null,
       buttonText: s.buttonText ? parseML(s.buttonText) : null,
       order: s.order,
-      is_active: s.is_active,
-      city: s.city ? { id: s.city.id, name: s.city.name } : null
+      isActive: s.isActive,
+      city: s.cities ? { id: s.cities.id, name: s.cities.name } : null
     }));
 
     res.json({
@@ -99,9 +99,9 @@ export const getAllSlides = async (req: Request, res: Response) => {
       link: s.link ?? null,
       buttonText: s.buttonText ? parseML(s.buttonText) : null,
       order: s.order,
-      is_active: s.is_active,
+      isActive: s.is_active,
       cityId: s.cityId,
-      city: s.city ? { id: s.city.id, name: s.city.name } : null,
+      city: s.cities ? { id: s.city.id, name: s.city.name } : null,
       createdAt: s.createdAt,
       updatedAt: s.updatedAt
     }));
@@ -147,7 +147,7 @@ export const getSlideById = async (req: Request, res: Response): Promise<void> =
       link: slide.link ?? null,
       buttonText: slide.buttonText ? parseML(slide.buttonText) : null,
       order: slide.order,
-      is_active: slide.is_active,
+      isActive: slide.is_active,
       cityId: slide.cityId,
       city: slide.city ? { id: slide.city.id, name: slide.city.name } : null,
       createdAt: slide.createdAt,

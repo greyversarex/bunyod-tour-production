@@ -311,7 +311,7 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
         citizenship: application.citizenship,
         address: application.address,
         phone: application.phone,
-        is_active: true
+        isActive: true
       }
     });
     

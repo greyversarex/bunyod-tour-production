@@ -17,9 +17,9 @@ export class CMSController {
       const blocks = await prisma.content_blocks.findMany({
         where: {
           ...where,
-          is_active: true
+          isActive: true
         },
-        orderBy: { sort_order: 'asc' }
+        orderBy: { sortOrder: 'asc' }
       });
 
       const parsedBlocks = blocks.map((block: any) => ({
@@ -62,7 +62,7 @@ export class CMSController {
           content: JSON.stringify(content),
           type,
           section,
-          sort_order: sortOrder || 0,
+          sortOrder: sortOrder || 0,
           metadata: metadata ? JSON.stringify(metadata) : null
         }
       });
@@ -175,7 +175,7 @@ export class CMSController {
       const settings = await prisma.site_settings.findMany({
         where: {
           ...where,
-          is_active: true
+          isActive: true
         },
         orderBy: { key: 'asc' }
       });
@@ -256,7 +256,7 @@ export class CMSController {
     try {
       const pages = await prisma.pages.findMany({
         where: { isPublished: true },
-        orderBy: { sort_order: 'asc' }
+        orderBy: { sortOrder: 'asc' }
       });
 
       const parsedPages = pages.map((page: any) => ({
@@ -301,7 +301,7 @@ export class CMSController {
           metaTitle: metaTitle ? JSON.stringify(metaTitle) : null,
           metaDesc: metaDesc ? JSON.stringify(metaDesc) : null,
           template: template || 'default',
-          sort_order: sortOrder || 0
+          sortOrder: sortOrder || 0
         }
       });
 
@@ -380,14 +380,14 @@ export class CMSController {
   static async getMenuItems(req: Request, res: Response, next: NextFunction) {
     try {
       const menuItems = await prisma.menuItem.findMany({
-        where: { is_active: true, parentId: null },
+        where: { isActive: true, parentId: null },
         include: {
           children: {
-            where: { is_active: true },
-            orderBy: { sort_order: 'asc' }
+            where: { isActive: true },
+            orderBy: { sortOrder: 'asc' }
           }
         },
-        orderBy: { sort_order: 'asc' }
+        orderBy: { sortOrder: 'asc' }
       });
 
       const parsedMenuItems = menuItems.map((item: any) => ({
@@ -431,7 +431,7 @@ export class CMSController {
           url,
           type,
           parentId: parentId || null,
-          sort_order: sortOrder || 0
+          sortOrder: sortOrder || 0
         }
       });
 
@@ -468,7 +468,7 @@ export class CMSController {
           type,
           parentId: parentId !== undefined ? parentId : undefined,
           sortOrder,
-          is_active: isActive ?? undefined
+          isActive: isActive ?? undefined
         }
       });
 

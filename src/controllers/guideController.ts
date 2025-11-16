@@ -114,7 +114,7 @@ export const createGuide = async (req: Request, res: Response) => {
         contact: contact ? (typeof contact === 'string' ? contact : JSON.stringify(contact)) : null,
         experience: experienceNumber,
         rating: ratingNumber,
-        is_active: active,
+        isActive: active,
         login: login || null,
         password: hashedPassword,
         countryId: countryId ? parseInt(String(countryId)) : null,
@@ -173,7 +173,7 @@ export const createGuide = async (req: Request, res: Response) => {
       pricePerDay: guide.pricePerDay,
       currency: guide.currency,
       isHireable: guide.isHireable,
-      is_active: guide.is_active,
+      isActive: guide.is_active,
       createdAt: guide.createdAt,
       updatedAt: guide.updatedAt,
       guideCountry: processedGuideCountry,
@@ -205,7 +205,7 @@ export const getAllGuides = async (req: Request, res: Response) => {
     
     const guides = await prisma.guide.findMany({
       where: {
-        is_active: true,
+        isActive: true,
       },
       include: {
         tourGuides: {
@@ -269,7 +269,7 @@ export const getAllGuides = async (req: Request, res: Response) => {
             pricePerDay: guide.pricePerDay,
             currency: guide.currency,
             isHireable: guide.isHireable,
-            is_active: guide.is_active,
+            isActive: guide.is_active,
             createdAt: guide.createdAt,
             updatedAt: guide.updatedAt,
             countryId: guide.countryId,
@@ -313,7 +313,7 @@ export const getAllGuides = async (req: Request, res: Response) => {
             pricePerDay: guide.pricePerDay,
             currency: guide.currency,
             isHireable: guide.isHireable,
-            is_active: guide.is_active,
+            isActive: guide.is_active,
             createdAt: guide.createdAt,
             updatedAt: guide.updatedAt,
             tourGuides: guide.tourGuides.map((tg: any) => ({
@@ -340,7 +340,7 @@ export const getAllGuides = async (req: Request, res: Response) => {
           rating: guide.rating,
           currency: guide.currency,
           isHireable: guide.isHireable,
-          is_active: guide.is_active,
+          isActive: guide.is_active,
           createdAt: guide.createdAt,
           updatedAt: guide.updatedAt,
           tourGuides: guide.tourGuides || [],
@@ -442,7 +442,7 @@ export const getGuideById = async (req: Request, res: Response) => {
       pricePerDay: guide.pricePerDay, // 💰 Цена за день
       currency: guide.currency,
       isHireable: guide.isHireable,
-      is_active: guide.is_active,
+      isActive: guide.is_active,
       createdAt: guide.createdAt,
       updatedAt: guide.updatedAt,
       tourGuides: guide.tourGuides,
@@ -484,7 +484,7 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
       where: {
         tourId: parseInt(tourId),
         guide: {
-          is_active: true,
+          isActive: true,
         },
       },
       include: {
@@ -537,7 +537,7 @@ export const getGuidesByTour = async (req: Request, res: Response) => {
         rating: tg.guide.rating,
         currency: tg.guide.currency,
         isHireable: tg.guide.isHireable,
-        is_active: tg.guide.is_active,
+        isActive: tg.guide.is_active,
         createdAt: tg.guide.createdAt,
         updatedAt: tg.guide.updatedAt,
         guideCountry: processedGuideCountry,
@@ -733,7 +733,7 @@ export const deleteGuide = async (req: Request, res: Response) => {
 
     await prisma.guide.update({
       where: { id: parseInt(id) },
-      data: { is_active: false },
+      data: { isActive: false },
     });
 
     return res.json({

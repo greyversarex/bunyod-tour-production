@@ -190,8 +190,8 @@ export class AdminController {
       oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
       // Загружаем курсы валют для конвертации в TJS
-      const exchangeRates = await prisma.exchangeRate.findMany({
-        where: { is_active: true }
+      const exchangeRates = await prisma.exchange_rates.findMany({
+        where: { isActive: true }
       });
       
       const ratesMap: { [key: string]: number } = {};
@@ -231,9 +231,9 @@ export class AdminController {
 
       // Считаем только оплаченные заказы
       const [toursCount, paidOrdersCount, hotelsCount, guidesCount, reviewsCount, activeCustomersCount] = await Promise.all([
-        prisma.tour.count({ where: { is_active: true } }),
+        prisma.tour.count({ where: { isActive: true } }),
         prisma.order.count({ where: { paymentStatus: 'paid' } }),
-        prisma.hotel.count({ where: { is_active: true } }),
+        prisma.hotel.count({ where: { isActive: true } }),
         prisma.guide.count(),
         prisma.review.count(),
         // Активные клиенты - те, кто сделал хотя бы один оплаченный заказ

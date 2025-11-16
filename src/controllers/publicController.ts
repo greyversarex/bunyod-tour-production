@@ -15,15 +15,15 @@ export class PublicController {
       
       // Получить блоки контента
       const contentBlocks = await prisma.content_blocks.findMany({
-        where: { is_active: true },
-        orderBy: [{ section: 'asc' }, { sort_order: 'asc' }]
+        where: { isActive: true },
+        orderBy: [{ section: 'asc' }, { sortOrder: 'asc' }]
       });
 
       console.log('Content blocks loaded:', contentBlocks.length);
 
       // Получить настройки сайта 
       const siteSettings = await prisma.site_settings.findMany({
-        where: { is_active: true }
+        where: { isActive: true }
       });
 
       console.log('Site settings loaded:', siteSettings.length);
@@ -247,16 +247,16 @@ export class PublicController {
 
       const menuItems = await prisma.menuItem.findMany({
         where: { 
-          is_active: true,
+          isActive: true,
           parentId: null 
         },
         include: {
           children: {
-            where: { is_active: true },
-            orderBy: { sort_order: 'asc' }
+            where: { isActive: true },
+            orderBy: { sortOrder: 'asc' }
           }
         },
-        orderBy: { sort_order: 'asc' }
+        orderBy: { sortOrder: 'asc' }
       });
 
       // Парсинг многоязычного контента

@@ -62,10 +62,10 @@ export const agentAuthMiddleware = async (req: Request, res: Response, next: Nex
       where: { id: decoded.agentId },
       select: {
         id: true,
-        unique_id: true,
-        full_name: true,
+        uniqueId: true,
+        fullName: true,
         email: true,
-        is_active: true
+        isActive: true
       }
     });
     

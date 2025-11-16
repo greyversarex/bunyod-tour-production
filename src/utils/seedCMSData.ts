@@ -46,7 +46,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'hero',
-        sort_order: 1
+        sortOrder: 1
       },
       {
         key: 'hero_subtitle',
@@ -68,7 +68,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'hero',
-        sort_order: 2
+        sortOrder: 2
       },
       {
         key: 'tours_section_title',
@@ -90,7 +90,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'tours',
-        sort_order: 1
+        sortOrder: 1
       },
       {
         key: 'planning_flexibility_title',
@@ -112,7 +112,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'features',
-        sort_order: 1
+        sortOrder: 1
       },
       {
         key: 'planning_flexibility_desc',
@@ -134,7 +134,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'features',
-        sort_order: 2
+        sortOrder: 2
       }
     ];
 
@@ -248,7 +248,7 @@ export async function seedCMSData() {
           zh: '<h1>关于我们</h1><p>Bunyod-Tour是塔吉克斯坦领先的旅游公司。</p>'
         }),
         template: 'default',
-        sort_order: 1
+        sortOrder: 1
       },
       {
         slug: 'services',
@@ -269,7 +269,7 @@ export async function seedCMSData() {
           zh: '<h1>我们的服务</h1><p>我们提供广泛的旅游服务。</p>'
         }),
         template: 'default',
-        sort_order: 2
+        sortOrder: 2
       }
     ];
 

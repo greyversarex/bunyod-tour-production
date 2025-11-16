@@ -110,7 +110,7 @@ export const createComponent = async (req: Request, res: Response) => {
       price: parseFloat(price),
       unit,
       description,
-      sort_order: sortOrder || 0
+      sortOrder: sortOrder || 0
     });
     
     res.status(201).json({

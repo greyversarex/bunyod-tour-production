@@ -62,7 +62,7 @@ export const getHotels = async (req: Request, res: Response): Promise<Response> 
             pension: hotel.pension,
             roomTypes: hotel.roomTypes,
             mealTypes: hotel.mealTypes,
-            is_active: hotel.is_active,
+            isActive: hotel.is_active,
             isDraft: hotel.isDraft, // 📝 Добавлено поле isDraft для админки
             createdAt: hotel.createdAt,
             updatedAt: hotel.updatedAt,
@@ -164,7 +164,7 @@ export const getHotel = async (req: Request, res: Response): Promise<Response> =
           pension: hotel.pension,
           roomTypes: hotel.roomTypes,
           mealTypes: hotel.mealTypes,
-          is_active: hotel.is_active,
+          isActive: hotel.is_active,
           createdAt: hotel.createdAt,
           updatedAt: hotel.updatedAt,
           _localized: {

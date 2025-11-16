@@ -37,7 +37,7 @@ export const authenticateDriver = async (req: AuthenticatedRequest, res: Respons
     const driver = await prisma.driver.findFirst({
       where: {
         id: decoded.driverId,
-        is_active: true
+        isActive: true
       }
     });
 

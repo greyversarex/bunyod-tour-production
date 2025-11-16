@@ -341,7 +341,7 @@ export const createDriverProfile = async (req: Request, res: Response): Promise<
         experience: experience ? parseInt(experience) : 0,
         login: login,
         password: hashedPassword,
-        is_active: isActive === 'true' || isActive === true || isActive === undefined,
+        isActive: isActive === 'true' || isActive === true || isActive === undefined,
         photo: photoPath,
         documents: documentsArray.length > 0 ? JSON.stringify(documentsArray) : null,
         licenseNumber: licenseNumber,
@@ -371,7 +371,7 @@ export const createDriverProfile = async (req: Request, res: Response): Promise<
         languages: driver.languages,
         contact: driver.contact,
         experience: driver.experience,
-        is_active: driver.is_active,
+        isActive: driver.is_active,
         photo: driver.photo,
         documents: driver.documents,
         licenseNumber: driver.licenseNumber,
@@ -542,7 +542,7 @@ export const updateDriverProfile = async (req: Request, res: Response): Promise<
         languages: updatedDriver.languages,
         contact: updatedDriver.contact,
         experience: updatedDriver.experience,
-        is_active: updatedDriver.is_active,
+        isActive: updatedDriver.is_active,
         photo: updatedDriver.photo,
         documents: updatedDriver.documents,
         licenseNumber: updatedDriver.licenseNumber,
@@ -627,7 +627,7 @@ export const loginDriver = async (req: Request, res: Response): Promise<void> =>
     const driver = await prisma.driver.findFirst({
       where: { 
         login: login,
-        is_active: true
+        isActive: true
       }
     });
 
@@ -726,7 +726,7 @@ export const getDriverAssignedEvents = async (req: Request, res: Response): Prom
     // Получаем все туры с событиями, где назначен данный водитель
     const tours = await prisma.tour.findMany({
       where: {
-        is_active: true,
+        isActive: true,
         itinerary: {
           contains: `"driverId":${driverId}`
         }

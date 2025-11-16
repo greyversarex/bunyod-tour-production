@@ -57,7 +57,7 @@ export const getAllCities = async (req: Request, res: Response): Promise<void> =
     const { countryId } = req.query;
     
     const where: any = {
-      is_active: true,
+      isActive: true,
     };
     
     if (countryId && typeof countryId === 'string') {
@@ -123,7 +123,7 @@ export const createCity = async (req: Request, res: Response): Promise<void> => 
     }
     
     // Check if city exists
-    const cityExists = await prisma.city.findUnique({
+    const cityExists = await prisma.cities.findUnique({
       where: { id: cityId }
     });
     
@@ -165,7 +165,7 @@ export const createCity = async (req: Request, res: Response): Promise<void> => 
         countryId: parseInt(countryId),
         cityId,
         daysCount,
-        is_active: true,
+        isActive: true,
       },
       include: {
         city: {

@@ -528,7 +528,7 @@ export class TourController {
         availableDays: availableDays || null,
         isFeatured: isFeatured || false,
         isDraft: isSavingDraft, // 📝 Сохраняем статус черновика
-        is_active: !isSavingDraft, // 📝 Черновики неактивны
+        isActive: !isSavingDraft, // 📝 Черновики неактивны
         startDate: startDate || null,
         endDate: endDate || null,
         rating: ratingNumber,
@@ -1439,7 +1439,7 @@ export class TourController {
 
       // 2. Add country suggestions
       const countries = await prisma.countries.findMany({
-        where: { is_active: true }
+        where: { isActive: true }
       });
       
       countries.forEach((country: any) => {
@@ -1467,7 +1467,7 @@ export class TourController {
 
       // 3. Add city suggestions
       const cities = await prisma.cities.findMany({
-        where: { is_active: true }
+        where: { isActive: true }
       });
       
       cities.forEach((city: any) => {

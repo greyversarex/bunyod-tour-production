@@ -304,7 +304,7 @@ export const createTourGuide = async (req: Request, res: Response): Promise<void
         login: guide.login,
         email: guide.email,
         phone: guide.phone,
-        is_active: guide.is_active,
+        isActive: guide.is_active,
         createdAt: guide.createdAt
       },
       message: 'Тургид создан'
@@ -329,7 +329,7 @@ export const getAllTourGuides = async (req: Request, res: Response): Promise<voi
         login: true,
         email: true,
         phone: true,
-        is_active: true,
+        isActive: true,
         createdAt: true,
       },
       orderBy: {
@@ -390,7 +390,7 @@ export const updateTourGuide = async (req: Request, res: Response): Promise<void
         login: true,
         email: true,
         phone: true,
-        is_active: true,
+        isActive: true,
         updatedAt: true
       }
     });

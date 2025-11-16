@@ -24,7 +24,7 @@ export const getAllComponents = async (req: Request, res: Response) => {
     const { countryId, category } = req.query;
     
     const where: any = {
-      is_active: true,
+      isActive: true,
     };
     
     if (countryId && typeof countryId === 'string') {
@@ -37,7 +37,7 @@ export const getAllComponents = async (req: Request, res: Response) => {
     
     const components = await prisma.customTourComponent.findMany({
       where,
-      orderBy: { sort_order: 'asc' },
+      orderBy: { sortOrder: 'asc' },
       include: {
         country: {
           select: {
@@ -72,9 +72,9 @@ export const getComponentsByCountry = async (req: Request, res: Response) => {
     const components = await prisma.customTourComponent.findMany({
       where: {
         countryId: parseInt(countryId),
-        is_active: true,
+        isActive: true,
       },
-      orderBy: { sort_order: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
     
     res.json({
@@ -170,8 +170,8 @@ export const createComponent = async (req: Request, res: Response): Promise<void
         price: parseFloat(price),
         unit,
         description,
-        sort_order: sortOrder ? parseInt(sortOrder) : 0,
-        is_active: true,
+        sortOrder: sortOrder ? parseInt(sortOrder) : 0,
+        isActive: true,
       },
       include: {
         country: {
@@ -303,7 +303,7 @@ export const deleteComponent = async (req: Request, res: Response) => {
     
     const component = await prisma.customTourComponent.update({
       where: { id: parseInt(id) },
-      data: { is_active: false }
+      data: { isActive: false }
     });
     
     console.log('✅ Custom tour component deleted:', component.id);
@@ -327,7 +327,7 @@ export const deleteComponent = async (req: Request, res: Response) => {
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const components = await prisma.customTourComponent.findMany({
-      where: { is_active: true },
+      where: { isActive: true },
       select: { category: true },
       distinct: ['category'],
     });

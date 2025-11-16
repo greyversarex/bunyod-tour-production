@@ -135,7 +135,7 @@ async function seedCountriesAndCities() {
             nameEn: countryData.nameEn,
             nameTj: countryData.nameTj,
             code: countryData.code,
-            is_active: true
+            isActive: true
           }
         });
         console.log(`   ✅ Страна ${countryData.nameRu} создана`);
@@ -160,7 +160,7 @@ async function seedCountriesAndCities() {
               nameEn: cityData.nameEn,
               nameTj: cityData.nameTj,
               countryId: country.id,
-              is_active: true
+              isActive: true
             }
           });
           console.log(`   🏙️ Город ${cityData.nameRu} создан`);

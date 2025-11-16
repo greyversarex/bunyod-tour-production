@@ -102,7 +102,7 @@ export class AgentUserController {
           phone: true,
           citizenship: true,
           address: true,
-          is_active: true,
+          isActive: true,
           createdAt: true,
           _count: {
             select: {

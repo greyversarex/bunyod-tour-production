@@ -9,14 +9,14 @@ export class CityController {
    */
   static async getAllCities(req: Request, res: Response, next: NextFunction) {
     try {
-      const cities = await withRetry(() => prisma.city.findMany({
-        where: { is_active: true },
+      const cities = await withRetry(() => prisma.cities.findMany({
+        where: { isActive: true },
         include: {
-          country: true
+          countries: true
         },
         orderBy: [
-          { country: { nameRu: 'asc' } },
-          { nameRu: 'asc' }
+          { countries: { name_ru: 'asc' } },
+          { name_ru: 'asc' }
         ]
       }));
 
@@ -47,15 +47,15 @@ export class CityController {
         });
       }
 
-      const cities = await withRetry(() => prisma.city.findMany({
+      const cities = await withRetry(() => prisma.cities.findMany({
         where: {
           countryId: countryIdNum,
-          is_active: true
+          isActive: true
         },
         include: {
           country: true
         },
-        orderBy: { nameRu: 'asc' }
+        orderBy: { name_ru: 'asc' }
       }));
 
       const response: ApiResponse = {
@@ -85,7 +85,7 @@ export class CityController {
         });
       }
 
-      const city = await withRetry(() => prisma.city.findUnique({
+      const city = await withRetry(() => prisma.cities.findUnique({
         where: { id: cityId },
         include: {
           country: true
@@ -134,7 +134,7 @@ export class CityController {
       }
 
       // Проверяем существование страны
-      const countryExists = await withRetry(() => prisma.country.findUnique({
+      const countryExists = await withRetry(() => prisma.countries.findUnique({
         where: { id: countryIdNum }
       }));
 
@@ -145,7 +145,7 @@ export class CityController {
         });
       }
 
-      const city = await withRetry(() => prisma.city.create({
+      const city = await withRetry(() => prisma.cities.create({
         data: {
           name,
           nameRu,
@@ -194,8 +194,8 @@ export class CityController {
 
       const updateData: any = {};
       if (name !== undefined) updateData.name = name;
-      if (nameRu !== undefined) updateData.nameRu = nameRu;
-      if (nameEn !== undefined) updateData.nameEn = nameEn;
+      if (nameRu !== undefined) updateData.name_ru = nameRu;
+      if (nameEn !== undefined) updateData.name_en = nameEn;
       if (isActive !== undefined) updateData.is_active = isActive;
 
       if (countryId !== undefined) {
@@ -208,7 +208,7 @@ export class CityController {
         }
 
         // Проверяем существование страны
-        const countryExists = await withRetry(() => prisma.country.findUnique({
+        const countryExists = await withRetry(() => prisma.countries.findUnique({
           where: { id: countryIdNum }
         }));
 
@@ -222,7 +222,7 @@ export class CityController {
         updateData.countryId = countryIdNum;
       }
 
-      const city = await withRetry(() => prisma.city.update({
+      const city = await withRetry(() => prisma.cities.update({
         where: { id: cityId },
         data: updateData,
         include: {
@@ -269,7 +269,7 @@ export class CityController {
         });
       }
 
-      await withRetry(() => prisma.city.delete({
+      await withRetry(() => prisma.cities.delete({
         where: { id: cityId }
       }));
 

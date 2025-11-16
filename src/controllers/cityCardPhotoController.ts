@@ -12,12 +12,12 @@ export class CityCardPhotoController {
       const photos = await withRetry(() => prisma.city_card_photos.findMany({
         where: { is_active: true },
         include: {
-          city: {
+          cities: {
             select: {
               id: true,
               name: true,
-              nameRu: true,
-              nameEn: true
+              name_ru: true,
+              name_en: true
             }
           }
         },
@@ -113,7 +113,7 @@ export class CityCardPhotoController {
       }
 
       // Проверяем существование города
-      const cityExists = await withRetry(() => prisma.city.findUnique({
+      const cityExists = await withRetry(() => prisma.cities.findUnique({
         where: { id: cityIdNum }
       }));
 
@@ -130,7 +130,7 @@ export class CityCardPhotoController {
         data: {
           cityId: cityIdNum,
           image: imagePath,
-          sort_order: parseInt(sortOrder) || 0,
+          sortOrder: parseInt(sortOrder) || 0,
           isActive
         },
         include: {
@@ -182,7 +182,7 @@ export class CityCardPhotoController {
         }
 
         // Проверяем существование города
-        const cityExists = await withRetry(() => prisma.city.findUnique({
+        const cityExists = await withRetry(() => prisma.cities.findUnique({
           where: { id: cityIdNum }
         }));
 

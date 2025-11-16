@@ -10,7 +10,7 @@ export const getTourBlocks = async (req: Request, res: Response): Promise<Respon
     const language = getLanguageFromRequest(req);
     
     const tourBlocks = await prisma.tour_blocks.findMany({
-      orderBy: { sort_order: 'asc' }
+      orderBy: { sortOrder: 'asc' }
     });
 
     console.log('Found tour blocks:', tourBlocks.length);
@@ -184,7 +184,7 @@ export const updateTourBlock = async (req: Request, res: Response): Promise<Resp
         ...(title && { title: typeof title === 'string' ? title : JSON.stringify(title) }),
         ...(description !== undefined && { description: description ? (typeof description === 'string' ? description : JSON.stringify(description)) : null }),
         ...(slug && { slug }),
-        ...(isActive !== undefined && { is_active: isActive === 'true' || isActive === true }),
+        ...(isActive !== undefined && { isActive: isActive === 'true' || isActive === true }),
         ...(sortOrder !== undefined && { sortOrder })
       }
     });

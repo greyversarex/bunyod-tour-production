@@ -6,8 +6,8 @@ import prisma from '../config/database';
 const convertCurrency = async (amount: number, fromCurrency: string, toCurrency: string): Promise<{ convertedAmount: number; rate: number; symbol: string } | null> => {
   try {
     if (fromCurrency === toCurrency) {
-      const currency = await prisma.exchangeRate.findFirst({
-        where: { currency: toCurrency, is_active: true }
+      const currency = await prisma.exchange_rates.findFirst({
+        where: { currency: toCurrency, isActive: true }
       });
       return {
         convertedAmount: amount,
@@ -18,11 +18,11 @@ const convertCurrency = async (amount: number, fromCurrency: string, toCurrency:
 
     // Получаем курсы валют
     const [fromRate, toRate] = await Promise.all([
-      prisma.exchangeRate.findFirst({ 
-        where: { currency: fromCurrency, is_active: true } 
+      prisma.exchange_rates.findFirst({ 
+        where: { currency: fromCurrency, isActive: true } 
       }),
-      prisma.exchangeRate.findFirst({ 
-        where: { currency: toCurrency, is_active: true } 
+      prisma.exchange_rates.findFirst({ 
+        where: { currency: toCurrency, isActive: true } 
       })
     ]);
 
@@ -88,7 +88,7 @@ export const getGuideAvailability = async (req: Request, res: Response) => {
         currency: true,
         availableDates: true,
         isHireable: true,
-        is_active: true
+        isActive: true
       }
     });
 
@@ -264,7 +264,7 @@ export const createGuideHireRequest = async (req: Request, res: Response) => {
         currency: true,
         availableDates: true,
         isHireable: true,
-        is_active: true
+        isActive: true
       }
     });
 
@@ -645,7 +645,7 @@ export const getAvailableGuides = async (req: Request, res: Response) => {
 
     const guides = await prisma.guide.findMany({
       where: {
-        is_active: true,
+        isActive: true,
         isHireable: true,
         pricePerDay: {
           not: null,
