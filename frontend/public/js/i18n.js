@@ -220,6 +220,16 @@ window.translations = window.translations || {
     'b2b.success_message': { ru: 'Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.', en: 'Application successfully submitted! We will contact you shortly.' },
     'b2b.error_message': { ru: 'Ошибка при отправке заявки', en: 'Error submitting application' },
     'b2b.error_submit': { ru: 'Ошибка при отправке заявки. Попробуйте позже.', en: 'Error submitting application. Please try again later.' },
+    'b2b.who_can_title': { ru: 'Кто может стать нашим партнером?', en: 'Who Can Become Our Partner?' },
+    'b2b.who_can_1': { ru: 'обозреватели путешествий;', en: 'travel reviewers;' },
+    'b2b.who_can_2': { ru: 'тревел блогеры;', en: 'travel bloggers;' },
+    'b2b.who_can_3': { ru: 'местные партнеры продают туры, экскурсии в своем городе;', en: 'local partners selling tours and excursions in their city;' },
+    'b2b.who_can_4': { ru: 'владельцы туристических сайтов, форумов;', en: 'owners of travel websites and forums;' },
+    'b2b.who_can_5': { ru: 'владельцы интернет магазинов с товарами для спорта, туризма;', en: 'owners of online stores with sports and tourism products;' },
+    'b2b.who_can_6': { ru: 'турагентства;', en: 'travel agencies;' },
+    'b2b.who_can_7': { ru: 'владельцы отелей;', en: 'hotel owners;' },
+    'b2b.who_can_8': { ru: 'студенты и фрилансеры.', en: 'students and freelancers.' },
+    'b2b.who_can_description': { ru: 'Заработать на партнерках в туризме можно практически всем; даже если нет солидного опыта в туризме, можно завести тематический онлайн ресурс и научится его продвигать.', en: 'Almost anyone can earn from tourism affiliate programs; even if you don\'t have solid tourism experience, you can create a themed online resource and learn to promote it.' },
     
     // Ценовые обозначения
     'price.from': { ru: 'Цена от:', en: 'Price from:' },

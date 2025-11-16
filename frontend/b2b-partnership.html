@@ -8,59 +8,70 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/public/js/i18n.js"></script>
     <script src="/public/js/utils.js"></script>
+    <script src="/public/js/layout-loader.js?v=1.5"></script>
     <link rel="stylesheet" href="/public/css/layout.css?v=1.6">
 </head>
 <body class="bg-gray-50">
     <div id="header-container"></div>
 
     <!-- Главная секция -->
-    <section class="relative bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20" style="margin-top: 64px;">
+    <section class="relative bg-white text-gray-800 py-20" style="margin-top: 64px;">
         <div class="max-w-6xl mx-auto px-4">
             <div class="text-center">
                 <h1 class="text-4xl md:text-5xl font-bold mb-6" data-i18n="b2b.hero_title">
                     Станьте партнером Bunyod-Tour
                 </h1>
-                <p class="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto" data-i18n="b2b.hero_subtitle">
+                <p class="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto" data-i18n="b2b.hero_subtitle">
                     Присоединяйтесь к нашей программе B2B-партнерства и получайте эксклюзивные условия для ваших клиентов
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- Преимущества партнерства -->
+    <!-- Кто может стать партнером -->
     <section class="py-16 bg-white">
         <div class="max-w-6xl mx-auto px-4">
-            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800" data-i18n="b2b.benefits_title">
-                Почему стоит работать с нами?
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800" data-i18n="b2b.who_can_title">
+                Кто может стать нашим партнером?
             </h2>
-            <div class="grid md:grid-cols-3 gap-8">
-                <div class="text-center p-6">
-                    <div class="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-percentage text-blue-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3" data-i18n="b2b.benefit1_title">Выгодные комиссии</h3>
-                    <p class="text-gray-600" data-i18n="b2b.benefit1_text">
-                        Получайте конкурентные комиссионные за каждое приведенное бронирование
-                    </p>
-                </div>
-                <div class="text-center p-6">
-                    <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-headset text-green-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3" data-i18n="b2b.benefit2_title">Поддержка 24/7</h3>
-                    <p class="text-gray-600" data-i18n="b2b.benefit2_text">
-                        Персональный менеджер и техническая поддержка в любое время
-                    </p>
-                </div>
-                <div class="text-center p-6">
-                    <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-chart-line text-purple-600 text-2xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3" data-i18n="b2b.benefit3_title">Личный кабинет</h3>
-                    <p class="text-gray-600" data-i18n="b2b.benefit3_text">
-                        Удобная система отслеживания бронирований и статистики
-                    </p>
-                </div>
+            <div class="max-w-4xl mx-auto">
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_1">обозреватели путешествий;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_2">тревел блогеры;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_3">местные партнеры продают туры, экскурсии в своем городе;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_4">владельцы туристических сайтов, форумов;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_5">владельцы интернет магазинов с товарами для спорта, туризма;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_6">турагентства;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_7">владельцы отелей;</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-gray-600 mt-1 mr-3"></i>
+                        <span class="text-gray-700" data-i18n="b2b.who_can_8">студенты и фрилансеры.</span>
+                    </li>
+                </ul>
+                <p class="text-gray-700 leading-relaxed" data-i18n="b2b.who_can_description">
+                    Заработать на партнерках в туризме можно практически всем; даже если нет солидного опыта в туризме, можно завести тематический онлайн ресурс и научится его продвигать.
+                </p>
             </div>
         </div>
     </section>
@@ -83,7 +94,7 @@
                             ФИО (полное) <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="fullName" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                             data-i18n-placeholder="b2b.form_fullname_placeholder">
                     </div>
 
@@ -93,7 +104,7 @@
                             Гражданство <span class="text-red-500">*</span>
                         </label>
                         <input type="text" id="citizenship" required
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                             data-i18n-placeholder="b2b.form_citizenship_placeholder">
                     </div>
 
@@ -103,7 +114,7 @@
                             Адрес <span class="text-red-500">*</span>
                         </label>
                         <textarea id="address" required rows="3"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                             data-i18n-placeholder="b2b.form_address_placeholder"></textarea>
                     </div>
 
@@ -114,7 +125,7 @@
                                 Телефон <span class="text-red-500">*</span>
                             </label>
                             <input type="tel" id="phone" required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                                 data-i18n-placeholder="b2b.form_phone_placeholder">
                         </div>
                         <div>
@@ -122,7 +133,7 @@
                                 Email <span class="text-red-500">*</span>
                             </label>
                             <input type="email" id="email" required
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
                                 data-i18n-placeholder="b2b.form_email_placeholder">
                         </div>
                     </div>
@@ -176,10 +187,10 @@
                     <div class="space-y-4 bg-gray-50 p-6 rounded-lg">
                         <div class="flex items-start">
                             <input type="checkbox" id="partnershipAgreement" required
-                                class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                class="mt-1 w-5 h-5 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
                             <label for="partnershipAgreement" class="ml-3 text-gray-700">
                                 <span data-i18n="b2b.form_agreement1">Согласен с</span>
-                                <a href="/partnership-agreement.pdf" target="_blank" class="text-blue-600 hover:underline" data-i18n="b2b.form_agreement1_link">
+                                <a href="/partnership-agreement.pdf" target="_blank" class="text-gray-800 hover:underline" data-i18n="b2b.form_agreement1_link">
                                     Договором о партнерстве
                                 </a>
                                 <span class="text-red-500">*</span>
@@ -187,10 +198,10 @@
                         </div>
                         <div class="flex items-start">
                             <input type="checkbox" id="privacyAgreement" required
-                                class="mt-1 w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                class="mt-1 w-5 h-5 text-gray-600 border-gray-300 rounded focus:ring-gray-500">
                             <label for="privacyAgreement" class="ml-3 text-gray-700">
                                 <span data-i18n="b2b.form_agreement2">Согласен с</span>
-                                <a href="/privacy-policy-ru.pdf" target="_blank" class="text-blue-600 hover:underline" data-i18n="b2b.form_agreement2_link">
+                                <a href="/privacy-policy-ru.pdf" target="_blank" class="text-gray-800 hover:underline" data-i18n="b2b.form_agreement2_link">
                                     Политикой конфиденциальности
                                 </a>
                                 <span class="text-red-500">*</span>
@@ -201,7 +212,7 @@
                     <!-- Кнопка отправки -->
                     <div class="text-center">
                         <button type="submit" id="submitBtn"
-                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-12 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-12 rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                             <span id="submitText" data-i18n="b2b.form_submit">Отправить заявку</span>
                             <span id="loadingText" class="hidden" data-i18n="b2b.form_submitting">Отправка...</span>
                         </button>
@@ -217,10 +228,6 @@
     <div id="footer-container"></div>
 
     <script>
-        // Загрузка хедера и футера
-        loadComponent('header-container', '/_header.html');
-        loadComponent('footer-container', '/_footer.html');
-
         // Обработка выбора файлов
         function handleFileSelect(inputId, previewId) {
             const input = document.getElementById(inputId);
