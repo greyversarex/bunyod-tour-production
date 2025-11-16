@@ -18,7 +18,7 @@ export class AgentUserController {
         });
       }
       
-      const agent = await prisma.agent_users.findUnique({
+      const agent = await prisma.agentUser.findUnique({
         where: { email: email.toLowerCase().trim() }
       });
       
@@ -29,7 +29,7 @@ export class AgentUserController {
         });
       }
       
-      if (!agent.is_active) {
+      if (!agent.isActive) {
         return res.status(403).json({
           success: false,
           message: 'Аккаунт деактивирован. Свяжитесь с администратором.'
@@ -56,7 +56,7 @@ export class AgentUserController {
       const token = jwt.sign(
         {
           agentId: agent.id,
-          uniqueId: agent.unique_id,
+          uniqueId: agent.uniqueId,
           email: agent.email
         },
         process.env.JWT_SECRET,
@@ -69,8 +69,8 @@ export class AgentUserController {
         token,
         agent: {
           id: agent.id,
-          uniqueId: agent.unique_id,
-          fullName: agent.full_name,
+          uniqueId: agent.uniqueId,
+          fullName: agent.fullName,
           email: agent.email
         }
       });
@@ -92,7 +92,7 @@ export class AgentUserController {
         });
       }
       
-      const agent = await prisma.agent_users.findUnique({
+      const agent = await prisma.agentUser.findUnique({
         where: { id: req.agent.id },
         select: {
           id: true,
@@ -106,7 +106,7 @@ export class AgentUserController {
           createdAt: true,
           _count: {
             select: {
-              agent_tour_bookings: true
+              agentTourBookings: true
             }
           }
         }
@@ -123,7 +123,7 @@ export class AgentUserController {
         success: true,
         agent: {
           ...agent,
-          totalBookings: agent._count.agent_tour_bookings
+          totalBookings: agent._count.agentTourBookings
         }
       });
     } catch (error) {
@@ -145,53 +145,53 @@ export class AgentUserController {
       }
       
       const {
-        tour_name,
-        tour_start_date,
-        tour_end_date,
-        tourist_count,
-        tourists_list
+        tourName,
+        tourStartDate,
+        tourEndDate,
+        touristCount,
+        touristsList
       } = req.body;
       
-      if (!tour_name || !tour_start_date || !tour_end_date || !tourist_count || !tourists_list) {
+      if (!tourName || !tourStartDate || !tourEndDate || !touristCount || !touristsList) {
         return res.status(400).json({
           success: false,
           message: 'Все поля обязательны для заполнения'
         });
       }
       
-      if (tourist_count < 1 || tourist_count > 1000) {
+      if (touristCount < 1 || touristCount > 1000) {
         return res.status(400).json({
           success: false,
           message: 'Количество туристов должно быть от 1 до 1000'
         });
       }
       
-      const lastBooking = await prisma.agent_tour_bookings.findFirst({
+      const lastBooking = await prisma.agentTourBooking.findFirst({
         orderBy: { id: 'desc' },
-        select: { registration_number: true }
+        select: { registrationNumber: true }
       });
       
       let nextNumber = 1;
-      if (lastBooking && lastBooking.registration_number) {
-        const match = lastBooking.registration_number.match(/BTB(\d+)/);
+      if (lastBooking && lastBooking.registrationNumber) {
+        const match = lastBooking.registrationNumber.match(/BTB(\d+)/);
         if (match) {
           const parsed = parseInt(match[1]);
           nextNumber = isNaN(parsed) ? 1 : parsed + 1;
         }
       }
       
-      const registration_number = `BTB${String(nextNumber).padStart(6, '0')}`;
+      const registrationNumber = `BTB${String(nextNumber).padStart(6, '0')}`;
       
-      const booking = await prisma.agent_tour_bookings.create({
+      const booking = await prisma.agentTourBooking.create({
         data: {
-          agent_user_id: req.agent.id,
-          registration_number,
-          tour_name: tour_name.trim(),
-          application_date: new Date(),
-          tour_start_date: tour_start_date.trim(),
-          tour_end_date: tour_end_date.trim(),
-          tourist_count: parseInt(tourist_count),
-          tourists_list: typeof tourists_list === 'string' ? tourists_list.trim() : JSON.stringify(tourists_list),
+          agentUserId: req.agent.id,
+          registrationNumber,
+          tourName: tourName.trim(),
+          applicationDate: new Date(),
+          tourStartDate: tourStartDate.trim(),
+          tourEndDate: tourEndDate.trim(),
+          touristCount: parseInt(touristCount),
+          touristsList: typeof touristsList === 'string' ? touristsList.trim() : JSON.stringify(touristsList),
           status: 'pending'
         }
       });
@@ -201,11 +201,11 @@ export class AgentUserController {
         message: 'Заявка успешно создана',
         booking: {
           id: booking.id,
-          registration_number: booking.registration_number,
-          tour_name: booking.tour_name,
-          tour_start_date: booking.tour_start_date,
-          tour_end_date: booking.tour_end_date,
-          tourist_count: booking.tourist_count,
+          registrationNumber: booking.registrationNumber,
+          tourName: booking.tourName,
+          tourStartDate: booking.tourStartDate,
+          tourEndDate: booking.tourEndDate,
+          touristCount: booking.touristCount,
           status: booking.status,
           createdAt: booking.createdAt
         }
@@ -213,7 +213,7 @@ export class AgentUserController {
     } catch (error: any) {
       console.error('Error creating tour booking:', error);
       
-      if (error.code === 'P2002' && error.meta?.target?.includes('registration_number')) {
+      if (error.code === 'P2002' && error.meta?.target?.includes('registrationNumber')) {
         return res.status(409).json({
           success: false,
           message: 'Ошибка генерации номера заявки. Попробуйте снова.'
@@ -242,33 +242,33 @@ export class AgentUserController {
       const limitNum = Math.min(100, Math.max(1, parseInt(limit as string)));
       const skip = (pageNum - 1) * limitNum;
       
-      const where: any = { agent_user_id: req.agent.id };
+      const where: any = { agentUserId: req.agent.id };
       if (status && typeof status === 'string') {
         where.status = status;
       }
       
       const [bookings, total] = await Promise.all([
-        prisma.agent_tour_bookings.findMany({
+        prisma.agentTourBooking.findMany({
           where,
           orderBy: { createdAt: 'desc' },
           skip,
           take: limitNum,
           select: {
             id: true,
-            registration_number: true,
-            tour_name: true,
-            application_date: true,
-            tour_start_date: true,
-            tour_end_date: true,
-            tourist_count: true,
-            tourists_list: true,
+            registrationNumber: true,
+            tourName: true,
+            applicationDate: true,
+            tourStartDate: true,
+            tourEndDate: true,
+            touristCount: true,
+            touristsList: true,
             status: true,
-            admin_notes: true,
+            adminNotes: true,
             createdAt: true,
             updatedAt: true
           }
         }),
-        prisma.agent_tour_bookings.count({ where })
+        prisma.agentTourBooking.count({ where })
       ]);
       
       return res.json({
