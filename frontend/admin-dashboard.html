@@ -11606,9 +11606,17 @@
         
         // Display agent applications
         function displayAgentApplications(applications) {
+            console.log('🎨 Displaying applications...', applications);
             const tbody = document.getElementById('agentApplicationsTable');
+            console.log('📋 Table element found:', tbody ? 'YES' : 'NO');
+            
+            if (!tbody) {
+                console.error('❌ Table element not found!');
+                return;
+            }
             
             if (!applications || applications.length === 0) {
+                console.log('⚠️ No applications to display');
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="8" class="text-center py-8">
@@ -11621,6 +11629,8 @@
                 `;
                 return;
             }
+            
+            console.log('✅ Rendering', applications.length, 'applications');
             
             tbody.innerHTML = applications.map(app => {
                 const statusClass = {
