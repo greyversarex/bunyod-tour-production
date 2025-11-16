@@ -883,6 +883,61 @@ model Migration {
   @@map("migrations")
 }
 
+model AgentApplication {
+  id                    Int       @id @default(autoincrement())
+  fullName              String    @map("full_name")
+  citizenship           String
+  address               String
+  phone                 String
+  email                 String
+  idDocument            String?   @map("id_document")
+  otherDocuments        String?   @map("other_documents")
+  partnershipAgreement  Boolean   @map("partnership_agreement")
+  privacyPolicyAgreement Boolean  @map("privacy_policy_agreement")
+  status                String    @default("pending")
+  adminNotes            String?   @map("admin_notes")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@map("agent_applications")
+}
+
+model AgentUser {
+  id                Int                @id @default(autoincrement())
+  uniqueId          String             @unique @map("unique_id")
+  fullName          String             @map("full_name")
+  email             String             @unique
+  password          String
+  citizenship       String
+  address           String
+  phone             String
+  isActive          Boolean            @default(true) @map("is_active")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+  agentTourBookings AgentTourBooking[]
+
+  @@map("agent_users")
+}
+
+model AgentTourBooking {
+  id                 Int       @id @default(autoincrement())
+  agentUserId        Int       @map("agent_user_id")
+  registrationNumber String    @unique @map("registration_number")
+  tourName           String    @map("tour_name")
+  applicationDate    DateTime  @map("application_date")
+  tourStartDate      String    @map("tour_start_date")
+  tourEndDate        String    @map("tour_end_date")
+  touristCount       Int       @map("tourist_count")
+  touristsList       String    @map("tourists_list")
+  status             String    @default("pending")
+  adminNotes         String?   @map("admin_notes")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  agentUser          AgentUser @relation(fields: [agentUserId], references: [id], onDelete: Cascade)
+
+  @@map("agent_tour_bookings")
+}
+
 enum HotelCategory {
   STANDARD
   SEMI_LUX

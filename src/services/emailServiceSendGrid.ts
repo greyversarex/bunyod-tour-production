@@ -385,6 +385,122 @@ export async function sendBookingConfirmation(order: any, customer: Customer, to
   }
 }
 
+// Send agent welcome email with credentials (B2B Partnership)
+export async function sendAgentWelcomeEmail(email: string, data: {
+  fullName: string;
+  uniqueId: string;
+  email: string;
+  password: string;
+  loginUrl: string;
+}) {
+  try {
+    const subject = `Доступ к партнерской программе Bunyod-Tour - ID: ${data.uniqueId}`;
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+          .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+          .header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 30px; text-align: center; }
+          .company-name { font-size: 32px; font-weight: bold; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+          .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
+          .content { padding: 40px; }
+          .success-banner { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; margin: -40px -40px 30px -40px; }
+          .success-icon { font-size: 48px; margin-bottom: 10px; }
+          .success-title { font-size: 24px; font-weight: bold; margin: 0; }
+          .credentials-box { background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 8px; padding: 25px; margin: 25px 0; }
+          .credential-item { margin: 15px 0; }
+          .credential-label { color: #6b7280; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+          .credential-value { background: white; padding: 12px 15px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 16px; color: #1f2937; border: 1px solid #d1d5db; word-break: break-all; }
+          .login-button { display: inline-block; background: #3E3E3E; color: white !important; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; margin: 20px 0; }
+          .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+          .footer { background: #f9fafb; padding: 25px; text-align: center; color: #6b7280; font-size: 13px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1 class="company-name">BUNYOD-TOUR</h1>
+            <p class="company-subtitle">B2B Партнерская программа</p>
+          </div>
+          
+          <div class="success-banner">
+            <div class="success-icon">🎉</div>
+            <h1 class="success-title">Заявка одобрена!</h1>
+            <p>Добро пожаловать в партнерскую сеть Bunyod-Tour</p>
+          </div>
+          
+          <div class="content">
+            <p>Уважаемый(ая) <strong>${data.fullName}</strong>,</p>
+            <p>Поздравляем! Ваша заявка на партнерство была одобрена.</p>
+            <p>Для вас создан личный кабинет турагента, где вы можете:</p>
+            <ul style="margin: 15px 0; padding-left: 25px;">
+              <li>Подавать заявки на туры для ваших клиентов</li>
+              <li>Отслеживать статус заявок</li>
+              <li>Просматривать историю реализованных туров</li>
+              <li>Получать комиссионные за каждое бронирование</li>
+            </ul>
+            
+            <div class="credentials-box">
+              <h3 style="margin: 0 0 20px 0; color: #1f2937;">Данные для входа в систему:</h3>
+              
+              <div class="credential-item">
+                <div class="credential-label">Ваш уникальный ID турагента:</div>
+                <div class="credential-value">${data.uniqueId}</div>
+              </div>
+              
+              <div class="credential-item">
+                <div class="credential-label">Email (логин):</div>
+                <div class="credential-value">${data.email}</div>
+              </div>
+              
+              <div class="credential-item">
+                <div class="credential-label">Пароль:</div>
+                <div class="credential-value">${data.password}</div>
+              </div>
+            </div>
+            
+            <div class="warning-box">
+              <strong>⚠️ Важно:</strong> Сохраните эти данные в безопасном месте. Рекомендуем изменить пароль после первого входа в систему.
+            </div>
+            
+            <div style="text-align: center;">
+              <a href="${data.loginUrl}" class="login-button">Войти в личный кабинет →</a>
+            </div>
+            
+            <p style="margin-top: 30px; color: #6b7280;">
+              Если у вас возникнут вопросы или потребуется помощь, наша служба поддержки всегда готова вам помочь.
+            </p>
+            
+            <p style="margin-top: 20px;">
+              С уважением,<br>
+              <strong>Команда Bunyod-Tour</strong>
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p><strong>Bunyod-Tour</strong> - Ваш надежный партнер в туристическом бизнесе</p>
+            <p style="margin-top: 10px;">© ${new Date().getFullYear()} Все права защищены</p>
+            <p style="margin-top: 15px;">
+              📧 Email: booking@bunyodtour.tj<br>
+              📞 Телефон: +992 XX XXX XXXX
+            </p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    await sendEmailWithSendGrid(email, subject, html);
+    console.log(`✅ Agent welcome email sent to ${email} via SendGrid`);
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending agent welcome email:', error);
+    throw error;
+  }
+}
+
 // Send simple test email
 export async function sendTestEmail(to: string) {
   const subject = 'Test Email from Bunyod-Tour';

@@ -42,6 +42,8 @@ import transferRoutes from './transferRoutes';
 import guideHireRoutes from './guideHireRoutes';
 // Test email system
 import testEmailRoutes from './testEmailRoutes';
+// B2B Partnership system
+import agentApplicationRoutes from './agentApplicationRoutes';
 
 // Remove old SQLite database routes (now using Prisma)
 
@@ -83,6 +85,7 @@ router.use('/tour-agents', tourAgentRoutes); // Tour agents management
 router.use('/transfers', transferRoutes); // Transfer requests management
 router.use('/guide-hire', guideHireRoutes); // Guide hiring system
 router.use('/test', testEmailRoutes); // Test email with PDF
+router.use('/agent-applications', agentApplicationRoutes); // B2B partnership applications
 router.use('/', objectStorageRoutes);
 
 // All data access now through Prisma models
