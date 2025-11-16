@@ -42,7 +42,7 @@ export class TourController {
       const localizedTours = limitedTours.map((tour: any) => 
         mapTour(tour, language, {
           includeRaw: req.query.includeRaw === 'true',
-          removeImages: true // Performance optimization for list view
+          removeImages: false // Keep images for display
         })
       );
 
