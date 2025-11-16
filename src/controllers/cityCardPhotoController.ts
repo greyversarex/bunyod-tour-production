@@ -9,8 +9,8 @@ export class CityCardPhotoController {
    */
   static async getAllCityCardPhotos(req: Request, res: Response, next: NextFunction) {
     try {
-      const photos = await withRetry(() => prisma.cityCardPhoto.findMany({
-        where: { isActive: true },
+      const photos = await withRetry(() => prisma.city_card_photos.findMany({
+        where: { is_active: true },
         include: {
           city: {
             select: {
@@ -21,7 +21,7 @@ export class CityCardPhotoController {
             }
           }
         },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { sort_order: 'asc' }
       }));
 
       // Add imageUrl field with absolute path
@@ -57,7 +57,7 @@ export class CityCardPhotoController {
         });
       }
 
-      const photo = await withRetry(() => prisma.cityCardPhoto.findUnique({
+      const photo = await withRetry(() => prisma.city_card_photos.findUnique({
         where: { id: photoId },
         include: {
           city: true
@@ -126,11 +126,11 @@ export class CityCardPhotoController {
 
       const imagePath = (req.file as any)?.path;
 
-      const photo = await withRetry(() => prisma.cityCardPhoto.create({
+      const photo = await withRetry(() => prisma.city_card_photos.create({
         data: {
           cityId: cityIdNum,
           image: imagePath,
-          sortOrder: parseInt(sortOrder) || 0,
+          sort_order: parseInt(sortOrder) || 0,
           isActive
         },
         include: {
@@ -196,10 +196,10 @@ export class CityCardPhotoController {
         updateData.cityId = cityIdNum;
       }
 
-      if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder);
-      if (isActive !== undefined) updateData.isActive = isActive;
+      if (sortOrder !== undefined) updateData.sort_order = parseInt(sortOrder);
+      if (isActive !== undefined) updateData.is_active = isActive;
 
-      const photo = await withRetry(() => prisma.cityCardPhoto.update({
+      const photo = await withRetry(() => prisma.city_card_photos.update({
         where: { id: photoId },
         data: updateData,
         include: {
@@ -240,7 +240,7 @@ export class CityCardPhotoController {
         });
       }
 
-      await withRetry(() => prisma.cityCardPhoto.delete({
+      await withRetry(() => prisma.city_card_photos.delete({
         where: { id: photoId }
       }));
 

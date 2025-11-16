@@ -304,7 +304,7 @@ export const createTourGuide = async (req: Request, res: Response): Promise<void
         login: guide.login,
         email: guide.email,
         phone: guide.phone,
-        isActive: guide.isActive,
+        is_active: guide.is_active,
         createdAt: guide.createdAt
       },
       message: 'Тургид создан'
@@ -329,7 +329,7 @@ export const getAllTourGuides = async (req: Request, res: Response): Promise<voi
         login: true,
         email: true,
         phone: true,
-        isActive: true,
+        is_active: true,
         createdAt: true,
       },
       orderBy: {
@@ -374,7 +374,7 @@ export const updateTourGuide = async (req: Request, res: Response): Promise<void
     if (login !== undefined) updateData.login = login;
     if (email !== undefined) updateData.email = email;
     if (phone !== undefined) updateData.phone = phone;
-    if (isActive !== undefined) updateData.isActive = isActive;
+    if (isActive !== undefined) updateData.is_active = isActive;
 
     // Хэшировать новый пароль если указан
     if (password && password.length > 0) {
@@ -390,7 +390,7 @@ export const updateTourGuide = async (req: Request, res: Response): Promise<void
         login: true,
         email: true,
         phone: true,
-        isActive: true,
+        is_active: true,
         updatedAt: true
       }
     });

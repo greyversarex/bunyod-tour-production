@@ -10,7 +10,7 @@ export class CityController {
   static async getAllCities(req: Request, res: Response, next: NextFunction) {
     try {
       const cities = await withRetry(() => prisma.city.findMany({
-        where: { isActive: true },
+        where: { is_active: true },
         include: {
           country: true
         },
@@ -50,7 +50,7 @@ export class CityController {
       const cities = await withRetry(() => prisma.city.findMany({
         where: {
           countryId: countryIdNum,
-          isActive: true
+          is_active: true
         },
         include: {
           country: true
@@ -196,7 +196,7 @@ export class CityController {
       if (name !== undefined) updateData.name = name;
       if (nameRu !== undefined) updateData.nameRu = nameRu;
       if (nameEn !== undefined) updateData.nameEn = nameEn;
-      if (isActive !== undefined) updateData.isActive = isActive;
+      if (isActive !== undefined) updateData.is_active = isActive;
 
       if (countryId !== undefined) {
         const countryIdNum = parseInt(countryId);

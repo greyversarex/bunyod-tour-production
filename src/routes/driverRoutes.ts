@@ -133,7 +133,7 @@ router.get('/my-events', async (req, res) => {
     // Получаем все туры с событиями, где назначен данный водитель
     const tours = await prisma.tour.findMany({
       where: {
-        isActive: true,
+        is_active: true,
         itinerary: {
           contains: `"driverId":${driverId}`
         }

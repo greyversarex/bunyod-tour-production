@@ -32,13 +32,13 @@ export class AdminController {
       }
 
       // Найти администратора по имени пользователя с retry logic
-      const admin = await withRetry(() => prisma.admin.findUnique({
+      const admin = await withRetry(() => prisma.admins.findUnique({
         where: { username: username.trim() }
       }));
       
       console.log('👤 Admin found:', admin ? 'yes' : 'no', admin?.username);
 
-      if (!admin || !admin.isActive) {
+      if (!admin || !admin.is_active) {
         return res.status(401).json({
           success: false,
           error: 'Invalid credentials'
@@ -74,7 +74,7 @@ export class AdminController {
           admin: {
             id: admin.id,
             username: admin.username,
-            fullName: admin.fullName,
+            fullName: admin.full_name,
             role: admin.role
           }
         },
@@ -104,7 +104,7 @@ export class AdminController {
       // Хэшировать пароль
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const admin = await prisma.admin.create({
+      const admin = await prisma.admins.create({
         data: {
           username,
           email,
@@ -120,7 +120,7 @@ export class AdminController {
           id: admin.id,
           username: admin.username,
           email: admin.email,
-          fullName: admin.fullName,
+          fullName: admin.full_name,
           role: admin.role
         },
         message: 'Admin created successfully'
@@ -147,11 +147,11 @@ export class AdminController {
       }
 
       const decoded = jwt.verify(token, JWT_SECRET) as any;
-      const admin = await prisma.admin.findUnique({
+      const admin = await prisma.admins.findUnique({
         where: { id: decoded.adminId }
       });
 
-      if (!admin || !admin.isActive) {
+      if (!admin || !admin.is_active) {
         return res.status(401).json({
           success: false,
           error: 'Invalid token'
@@ -164,7 +164,7 @@ export class AdminController {
           admin: {
             id: admin.id,
             username: admin.username,
-            fullName: admin.fullName,
+            fullName: admin.full_name,
             role: admin.role
           }
         },
@@ -191,7 +191,7 @@ export class AdminController {
 
       // Загружаем курсы валют для конвертации в TJS
       const exchangeRates = await prisma.exchangeRate.findMany({
-        where: { isActive: true }
+        where: { is_active: true }
       });
       
       const ratesMap: { [key: string]: number } = {};
@@ -231,9 +231,9 @@ export class AdminController {
 
       // Считаем только оплаченные заказы
       const [toursCount, paidOrdersCount, hotelsCount, guidesCount, reviewsCount, activeCustomersCount] = await Promise.all([
-        prisma.tour.count({ where: { isActive: true } }),
+        prisma.tour.count({ where: { is_active: true } }),
         prisma.order.count({ where: { paymentStatus: 'paid' } }),
-        prisma.hotel.count({ where: { isActive: true } }),
+        prisma.hotel.count({ where: { is_active: true } }),
         prisma.guide.count(),
         prisma.review.count(),
         // Активные клиенты - те, кто сделал хотя бы один оплаченный заказ
@@ -355,11 +355,11 @@ export const adminAuthMiddleware = async (req: Request, res: Response, next: Nex
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const admin = await prisma.admin.findUnique({
+    const admin = await prisma.admins.findUnique({
       where: { id: decoded.adminId }
     });
 
-    if (!admin || !admin.isActive) {
+    if (!admin || !admin.is_active) {
       res.status(401).json({
         success: false,
         error: 'Invalid token'

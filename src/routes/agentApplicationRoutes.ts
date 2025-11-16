@@ -273,7 +273,7 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
     }
     
     // Проверка существующего пользователя с таким email
-    const existingUser = await prisma.agentUser.findUnique({
+    const existingUser = await prisma.agent_users.findUnique({
       where: { email: application.email }
     });
     
@@ -285,13 +285,13 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
     }
     
     // Генерация уникального ID для агента (формат: BT000001)
-    const lastAgent = await prisma.agentUser.findFirst({
+    const lastAgent = await prisma.agent_users.findFirst({
       orderBy: { id: 'desc' }
     });
     
     let nextNumber = 1;
-    if (lastAgent && lastAgent.uniqueId.startsWith('BT')) {
-      const numPart = lastAgent.uniqueId.replace('BT', '');
+    if (lastAgent && lastAgent.unique_id.startsWith('BT')) {
+      const numPart = lastAgent.unique_id.replace('BT', '');
       const parsed = parseInt(numPart);
       nextNumber = isNaN(parsed) ? 1 : parsed + 1;
     }
@@ -302,16 +302,16 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Создание аккаунта турагента
-    const agentUser = await prisma.agentUser.create({
+    const agentUser = await prisma.agent_users.create({
       data: {
         uniqueId,
-        fullName: application.fullName,
+        fullName: application.full_name,
         email: application.email,
         password: hashedPassword,
         citizenship: application.citizenship,
         address: application.address,
         phone: application.phone,
-        isActive: true
+        is_active: true
       }
     });
     
@@ -324,7 +324,7 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
     // Отправка письма с данными для входа через SendGrid
     try {
       await sendAgentWelcomeEmail(application.email, {
-        fullName: application.fullName,
+        fullName: application.full_name,
         uniqueId,
         email: application.email,
         password,
@@ -339,9 +339,9 @@ router.post('/:id/approve', adminAuthMiddleware, async (req, res) => {
       success: true,
       message: 'Заявка одобрена, аккаунт создан',
       agentUser: {
-        uniqueId: agentUser.uniqueId,
+        uniqueId: agentUser.unique_id,
         email: agentUser.email,
-        fullName: agentUser.fullName
+        fullName: agentUser.full_name
       }
     });
   } catch (error: any) {

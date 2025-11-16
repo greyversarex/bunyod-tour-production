@@ -7,7 +7,7 @@ const convertCurrency = async (amount: number, fromCurrency: string, toCurrency:
   try {
     if (fromCurrency === toCurrency) {
       const currency = await prisma.exchangeRate.findFirst({
-        where: { currency: toCurrency, isActive: true }
+        where: { currency: toCurrency, is_active: true }
       });
       return {
         convertedAmount: amount,
@@ -19,10 +19,10 @@ const convertCurrency = async (amount: number, fromCurrency: string, toCurrency:
     // Получаем курсы валют
     const [fromRate, toRate] = await Promise.all([
       prisma.exchangeRate.findFirst({ 
-        where: { currency: fromCurrency, isActive: true } 
+        where: { currency: fromCurrency, is_active: true } 
       }),
       prisma.exchangeRate.findFirst({ 
-        where: { currency: toCurrency, isActive: true } 
+        where: { currency: toCurrency, is_active: true } 
       })
     ]);
 
@@ -88,7 +88,7 @@ export const getGuideAvailability = async (req: Request, res: Response) => {
         currency: true,
         availableDates: true,
         isHireable: true,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -100,7 +100,7 @@ export const getGuideAvailability = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!guide.isActive || !guide.isHireable) {
+    if (!guide.is_active || !guide.isHireable) {
       res.status(400).json({
         success: false,
         message: 'Тургид недоступен для найма'
@@ -264,7 +264,7 @@ export const createGuideHireRequest = async (req: Request, res: Response) => {
         currency: true,
         availableDates: true,
         isHireable: true,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -276,7 +276,7 @@ export const createGuideHireRequest = async (req: Request, res: Response) => {
       return;
     }
 
-    if (!guide.isActive || !guide.isHireable) {
+    if (!guide.is_active || !guide.isHireable) {
       res.status(400).json({
         success: false,
         message: 'Тургид недоступен для найма'
@@ -645,7 +645,7 @@ export const getAvailableGuides = async (req: Request, res: Response) => {
 
     const guides = await prisma.guide.findMany({
       where: {
-        isActive: true,
+        is_active: true,
         isHireable: true,
         pricePerDay: {
           not: null,

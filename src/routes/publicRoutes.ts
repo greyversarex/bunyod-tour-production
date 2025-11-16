@@ -17,7 +17,7 @@ router.get('/test', (req, res) => {
 // Простой тест CMS блоков
 router.get('/test-cms', async (req, res) => {
   try {
-    const blocks = await prisma.contentBlock.findMany({
+    const blocks = await prisma.content_blocks.findMany({
       take: 3
     });
     

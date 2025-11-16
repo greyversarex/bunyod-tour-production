@@ -69,7 +69,7 @@ export const getActiveTourAgents = async (req: Request, res: Response): Promise<
 
     const tourAgents = await prisma.tourAgent.findMany({
       where: {
-        isActive: true
+        is_active: true
       },
       include: {
         country: true,
@@ -146,7 +146,7 @@ export const getActiveTourAgentById = async (req: Request, res: Response): Promi
     const tourAgent = await prisma.tourAgent.findFirst({
       where: {
         id: parseInt(id),
-        isActive: true // Только активные турагенты для публичного доступа
+        is_active: true // Только активные турагенты для публичного доступа
       },
       include: {
         country: true,
@@ -219,7 +219,7 @@ export const createTourAgent = async (req: Request, res: Response): Promise<void
       photo: photoPath,
       countryId: countryId ? parseInt(countryId) : null,
       cityId: cityId ? parseInt(cityId) : null,
-      isActive: isActive !== undefined ? isActive === 'true' : true
+      is_active: isActive !== undefined ? isActive === 'true' : true
     };
 
     const newTourAgent = await prisma.tourAgent.create({
@@ -302,7 +302,7 @@ export const updateTourAgent = async (req: Request, res: Response): Promise<void
       photo: photoPath,
       countryId: countryId ? parseInt(countryId) : existingTourAgent.countryId,
       cityId: cityId ? parseInt(cityId) : existingTourAgent.cityId,
-      isActive: isActive !== undefined ? isActive === 'true' : existingTourAgent.isActive
+      is_active: isActive !== undefined ? isActive === 'true' : existingTourAgent.is_active
     };
 
     const updatedTourAgent = await prisma.tourAgent.update({
@@ -392,14 +392,14 @@ export const toggleTourAgentStatus = async (req: Request, res: Response): Promis
     // Переключаем статус
     const updatedTourAgent = await prisma.tourAgent.update({
       where: { id: parseInt(id) },
-      data: { isActive: !currentTourAgent.isActive }
+      data: { is_active: !currentTourAgent.is_active }
     });
 
-    console.log(`✅ Статус турагента изменён на: ${updatedTourAgent.isActive ? 'активен' : 'неактивен'}`);
+    console.log(`✅ Статус турагента изменён на: ${updatedTourAgent.is_active ? 'активен' : 'неактивен'}`);
 
     res.json({
       success: true,
-      message: `Турагент ${updatedTourAgent.isActive ? 'активирован' : 'деактивирован'}`,
+      message: `Турагент ${updatedTourAgent.is_active ? 'активирован' : 'деактивирован'}`,
       data: updatedTourAgent
     });
   } catch (error) {

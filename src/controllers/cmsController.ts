@@ -14,12 +14,12 @@ export class CMSController {
       const language = getLanguageFromRequest(req);
       const where = section ? { section: section as string } : {};
 
-      const blocks = await prisma.contentBlock.findMany({
+      const blocks = await prisma.content_blocks.findMany({
         where: {
           ...where,
-          isActive: true
+          is_active: true
         },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { sort_order: 'asc' }
       });
 
       const parsedBlocks = blocks.map((block: any) => ({
@@ -55,14 +55,14 @@ export class CMSController {
         });
       }
 
-      const block = await prisma.contentBlock.create({
+      const block = await prisma.content_blocks.create({
         data: {
           key,
           title: JSON.stringify(title),
           content: JSON.stringify(content),
           type,
           section,
-          sortOrder: sortOrder || 0,
+          sort_order: sortOrder || 0,
           metadata: metadata ? JSON.stringify(metadata) : null
         }
       });
@@ -106,11 +106,11 @@ export class CMSController {
       if (content) updateData.content = JSON.stringify(content);
       if (type) updateData.type = type;
       if (section) updateData.section = section;
-      if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
+      if (sortOrder !== undefined) updateData.sort_order = sortOrder;
       if (metadata) updateData.metadata = JSON.stringify(metadata);
-      if (isActive !== undefined) updateData.isActive = isActive;
+      if (isActive !== undefined) updateData.is_active = isActive;
 
-      const block = await prisma.contentBlock.update({
+      const block = await prisma.content_blocks.update({
         where: { id },
         data: updateData
       });
@@ -148,7 +148,7 @@ export class CMSController {
         });
       }
 
-      await prisma.contentBlock.delete({
+      await prisma.content_blocks.delete({
         where: { id }
       });
 
@@ -172,10 +172,10 @@ export class CMSController {
       const { group } = req.query;
       const where = group ? { group: group as string } : {};
 
-      const settings = await prisma.siteSetting.findMany({
+      const settings = await prisma.site_settings.findMany({
         where: {
           ...where,
-          isActive: true
+          is_active: true
         },
         orderBy: { key: 'asc' }
       });
@@ -214,7 +214,7 @@ export class CMSController {
 
       const settingValue = type === 'json' ? JSON.stringify(value) : value;
 
-      const setting = await prisma.siteSetting.upsert({
+      const setting = await prisma.site_settings.upsert({
         where: { key },
         update: {
           value: settingValue,
@@ -254,9 +254,9 @@ export class CMSController {
    */
   static async getPages(req: Request, res: Response, next: NextFunction) {
     try {
-      const pages = await prisma.page.findMany({
+      const pages = await prisma.pages.findMany({
         where: { isPublished: true },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { sort_order: 'asc' }
       });
 
       const parsedPages = pages.map((page: any) => ({
@@ -293,7 +293,7 @@ export class CMSController {
         });
       }
 
-      const page = await prisma.page.create({
+      const page = await prisma.pages.create({
         data: {
           slug,
           title: JSON.stringify(title),
@@ -301,7 +301,7 @@ export class CMSController {
           metaTitle: metaTitle ? JSON.stringify(metaTitle) : null,
           metaDesc: metaDesc ? JSON.stringify(metaDesc) : null,
           template: template || 'default',
-          sortOrder: sortOrder || 0
+          sort_order: sortOrder || 0
         }
       });
 
@@ -346,10 +346,10 @@ export class CMSController {
       if (metaTitle) updateData.metaTitle = JSON.stringify(metaTitle);
       if (metaDesc) updateData.metaDesc = JSON.stringify(metaDesc);
       if (template) updateData.template = template;
-      if (sortOrder !== undefined) updateData.sortOrder = sortOrder;
+      if (sortOrder !== undefined) updateData.sort_order = sortOrder;
       if (isPublished !== undefined) updateData.isPublished = isPublished;
 
-      const page = await prisma.page.update({
+      const page = await prisma.pages.update({
         where: { id },
         data: updateData
       });
@@ -380,14 +380,14 @@ export class CMSController {
   static async getMenuItems(req: Request, res: Response, next: NextFunction) {
     try {
       const menuItems = await prisma.menuItem.findMany({
-        where: { isActive: true, parentId: null },
+        where: { is_active: true, parentId: null },
         include: {
           children: {
-            where: { isActive: true },
-            orderBy: { sortOrder: 'asc' }
+            where: { is_active: true },
+            orderBy: { sort_order: 'asc' }
           }
         },
-        orderBy: { sortOrder: 'asc' }
+        orderBy: { sort_order: 'asc' }
       });
 
       const parsedMenuItems = menuItems.map((item: any) => ({
@@ -431,7 +431,7 @@ export class CMSController {
           url,
           type,
           parentId: parentId || null,
-          sortOrder: sortOrder || 0
+          sort_order: sortOrder || 0
         }
       });
 
@@ -468,7 +468,7 @@ export class CMSController {
           type,
           parentId: parentId !== undefined ? parentId : undefined,
           sortOrder,
-          isActive: isActive ?? undefined
+          is_active: isActive ?? undefined
         }
       });
 

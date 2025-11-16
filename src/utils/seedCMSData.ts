@@ -10,7 +10,7 @@ export async function seedCMSData() {
     const hashedPassword = await bcrypt.hash('admin123', 10);
     
     try {
-      await prisma.admin.create({
+      await prisma.admins.create({
         data: {
           username: 'admin',
           email: 'admin@bunyod-tour.com',
@@ -46,7 +46,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'hero',
-        sortOrder: 1
+        sort_order: 1
       },
       {
         key: 'hero_subtitle',
@@ -68,7 +68,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'hero',
-        sortOrder: 2
+        sort_order: 2
       },
       {
         key: 'tours_section_title',
@@ -90,7 +90,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'tours',
-        sortOrder: 1
+        sort_order: 1
       },
       {
         key: 'planning_flexibility_title',
@@ -112,7 +112,7 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'features',
-        sortOrder: 1
+        sort_order: 1
       },
       {
         key: 'planning_flexibility_desc',
@@ -134,13 +134,13 @@ export async function seedCMSData() {
         }),
         type: 'text',
         section: 'features',
-        sortOrder: 2
+        sort_order: 2
       }
     ];
 
     for (const block of contentBlocks) {
       try {
-        await prisma.contentBlock.create({ data: block });
+        await prisma.content_blocks.create({ data: block });
       } catch (error) {
         console.log(`⚠️ Content block ${block.key} already exists`);
       }
@@ -216,7 +216,7 @@ export async function seedCMSData() {
 
     for (const setting of siteSettings) {
       try {
-        await prisma.siteSetting.upsert({
+        await prisma.site_settings.upsert({
           where: { key: setting.key },
           update: setting,
           create: setting
@@ -248,7 +248,7 @@ export async function seedCMSData() {
           zh: '<h1>关于我们</h1><p>Bunyod-Tour是塔吉克斯坦领先的旅游公司。</p>'
         }),
         template: 'default',
-        sortOrder: 1
+        sort_order: 1
       },
       {
         slug: 'services',
@@ -269,13 +269,13 @@ export async function seedCMSData() {
           zh: '<h1>我们的服务</h1><p>我们提供广泛的旅游服务。</p>'
         }),
         template: 'default',
-        sortOrder: 2
+        sort_order: 2
       }
     ];
 
     for (const page of pages) {
       try {
-        await prisma.page.create({ data: page });
+        await prisma.pages.create({ data: page });
       } catch (error) {
         console.log(`⚠️ Page ${page.slug} already exists`);
       }

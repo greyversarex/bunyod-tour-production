@@ -57,7 +57,7 @@ export const getAllCities = async (req: Request, res: Response): Promise<void> =
     const { countryId } = req.query;
     
     const where: any = {
-      isActive: true,
+      is_active: true,
     };
     
     if (countryId && typeof countryId === 'string') {
@@ -165,7 +165,7 @@ export const createCity = async (req: Request, res: Response): Promise<void> => 
         countryId: parseInt(countryId),
         cityId,
         daysCount,
-        isActive: true,
+        is_active: true,
       },
       include: {
         city: {
@@ -225,7 +225,7 @@ export const updateCity = async (req: Request, res: Response): Promise<void> => 
         });
         return;
       }
-      updateData.isActive = isActive;
+      updateData.is_active = isActive;
     }
     
     const customCity = await prisma.customTourCity.update({

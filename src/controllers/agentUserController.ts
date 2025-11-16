@@ -18,7 +18,7 @@ export class AgentUserController {
         });
       }
       
-      const agent = await prisma.agentUser.findUnique({
+      const agent = await prisma.agent_users.findUnique({
         where: { email: email.toLowerCase().trim() }
       });
       
@@ -29,7 +29,7 @@ export class AgentUserController {
         });
       }
       
-      if (!agent.isActive) {
+      if (!agent.is_active) {
         return res.status(403).json({
           success: false,
           message: 'Аккаунт деактивирован. Свяжитесь с администратором.'
@@ -56,7 +56,7 @@ export class AgentUserController {
       const token = jwt.sign(
         {
           agentId: agent.id,
-          uniqueId: agent.uniqueId,
+          uniqueId: agent.unique_id,
           email: agent.email
         },
         process.env.JWT_SECRET,
@@ -69,8 +69,8 @@ export class AgentUserController {
         token,
         agent: {
           id: agent.id,
-          uniqueId: agent.uniqueId,
-          fullName: agent.fullName,
+          uniqueId: agent.unique_id,
+          fullName: agent.full_name,
           email: agent.email
         }
       });
@@ -92,7 +92,7 @@ export class AgentUserController {
         });
       }
       
-      const agent = await prisma.agentUser.findUnique({
+      const agent = await prisma.agent_users.findUnique({
         where: { id: req.agent.id },
         select: {
           id: true,
@@ -102,7 +102,7 @@ export class AgentUserController {
           phone: true,
           citizenship: true,
           address: true,
-          isActive: true,
+          is_active: true,
           createdAt: true,
           _count: {
             select: {
@@ -123,7 +123,7 @@ export class AgentUserController {
         success: true,
         agent: {
           ...agent,
-          totalBookings: agent._count.agentTourBookings
+          totalBookings: agent._count.agent_tour_bookings
         }
       });
     } catch (error) {
@@ -166,14 +166,14 @@ export class AgentUserController {
         });
       }
       
-      const lastBooking = await prisma.agentTourBooking.findFirst({
+      const lastBooking = await prisma.agent_tour_bookings.findFirst({
         orderBy: { id: 'desc' },
         select: { registrationNumber: true }
       });
       
       let nextNumber = 1;
-      if (lastBooking && lastBooking.registrationNumber) {
-        const match = lastBooking.registrationNumber.match(/BTB(\d+)/);
+      if (lastBooking && lastBooking.registration_number) {
+        const match = lastBooking.registration_number.match(/BTB(\d+)/);
         if (match) {
           const parsed = parseInt(match[1]);
           nextNumber = isNaN(parsed) ? 1 : parsed + 1;
@@ -182,7 +182,7 @@ export class AgentUserController {
       
       const registrationNumber = `BTB${String(nextNumber).padStart(6, '0')}`;
       
-      const booking = await prisma.agentTourBooking.create({
+      const booking = await prisma.agent_tour_bookings.create({
         data: {
           agentUserId: req.agent.id,
           registrationNumber,
@@ -201,11 +201,11 @@ export class AgentUserController {
         message: 'Заявка успешно создана',
         booking: {
           id: booking.id,
-          registrationNumber: booking.registrationNumber,
-          tourName: booking.tourName,
-          tourStartDate: booking.tourStartDate,
-          tourEndDate: booking.tourEndDate,
-          touristCount: booking.touristCount,
+          registrationNumber: booking.registration_number,
+          tourName: booking.tour_name,
+          tourStartDate: booking.tour_start_date,
+          tourEndDate: booking.tour_end_date,
+          touristCount: booking.tourist_count,
           status: booking.status,
           createdAt: booking.createdAt
         }
@@ -248,7 +248,7 @@ export class AgentUserController {
       }
       
       const [bookings, total] = await Promise.all([
-        prisma.agentTourBooking.findMany({
+        prisma.agent_tour_bookings.findMany({
           where,
           orderBy: { createdAt: 'desc' },
           skip,
@@ -268,7 +268,7 @@ export class AgentUserController {
             updatedAt: true
           }
         }),
-        prisma.agentTourBooking.count({ where })
+        prisma.agent_tour_bookings.count({ where })
       ]);
       
       return res.json({

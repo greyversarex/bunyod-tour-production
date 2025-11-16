@@ -6,7 +6,7 @@ import prisma from '../config/database';
 export const getExchangeRates = async (req: Request, res: Response) => {
     try {
         const rates = await prisma.exchangeRate.findMany({
-            where: { isActive: true },
+            where: { is_active: true },
             orderBy: { currency: 'asc' }
         });
 
@@ -34,7 +34,7 @@ export const getExchangeRates = async (req: Request, res: Response) => {
 export const getExchangeRatesMap = async (req: Request, res: Response) => {
     try {
         const rates = await prisma.exchangeRate.findMany({
-            where: { isActive: true }
+            where: { is_active: true }
         });
         
         const ratesMap: { [key: string]: { rate: number, symbol: string, name: string } } = {};
@@ -78,7 +78,7 @@ export const updateExchangeRate = async (req: Request, res: Response) => {
                 rate,
                 symbol,
                 name,
-                isActive: true
+                is_active: true
             }
         });
 
@@ -105,35 +105,35 @@ export const initializeExchangeRates = async (req: Request, res: Response) => {
                 rate: 1,
                 symbol: 'tjs',
                 name: 'Сомони',
-                isActive: true
+                is_active: true
             },
             {
                 currency: 'USD',
                 rate: 11.0,
                 symbol: '$',
                 name: 'Доллар США',
-                isActive: true
+                is_active: true
             },
             {
                 currency: 'EUR',
                 rate: 12.0,
                 symbol: '€',
                 name: 'Евро',
-                isActive: true
+                is_active: true
             },
             {
                 currency: 'RUB',
                 rate: 0.12,
                 symbol: '₽',
                 name: 'Российский рубль',
-                isActive: true
+                is_active: true
             },
             {
                 currency: 'CNY',
                 rate: 1.5,
                 symbol: '¥',
                 name: 'Китайский юань',
-                isActive: true
+                is_active: true
             }
         ];
 
@@ -237,7 +237,7 @@ export const createExchangeRate = async (req: Request, res: Response) => {
                 rate: parseFloat(rate),
                 symbol,
                 name,
-                isActive: true
+                is_active: true
             }
         });
 
@@ -271,7 +271,7 @@ export const convertPrice = async (req: Request, res: Response) => {
         const rate = await prisma.exchangeRate.findUnique({
             where: { 
                 currency: targetCurrency as string,
-                isActive: true
+                is_active: true
             }
         });
 

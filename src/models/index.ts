@@ -349,7 +349,7 @@ export class TourModel {
     if (data.location !== undefined) updateData.location = data.location;
     if (data.services !== undefined) updateData.services = data.services;
     if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
-    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft;
     if (data.startDate !== undefined) updateData.startDate = data.startDate;
     if (data.endDate !== undefined) updateData.endDate = data.endDate;
@@ -829,7 +829,7 @@ export class TourBlockModel {
         }
       },
       orderBy: {
-        sortOrder: 'asc'
+        sort_order: 'asc'
       }
     });
   }
@@ -863,7 +863,7 @@ export class TourBlockModel {
         title: JSON.stringify(data.title),
         description: JSON.stringify(data.description),
         slug: data.slug,
-        sortOrder: data.sortOrder
+        sort_order: data.sort_order
       }
     });
   }
@@ -876,7 +876,7 @@ export class TourBlockModel {
     if (data.title) updateData.title = JSON.stringify(data.title);
     if (data.description) updateData.description = JSON.stringify(data.description);
     if (data.slug) updateData.slug = data.slug;
-    if (data.sortOrder) updateData.sortOrder = data.sortOrder;
+    if (data.sort_order) updateData.sort_order = data.sort_order;
 
     return await prisma.tour_blocks.update({
       where: { id },
@@ -1022,7 +1022,7 @@ export class HotelModel {
         amenities: data.amenities ? (typeof data.amenities === 'string' ? data.amenities : JSON.stringify(data.amenities)) : null,
         roomTypes: data.roomTypes ? (typeof data.roomTypes === 'string' ? data.roomTypes : JSON.stringify(data.roomTypes)) : null, // Категории номеров с ценами
         mealTypes: data.mealTypes ? (typeof data.mealTypes === 'string' ? data.mealTypes : JSON.stringify(data.mealTypes)) : null, // НОВОЕ: Типы питания с ценами
-        isActive: data.isActive !== undefined ? data.isActive : true,
+        is_active: data.is_active !== undefined ? data.is_active : true,
         isDraft: data.isDraft !== undefined ? data.isDraft : false // 📝 Поддержка черновиков
       }
     });
@@ -1066,7 +1066,7 @@ export class HotelModel {
     if (data.amenities) updateData.amenities = typeof data.amenities === 'string' ? data.amenities : JSON.stringify(data.amenities);
     if (data.roomTypes) updateData.roomTypes = typeof data.roomTypes === 'string' ? data.roomTypes : JSON.stringify(data.roomTypes); // Категории номеров с ценами
     if (data.mealTypes) updateData.mealTypes = typeof data.mealTypes === 'string' ? data.mealTypes : JSON.stringify(data.mealTypes); // НОВОЕ: Типы питания с ценами
-    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.is_active !== undefined) updateData.is_active = data.is_active;
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft; // 📝 Поддержка черновиков
 
     const hotel = await prisma.hotels.findUnique({ where: { id } });
@@ -1180,7 +1180,7 @@ export class TransferRequestModel {
   static async create(data: any) {
     return await prisma.transfer_requests.create({
       data: {
-        fullName: data.fullName,
+        fullName: data.full_name,
         email: data.email || null,
         phone: data.phone || null,
         pickupLocation: data.pickupLocation,
@@ -1211,7 +1211,7 @@ export class TransferRequestModel {
   static async update(id: number, data: any) {
     const updateData: any = {};
     
-    if (data.fullName !== undefined) updateData.fullName = data.fullName;
+    if (data.full_name !== undefined) updateData.full_name = data.full_name;
     if (data.email !== undefined) updateData.email = data.email;
     if (data.phone !== undefined) updateData.phone = data.phone;
     if (data.pickupLocation !== undefined) updateData.pickupLocation = data.pickupLocation;
@@ -1222,7 +1222,7 @@ export class TransferRequestModel {
     if (data.vehicleType !== undefined) updateData.vehicleType = data.vehicleType;
     if (data.specialRequests !== undefined) updateData.specialRequests = data.specialRequests;
     if (data.status !== undefined) updateData.status = data.status;
-    if (data.adminNotes !== undefined) updateData.adminNotes = data.adminNotes;
+    if (data.admin_notes !== undefined) updateData.admin_notes = data.admin_notes;
     if (data.estimatedPrice !== undefined) updateData.estimatedPrice = data.estimatedPrice;
     if (data.finalPrice !== undefined) updateData.finalPrice = data.finalPrice;
     if (data.assignedDriverId !== undefined) updateData.assignedDriverId = data.assignedDriverId;
@@ -1335,10 +1335,10 @@ export class PriceCalculatorModel {
    */
   static async findAll() {
     return await prisma.price_calculator_components.findMany({
-      where: { isActive: true },
+      where: { is_active: true },
       orderBy: [
         { category: 'asc' },
-        { sortOrder: 'asc' },
+        { sort_order: 'asc' },
         { name: 'asc' }
       ]
     });
@@ -1366,7 +1366,7 @@ export class PriceCalculatorModel {
         price: data.price,
         unit: data.unit,
         description: data.description || null,
-        sortOrder: data.sortOrder || 0
+        sort_order: data.sort_order || 0
       }
     });
   }
@@ -1383,8 +1383,8 @@ export class PriceCalculatorModel {
         price: data.price,
         unit: data.unit,
         description: data.description,
-        sortOrder: data.sortOrder,
-        isActive: data.isActive
+        sort_order: data.sort_order,
+        is_active: data.is_active
       }
     });
   }
@@ -1404,37 +1404,37 @@ export class PriceCalculatorModel {
   static async initializeDefaults() {
     const defaultComponents = [
       // Проживание
-      { key: 'accommodation_std', category: 'accommodation', name: 'Проживание, STD, базовая опция (хостел, гестхоусы)', nameEn: 'Accommodation, STD, base option (guesthouses)', price: 250.0, unit: 'человек/день', sortOrder: 1 },
+      { key: 'accommodation_std', category: 'accommodation', name: 'Проживание, STD, базовая опция (хостел, гестхоусы)', nameEn: 'Accommodation, STD, base option (guesthouses)', price: 250.0, unit: 'человек/день', sort_order: 1 },
       
       // Гиды/Сопровождение
-      { key: 'guide_local', category: 'guides', name: 'Тур-гид, местный', nameEn: 'Tour Guide, local', price: 500.0, unit: 'единица', sortOrder: 1 },
-      { key: 'guide_vip', category: 'guides', name: 'Тур-гид, VIP', nameEn: 'VIP Tour Guide', price: 1000.0, unit: 'единица', sortOrder: 2 },
-      { key: 'guide_regional', category: 'guides', name: 'Тур-гид, региональный', nameEn: 'Regional Tour Guide', price: 600.0, unit: 'единица', sortOrder: 3 },
+      { key: 'guide_local', category: 'guides', name: 'Тур-гид, местный', nameEn: 'Tour Guide, local', price: 500.0, unit: 'единица', sort_order: 1 },
+      { key: 'guide_vip', category: 'guides', name: 'Тур-гид, VIP', nameEn: 'VIP Tour Guide', price: 1000.0, unit: 'единица', sort_order: 2 },
+      { key: 'guide_regional', category: 'guides', name: 'Тур-гид, региональный', nameEn: 'Regional Tour Guide', price: 600.0, unit: 'единица', sort_order: 3 },
       
       // Local_transport (входные билеты и транспорт)
-      { key: 'train_uzbekistan', category: 'local_transport', name: 'Билеты ЖД по Узбекистану', nameEn: 'Train tickets in Uzbekistan', price: 380.0, unit: 'человек/час', sortOrder: 1 },
-      { key: 'ticket_rudaki', category: 'local_transport', name: 'Входной билет в комплекс Рудаки, Пенджикент', nameEn: 'Entrance ticket to Rudaki Complex, Panjakent', price: 30.0, unit: 'человек/час', sortOrder: 2 },
-      { key: 'ticket_kuli', category: 'local_transport', name: 'Входной билет в Кули (аквапрак) Душанбе', nameEn: 'Entrance tickets to Kuli (Aquapark) Dushanbe', price: 150.0, unit: 'человек/час', sortOrder: 3 },
-      { key: 'ticket_bokhtar', category: 'local_transport', name: 'Входные билеты в объектах г.Бохтар', nameEn: 'Entrance tickets to visiting objects of Bokhtar city', price: 40.0, unit: 'человек/час', sortOrder: 4 },
-      { key: 'ticket_hisor', category: 'local_transport', name: 'Входные билеты в объектах Гиссарской Крепости', nameEn: 'Entrance tickets to objects of Hisor Fortress', price: 90.0, unit: 'человек/час', sortOrder: 5 },
-      { key: 'ticket_istaravshan', category: 'local_transport', name: 'Входные билеты в объектах г.Истаравшан', nameEn: 'Entrance tickets to objects of Istaravshan', price: 50.0, unit: 'человек/час', sortOrder: 6 },
-      { key: 'flight_khujand', category: 'local_transport', name: 'Авиабилет на внутренний рейс, Худжанд', nameEn: 'Flight tickets to domestic lines, Khujand', price: 450.0, unit: 'человек/час', sortOrder: 7 },
-      { key: 'ticket_penjikent', category: 'local_transport', name: 'Входные билеты в объектах г.Пенджикент', nameEn: 'Entrance tickets to objects of Penjikent', price: 60.0, unit: 'человек/час', sortOrder: 8 },
-      { key: 'ticket_iskanderkul', category: 'local_transport', name: 'Входной билет в озеро Искандеркуль', nameEn: 'Entrance ticket to Iskanderkul Lake', price: 30.0, unit: 'человек/час', sortOrder: 9 },
-      { key: 'ticket_nurek', category: 'local_transport', name: 'Входные билеты в объектах г.Нурек', nameEn: 'Entrance tickets to objects of Nurek', price: 40.0, unit: 'человек/час', sortOrder: 10 },
-      { key: 'ticket_car', category: 'local_transport', name: 'Входные билеты в туристских объектах, ЦАР', nameEn: 'Entrance tickets to tourism objects, CAR', price: 50.0, unit: 'человек/час', sortOrder: 11 },
+      { key: 'train_uzbekistan', category: 'local_transport', name: 'Билеты ЖД по Узбекистану', nameEn: 'Train tickets in Uzbekistan', price: 380.0, unit: 'человек/час', sort_order: 1 },
+      { key: 'ticket_rudaki', category: 'local_transport', name: 'Входной билет в комплекс Рудаки, Пенджикент', nameEn: 'Entrance ticket to Rudaki Complex, Panjakent', price: 30.0, unit: 'человек/час', sort_order: 2 },
+      { key: 'ticket_kuli', category: 'local_transport', name: 'Входной билет в Кули (аквапрак) Душанбе', nameEn: 'Entrance tickets to Kuli (Aquapark) Dushanbe', price: 150.0, unit: 'человек/час', sort_order: 3 },
+      { key: 'ticket_bokhtar', category: 'local_transport', name: 'Входные билеты в объектах г.Бохтар', nameEn: 'Entrance tickets to visiting objects of Bokhtar city', price: 40.0, unit: 'человек/час', sort_order: 4 },
+      { key: 'ticket_hisor', category: 'local_transport', name: 'Входные билеты в объектах Гиссарской Крепости', nameEn: 'Entrance tickets to objects of Hisor Fortress', price: 90.0, unit: 'человек/час', sort_order: 5 },
+      { key: 'ticket_istaravshan', category: 'local_transport', name: 'Входные билеты в объектах г.Истаравшан', nameEn: 'Entrance tickets to objects of Istaravshan', price: 50.0, unit: 'человек/час', sort_order: 6 },
+      { key: 'flight_khujand', category: 'local_transport', name: 'Авиабилет на внутренний рейс, Худжанд', nameEn: 'Flight tickets to domestic lines, Khujand', price: 450.0, unit: 'человек/час', sort_order: 7 },
+      { key: 'ticket_penjikent', category: 'local_transport', name: 'Входные билеты в объектах г.Пенджикент', nameEn: 'Entrance tickets to objects of Penjikent', price: 60.0, unit: 'человек/час', sort_order: 8 },
+      { key: 'ticket_iskanderkul', category: 'local_transport', name: 'Входной билет в озеро Искандеркуль', nameEn: 'Entrance ticket to Iskanderkul Lake', price: 30.0, unit: 'человек/час', sort_order: 9 },
+      { key: 'ticket_nurek', category: 'local_transport', name: 'Входные билеты в объектах г.Нурек', nameEn: 'Entrance tickets to objects of Nurek', price: 40.0, unit: 'человек/час', sort_order: 10 },
+      { key: 'ticket_car', category: 'local_transport', name: 'Входные билеты в туристских объектах, ЦАР', nameEn: 'Entrance tickets to tourism objects, CAR', price: 50.0, unit: 'человек/час', sort_order: 11 },
       
       // Питание
-      { key: 'meal_hb', category: 'meals', name: 'Питание, обед, НВ', nameEn: 'Meals, Lunch, HB', price: 70.0, unit: 'человек/день', sortOrder: 1 },
-      { key: 'meal_fb', category: 'meals', name: 'Питание, обед и ужин, FB', nameEn: 'Meals, Lunch & Dinner, FB', price: 130.0, unit: 'человек/день', sortOrder: 2 },
+      { key: 'meal_hb', category: 'meals', name: 'Питание, обед, НВ', nameEn: 'Meals, Lunch, HB', price: 70.0, unit: 'человек/день', sort_order: 1 },
+      { key: 'meal_fb', category: 'meals', name: 'Питание, обед и ужин, FB', nameEn: 'Meals, Lunch & Dinner, FB', price: 130.0, unit: 'человек/день', sort_order: 2 },
       
       // Permits (разрешения)
-      { key: 'permit_gbao', category: 'permits', name: 'Разрешение на въезд в ГБАО', nameEn: 'GBAO Entry Permit', price: 250.0, unit: 'человек', sortOrder: 1 },
-      { key: 'permit_nurek', category: 'permits', name: 'Разрешение на въезд на платину Нурекской ГЭС', nameEn: 'Nurek HPP Dam Entry Permit', price: 500.0, unit: 'человек', sortOrder: 2 },
+      { key: 'permit_gbao', category: 'permits', name: 'Разрешение на въезд в ГБАО', nameEn: 'GBAO Entry Permit', price: 250.0, unit: 'человек', sort_order: 1 },
+      { key: 'permit_nurek', category: 'permits', name: 'Разрешение на въезд на платину Нурекской ГЭС', nameEn: 'Nurek HPP Dam Entry Permit', price: 500.0, unit: 'человек', sort_order: 2 },
       
       // Трансфер
-      { key: 'transfer_van', category: 'transfer', name: 'Трансфер от/до аэропорта, миниавтобус', nameEn: 'Transfer from/to airport, Van', price: 2000.0, unit: 'единица/день', sortOrder: 1 },
-      { key: 'transfer_sedan', category: 'transfer', name: 'Трансфер от/до аэропорта, легковой автомобил', nameEn: 'Transfer from/to airport, sedan', price: 500.0, unit: 'единица/день', sortOrder: 2 }
+      { key: 'transfer_van', category: 'transfer', name: 'Трансфер от/до аэропорта, миниавтобус', nameEn: 'Transfer from/to airport, Van', price: 2000.0, unit: 'единица/день', sort_order: 1 },
+      { key: 'transfer_sedan', category: 'transfer', name: 'Трансфер от/до аэропорта, легковой автомобил', nameEn: 'Transfer from/to airport, sedan', price: 500.0, unit: 'единица/день', sort_order: 2 }
     ];
 
     const results = [];

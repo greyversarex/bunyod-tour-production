@@ -127,10 +127,10 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
           <div class="two-column">
             <!-- Left Column -->
             <div>
-              ${customer.fullName ? `
+              ${customer.full_name ? `
                 <div class="section">
                   <div class="section-title">Контактное лицо:</div>
-                  <div class="section-value">${customer.fullName}</div>
+                  <div class="section-value">${customer.full_name}</div>
                 </div>
               ` : ''}
               
@@ -142,7 +142,7 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
                     ${tourists.map((tourist: any, index: number) => `
                       <div class="tourist-item">
                         <span class="tourist-number">${index + 1}</span>
-                        <span>${tourist.fullName} ${tourist.birthDate ? `(${tourist.birthDate})` : ''}</span>
+                        <span>${tourist.full_name} ${tourist.birthDate ? `(${tourist.birthDate})` : ''}</span>
                       </div>
                     `).join('')}
                   </div>
@@ -343,7 +343,7 @@ export async function sendBookingConfirmation(order: any, customer: Customer, to
           </div>
           
           <div class="greeting-section">
-            <p class="greeting-text">Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
+            <p class="greeting-text">Уважаемый(ая) <strong>${customer.full_name}</strong>,</p>
             <p class="greeting-text">
               Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>. 
               Подробно со всеми деталями вашего заказа вы можете ознакомиться в билете тура.
@@ -395,7 +395,7 @@ export async function sendAgentWelcomeEmail(email: string, data: {
   loginUrl: string;
 }) {
   try {
-    const subject = `Доступ к партнерской программе Bunyod-Tour - ID: ${data.uniqueId}`;
+    const subject = `Доступ к партнерской программе Bunyod-Tour - ID: ${data.unique_id}`;
     const html = `
       <!DOCTYPE html>
       <html>
@@ -433,7 +433,7 @@ export async function sendAgentWelcomeEmail(email: string, data: {
           </div>
           
           <div class="content">
-            <p>Уважаемый(ая) <strong>${data.fullName}</strong>,</p>
+            <p>Уважаемый(ая) <strong>${data.full_name}</strong>,</p>
             <p>Поздравляем! Ваша заявка на партнерство была одобрена.</p>
             <p>Для вас создан личный кабинет турагента, где вы можете:</p>
             <ul style="margin: 15px 0; padding-left: 25px;">
@@ -448,7 +448,7 @@ export async function sendAgentWelcomeEmail(email: string, data: {
               
               <div class="credential-item">
                 <div class="credential-label">Ваш уникальный ID турагента:</div>
-                <div class="credential-value">${data.uniqueId}</div>
+                <div class="credential-value">${data.unique_id}</div>
               </div>
               
               <div class="credential-item">

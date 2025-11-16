@@ -9,8 +9,8 @@ export const getTourBlocks = async (req: Request, res: Response): Promise<Respon
     console.log('Fetching tour blocks...');
     const language = getLanguageFromRequest(req);
     
-    const tourBlocks = await prisma.tourBlock.findMany({
-      orderBy: { sortOrder: 'asc' }
+    const tourBlocks = await prisma.tour_blocks.findMany({
+      orderBy: { sort_order: 'asc' }
     });
 
     console.log('Found tour blocks:', tourBlocks.length);
@@ -51,7 +51,7 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
   try {
     const { id } = req.params;
     
-    const tourBlock = await prisma.tourBlock.findUnique({
+    const tourBlock = await prisma.tour_blocks.findUnique({
       where: { id: parseInt(id) },
       include: {
         tourBlocks: {
@@ -137,7 +137,7 @@ export const createTourBlock = async (req: Request, res: Response): Promise<Resp
   try {
     const { title, description, slug, isActive = true, sortOrder = 0 } = req.body;
 
-    const tourBlock = await prisma.tourBlock.create({
+    const tourBlock = await prisma.tour_blocks.create({
       data: {
         title: typeof title === 'string' ? title : JSON.stringify(title),
         description: description ? (typeof description === 'string' ? description : JSON.stringify(description)) : null,
@@ -167,7 +167,7 @@ export const updateTourBlock = async (req: Request, res: Response): Promise<Resp
     const { id } = req.params;
     const { title, description, slug, isActive, sortOrder } = req.body;
 
-    const existingBlock = await prisma.tourBlock.findUnique({
+    const existingBlock = await prisma.tour_blocks.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -178,13 +178,13 @@ export const updateTourBlock = async (req: Request, res: Response): Promise<Resp
       });
     }
 
-    const tourBlock = await prisma.tourBlock.update({
+    const tourBlock = await prisma.tour_blocks.update({
       where: { id: parseInt(id) },
       data: {
         ...(title && { title: typeof title === 'string' ? title : JSON.stringify(title) }),
         ...(description !== undefined && { description: description ? (typeof description === 'string' ? description : JSON.stringify(description)) : null }),
         ...(slug && { slug }),
-        ...(isActive !== undefined && { isActive: isActive === 'true' || isActive === true }),
+        ...(isActive !== undefined && { is_active: isActive === 'true' || isActive === true }),
         ...(sortOrder !== undefined && { sortOrder })
       }
     });
@@ -208,7 +208,7 @@ export const deleteTourBlock = async (req: Request, res: Response): Promise<Resp
   try {
     const { id } = req.params;
 
-    const existingBlock = await prisma.tourBlock.findUnique({
+    const existingBlock = await prisma.tour_blocks.findUnique({
       where: { id: parseInt(id) }
     });
 
@@ -231,7 +231,7 @@ export const deleteTourBlock = async (req: Request, res: Response): Promise<Resp
       });
     }
 
-    await prisma.tourBlock.delete({
+    await prisma.tour_blocks.delete({
       where: { id: parseInt(id) }
     });
 
@@ -266,7 +266,7 @@ export const addTourToBlock = async (req: Request, res: Response): Promise<Respo
     }
 
     // Check if block exists
-    const block = await prisma.tourBlock.findUnique({
+    const block = await prisma.tour_blocks.findUnique({
       where: { id: parseInt(blockId) }
     });
 

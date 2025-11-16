@@ -19,10 +19,10 @@ export class CountryController {
       const includeRaw = req.query.includeRaw === 'true';
       
       const countries = await withRetry(() => prisma.country.findMany({
-        where: { isActive: true },
+        where: { is_active: true },
         include: {
           cities: {
-            where: { isActive: true },
+            where: { is_active: true },
             orderBy: { nameRu: 'asc' }
           }
         },
@@ -87,7 +87,7 @@ export class CountryController {
         where: { id: countryId },
         include: {
           cities: {
-            where: { isActive: true },
+            where: { is_active: true },
             orderBy: { nameRu: 'asc' }
           }
         }
@@ -175,14 +175,14 @@ export class CountryController {
       if (nameRu !== undefined) updateData.nameRu = nameRu;
       if (nameEn !== undefined) updateData.nameEn = nameEn;
       if (code !== undefined) updateData.code = code;
-      if (isActive !== undefined) updateData.isActive = isActive;
+      if (isActive !== undefined) updateData.is_active = isActive;
 
       const country = await withRetry(() => prisma.country.update({
         where: { id: countryId },
         data: updateData,
         include: {
           cities: {
-            where: { isActive: true },
+            where: { is_active: true },
             orderBy: { nameRu: 'asc' }
           }
         }

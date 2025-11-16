@@ -341,7 +341,7 @@ export const createDriverProfile = async (req: Request, res: Response): Promise<
         experience: experience ? parseInt(experience) : 0,
         login: login,
         password: hashedPassword,
-        isActive: isActive === 'true' || isActive === true || isActive === undefined,
+        is_active: isActive === 'true' || isActive === true || isActive === undefined,
         photo: photoPath,
         documents: documentsArray.length > 0 ? JSON.stringify(documentsArray) : null,
         licenseNumber: licenseNumber,
@@ -371,7 +371,7 @@ export const createDriverProfile = async (req: Request, res: Response): Promise<
         languages: driver.languages,
         contact: driver.contact,
         experience: driver.experience,
-        isActive: driver.isActive,
+        is_active: driver.is_active,
         photo: driver.photo,
         documents: driver.documents,
         licenseNumber: driver.licenseNumber,
@@ -445,7 +445,7 @@ export const updateDriverProfile = async (req: Request, res: Response): Promise<
     if (description) updateData.description = description;
     if (languages) updateData.languages = languages;
     if (experience !== undefined) updateData.experience = parseInt(experience);
-    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
+    if (isActive !== undefined) updateData.is_active = isActive === 'true' || isActive === true;
     if (licenseNumber) updateData.licenseNumber = licenseNumber;
     if (licenseCategory) updateData.licenseCategory = licenseCategory;
     if (workingAreas) updateData.workingAreas = workingAreas;
@@ -542,7 +542,7 @@ export const updateDriverProfile = async (req: Request, res: Response): Promise<
         languages: updatedDriver.languages,
         contact: updatedDriver.contact,
         experience: updatedDriver.experience,
-        isActive: updatedDriver.isActive,
+        is_active: updatedDriver.is_active,
         photo: updatedDriver.photo,
         documents: updatedDriver.documents,
         licenseNumber: updatedDriver.licenseNumber,
@@ -627,7 +627,7 @@ export const loginDriver = async (req: Request, res: Response): Promise<void> =>
     const driver = await prisma.driver.findFirst({
       where: { 
         login: login,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -726,7 +726,7 @@ export const getDriverAssignedEvents = async (req: Request, res: Response): Prom
     // Получаем все туры с событиями, где назначен данный водитель
     const tours = await prisma.tour.findMany({
       where: {
-        isActive: true,
+        is_active: true,
         itinerary: {
           contains: `"driverId":${driverId}`
         }

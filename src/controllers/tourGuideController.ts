@@ -73,7 +73,7 @@ export const loginTourGuide = async (req: Request, res: Response): Promise<void>
         login: true,
         password: true,
         contact: true,
-        isActive: true
+        is_active: true
       }
     });
 
@@ -85,7 +85,7 @@ export const loginTourGuide = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    if (!guide.isActive) {
+    if (!guide.is_active) {
       res.status(403).json({ 
         success: false, 
         message: 'Аккаунт деактивирован' 
@@ -188,7 +188,7 @@ export const getGuideTours = async (req: Request, res: Response): Promise<void> 
 
     const tours = await prisma.tour.findMany({
       where: { 
-        isActive: true,
+        is_active: true,
         OR: [
           { assignedGuideId: guideId },
           { 
@@ -279,7 +279,7 @@ export const getTourDetails = async (req: Request, res: Response): Promise<void>
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
-        isActive: true,
+        is_active: true,
         OR: [
           { assignedGuideId: guideId },
           { 
@@ -390,7 +390,7 @@ export const startTour = async (req: Request, res: Response): Promise<void> => {
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
-        isActive: true,
+        is_active: true,
         OR: [
           { assignedGuideId: guideId },
           { 
@@ -546,7 +546,7 @@ export const finishTour = async (req: Request, res: Response): Promise<void> => 
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
-        isActive: true,
+        is_active: true,
         OR: [
           { assignedGuideId: guideId },
           { 
@@ -1008,7 +1008,7 @@ export const createTourGuideProfile = async (req: Request, res: Response): Promi
         rating: 5.0, // Начальный рейтинг
         login: login, // Добавляем логин
         password: hashedPassword, // ✅ БЕЗОПАСНО: Храним хешированный пароль
-        isActive: isActiveBoolean, // Используем обработанный boolean
+        is_active: isActiveBoolean, // Используем обработанный boolean
         photo: photoPath, // Путь к аватару
         documents: documentsArray.length > 0 ? JSON.stringify(documentsArray) : null, // Документы в JSON
         countryId: countryId ? parseInt(countryId) : null, // Добавляем страну
@@ -1031,7 +1031,7 @@ export const createTourGuideProfile = async (req: Request, res: Response): Promi
         contact: guide.contact,
         experience: guide.experience,
         rating: guide.rating,
-        isActive: guide.isActive,
+        is_active: guide.is_active,
         photo: guide.photo,
         documents: guide.documents
       },
@@ -1106,7 +1106,7 @@ export const updateGuideProfile = async (req: Request, res: Response): Promise<v
     }
     if (languages) updateData.languages = languages;
     if (experience !== undefined) updateData.experience = parseInt(experience);
-    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
+    if (isActive !== undefined) updateData.is_active = isActive === 'true' || isActive === true;
     
     // Обновляем контакты
     if (email || phone) {
@@ -1164,7 +1164,7 @@ export const updateGuideProfile = async (req: Request, res: Response): Promise<v
         languages: updatedGuide.languages,
         contact: updatedGuide.contact,
         experience: updatedGuide.experience,
-        isActive: updatedGuide.isActive,
+        is_active: updatedGuide.is_active,
         photo: updatedGuide.photo,
         documents: updatedGuide.documents
       },

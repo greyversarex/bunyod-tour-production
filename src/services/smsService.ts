@@ -71,7 +71,7 @@ export const smsService = {
            `Заказ: ${order.orderNumber}\n` +
            `Тур: ${tourTitle}\n` +
            `Сумма: ${order.totalAmount} ${order.currency || 'TJS'}\n` +
-           `Клиент: ${customer.fullName}\n` +
+           `Клиент: ${customer.full_name}\n` +
            `Тел: ${customer.phone || 'не указан'}\n` +
            `Дата тура: ${new Date(order.tourDate).toLocaleDateString('ru-RU')}`;
   },

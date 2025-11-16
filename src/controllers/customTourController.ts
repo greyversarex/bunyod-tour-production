@@ -24,7 +24,7 @@ export const getAllComponents = async (req: Request, res: Response) => {
     const { countryId, category } = req.query;
     
     const where: any = {
-      isActive: true,
+      is_active: true,
     };
     
     if (countryId && typeof countryId === 'string') {
@@ -37,7 +37,7 @@ export const getAllComponents = async (req: Request, res: Response) => {
     
     const components = await prisma.customTourComponent.findMany({
       where,
-      orderBy: { sortOrder: 'asc' },
+      orderBy: { sort_order: 'asc' },
       include: {
         country: {
           select: {
@@ -72,9 +72,9 @@ export const getComponentsByCountry = async (req: Request, res: Response) => {
     const components = await prisma.customTourComponent.findMany({
       where: {
         countryId: parseInt(countryId),
-        isActive: true,
+        is_active: true,
       },
-      orderBy: { sortOrder: 'asc' },
+      orderBy: { sort_order: 'asc' },
     });
     
     res.json({
@@ -170,8 +170,8 @@ export const createComponent = async (req: Request, res: Response): Promise<void
         price: parseFloat(price),
         unit,
         description,
-        sortOrder: sortOrder ? parseInt(sortOrder) : 0,
-        isActive: true,
+        sort_order: sortOrder ? parseInt(sortOrder) : 0,
+        is_active: true,
       },
       include: {
         country: {
@@ -257,11 +257,11 @@ export const updateComponent = async (req: Request, res: Response): Promise<void
     }
     
     if (sortOrder !== undefined) {
-      updateData.sortOrder = parseInt(sortOrder);
+      updateData.sort_order = parseInt(sortOrder);
     }
     
     if (isActive !== undefined) {
-      updateData.isActive = Boolean(isActive);
+      updateData.is_active = Boolean(isActive);
     }
     
     const component = await prisma.customTourComponent.update({
@@ -303,7 +303,7 @@ export const deleteComponent = async (req: Request, res: Response) => {
     
     const component = await prisma.customTourComponent.update({
       where: { id: parseInt(id) },
-      data: { isActive: false }
+      data: { is_active: false }
     });
     
     console.log('✅ Custom tour component deleted:', component.id);
@@ -327,7 +327,7 @@ export const deleteComponent = async (req: Request, res: Response) => {
 export const getCategories = async (req: Request, res: Response) => {
   try {
     const components = await prisma.customTourComponent.findMany({
-      where: { isActive: true },
+      where: { is_active: true },
       select: { category: true },
       distinct: ['category'],
     });

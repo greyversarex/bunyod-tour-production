@@ -76,7 +76,7 @@ export const getOrCreateCustomer = async (req: Request, res: Response) => {
     } else {
       // Update customer info if needed
       const updateData: any = {};
-      if (customer.fullName !== fullName) updateData.fullName = fullName;
+      if (customer.full_name !== fullName) updateData.full_name = fullName;
       if (phone && customer.phone !== phone) updateData.phone = phone;
 
       if (Object.keys(updateData).length > 0) {
@@ -239,7 +239,7 @@ export const updateCustomer = async (req: Request, res: Response) => {
     const { fullName, email, phone } = req.body;
 
     const updateData: any = {};
-    if (fullName) updateData.fullName = fullName;
+    if (fullName) updateData.full_name = fullName;
     if (email) updateData.email = email;
     if (phone !== undefined) updateData.phone = phone;
 
