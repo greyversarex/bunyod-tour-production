@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход для турагентов - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .login-hero {
+            background: linear-gradient(135deg, #2F2F2F 0%, #3E3E3E 100%);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+        }
+        .login-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .login-hero p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        .login-container {
+            max-width: 500px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .login-container h2 {
+            color: #3E3E3E;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3E3E3E;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #3E3E3E;
+        }
+        .login-btn {
+            background: #3E3E3E;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .login-btn:hover {
+            background: #2F2F2F;
+        }
+        .login-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .error-message {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .signup-link a {
+            color: #3E3E3E;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+        .required {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="login-hero">
+        <h1>Вход для турагентов</h1>
+        <p>Войдите в личный кабинет турагента B2B</p>
+    </div>
+
+    <div class="login-container">
+        <h2>Вход в систему</h2>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" name="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Пароль <span class="required">*</span></label>
+                <input type="password" id="password" name="password" required>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">Войти</button>
+        </form>
+
+        <div class="signup-link">
+            Нет аккаунта? <a href="/travel-agent-apply.html">Подать заявку на партнерство</a>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script>
+        // Load header and footer
+        fetch('/frontend/_header.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('header-placeholder').innerHTML = html;
+            });
+
+        fetch('/frontend/_footer.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('footer-placeholder').innerHTML = html;
+            });
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Hide previous errors
+            errorMessage.style.display = 'none';
+            errorMessage.textContent = '';
+
+            // Validation
+            if (!email || !password) {
+                errorMessage.textContent = 'Пожалуйста, заполните все поля';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Disable button during request
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Вход...';
+
+            try {
+                const response = await fetch('/api/travel-agents/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // Save token and agent info
+                    localStorage.setItem('agentToken', data.token);
+                    localStorage.setItem('agentInfo', JSON.stringify(data.agent));
+
+                    // Check if password change is required
+                    if (data.agent.mustChangePassword) {
+                        window.location.href = '/agent-dashboard.html?changePassword=true';
+                    } else {
+                        window.location.href = '/agent-dashboard.html';
+                    }
+                } else {
+                    errorMessage.textContent = data.message || 'Неверный email или пароль';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = 'Произошла ошибка при входе. Попробуйте позже.';
+                errorMessage.style.display = 'block';
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Войти';
+            }
+        });
+    </script>
+</body>
+</html>

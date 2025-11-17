@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет турагента - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f5f5;
+        }
+        .dashboard-header {
+            background: linear-gradient(135deg, #2F2F2F 0%, #3E3E3E 100%);
+            padding: 30px 20px;
+            color: white;
+        }
+        .dashboard-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .agent-info {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .agent-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #3E3E3E;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3E3E3E;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #3E3E3E;
+        }
+        .btn {
+            background: #3E3E3E;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #2F2F2F;
+        }
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .btn-logout {
+            background: #f44336;
+        }
+        .btn-logout:hover {
+            background: #d32f2f;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.success {
+            background: #4CAF50;
+            color: white;
+        }
+        .message.error {
+            background: #f44336;
+            color: white;
+        }
+        .message.warning {
+            background: #ff9800;
+            color: white;
+        }
+        .required {
+            color: red;
+        }
+        .bookings-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .bookings-table th,
+        .bookings-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .bookings-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #3E3E3E;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            border-bottom: 2px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: #666;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .tab.active {
+            color: #3E3E3E;
+            border-bottom: 3px solid #3E3E3E;
+            margin-bottom: -2px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Личный кабинет турагента</h1>
+                    <div class="agent-info">
+                        <div class="agent-info-item">
+                            <i class="fas fa-id-card"></i>
+                            <span id="agentId">-</span>
+                        </div>
+                        <div class="agent-info-item">
+                            <i class="fas fa-building"></i>
+                            <span id="companyName">-</span>
+                        </div>
+                        <div class="agent-info-item">
+                            <i class="fas fa-envelope"></i>
+                            <span id="agentEmail">-</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Выход
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="passwordChangeAlert" class="message warning" style="margin-top: 20px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>Внимание!</strong> Необходимо сменить пароль перед началом работы.
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('booking')">Заявка на тур</button>
+            <button class="tab" onclick="switchTab('history')">История заявок</button>
+            <button class="tab" onclick="switchTab('password')">Смена пароля</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Tab: Booking Request -->
+            <div id="tab-booking" class="tab-content active">
+                <div class="card">
+                    <h2>Заявка на бронирование тура</h2>
+                    <div id="bookingMessage" class="message"></div>
+
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label for="tourId">ID тура <span class="required">*</span></label>
+                            <input type="number" id="tourId" name="tourId" required placeholder="Введите ID тура из каталога">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tourDate">Дата начала тура <span class="required">*</span></label>
+                            <input type="date" id="tourDate" name="tourDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numberOfTourists">Количество туристов <span class="required">*</span></label>
+                            <input type="number" id="numberOfTourists" name="numberOfTourists" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientName">Имя клиента <span class="required">*</span></label>
+                            <input type="text" id="clientName" name="clientName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientEmail">Email клиента <span class="required">*</span></label>
+                            <input type="email" id="clientEmail" name="clientEmail" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientPhone">Телефон клиента <span class="required">*</span></label>
+                            <input type="tel" id="clientPhone" name="clientPhone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="specialRequests">Особые пожелания</label>
+                            <textarea id="specialRequests" name="specialRequests" rows="4" placeholder="Укажите любые особые требования или пожелания"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn" id="bookingBtn">Отправить заявку</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Booking History -->
+            <div id="tab-history" class="tab-content">
+                <div class="card">
+                    <h2>История ваших заявок</h2>
+                    <div id="historyMessage" class="message"></div>
+
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>ID заявки</th>
+                                <th>Тур</th>
+                                <th>Дата тура</th>
+                                <th>Туристов</th>
+                                <th>Статус</th>
+                                <th>Дата заявки</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: #999;">
+                                    Загрузка...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Change Password -->
+            <div id="tab-password" class="tab-content">
+                <div class="card">
+                    <h2>Смена пароля</h2>
+                    <div id="passwordMessage" class="message"></div>
+
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">Текущий пароль <span class="required">*</span></label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">Новый пароль <span class="required">*</span></label>
+                            <input type="password" id="newPassword" name="newPassword" required minlength="8">
+                            <small style="color: #666;">Минимум 8 символов</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Подтвердите новый пароль <span class="required">*</span></label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+
+                        <button type="submit" class="btn" id="passwordBtn">Сменить пароль</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let agentInfo = null;
+        let agentToken = null;
+
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            agentToken = localStorage.getItem('agentToken');
+            const agentInfoStr = localStorage.getItem('agentInfo');
+
+            if (!agentToken || !agentInfoStr) {
+                window.location.href = '/agent-login.html';
+                return;
+            }
+
+            try {
+                agentInfo = JSON.parse(agentInfoStr);
+                displayAgentInfo();
+                loadBookings();
+
+                // Check if password change required
+                const urlParams = new URLSearchParams(window.location.search);
+                if (agentInfo.mustChangePassword || urlParams.get('changePassword') === 'true') {
+                    document.getElementById('passwordChangeAlert').style.display = 'block';
+                    switchTab('password');
+                }
+            } catch (error) {
+                console.error('Error parsing agent info:', error);
+                window.location.href = '/agent-login.html';
+            }
+        });
+
+        function displayAgentInfo() {
+            document.getElementById('agentId').textContent = agentInfo.agentId || '-';
+            document.getElementById('companyName').textContent = agentInfo.companyName || '-';
+            document.getElementById('agentEmail').textContent = agentInfo.email || '-';
+        }
+
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Handle booking form
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const message = document.getElementById('bookingMessage');
+            const btn = document.getElementById('bookingBtn');
+
+            message.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Отправка...';
+
+            const formData = {
+                tourId: parseInt(document.getElementById('tourId').value),
+                tourDate: document.getElementById('tourDate').value,
+                numberOfTourists: parseInt(document.getElementById('numberOfTourists').value),
+                clientName: document.getElementById('clientName').value.trim(),
+                clientEmail: document.getElementById('clientEmail').value.trim(),
+                clientPhone: document.getElementById('clientPhone').value.trim(),
+                specialRequests: document.getElementById('specialRequests').value.trim() || null,
+            };
+
+            try {
+                const response = await fetch('/api/travel-agents/tour-bookings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${agentToken}`,
+                    },
+                    body: JSON.stringify(formData),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    message.className = 'message success';
+                    message.textContent = `Заявка успешно отправлена! ID заявки: ${data.booking.bookingId}`;
+                    message.style.display = 'block';
+                    document.getElementById('bookingForm').reset();
+                    loadBookings(); // Reload history
+                } else {
+                    message.className = 'message error';
+                    message.textContent = data.message || 'Ошибка при отправке заявки';
+                    message.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Booking error:', error);
+                message.className = 'message error';
+                message.textContent = 'Произошла ошибка. Попробуйте позже.';
+                message.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Отправить заявку';
+            }
+        });
+
+        // Handle password change
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const message = document.getElementById('passwordMessage');
+            const btn = document.getElementById('passwordBtn');
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            message.style.display = 'none';
+
+            if (newPassword !== confirmPassword) {
+                message.className = 'message error';
+                message.textContent = 'Новые пароли не совпадают';
+                message.style.display = 'block';
+                return;
+            }
+
+            if (newPassword.length < 8) {
+                message.className = 'message error';
+                message.textContent = 'Пароль должен содержать минимум 8 символов';
+                message.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Сохранение...';
+
+            try {
+                const response = await fetch('/api/travel-agents/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${agentToken}`,
+                    },
+                    body: JSON.stringify({ currentPassword, newPassword }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    message.className = 'message success';
+                    message.textContent = 'Пароль успешно изменен!';
+                    message.style.display = 'block';
+                    document.getElementById('passwordForm').reset();
+                    document.getElementById('passwordChangeAlert').style.display = 'none';
+                    
+                    // Update agent info
+                    agentInfo.mustChangePassword = false;
+                    localStorage.setItem('agentInfo', JSON.stringify(agentInfo));
+                } else {
+                    message.className = 'message error';
+                    message.textContent = data.message || 'Ошибка при смене пароля';
+                    message.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Password change error:', error);
+                message.className = 'message error';
+                message.textContent = 'Произошла ошибка. Попробуйте позже.';
+                message.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Сменить пароль';
+            }
+        });
+
+        // Load bookings
+        async function loadBookings() {
+            const tbody = document.getElementById('bookingsTableBody');
+
+            try {
+                const response = await fetch('/api/travel-agents/tour-bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${agentToken}`,
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    if (data.bookings.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">Заявок пока нет</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = data.bookings.map(booking => `
+                        <tr>
+                            <td>${booking.bookingId}</td>
+                            <td>${booking.tour?.title?.ru || 'Тур #' + booking.tourId}</td>
+                            <td>${new Date(booking.tourDate).toLocaleDateString('ru-RU')}</td>
+                            <td>${booking.numberOfTourists}</td>
+                            <td><span class="status-badge status-${booking.status}">${getStatusText(booking.status)}</span></td>
+                            <td>${new Date(booking.createdAt).toLocaleDateString('ru-RU')}</td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">Ошибка загрузки</td></tr>';
+                }
+            } catch (error) {
+                console.error('Load bookings error:', error);
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">Ошибка загрузки</td></tr>';
+            }
+        }
+
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'Ожидает',
+                'confirmed': 'Подтверждено',
+                'completed': 'Завершено',
+                'cancelled': 'Отменено',
+            };
+            return statusMap[status] || status;
+        }
+
+        function logout() {
+            localStorage.removeItem('agentToken');
+            localStorage.removeItem('agentInfo');
+            window.location.href = '/agent-login.html';
+        }
+    </script>
+</body>
+</html>
