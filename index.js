@@ -229,6 +229,22 @@ app.use('/uploads/images', (req, res, next) => {
   }
 });
 
+// Add secure route for vehicle photos (only images)
+app.use('/uploads/vehicles', (req, res, next) => {
+  // Security: Only allow image files for vehicles
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+  const fileExtension = path.extname(req.path).toLowerCase();
+  
+  if (allowedExtensions.includes(fileExtension)) {
+    express.static(path.join(__dirname, 'uploads/vehicles'))(req, res, next);
+  } else {
+    res.status(403).json({ 
+      success: false, 
+      message: 'Access denied: Only image files are allowed' 
+    });
+  }
+});
+
 // Add upload routes for simple image handling
 const uploadRoutes = require(`${srcPath}/routes/uploadRoutes${isProduction ? '.js' : '.ts'}`).default;
 app.use('/upload', uploadRoutes);

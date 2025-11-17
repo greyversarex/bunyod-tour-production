@@ -534,6 +534,7 @@ model Country {
   tourCountries        TourCountry[]         @relation("TourCountries")
   tours                Tour[]
   customTourComponents CustomTourComponent[]
+  vehicles             Vehicle[]
 
   @@map("countries")
 }
@@ -557,6 +558,7 @@ model City {
   tourAgents       TourAgent[]
   tourCities       TourCity[]        @relation("TourCities")
   tours            Tour[]
+  vehicles         Vehicle[]
 
   @@unique([name, countryId])
   @@map("cities")
@@ -978,4 +980,27 @@ model AgentTourBooking {
   agent                  TravelAgent @relation(fields: [agentId], references: [id], onDelete: Cascade)
 
   @@map("agent_tour_bookings")
+}
+
+model Vehicle {
+  id              Int      @id @default(autoincrement())
+  name            Json
+  description     Json?
+  type            String
+  licensePlate    String   @unique @map("license_plate")
+  capacity        Int
+  images          String?
+  pricePerDay     Float?   @map("price_per_day")
+  currency        String?  @default("TJS")
+  countryId       Int?     @map("country_id")
+  cityId          Int?     @map("city_id")
+  brand           String?
+  year            Int?
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  vehicleCountry  Country? @relation(fields: [countryId], references: [id])
+  vehicleCity     City?    @relation(fields: [cityId], references: [id])
+
+  @@map("vehicles")
 }
