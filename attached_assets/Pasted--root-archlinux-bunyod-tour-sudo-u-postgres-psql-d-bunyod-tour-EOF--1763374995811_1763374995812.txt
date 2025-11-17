@@ -1,0 +1,36 @@
+[root@archlinux bunyod-tour]# sudo -u postgres psql -d bunyod_tour << 'EOF'
+-- Обновляем пути фотографий с /api/objects/direct/ на /uploads/images/
+UPDATE tours
+SET images = REPLACE(images, '/api/objects/direct/', '/uploads/images/')
+WHERE images LIKE '%/api/objects/direct/%';
+-- Устанавливаем mainImage из первой фотографии в массиве images
+UPDATE tours
+SET "mainImage" = (
+  SELECT REPLACE(
+    REGEXP_REPLACE(images, '^\["|"\]$', '', 'g'),
+    '/api/objects/direct/',
+    '/uploads/images/'
+  )
+  FROM (
+    SELECT REGEXP_REPLACE(
+      REGEXP_REPLACE(images, '^\["', ''),
+      '",.*$', ''
+    ) as images
+    FROM tours t2
+    WHERE t2.id = tours.id
+  ) sub
+)
+WHERE images IS NOT NULL AND images != '[]' AND "mainImage" IS NULL;
+-- Показываем результат
+SELECT id, title->>'ru' as title, "mainImage", images FROM tours LIMIT 3;
+EOF
+UPDATE 11
+UPDATE 1
+ id |               title               |                     mainImage                     |                                                                                                                                                                                                                                                                  images                                                                                                                                                                                         
+----+-----------------------------------+---------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ 27 | Треккинг в Фанских горах          | /uploads/images/image-1763100162281-651942942.png | ["/uploads/images/image-1763100162281-651942942.png"]
+ 28 | Пешая экскурсия по Бишкеку        |                                                   | ["/uploads/images/image-1763349153135-696986015.png","/uploads/images/image-1763349158944-25745538.png","/uploads/images/image-1763349166198-222022826.png","/uploads/images/image-1763349166284-12495528.png","/uploads/images/image-1763349166352-78323345.png","/uploads/images/image-1763349166510-865231970.png","/uploads/images/image-1763349166426-460438036.png"]
+ 16 | Великий Шелковый Путь, северный-2 |                                                   | ["/uploads/images/image-1761052333936-598176402.png","/uploads/images/image-1761052334103-120935074.png","/uploads/images/image-1761052334016-847214243.png","/uploads/images/image-1761052379694-62769087.png","/uploads/images/image-1761052379617-677202563.png","/uploads/images/image-1761052379526-331370636.png","/uploads/images/image-1761052379773-399498974.png","/uploads/images/image-1761052409784-909142081.png","/uploads/images/image-1761052409622-792714754.png","/uploads/images/image-1761052409702-634781754.png"]
+(3 rows)
+
+[root@archlinux bunyod-tour]#
