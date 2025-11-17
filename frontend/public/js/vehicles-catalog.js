@@ -2,12 +2,14 @@
 let allVehicles = [];
 let filteredVehicles = [];
 let allCountries = [];
-let allCities = [];
+let allCities = []; // All cities from server
+let availableCities = []; // Cities filtered by selected country
 
 // Load vehicles on page load
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚗 Vehicles catalog page loaded');
     await loadCountries();
+    await loadAllCities();
     await loadVehicles();
     setupFilters();
 });
@@ -87,26 +89,40 @@ function populateCountryFilter() {
     }
 }
 
-// Load cities for selected country
-async function loadCities(countryId = null) {
+// Load all cities once
+async function loadAllCities() {
     try {
-        const url = countryId ? `/api/cities?countryId=${countryId}` : '/api/cities';
-        const response = await fetch(url);
+        const response = await fetch('/api/cities');
         const data = await response.json();
         
         if (data.success) {
             allCities = data.data;
+            availableCities = [...allCities]; // Initially all cities are available
             populateCityFilter();
         } else {
             console.error('Failed to load cities:', data.message);
             allCities = [];
+            availableCities = [];
             populateCityFilter();
         }
     } catch (error) {
         console.error('Error loading cities:', error);
         allCities = [];
+        availableCities = [];
         populateCityFilter();
     }
+}
+
+// Filter cities by selected country
+function filterCitiesByCountry(countryId) {
+    if (!countryId) {
+        // No country selected - show all cities
+        availableCities = [...allCities];
+    } else {
+        // Filter cities by country
+        availableCities = allCities.filter(city => city.countryId == countryId);
+    }
+    populateCityFilter();
 }
 
 // Populate city filter
@@ -128,8 +144,8 @@ function populateCityFilter() {
     defaultOption.textContent = defaultText;
     cityFilter.appendChild(defaultOption);
     
-    // Add city options
-    allCities.forEach(city => {
+    // Add city options from availableCities (filtered by country)
+    availableCities.forEach(city => {
         const option = document.createElement('option');
         option.value = city.id;
         option.textContent = lang === 'ru' ? city.nameRu : city.nameEn;
@@ -174,15 +190,11 @@ function setupFilters() {
     capacityFilter?.addEventListener('change', applyFilters);
     cityFilter?.addEventListener('change', applyFilters);
     
-    // Country filter loads cities and applies filters
-    countryFilter?.addEventListener('change', async (e) => {
+    // Country filter updates available cities and applies filters
+    countryFilter?.addEventListener('change', (e) => {
         const countryId = e.target.value;
-        if (countryId) {
-            await loadCities(countryId);
-        } else {
-            allCities = [];
-            populateCityFilter();
-        }
+        filterCitiesByCountry(countryId);
+        
         // Reset city filter when country changes
         const cityFilterEl = document.getElementById('cityFilter');
         if (cityFilterEl) cityFilterEl.value = '';
@@ -235,7 +247,9 @@ function clearFilters() {
     document.getElementById('countryFilter').value = '';
     document.getElementById('cityFilter').value = '';
     document.getElementById('capacityFilter').value = '';
-    allCities = [];
+    
+    // Reset available cities to all cities
+    availableCities = [...allCities];
     populateCityFilter();
     applyFilters();
 }
