@@ -1868,7 +1868,7 @@ window.translations = window.translations || {
     'agent.who_can_title': { ru: 'Кто может стать нашим партнером', en: 'Who Can Become Our Partner' },
     'agent.partner_type1': { ru: 'Обозреватели путешествий', en: 'Travel reviewers' },
     'agent.partner_type2': { ru: 'Тревел блогеры', en: 'Travel bloggers' },
-    'agent.partner_type3': { ru: 'Местные партнеры продают туры и экскурсии в своем городе', en: 'Local partners selling tours and excursions in their city' },
+    'agent.partner_type3': { ru: 'Тур.агентства в Центральной Азии', en: 'Travel agencies in Central Asia' },
     'agent.partner_type4': { ru: 'Владельцы туристических сайтов, форумов', en: 'Owners of tourism websites and forums' },
     'agent.partner_type5': { ru: 'Владельцы интернет магазинов с товарами для спорта, туризма', en: 'Owners of online stores with sports and tourism goods' },
     'agent.partner_type6': { ru: 'Турагентства', en: 'Travel agencies' },
