@@ -515,10 +515,27 @@
                     </div>
                 </div>
                 
-                <a href="#" class="nav-item" data-section="tour-agents">
-                    <i class="fas fa-handshake"></i>
-                    <span data-translate="admin.tour_agents">Турагенты</span>
-                </a>
+                <div class="nav-group">
+                    <a href="#" class="nav-item nav-item-parent" data-section="travel-agents">
+                        <i class="fas fa-handshake"></i>
+                        <span data-translate="admin.travel_agents">Турагенты B2B</span>
+                        <i class="fas fa-chevron-down ml-auto text-xs transition-transform duration-200" id="travel-agents-chevron"></i>
+                    </a>
+                    <div class="nav-submenu" id="travel-agents-submenu" style="display: none;">
+                        <a href="#" class="nav-item nav-subitem" data-section="travel-agents-list">
+                            <i class="fas fa-users"></i>
+                            <span>Список турагентов</span>
+                        </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="travel-agent-applications">
+                            <i class="fas fa-file-contract"></i>
+                            <span>Заявки на партнерство</span>
+                        </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="agent-tour-bookings">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Заявки на туры</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="#" class="nav-item" data-section="drivers">
                     <i class="fas fa-id-card"></i>
                     <span data-translate="admin.drivers">Водители</span>
