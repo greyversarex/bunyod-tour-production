@@ -1,0 +1,184 @@
+[root@archlinux bunyod-tour]# cat > /tmp/cleanup_missing_images.sh << 'BASH_SCRIPT'
+#!/bin/bash
+UPLOAD_DIR="/var/bunyod-tour/uploads/images/"
+echo "🧹 Начинаю очистку несуществующих файлов из базы данных..."
+echo ""
+# Создать временную таблицу для обработки
+sudo -u postgres psql -d bunyod_tour << 'SQL'
+DO $$
+DECLARE
+    tour_rec RECORD;
+    images_array jsonb;
+    cleaned_images jsonb;
+    file_path text;
+    filename text;
+    full_path text;
+    original_count int;
+    cleaned_count int;
+    total_removed int := 0;
+    tours_updated int := 0;
+BEGIN
+    FOR tour_rec IN
+        SELECT id, title->>'ru' as title, images
+        FROM tours
+        WHERE images IS NOT NULL AND images != 'null' AND images != '[]'
+    LOOP
+        BEGIN
+            images_array := tour_rec.images::jsonb;
+            cleaned_images := '[]'::jsonb;
+            original_count := jsonb_array_length(images_array);
+
+            FOR i IN 0..original_count-1 LOOP
+                file_path := images_array->i->>0;
+
+                IF file_path LIKE '%/uploads/images/%' THEN
+                    filename := substring(file_path from '.*/uploads/images/(.*)$');
+                    full_path := '/var/bunyod-tour/uploads/images/' || filename;
+
+                    -- Проверяем существование файла через shell
+                    PERFORM pg_sleep(0);  -- Placeholder, файл проверим в bash
+
+                    -- Пока просто собираем все пути
+                    cleaned_images := cleaned_images || jsonb_build_array(file_path);
+                ELSE
+                    -- Оставляем другие пути как есть
+                    cleaned_images := cleaned_images || jsonb_build_array(file_path);
+                END IF;
+            END LOOP;
+
+        EXCEPTION WHEN OTHERS THEN
+            RAISE NOTICE 'Ошибка в туре %: %', tour_rec.id, SQLERRM;
+        END;
+    END LOOP;
+
+    RAISE NOTICE 'Анализ завершен';
+END $$;
+SQL
+echo ""
+echo "📊 Генерирую SQL для очистки..."
+# Создать SQL скрипт для обновления
+cat > /tmp/cleanup_images.sql << 'SQLSCRIPT'
+-- Очистка несуществующих файлов
+\set ON_ERROR_STOP on
+BEGIN;
+-- Обновляем каждый тур индивидуально
+SQLSCRIPT
+# Получить все туры и проверить файлы
+sudo -u postgres psql -d bunyod_tour -t -A -c "
+SELECT id, title->>'ru', images
+FROM tours
+WHERE images IS NOT NULL AND images != 'null' AND images != '[]'
+" | while IFS='|' read -r tour_id title images; do
+
+    cleaned_images="["
+    first=true
+
+    # Извлечь имена файлов и проверить существование
+    echo "$images" | grep -o '"/uploads/images/[^"]*"' | tr -d '"' | while read -r img_path; do
+        filename=$(echo "$img_path" | sed 's|.*/uploads/images/||')
+        full_path="${UPLOAD_DIR}${filename}"
+
+        if [ -f "$full_path" ]; then
+            if [ "$first" = true ]; then
+                cleaned_images="[\"$img_path\""
+                first=false
+            else
+                cleaned_images="${cleaned_images},\"$img_path\""
+            fi
+        fi
+    done
+
+    cleaned_images="${cleaned_images}]"
+
+    # Если изображения отличаются от оригинала - добавить UPDATE
+    if [ "$cleaned_images" != "$images" ]; then
+        echo "UPDATE tours SET images = '${cleaned_images}' WHERE id = ${tour_id};" >> /tmp/cleanup_images.sql
+        echo "  ✅ Тур #${tour_id} (${title:0:40})"
+    fi
+done
+echo "COMMIT;" >> /tmp/cleanup_images.sql
+echo ""
+echo "📄 SQL скрипт создан: /tmp/cleanup_images.sql"
+echo ""
+echo "🔍 Просмотр скрипта (первые 20 строк):"
+head -20 /tmp/cleanup_images.sql
+echo ""
+echo "❓ Хотите выполнить очистку? (y/n)"
+read -r answer
+if [ "$answer" = "y" ] || [ "$answer" = "Y" ]; then
+    echo "🚀 Выполняю очистку..."
+    sudo -u postgres psql -d bunyod_tour -f /tmp/cleanup_images.sql
+    echo ""
+    echo "✅ Очистка завершена!"
+    echo ""
+    echo "📊 Проверка результата:"
+    /tmp/check_missing_images.sh
+else
+    echo "❌ Очистка отменена"
+fi
+BASH_SCRIPT
+[root@archlinux bunyod-tour]# chmod +x /tmp/cleanup_missing_images.sh
+/tmp/cleanup_missing_images.sh
+🧹 Начинаю очистку несуществующих файлов из базы данных...
+
+NOTICE:  Анализ завершен
+DO
+
+📊 Генерирую SQL для очистки...
+  ✅ Тур #27 (Треккинг в Фанских горах)
+  ✅ Тур #28 (Пешая экскурсия по Бишкеку)
+  ✅ Тур #16 (Великий Шелковый Путь, северный-2)
+  ✅ Тур #12 (Знакомства с ДУШАНБЕ за 5 дней)
+  ✅ Тур #14 (День в Душанбе)
+  ✅ Тур #24 (ТЕСТ)
+  ✅ Тур #23 (Восточные легенды I)
+  ✅ Тур #13 (Один день в Душанбе)
+  ✅ Тур #15 (Экскурсия по Душанбе, пешая-1)
+  ✅ Тур #25 (Тур по Таджикистану, Самарканду и Бухаре)
+  ✅ Тур #26 (Экскурсия по Душанбе, пешая-2)
+
+📄 SQL скрипт создан: /tmp/cleanup_images.sql
+
+🔍 Просмотр скрипта (первые 20 строк):
+-- Очистка несуществующих файлов
+\set ON_ERROR_STOP on
+BEGIN;
+-- Обновляем каждый тур индивидуально
+UPDATE tours SET images = '[]' WHERE id = 27;
+UPDATE tours SET images = '[]' WHERE id = 28;
+UPDATE tours SET images = '[]' WHERE id = 16;
+UPDATE tours SET images = '[]' WHERE id = 12;
+UPDATE tours SET images = '[]' WHERE id = 14;
+UPDATE tours SET images = '[]' WHERE id = 24;
+UPDATE tours SET images = '[]' WHERE id = 23;
+UPDATE tours SET images = '[]' WHERE id = 13;
+UPDATE tours SET images = '[]' WHERE id = 15;
+UPDATE tours SET images = '[]' WHERE id = 25;
+UPDATE tours SET images = '[]' WHERE id = 26;
+COMMIT;
+
+❓ Хотите выполнить очистку? (y/n)
+y
+🚀 Выполняю очистку...
+BEGIN
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+UPDATE 1
+COMMIT
+
+✅ Очистка завершена!
+
+📊 Проверка результата:
+🔍 Проверяю файлы туров...
+
+
+📊 Проверка завершена
+[root@archlinux bunyod-tour]#
