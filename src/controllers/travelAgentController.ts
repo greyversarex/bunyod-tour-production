@@ -462,6 +462,81 @@ export const getAgentById = async (req: Request, res: Response) => {
 };
 
 /**
+ * Обновить профиль турагента (админ)
+ */
+export const updateAgent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { fullName, citizenship, address, phone, email, password, status } = req.body;
+
+    const agent = await prisma.travelAgent.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!agent) {
+      return res.status(404).json({
+        success: false,
+        message: 'Турагент не найден'
+      });
+    }
+
+    // Проверка уникальности email если он изменился
+    if (email && email !== agent.email) {
+      const existingAgent = await prisma.travelAgent.findUnique({
+        where: { email }
+      });
+
+      if (existingAgent) {
+        return res.status(400).json({
+          success: false,
+          message: 'Турагент с таким email уже существует'
+        });
+      }
+    }
+
+    const updateData: any = {};
+
+    if (fullName) updateData.fullName = fullName;
+    if (citizenship) updateData.citizenship = citizenship;
+    if (address) updateData.address = address;
+    if (phone) updateData.phone = phone;
+    if (email) updateData.email = email;
+    if (status && ['active', 'suspended'].includes(status)) {
+      updateData.status = status;
+    }
+
+    // Обновление пароля если указан
+    if (password && password.trim().length > 0) {
+      updateData.password = await bcrypt.hash(password, 10);
+      updateData.mustChangePassword = false;
+    }
+
+    const updatedAgent = await prisma.travelAgent.update({
+      where: { id: parseInt(id) },
+      data: updateData
+    });
+
+    return res.json({
+      success: true,
+      message: 'Данные турагента обновлены',
+      data: {
+        id: updatedAgent.id,
+        agentId: updatedAgent.agentId,
+        fullName: updatedAgent.fullName,
+        email: updatedAgent.email,
+        status: updatedAgent.status
+      }
+    });
+  } catch (error) {
+    console.error('Error updating agent:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ошибка при обновлении данных турагента'
+    });
+  }
+};
+
+/**
  * Обновить статус турагента (админ)
  */
 export const updateAgentStatus = async (req: Request, res: Response) => {

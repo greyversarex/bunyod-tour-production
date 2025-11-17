@@ -14256,7 +14256,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections first (including custom tour sections)
-            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection', 'vehiclesSection', 'travel-agents-listSection', 'travel-agent-applicationsSection', 'agent-tour-bookingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -14407,6 +14407,12 @@
                     break;
                 case 'exchange-rates':
                     loadExchangeRates();
+                    break;
+                case 'travel-agents-list':
+                    loadTravelAgents();
+                    break;
+                case 'travel-agent-applications':
+                    loadApplications();
                     break;
                 case 'settings':
                     // Load settings if needed
@@ -17154,6 +17160,425 @@
                     console.error('Error deleting vehicle:', err);
                     showNotification('Ошибка при удалении транспорта', 'error');
                 });
+        }
+
+        // ==================== TRAVEL AGENTS B2B MANAGEMENT ====================
+        
+        let allTravelAgentsData = [];
+        let allApplicationsData = [];
+        
+        async function loadTravelAgents() {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    allTravelAgentsData = data.data || [];
+                    renderTravelAgents(allTravelAgentsData);
+                } else {
+                    document.getElementById('travelAgentsList').innerHTML = 
+                        '<tr><td colspan="7" class="text-center text-red-600 py-4">Ошибка загрузки данных</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading travel agents:', err);
+                document.getElementById('travelAgentsList').innerHTML = 
+                    '<tr><td colspan="7" class="text-center text-red-600 py-4">Ошибка сети</td></tr>';
+            }
+        }
+        
+        function renderTravelAgents(agents) {
+            const tbody = document.getElementById('travelAgentsList');
+            
+            if (!agents || agents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-8">Нет турагентов</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = agents.map(agent => {
+                const statusClass = agent.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                const statusText = agent.status === 'active' ? 'Активен' : 'Приостановлен';
+                const date = new Date(agent.createdAt).toLocaleDateString('ru-RU');
+                
+                return `
+                    <tr>
+                        <td><span class="font-mono text-sm">${agent.agentId}</span></td>
+                        <td>${agent.fullName || '—'}</td>
+                        <td>${agent.email}</td>
+                        <td>${agent.phone || '—'}</td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
+                        <td>${date}</td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button onclick="viewTravelAgent(${agent.id})" class="btn-sm btn-secondary" title="Просмотр">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editTravelAgent(${agent.id})" class="btn-sm btn-primary" title="Редактировать">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="toggleAgentStatus(${agent.id}, '${agent.status}')" 
+                                    class="btn-sm ${agent.status === 'active' ? 'btn-danger' : 'bg-green-600 hover:bg-green-700 text-white'}" 
+                                    title="${agent.status === 'active' ? 'Приостановить' : 'Активировать'}">
+                                    <i class="fas fa-${agent.status === 'active' ? 'ban' : 'check'}"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function searchTravelAgents() {
+            const searchTerm = document.getElementById('travelAgentSearch')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('travelAgentStatusFilter')?.value || '';
+            
+            let filtered = allTravelAgentsData;
+            
+            if (searchTerm) {
+                filtered = filtered.filter(agent => {
+                    const agentId = (agent.agentId || '').toLowerCase();
+                    const fullName = (agent.fullName || '').toLowerCase();
+                    const email = (agent.email || '').toLowerCase();
+                    return agentId.includes(searchTerm) || fullName.includes(searchTerm) || email.includes(searchTerm);
+                });
+            }
+            
+            if (statusFilter) {
+                filtered = filtered.filter(agent => agent.status === statusFilter);
+            }
+            
+            renderTravelAgents(filtered);
+        }
+        
+        function filterTravelAgents() {
+            searchTravelAgents();
+        }
+        
+        async function viewTravelAgent(agentId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const agent = data.data;
+                    const date = new Date(agent.createdAt).toLocaleDateString('ru-RU');
+                    
+                    alert(`
+ДЕТАЛИ ТУРАГЕНТА
+
+ID Агента: ${agent.agentId}
+Компания: ${agent.fullName}
+Гражданство: ${agent.citizenship || '—'}
+Email: ${agent.email}
+Телефон: ${agent.phone || '—'}
+Адрес: ${agent.address || '—'}
+Статус: ${agent.status === 'active' ? 'Активен' : 'Приостановлен'}
+Дата регистрации: ${date}
+Всего заявок на туры: ${agent.totalBookings || 0}
+                    `.trim());
+                } else {
+                    showNotification('Ошибка при загрузке данных', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function editTravelAgent(agentId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (!data.success) {
+                    showNotification('Ошибка при загрузке данных', 'error');
+                    return;
+                }
+                
+                const agent = data.data;
+                
+                const fullName = prompt('Полное имя / Название компании:', agent.fullName || '');
+                if (fullName === null) return;
+                
+                const citizenship = prompt('Гражданство:', agent.citizenship || '');
+                if (citizenship === null) return;
+                
+                const email = prompt('Email (логин):', agent.email || '');
+                if (email === null) return;
+                
+                const phone = prompt('Телефон:', agent.phone || '');
+                if (phone === null) return;
+                
+                const address = prompt('Адрес офиса:', agent.address || '');
+                if (address === null) return;
+                
+                const newPassword = prompt('Новый пароль (оставьте пустым, чтобы не менять):', '');
+                if (newPassword === null) return;
+                
+                const updateData = {
+                    fullName: fullName.trim(),
+                    citizenship: citizenship.trim(),
+                    email: email.trim(),
+                    phone: phone.trim(),
+                    address: address.trim()
+                };
+                
+                if (newPassword && newPassword.trim().length > 0) {
+                    updateData.password = newPassword.trim();
+                }
+                
+                const updateRes = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const updateData2 = await updateRes.json();
+                
+                if (updateData2.success) {
+                    showNotification('Данные турагента обновлены!', 'success');
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (updateData2.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function toggleAgentStatus(agentId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            const action = newStatus === 'active' ? 'активировать' : 'приостановить';
+            
+            if (!confirm(`Вы уверены, что хотите ${action} этого турагента?`)) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(`Турагент успешно ${newStatus === 'active' ? 'активирован' : 'приостановлен'}`, 'success');
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        // ==================== TRAVEL AGENT APPLICATIONS ====================
+        
+        async function loadApplications() {
+            const statusFilter = document.getElementById('applicationStatusFilter')?.value || '';
+            const apiUrl = getApiUrl();
+            
+            try {
+                const url = statusFilter 
+                    ? `${apiUrl}/travel-agents/admin/applications?status=${statusFilter}`
+                    : `${apiUrl}/travel-agents/admin/applications`;
+                    
+                const res = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    allApplicationsData = data.data || [];
+                    renderApplications(allApplicationsData);
+                } else {
+                    document.getElementById('applicationsList').innerHTML = 
+                        '<tr><td colspan="7" class="text-center text-red-600 py-4">Ошибка загрузки данных</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading applications:', err);
+                document.getElementById('applicationsList').innerHTML = 
+                    '<tr><td colspan="7" class="text-center text-red-600 py-4">Ошибка сети</td></tr>';
+            }
+        }
+        
+        function renderApplications(applications) {
+            const tbody = document.getElementById('applicationsList');
+            
+            if (!applications || applications.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500 py-8">Нет заявок</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = applications.map(app => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (app.status) {
+                    case 'pending':
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        statusText = 'Ожидает';
+                        break;
+                    case 'approved':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = 'Одобрено';
+                        break;
+                    case 'rejected':
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = 'Отклонено';
+                        break;
+                }
+                
+                const date = new Date(app.createdAt).toLocaleDateString('ru-RU');
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${app.companyName || app.fullName || '—'}</td>
+                        <td>${app.fullName}</td>
+                        <td>${app.email}</td>
+                        <td>${app.phone || '—'}</td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="flex gap-2">
+                                <button onclick="viewApplication(${app.id})" class="btn-sm btn-secondary" title="Просмотр">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${app.status === 'pending' ? `
+                                    <button onclick="approveApplication(${app.id})" class="btn-sm bg-green-600 hover:bg-green-700 text-white" title="Одобрить">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button onclick="rejectApplication(${app.id})" class="btn-sm btn-danger" title="Отклонить">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function filterApplications() {
+            loadApplications();
+        }
+        
+        async function viewApplication(appId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/applications/${appId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    const app = data.data;
+                    const date = new Date(app.createdAt).toLocaleDateString('ru-RU');
+                    const docs = app.documents || [];
+                    
+                    alert(`
+ДЕТАЛИ ЗАЯВКИ НА ПАРТНЕРСТВО
+
+Дата подачи: ${date}
+Компания: ${app.companyName || '—'}
+Контактное лицо: ${app.fullName}
+Гражданство: ${app.citizenship || '—'}
+Email: ${app.email}
+Телефон: ${app.phone || '—'}
+Адрес: ${app.address || '—'}
+Сайт: ${app.website || '—'}
+Опыт: ${app.experience || '—'}
+
+Статус: ${app.status === 'pending' ? 'Ожидает' : app.status === 'approved' ? 'Одобрено' : 'Отклонено'}
+${app.rejectionReason ? `Причина отклонения: ${app.rejectionReason}` : ''}
+
+Документы: ${docs.length} файл(ов)
+${docs.map(doc => `- ${doc.filename}`).join('\n')}
+                    `.trim());
+                } else {
+                    showNotification('Ошибка при загрузке данных', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function approveApplication(appId) {
+            if (!confirm('Вы уверены, что хотите одобрить эту заявку?\n\nПосле одобрения будет создан аккаунт турагента и отправлен email с учетными данными.')) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/applications/${appId}/approve`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('Заявка одобрена! Email с учетными данными отправлен турагенту.', 'success');
+                    loadApplications();
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function rejectApplication(appId) {
+            const reason = prompt('Введите причину отклонения заявки:');
+            if (!reason || reason.trim().length === 0) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/applications/${appId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ reason: reason.trim() })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('Заявка отклонена', 'success');
+                    loadApplications();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
         }
 
     </script>

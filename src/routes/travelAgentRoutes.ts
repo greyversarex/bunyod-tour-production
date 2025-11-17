@@ -92,6 +92,7 @@ router.post('/admin/applications/:id/reject', authMiddleware, travelAgentControl
 // Управление турагентами
 router.get('/admin/agents', authMiddleware, travelAgentController.getAllAgents);
 router.get('/admin/agents/:id', authMiddleware, travelAgentController.getAgentById);
+router.put('/admin/agents/:id', authMiddleware, travelAgentController.updateAgent);
 router.patch('/admin/agents/:id/status', authMiddleware, travelAgentController.updateAgentStatus);
 
 // Заявки от турагентов
