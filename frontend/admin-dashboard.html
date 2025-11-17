@@ -920,33 +920,116 @@
                     </div>
                 </section>
 
-                <!-- Tour Agents Section -->
-                <section id="tourAgentsSection" style="display: none;">
+                <!-- Travel Agents List Section (B2B) -->
+                <section id="travel-agents-listSection" style="display: none;">
                     <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-xl font-semibold" data-translate="admin.manage_tour_agents">Управление турагентами</h2>
-                            <button class="btn btn-primary" onclick="openTourAgentModal()">
-                                <i class="fas fa-plus"></i>
-                                Добавить турагента
-                            </button>
-                        </div>
+                        <h2 class="text-xl font-semibold mb-4">Список турагентов B2B</h2>
                         
                         <!-- Search and Filter -->
-                        <div class="flex justify-between items-center mb-4">
-                            <div class="search-bar">
-                                <input type="text" id="tourAgentSearch" data-translate-placeholder="placeholder.search_tour_agents" placeholder="Поиск турагентов..." onkeyup="searchTourAgents()">
+                        <div class="flex gap-4 mb-4">
+                            <div class="search-bar flex-1">
+                                <input type="text" id="travelAgentSearch" placeholder="Поиск по ID, компании или email..." onkeyup="searchTravelAgents()">
                                 <i class="fas fa-search"></i>
                             </div>
-                            <select id="tourAgentFilter" onchange="filterTourAgents()" class="form-input" style="max-width: 200px;">
-                                <option value="">Все турагенты</option>
+                            <select id="travelAgentStatusFilter" onchange="filterTravelAgents()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все статусы</option>
                                 <option value="active">Активные</option>
-                                <option value="inactive">Неактивные</option>
+                                <option value="suspended">Приостановленные</option>
                             </select>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="tourAgentsList">
-                        <!-- Tour agents will be loaded here -->
+                    <div class="data-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>ID агента</th>
+                                    <th>Компания</th>
+                                    <th>Email</th>
+                                    <th>Телефон</th>
+                                    <th>Статус</th>
+                                    <th>Дата регистрации</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="travelAgentsList">
+                                <!-- Travel agents will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Travel Agent Applications Section (B2B) -->
+                <section id="travel-agent-applicationsSection" style="display: none;">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Заявки на партнерство B2B</h2>
+                        
+                        <!-- Filter by status -->
+                        <div class="flex gap-4 mb-4">
+                            <select id="applicationStatusFilter" onchange="filterApplications()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все заявки</option>
+                                <option value="pending" selected>Ожидающие</option>
+                                <option value="approved">Одобренные</option>
+                                <option value="rejected">Отклоненные</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="data-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Компания</th>
+                                    <th>Контакт</th>
+                                    <th>Email</th>
+                                    <th>Телефон</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicationsList">
+                                <!-- Applications will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Agent Tour Bookings Section (B2B) -->
+                <section id="agent-tour-bookingsSection" style="display: none;">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Заявки на туры от агентов</h2>
+                        
+                        <!-- Filter by status -->
+                        <div class="flex gap-4 mb-4">
+                            <select id="agentBookingStatusFilter" onchange="filterAgentBookings()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все заявки</option>
+                                <option value="pending" selected>Ожидающие</option>
+                                <option value="confirmed">Подтвержденные</option>
+                                <option value="completed">Завершенные</option>
+                                <option value="cancelled">Отмененные</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="data-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>ID заявки</th>
+                                    <th>Турагент</th>
+                                    <th>Тур</th>
+                                    <th>Дата тура</th>
+                                    <th>Туристов</th>
+                                    <th>Цена</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="agentBookingsList">
+                                <!-- Agent bookings will be loaded here -->
+                            </tbody>
+                        </table>
                     </div>
                 </section>
 
