@@ -308,6 +308,49 @@ window.translations = window.translations || {
     'hotel.showing_results': { ru: 'Показано отелей:', en: 'Showing hotels:' },
     'hotel.showing_results_template': { ru: 'Показано {count} из {total} отелей', en: 'Showing {count} of {total} hotels' },
     
+    // === ТРАНСПОРТ (VEHICLES) ===
+    'vehicles.page_title': { ru: 'Каталог транспорта - Bunyod-Tour', en: 'Vehicles Catalog - Bunyod-Tour' },
+    'vehicles.catalog_title': { ru: 'Каталог транспорта', en: 'Vehicles Catalog' },
+    'vehicles.catalog_subtitle': { ru: 'Выберите идеальный транспорт для вашего путешествия', en: 'Choose the perfect vehicle for your journey' },
+    'vehicles.filters_title': { ru: 'Фильтры', en: 'Filters' },
+    
+    // Типы транспорта
+    'vehicles.type': { ru: 'Тип транспорта', en: 'Vehicle Type' },
+    'vehicles.all_types': { ru: 'Все типы', en: 'All Types' },
+    'vehicles.type_sedan': { ru: 'Седан', en: 'Sedan' },
+    'vehicles.type_suv': { ru: 'Внедорожник', en: 'SUV' },
+    'vehicles.type_minibus': { ru: 'Микроавтобус', en: 'Minibus' },
+    'vehicles.type_bus': { ru: 'Автобус', en: 'Bus' },
+    'vehicles.type_minivan': { ru: 'Минивэн', en: 'Minivan' },
+    'vehicles.type_luxury': { ru: 'Люкс', en: 'Luxury' },
+    
+    // Фильтры
+    'vehicles.country': { ru: 'Страна', en: 'Country' },
+    'vehicles.all_countries': { ru: 'Все страны', en: 'All Countries' },
+    'vehicles.capacity': { ru: 'Вместимость', en: 'Capacity' },
+    'vehicles.capacity_any': { ru: 'Любая', en: 'Any' },
+    'vehicles.capacity_1_4': { ru: '1-4 пассажира', en: '1-4 passengers' },
+    'vehicles.capacity_5_8': { ru: '5-8 пассажиров', en: '5-8 passengers' },
+    'vehicles.capacity_9_15': { ru: '9-15 пассажиров', en: '9-15 passengers' },
+    'vehicles.capacity_16_plus': { ru: '16+ пассажиров', en: '16+ passengers' },
+    'vehicles.search_placeholder': { ru: 'Марка, номер...', en: 'Brand, license plate...' },
+    'vehicles.clear_filters': { ru: 'Очистить фильтры', en: 'Clear Filters' },
+    'vehicles.found_count': { ru: 'Найдено 0 из 0 транспорта', en: 'Found 0 of 0 vehicles' },
+    'vehicles.found_template': { ru: 'Найдено {count} из {total} транспорта', en: 'Found {count} of {total} vehicles' },
+    
+    // Сообщения
+    'vehicles.no_vehicles': { ru: 'Транспорт не найден', en: 'No vehicles found' },
+    'vehicles.try_change_filters': { ru: 'Попробуйте изменить фильтры поиска', en: 'Try changing search filters' },
+    'vehicles.loading': { ru: 'Загрузка транспорта...', en: 'Loading vehicles...' },
+    
+    // Карточка транспорта
+    'vehicles.price_per_day': { ru: 'Цена за день', en: 'Price per day' },
+    'vehicles.passengers': { ru: 'пассажиров', en: 'passengers' },
+    'vehicles.contact': { ru: 'Связаться', en: 'Contact' },
+    'vehicles.license_plate': { ru: 'Гос. номер', en: 'License Plate' },
+    'vehicles.year': { ru: 'Год выпуска', en: 'Year' },
+    'vehicles.brand': { ru: 'Марка', en: 'Brand' },
+    
     // Фильтры отелей
     'filters.country': { ru: 'Страна', en: 'Country' },
     'filters.all_countries': { ru: 'Все страны', en: 'All Countries' },
@@ -686,6 +729,10 @@ window.translations = window.translations || {
     'admin.tours': { ru: 'Туры', en: 'Tours' },
     'admin.hotels': { ru: 'Отели', en: 'Hotels' },
     'admin.guides': { ru: 'Гиды', en: 'Guides' },
+    'admin.vehicles': { ru: 'Транспорт', en: 'Vehicles' },
+    'admin.manage_vehicles': { ru: 'Управление транспортом', en: 'Manage Vehicles' },
+    'admin.add_vehicle': { ru: 'Добавить транспорт', en: 'Add Vehicle' },
+    'admin.search_vehicles': { ru: 'Поиск транспорта...', en: 'Search vehicles...' },
     'admin.bookings': { ru: 'Заказы', en: 'Bookings' },
     'admin.orders': { ru: 'Заказы', en: 'Orders' },
     'admin.settings': { ru: 'Настройки', en: 'Settings' },

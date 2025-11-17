@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="vehicles.page_title">Каталог транспорта - Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/multilingual-utils.js"></script>
+    <script src="/public/js/layout-loader.js"></script>
+    <script src="/public/js/utils.js"></script>
+    <link rel="stylesheet" href="/public/css/layout.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #4A4A4A 0%, #3E3E3E 50%, #2F2F2F 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .vehicle-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .vehicle-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .vehicle-image {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+        }
+        .glass-badge {
+            background: rgba(62, 62, 62, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            padding: 4px 12px;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .filter-panel {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        .filter-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .filter-input, .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .filter-input:focus, .filter-select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+        }
+        .filter-select option {
+            background: #3E3E3E;
+            color: white;
+        }
+        .vehicle-card-content {
+            padding: 20px;
+            color: white;
+        }
+        .vehicle-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .vehicle-info {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+        .vehicle-price {
+            color: #FFD700;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="header-container"></div>
+
+    <div class="pt-28">
+        <div class="max-w-6xl mx-auto px-6 py-6">
+            <div class="filter-panel mb-8">
+                <h3 class="text-xl font-bold mb-6 flex items-center text-white">
+                    <i class="fas fa-filter mr-3"></i>
+                    <span data-translate="vehicles.filters_title">Фильтры</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.type">Тип транспорта</label>
+                        <select id="typeFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.all_types">Все типы</option>
+                            <option value="sedan" data-translate="vehicles.type_sedan">Седан</option>
+                            <option value="suv" data-translate="vehicles.type_suv">Внедорожник</option>
+                            <option value="minibus" data-translate="vehicles.type_minibus">Микроавтобус</option>
+                            <option value="bus" data-translate="vehicles.type_bus">Автобус</option>
+                            <option value="minivan" data-translate="vehicles.type_minivan">Минивэн</option>
+                            <option value="luxury" data-translate="vehicles.type_luxury">Люкс</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.country">Страна</label>
+                        <select id="countryFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.all_countries">Все страны</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.capacity">Вместимость</label>
+                        <select id="capacityFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.capacity_any">Любая</option>
+                            <option value="1-4" data-translate="vehicles.capacity_1_4">1-4 пассажира</option>
+                            <option value="5-8" data-translate="vehicles.capacity_5_8">5-8 пассажиров</option>
+                            <option value="9-15" data-translate="vehicles.capacity_9_15">9-15 пассажиров</option>
+                            <option value="16+" data-translate="vehicles.capacity_16_plus">16+ пассажиров</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="hotel.search">Поиск</label>
+                        <input type="text" id="searchInput" data-translate-placeholder="vehicles.search_placeholder" placeholder="Марка, номер..." 
+                               class="filter-input w-full p-3">
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mt-6">
+                    <button onclick="clearFilters()" class="text-red-400 hover:text-red-300 font-medium transition-colors">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span data-translate="vehicles.clear_filters">Очистить фильтры</span>
+                    </button>
+                    <div class="text-sm text-white/80">
+                        <span id="resultsCount" data-translate="vehicles.found_count">Найдено 0 из 0 транспорта</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div id="errorBanner" class="hidden max-w-6xl mx-auto px-6 mb-6">
+            <div class="bg-red-500/20 border border-red-400/30 rounded-xl p-4 backdrop-blur-md">
+                <p class="text-red-200 text-center">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="errorMessage"></span>
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 pb-12">
+            <div id="vehiclesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Vehicles will be loaded here -->
+            </div>
+        </div>
+
+        <div id="noResults" class="hidden text-center py-12">
+            <i class="fas fa-car text-white/40 text-6xl mb-4"></i>
+            <h3 class="text-xl font-semibold text-white mb-2" data-translate="vehicles.no_vehicles">Транспорт не найден</h3>
+            <p class="text-white/70" data-translate="vehicles.try_change_filters">Попробуйте изменить фильтры поиска</p>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script src="/public/js/vehicles-catalog.js"></script>
+</body>
+</html>
