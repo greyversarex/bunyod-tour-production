@@ -41,6 +41,13 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, PriceCalculatorComponents, CustomTourOrders, Countries, Cities, Reviews, ExchangeRates, Slides, and News. Relationships are managed through Prisma.
 -   **Backend Structure**: Organized into `config`, `controllers`, `routes`, `middleware`, `models`, `services`, `utils`, and `types` directories for clear separation of concerns.
 -   **Frontend Structure**: `public` for static assets, HTML templates for various pages (home, search, tour details, booking steps, admin dashboard, etc.), and modular JavaScript files for specific functionalities and i18n.
+-   **File Upload System**: 
+    -   **CRITICAL FIX (Nov 17, 2025)**: Resolved catastrophic issue where `git reset --hard` in deployment was deleting all uploaded images
+    -   Production storage: `/var/bunyod-tour/uploads` (persistent, outside APP_DIR)
+    -   Application access: `/srv/bunyod-tour/uploads` → symlink to persistent storage
+    -   Git tracking: `/uploads/` excluded from git via `.gitignore`, only `.gitkeep` files tracked for structure
+    -   Update script: Automatically creates/repairs symlink on every deployment
+    -   Security: Only image files (`.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`) served via dedicated routes: `/uploads/images`, `/uploads/guides`, `/uploads/slides`
 -   **Deployment**: Automated deployment script (`update.sh`) with database backup, `git pull`, `npm install`, `prisma migrate deploy`, `npm run seed`, and PM2 restart. PM2 manages process clustering and logging. Nginx serves as a reverse proxy with SSL, security headers, and rate limiting.
 -   **Monitoring**: PM2 and Nginx provide logging, and a `/healthz` endpoint is available for health checks.
 -   **Database Migration**: Utilizes both manual SQL migrations for complex schema changes and Prisma migrations (`prisma migrate deploy`) for regular updates. Seeding is idempotent.
