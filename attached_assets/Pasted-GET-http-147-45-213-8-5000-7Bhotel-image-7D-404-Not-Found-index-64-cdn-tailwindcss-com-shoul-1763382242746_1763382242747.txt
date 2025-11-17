@@ -1,0 +1,111 @@
+GET http://147.45.213.8:5000/$%7Bhotel.image%7D 404 (Not Found)
+(index):64 cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation
+(anonymous) @ (index):64
+(anonymous) @ (index):64
+i18n.js?v=1759745702:2344 🌍 i18n система инициализирована | Унифицированное переключение языка: updatePageLanguage()
+multilingual-utils.js?v=2.5:572 🌐 Система многоязычных утилит загружена успешно
+utils.js?v=1759745702:131 ✅ Utils.js loaded: Image utility functions available
+tour-template.html?tour=24:315 Error: <path> attribute d: Expected arc flag ('0' or '1'), "…1A7.962 7.962 0 714 12H0c0 3.042…".
+i18n.js?v=1759745702:1960 Перевод не найден для ключа: btn.share_native
+(anonymous) @ i18n.js?v=1759745702:1960
+translateStaticInterface @ i18n.js?v=1759745702:1947
+initializeLanguage @ i18n.js?v=1759745702:1939
+(anonymous) @ i18n.js?v=1759745702:2214
+i18n.js?v=1759745702:2163 👁️ MutationObserver запущен - новые элементы будут автоматически переводиться
+tour-template.html?tour=24:2968 DOM loaded, initializing page...
+tour-template.html?tour=24:2848 💱 Loading exchange rates...
+tour-template.html?tour=24:2854 💱 Exchange rates loaded: {USD: {…}, RUB: {…}, EUR: {…}, CNY: {…}, TJS: {…}}
+tour-template.html?tour=24:2976 💱 Применяем сохраненную валюту: TJS
+tour-template.html?tour=24:2880 💱 Updating currency to: TJS
+tour-template.html?tour=24:2913 ✅ Currency updated successfully
+tour-template.html?tour=24:838 Loading tour data from API...
+layout-loader.js?v=1759745702:67 ✅ Header loaded successfully
+i18n.js?v=1759745702:2127 🔄 MutationObserver: переведено 45 новых элементов на ru
+tour-template.html?tour=24:965 ❌ Скрыт блок "Забронировать сейчас, оплатить позже" (тип тура: individual )
+tour-template.html?tour=24:1999 Review elements check: {reviewsContainer: true, reviewsCount: true, reviewsLoading: true}
+tour-template.html?tour=24:2011 Starting review loading process...
+layout-loader.js?v=1759745702:91 ✅ Footer loaded successfully
+i18n.js?v=1759745702:2127 🔄 MutationObserver: переведено 21 новых элементов на ru
+i18n.js?v=1759745702:1812 🌍 Переключение языка на: ru
+i18n.js?v=1759745702:1960 Перевод не найден для ключа: btn.share_native
+(anonymous) @ i18n.js?v=1759745702:1960
+translateStaticInterface @ i18n.js?v=1759745702:1947
+updatePageLanguage @ i18n.js?v=1759745702:1828
+setDefaultLanguage @ layout-loader.js?v=1759745702:283
+initializeAfterLoad @ layout-loader.js?v=1759745702:100
+init @ layout-loader.js?v=1759745702:29
+await in init
+LayoutLoader @ layout-loader.js?v=1759745702:18
+(anonymous) @ layout-loader.js?v=1759745702:434
+multilingual-utils.js?v=2.5:315 🔄 Переключение всего динамического контента на: ru
+multilingual-utils.js?v=2.5:347 ✅ Обновлено 0 элементов динамического контента
+i18n.js?v=1759745702:1833 ✅ Динамический контент обновлен
+i18n.js?v=1759745702:1846 📢 Событие languageChanged отправлено для языка: ru
+i18n.js?v=1759745702:1855 🎉 Переключение языка на ru завершено
+layout-loader.js?v=1759745702:291 🌍 Language set to: ru
+tour-template.html?tour=24:2880 💱 Updating currency to: TJS
+tour-template.html?tour=24:2913 ✅ Currency updated successfully
+layout-loader.js?v=1759745702:318 💱 Currency set to: TJS
+layout-loader.js?v=1759745702:322 🔄 Initializing footer map after component injection...
+layout-loader.js?v=1759745702:137 🎉 Layout initialization completed
+tour-template.html?tour=24:2052 No reviews found for this tour
+tour-template.html?tour=24:2632 🔄 Обновление списка услуг для языка: ru
+tour-template.html?tour=24:2674 ✅ Список услуг обновлен для языка ru, отображено 2 услуг
+tour-template.html?tour=24:2679 🔄 Обновление списка "Не включено" для языка: ru
+tour-template.html?tour=24:2735 ✅ Список "Не включено" обновлен для языка ru, отображено 3 услуг
+tour-template.html?tour=24:3175 💰 updatePriceDisplay вызвана: {tourDataPrice: '12', priceType: 'per_person', tourType: 'individual', travelers: {…}}
+tour-template.html?tour=24:3204 💰 Расчет цены: {basePriceInTJS: 12, totalTravelers: 1, minPeople: 1, priceType: 'per_person', tourType: 'individual', …}
+tour-template.html?tour=24:3233 ✅ Цена "за человека": 12 TJS × 1 = 12 TJS → 12 TJS
+tour-template.html?tour=24:3239 📌 Показываем "от" (начальная цена: 1 человек)
+tour-template.html?tour=24:3282 💬 Обновлен текст цены: "за человека" (туристов: 1, тип: individual)
+tour-template.html?tour=24:1512 ✅ Инициализированы туристы: минимум 1, максимум 2
+tour-template.html?tour=24:1543 📍 Нет точек карты - вкладка скрыта
+2i18n.js?v=1759745702:2127 🔄 MutationObserver: переведено 1 новых элементов на ru
+tour-template.html?tour=24:2989 💱 Layout уже загружен, инициализируем обработчики валюты немедленно
+tour-template.html?tour=24:2963 💱 Обработчики валюты инициализированы для 0 кнопок
+layout-loader.js?v=1759745702:332 🔄 initFooterMap() called, looking for #map element...
+layout-loader.js?v=1759745702:335 🔍 Map element found: true
+layout-loader.js?v=1759745702:337 📏 Map element dimensions: 1104x128
+layout-loader.js?v=1759745702:349 🗺️ Creating official Google Maps iframe with Bunyod-Tour marker...
+layout-loader.js?v=1759745702:353 🔗 Official Google Maps URL loaded
+layout-loader.js?v=1759745702:370 ✅ Official Bunyod-Tour Google Maps embedded successfully!
+layout-loader.js?v=1759745702:371 🎯 Company: Bunyod-Tour with official Google Maps marker
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-10-31', month: 11, dayOfWeek: 6, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-01', month: 11, dayOfWeek: 0, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-02', month: 11, dayOfWeek: 1, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-03', month: 11, dayOfWeek: 2, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-04', month: 11, dayOfWeek: 3, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-05', month: 11, dayOfWeek: 4, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-06', month: 11, dayOfWeek: 5, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-07', month: 11, dayOfWeek: 6, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-08', month: 11, dayOfWeek: 0, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-09', month: 11, dayOfWeek: 1, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-10', month: 11, dayOfWeek: 2, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-11', month: 11, dayOfWeek: 3, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-12', month: 11, dayOfWeek: 4, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-13', month: 11, dayOfWeek: 5, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-14', month: 11, dayOfWeek: 6, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-15', month: 11, dayOfWeek: 0, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-16', month: 11, dayOfWeek: 1, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-17', month: 11, dayOfWeek: 2, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-18', month: 11, dayOfWeek: 3, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-19', month: 11, dayOfWeek: 4, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-20', month: 11, dayOfWeek: 5, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-21', month: 11, dayOfWeek: 6, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-22', month: 11, dayOfWeek: 0, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-23', month: 11, dayOfWeek: 1, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-24', month: 11, dayOfWeek: 2, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-25', month: 11, dayOfWeek: 3, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-26', month: 11, dayOfWeek: 4, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-27', month: 11, dayOfWeek: 5, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-28', month: 11, dayOfWeek: 6, availableMonths: Array(4), availableDays: Array(7), …}
+tour-template.html?tour=24:2342 Проверка доступности: {selectedDate: '2025-11-29', month: 11, dayOfWeek: 0, availableMonths: Array(4), availableDays: Array(7), …}
+image-1761678833517-555301128.png:1  GET http://147.45.213.8:5000/uploads/images/image-1761678833517-555301128.png 404 (Not Found)
+content.js:510 Unable to check top-level optout: Failed to read a named property 'document' from 'Window': Blocked a frame with origin "https://www.google.com" from accessing a cross-origin frame.
+checkPageOptout @ content.js:510
+(anonymous) @ content.js:527
+await in (anonymous)
+(anonymous) @ content.js:603
+(anonymous) @ content.js:605
+tour-template.html?tour=24:1 📍 Bunyod-Tour Google Maps loaded successfully!
+init_embed.js:285 Search endpoint requested!
