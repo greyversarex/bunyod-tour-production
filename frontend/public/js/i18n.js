@@ -1874,7 +1874,7 @@ window.translations = window.translations || {
     'agent.partner_type6': { ru: 'Турагентства', en: 'Travel agencies' },
     'agent.partner_type7': { ru: 'Владельцы отелей', en: 'Hotel owners' },
     'agent.partner_type8': { ru: 'Студенты и фрилансеры', en: 'Students and freelancers' },
-    'agent.partner_conclusion': { ru: 'Заработать на партнерках в туризме можно практически всем; даже если нет солидного опыта в туризме, можно завести тематический онлайн ресурс и научится его продвигать.', en: 'Almost anyone can earn from tourism partnerships; even if you don\'t have solid tourism experience, you can create a thematic online resource and learn to promote it.' },
+    'agent.partner_conclusion': { ru: 'Заработать на партнерках в туризме можно практически всем', en: 'Almost anyone can earn from tourism partnerships' },
     
     // Agent Login Page
     'agent.login_title': { ru: 'Вход для турагентов - Bunyod-Tour', en: 'Agent Login - Bunyod-Tour' },
