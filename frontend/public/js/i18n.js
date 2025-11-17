@@ -1934,6 +1934,8 @@ window.translations = window.translations || {
     'vehicles.vehicle': { ru: 'транспорт', en: 'vehicle' },
     'vehicles.vehicles': { ru: 'транспорта', en: 'vehicles' },
     'vehicles.all_countries': { ru: 'Все страны', en: 'All Countries' },
+    'vehicles.city': { ru: 'Город', en: 'City' },
+    'vehicles.all_cities': { ru: 'Все города', en: 'All Cities' },
     'vehicles.capacity_any': { ru: 'Любая', en: 'Any' },
     'vehicles.capacity_1_4': { ru: '1-4 пассажира', en: '1-4 passengers' },
     'vehicles.capacity_5_8': { ru: '5-8 пассажиров', en: '5-8 passengers' },

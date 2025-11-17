@@ -2,6 +2,7 @@
 let allVehicles = [];
 let filteredVehicles = [];
 let allCountries = [];
+let allCities = [];
 
 // Load vehicles on page load
 document.addEventListener('DOMContentLoaded', async () => {
@@ -86,6 +87,63 @@ function populateCountryFilter() {
     }
 }
 
+// Load cities for selected country
+async function loadCities(countryId = null) {
+    try {
+        const url = countryId ? `/api/cities?countryId=${countryId}` : '/api/cities';
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            allCities = data.data;
+            populateCityFilter();
+        } else {
+            console.error('Failed to load cities:', data.message);
+            allCities = [];
+            populateCityFilter();
+        }
+    } catch (error) {
+        console.error('Error loading cities:', error);
+        allCities = [];
+        populateCityFilter();
+    }
+}
+
+// Populate city filter
+function populateCityFilter() {
+    const cityFilter = document.getElementById('cityFilter');
+    if (!cityFilter) return;
+    
+    const lang = window.currentLanguage || 'ru';
+    
+    // Clear all existing options
+    cityFilter.innerHTML = '';
+    
+    // Add default option with translation
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    const defaultText = window.getTranslation ? 
+        window.getTranslation('vehicles.all_cities', lang) : 
+        (lang === 'ru' ? 'Все города' : 'All Cities');
+    defaultOption.textContent = defaultText;
+    cityFilter.appendChild(defaultOption);
+    
+    // Add city options
+    allCities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.id;
+        option.textContent = lang === 'ru' ? city.nameRu : city.nameEn;
+        cityFilter.appendChild(option);
+    });
+    
+    // Re-apply translations
+    if (typeof applyTranslations === 'function') {
+        applyTranslations();
+    } else if (window.updatePageLanguage) {
+        window.updatePageLanguage(lang);
+    }
+}
+
 // Load vehicles from API
 async function loadVehicles() {
     try {
@@ -109,21 +167,35 @@ async function loadVehicles() {
 function setupFilters() {
     const typeFilter = document.getElementById('typeFilter');
     const countryFilter = document.getElementById('countryFilter');
+    const cityFilter = document.getElementById('cityFilter');
     const capacityFilter = document.getElementById('capacityFilter');
-    const searchInput = document.getElementById('searchInput');
     
     typeFilter?.addEventListener('change', applyFilters);
-    countryFilter?.addEventListener('change', applyFilters);
     capacityFilter?.addEventListener('change', applyFilters);
-    searchInput?.addEventListener('input', applyFilters);
+    cityFilter?.addEventListener('change', applyFilters);
+    
+    // Country filter loads cities and applies filters
+    countryFilter?.addEventListener('change', async (e) => {
+        const countryId = e.target.value;
+        if (countryId) {
+            await loadCities(countryId);
+        } else {
+            allCities = [];
+            populateCityFilter();
+        }
+        // Reset city filter when country changes
+        const cityFilterEl = document.getElementById('cityFilter');
+        if (cityFilterEl) cityFilterEl.value = '';
+        applyFilters();
+    });
 }
 
 // Apply all filters
 function applyFilters() {
     const type = document.getElementById('typeFilter')?.value || '';
     const country = document.getElementById('countryFilter')?.value || '';
+    const city = document.getElementById('cityFilter')?.value || '';
     const capacity = document.getElementById('capacityFilter')?.value || '';
-    const search = document.getElementById('searchInput')?.value.toLowerCase() || '';
     
     filteredVehicles = allVehicles.filter(vehicle => {
         // Type filter
@@ -136,6 +208,11 @@ function applyFilters() {
             return false;
         }
         
+        // City filter
+        if (city && vehicle.cityId != city) {
+            return false;
+        }
+        
         // Capacity filter
         if (capacity) {
             const cap = vehicle.capacity;
@@ -143,18 +220,6 @@ function applyFilters() {
             if (capacity === '5-8' && (cap < 5 || cap > 8)) return false;
             if (capacity === '9-15' && (cap < 9 || cap > 15)) return false;
             if (capacity === '16+' && cap < 16) return false;
-        }
-        
-        // Search filter
-        if (search) {
-            const nameMatch = (vehicle.nameRu || '').toLowerCase().includes(search) ||
-                            (vehicle.nameEn || '').toLowerCase().includes(search);
-            const plateMatch = (vehicle.licensePlate || '').toLowerCase().includes(search);
-            const brandMatch = (vehicle.brand || '').toLowerCase().includes(search);
-            
-            if (!nameMatch && !plateMatch && !brandMatch) {
-                return false;
-            }
         }
         
         return true;
@@ -168,8 +233,10 @@ function applyFilters() {
 function clearFilters() {
     document.getElementById('typeFilter').value = '';
     document.getElementById('countryFilter').value = '';
+    document.getElementById('cityFilter').value = '';
     document.getElementById('capacityFilter').value = '';
-    document.getElementById('searchInput').value = '';
+    allCities = [];
+    populateCityFilter();
     applyFilters();
 }
 
@@ -310,4 +377,5 @@ document.addEventListener('languageChanged', (e) => {
     console.log('🌍 Language changed to:', e.detail.language);
     loadVehicles(); // Reload vehicles with new language
     populateCountryFilter(); // Update country filter with new language
+    populateCityFilter(); // Update city filter with new language
 });
