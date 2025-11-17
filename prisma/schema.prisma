@@ -897,3 +897,85 @@ enum NewsCategory {
   tips
   general
 }
+
+enum ApplicationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum AgentStatus {
+  pending
+  active
+  suspended
+}
+
+enum BookingStatus {
+  pending
+  confirmed
+  completed
+  cancelled
+}
+
+model TravelAgentApplication {
+  id                     Int                @id @default(autoincrement())
+  fullName               String             @map("full_name")
+  citizenship            String
+  address                String
+  phone                  String
+  email                  String
+  documents              String?
+  agreementAccepted      Boolean            @default(false) @map("agreement_accepted")
+  privacyPolicyAccepted  Boolean            @default(false) @map("privacy_policy_accepted")
+  status                 ApplicationStatus  @default(pending)
+  rejectionReason        String?            @map("rejection_reason")
+  processedAt            DateTime?          @map("processed_at")
+  processedBy            Int?               @map("processed_by")
+  createdAt              DateTime           @default(now()) @map("created_at")
+  updatedAt              DateTime           @updatedAt @map("updated_at")
+  approvedAgent          TravelAgent?
+
+  @@map("travel_agent_applications")
+}
+
+model TravelAgent {
+  id                     Int       @id @default(autoincrement())
+  applicationId          Int?      @unique @map("application_id")
+  agentId                String    @unique @map("agent_id")
+  fullName               String    @map("full_name")
+  citizenship            String
+  address                String
+  phone                  String
+  email                  String    @unique
+  password               String
+  documents              String?
+  status                 AgentStatus @default(active)
+  mustChangePassword     Boolean   @default(true) @map("must_change_password")
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  lastLoginAt            DateTime? @map("last_login_at")
+  application            TravelAgentApplication? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+  bookings               AgentTourBooking[]
+
+  @@map("travel_agents")
+}
+
+model AgentTourBooking {
+  id                     Int       @id @default(autoincrement())
+  agentId                Int       @map("agent_id")
+  bookingNumber          String    @unique @map("booking_number")
+  tourName               String    @map("tour_name")
+  tourStartDate          DateTime  @map("tour_start_date")
+  tourEndDate            DateTime  @map("tour_end_date")
+  touristsCount          Int       @map("tourists_count")
+  tourists               String
+  totalPrice             Float?    @map("total_price")
+  agentCommission        Float?    @map("agent_commission")
+  status                 BookingStatus @default(pending)
+  notes                  String?
+  createdAt              DateTime  @default(now()) @map("created_at")
+  updatedAt              DateTime  @updatedAt @map("updated_at")
+  agent                  TravelAgent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+
+  @@map("agent_tour_bookings")
+}

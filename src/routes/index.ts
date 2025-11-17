@@ -36,6 +36,8 @@ import cityCardPhotoRoutes from './cityCardPhotoRoutes'; // ОТДЕЛЬНАЯ �
 // Trip system
 import tripRoutes from './tripRoutes';
 import tourAgentRoutes from './tourAgentRoutes';
+// B2B Travel Agent Partnership system
+import travelAgentRoutes from './travelAgentRoutes';
 // Transfer system
 import transferRoutes from './transferRoutes';
 // Guide hire system
@@ -79,7 +81,8 @@ router.use('/countries', countryRoutes); // Countries management
 router.use('/cities', cityRoutes); // Cities management
 router.use('/city-card-photos', cityCardPhotoRoutes); // ОТДЕЛЬНОЕ управление фото карточек городов
 router.use('/trips', tripRoutes); // Trip management
-router.use('/tour-agents', tourAgentRoutes); // Tour agents management
+router.use('/tour-agents', tourAgentRoutes); // Tour agents management (OLD)
+router.use('/travel-agents', travelAgentRoutes); // B2B Travel Agent Partnership system
 router.use('/transfers', transferRoutes); // Transfer requests management
 router.use('/guide-hire', guideHireRoutes); // Guide hiring system
 router.use('/test', testEmailRoutes); // Test email with PDF
