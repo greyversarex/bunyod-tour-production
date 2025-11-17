@@ -3,6 +3,7 @@ set -euo pipefail
 
 APP_DIR="/srv/bunyod-tour"
 BACKUP_DIR="/var/backups/bunyod-tour"
+UPLOADS_DIR="/var/bunyod-tour/uploads"
 DB_NAME="bunyod_tour"
 PM2_APP="bunyod-tour"
 
@@ -20,6 +21,54 @@ echo "✅ Бэкап готов"
 echo "📥 Git fetch/reset..."
 git fetch origin --prune
 git reset --hard origin/main
+
+# 1.5. КРИТИЧНО: Защита uploads от удаления
+echo "🛡️ Проверка uploads symlink..."
+
+# Создать постоянную директорию если её нет
+if [ ! -d "$UPLOADS_DIR" ]; then
+  echo "📁 Создаю постоянное хранилище $UPLOADS_DIR..."
+  sudo mkdir -p "$UPLOADS_DIR/images"
+  sudo mkdir -p "$UPLOADS_DIR/tours"
+  sudo mkdir -p "$UPLOADS_DIR/hotels"
+  sudo mkdir -p "$UPLOADS_DIR/guides"
+  sudo mkdir -p "$UPLOADS_DIR/drivers"
+  sudo mkdir -p "$UPLOADS_DIR/slides"
+  sudo chown -R $(whoami):$(whoami) "$UPLOADS_DIR"
+  sudo chmod -R 755 "$UPLOADS_DIR"
+  echo "✅ Постоянное хранилище создано"
+fi
+
+# Создать/восстановить symlink если его нет или это не symlink
+if [ ! -L "$APP_DIR/uploads" ]; then
+  echo "⚠️ Symlink uploads отсутствует или повреждён"
+  echo "🔗 Создаю symlink $APP_DIR/uploads -> $UPLOADS_DIR"
+  
+  # Удалить если это обычная папка
+  if [ -d "$APP_DIR/uploads" ] && [ ! -L "$APP_DIR/uploads" ]; then
+    echo "⚠️ Найдена обычная папка uploads, перемещаю содержимое в постоянное хранилище..."
+    cp -rn "$APP_DIR/uploads/"* "$UPLOADS_DIR/" 2>/dev/null || true
+    rm -rf "$APP_DIR/uploads"
+  fi
+  
+  # Создать symlink
+  ln -s "$UPLOADS_DIR" "$APP_DIR/uploads"
+  echo "✅ Symlink создан: uploads -> $UPLOADS_DIR"
+else
+  echo "✅ Symlink uploads на месте"
+fi
+
+# Проверить что symlink ведёт в правильное место
+CURRENT_LINK=$(readlink "$APP_DIR/uploads")
+if [ "$CURRENT_LINK" != "$UPLOADS_DIR" ]; then
+  echo "⚠️ Symlink ведёт не туда: $CURRENT_LINK != $UPLOADS_DIR"
+  echo "🔧 Исправляю..."
+  rm "$APP_DIR/uploads"
+  ln -s "$UPLOADS_DIR" "$APP_DIR/uploads"
+  echo "✅ Symlink исправлен"
+fi
+
+echo "✅ Защита uploads настроена корректно"
 
 # 2. Установить зависимости
 echo "📦 npm ci..."
