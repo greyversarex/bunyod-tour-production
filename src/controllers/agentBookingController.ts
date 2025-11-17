@@ -82,14 +82,14 @@ export const createBooking = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Заявка успешно создана',
       data: booking
     });
   } catch (error) {
     console.error('Error creating booking:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при создании заявки'
     });
@@ -126,13 +126,13 @@ export const getMyBookings = async (req: Request, res: Response) => {
       })() : null
     }));
 
-    res.json({
+    return res.json({
       success: true,
       data: bookingsWithTourists
     });
   } catch (error) {
     console.error('Error fetching bookings:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении заявок'
     });
@@ -161,7 +161,7 @@ export const getBookingById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...booking,
@@ -176,7 +176,7 @@ export const getBookingById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error fetching booking:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении заявки'
     });
@@ -224,13 +224,13 @@ export const getAllBookings = async (req: Request, res: Response) => {
       })() : null
     }));
 
-    res.json({
+    return res.json({
       success: true,
       data: bookingsWithTourists
     });
   } catch (error) {
     console.error('Error fetching all bookings:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении заявок'
     });
@@ -262,14 +262,14 @@ export const updateBookingStatus = async (req: Request, res: Response) => {
       data: updateData
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Статус заявки обновлен',
       data: booking
     });
   } catch (error) {
     console.error('Error updating booking status:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при обновлении статуса заявки'
     });
@@ -342,14 +342,14 @@ export const updateBooking = async (req: Request, res: Response) => {
       data: updateData
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Заявка обновлена',
       data: booking
     });
   } catch (error) {
     console.error('Error updating booking:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при обновлении заявки'
     });
@@ -389,13 +389,13 @@ export const deleteBooking = async (req: Request, res: Response) => {
       where: { id: parseInt(id) }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Заявка удалена'
     });
   } catch (error) {
     console.error('Error deleting booking:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при удалении заявки'
     });
@@ -441,7 +441,7 @@ export const getBookingStats = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         total: totalBookings,
@@ -454,7 +454,7 @@ export const getBookingStats = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error fetching booking stats:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении статистики'
     });

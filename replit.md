@@ -38,7 +38,15 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
 -   **Security**: Implements rate limiting, XSS protection, CORS configuration, and robust environment variable validation.
 
 **System Design Choices:**
--   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, PriceCalculatorComponents, CustomTourOrders, Countries, Cities, Reviews, ExchangeRates, Slides, and News. Relationships are managed through Prisma.
+-   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, PriceCalculatorComponents, CustomTourOrders, Countries, Cities, Reviews, ExchangeRates, Slides, News, TravelAgentApplication, TravelAgent, and AgentTourBooking. Relationships are managed through Prisma.
+-   **B2B Travel Agent Partnership System** (Nov 17, 2025):
+    -   Public application form at `/travel-agent-apply.html` for partnership requests
+    -   Admin workflow: Review applications → Approve/Reject → Auto-generate credentials and send email
+    -   Agent personal cabinet: JWT auth, password management, tour booking requests
+    -   Document storage: `/var/bunyod-tour/uploads/documents` (production) with filename sanitization
+    -   Three models: TravelAgentApplication (pending/approved/rejected), TravelAgent (active/suspended), AgentTourBooking (pending/confirmed/completed/cancelled)
+    -   API routes: `/api/travel-agents/*` (public, agent, admin endpoints)
+    -   Security: bcrypt passwords, mustChangePassword flag, separate JWT role for agents
 -   **Backend Structure**: Organized into `config`, `controllers`, `routes`, `middleware`, `models`, `services`, `utils`, and `types` directories for clear separation of concerns.
 -   **Frontend Structure**: `public` for static assets, HTML templates for various pages (home, search, tour details, booking steps, admin dashboard, etc.), and modular JavaScript files for specific functionalities and i18n.
 -   **File Upload System**: 

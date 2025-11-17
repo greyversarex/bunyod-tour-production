@@ -65,7 +65,7 @@ export const agentAuthMiddleware = async (
         agentCode: agent.agentId
       };
 
-      next();
+      return next();
     } catch (jwtError) {
       return res.status(401).json({
         success: false,
@@ -118,7 +118,7 @@ export const requirePasswordChange = async (
       });
     }
 
-    next();
+    return next();
   } catch (error) {
     console.error('Password change check error:', error);
     return res.status(500).json({

@@ -93,7 +93,7 @@ export const submitApplication = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Заявка успешно отправлена',
       data: {
@@ -103,7 +103,7 @@ export const submitApplication = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error submitting application:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при отправке заявки'
     });
@@ -133,13 +133,13 @@ export const getAllApplications = async (req: Request, res: Response) => {
       documents: app.documents ? JSON.parse(app.documents) : []
     }));
 
-    res.json({
+    return res.json({
       success: true,
       data: applicationsWithDocs
     });
   } catch (error) {
     console.error('Error fetching applications:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении заявок'
     });
@@ -164,7 +164,7 @@ export const getApplicationById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...application,
@@ -173,7 +173,7 @@ export const getApplicationById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error fetching application:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении заявки'
     });
@@ -307,7 +307,7 @@ export const approveApplication = async (req: Request, res: Response) => {
       // Продолжаем выполнение даже если email не отправился
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Заявка одобрена, турагент создан',
       data: {
@@ -317,7 +317,7 @@ export const approveApplication = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error approving application:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при одобрении заявки'
     });
@@ -361,13 +361,13 @@ export const rejectApplication = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Заявка отклонена'
     });
   } catch (error) {
     console.error('Error rejecting application:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при отклонении заявки'
     });
@@ -407,13 +407,13 @@ export const getAllAgents = async (req: Request, res: Response) => {
       password: undefined // Не отправляем пароль
     }));
 
-    res.json({
+    return res.json({
       success: true,
       data: agentsWithStats
     });
   } catch (error) {
     console.error('Error fetching agents:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении списка турагентов'
     });
@@ -444,7 +444,7 @@ export const getAgentById = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...agent,
@@ -454,7 +454,7 @@ export const getAgentById = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error fetching agent:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении данных турагента'
     });
@@ -481,7 +481,7 @@ export const updateAgentStatus = async (req: Request, res: Response) => {
       data: { status }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Статус обновлен',
       data: {
@@ -492,7 +492,7 @@ export const updateAgentStatus = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error updating agent status:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при обновлении статуса'
     });
@@ -556,7 +556,7 @@ export const agentLogin = async (req: Request, res: Response) => {
       data: { lastLoginAt: new Date() }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Вход выполнен успешно',
       data: {
@@ -572,7 +572,7 @@ export const agentLogin = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error('Error during agent login:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при входе'
     });
@@ -610,13 +610,13 @@ export const getAgentProfile = async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: agent
     });
   } catch (error) {
     console.error('Error fetching agent profile:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при получении профиля'
     });
@@ -674,13 +674,13 @@ export const changePassword = async (req: Request, res: Response) => {
       }
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Пароль успешно изменен'
     });
   } catch (error) {
     console.error('Error changing password:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Ошибка при смене пароля'
     });
