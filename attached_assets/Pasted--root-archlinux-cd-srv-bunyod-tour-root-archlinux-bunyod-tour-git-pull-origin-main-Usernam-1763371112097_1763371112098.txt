@@ -1,0 +1,134 @@
+[root@archlinux ~]# cd /srv/bunyod-tour
+[root@archlinux bunyod-tour]# git pull origin main
+Username for 'https://github.com': greyversarex
+Password for 'https://greyversarex@github.com':
+remote: Enumerating objects: 29, done.
+remote: Counting objects: 100% (29/29), done.
+remote: Compressing objects: 100% (6/6), done.
+remote: Total 23 (delta 17), reused 23 (delta 17), pack-reused 0 (from 0)
+Unpacking objects: 100% (23/23), 31.50 KiB | 768.00 KiB/s, done.
+From https://github.com/greyversarex/bunyod-tour-production
+ * branch            main       -> FETCH_HEAD
+   1bc1db1..6db74c9  main       -> origin/main
+Updating 1bc1db1..6db74c9
+Fast-forward
+ .gitignore                                         |  11 +
+ .replit                                            |   2 +-
+ RECOVERY_PLAN.md                                   | 304 +++++++++++++++++++++
+ ...-root-root-114K-1763369466589_1763369466589.txt | 122 +++++++++
+ ...ot-243K-Oct-11--1763369333359_1763369333359.txt |  70 +++++
+ replit.md                                          |  84 +++---
+ update.sh                                          |  49 ++++
+ 7 files changed, 607 insertions(+), 35 deletions(-)
+ create mode 100644 RECOVERY_PLAN.md
+ create mode 100644 attached_assets/Pasted--root-archlinux-ls-lh-srv-bunyod-tour-uploads-images-total-44M-rw-r-r-1-root-root-114K-1763369466589_1763369466589.txt
+ create mode 100644 attached_assets/Pasted--root-archlinux-ls-lh-var-backups-bunyod-tour-total-30M-rw-r-r-1-root-root-243K-Oct-11--1763369333359_1763369333359.txt
+[root@archlinux bunyod-tour]# ./update.sh
+🔄 Начинаю обновление bunyod-tour...
+🧷 Бэкап БД перед обновлением...
+✅ Бэкап готов
+📥 Git fetch/reset...
+Username for 'https://github.com': greyversarex
+Password for 'https://greyversarex@github.com':
+HEAD is now at 6db74c9 Update image upload directory with new files
+🛡️ Проверка uploads symlink...
+📁 Создаю постоянное хранилище /var/bunyod-tour/uploads...
+✅ Постоянное хранилище создано
+⚠️ Symlink uploads отсутствует или повреждён
+🔗 Создаю symlink /srv/bunyod-tour/uploads -> /var/bunyod-tour/uploads
+⚠️ Найдена обычная папка uploads, перемещаю содержимое в постоянное хранилище...
+✅ Symlink создан: uploads -> /var/bunyod-tour/uploads
+✅ Защита uploads настроена корректно
+📦 npm ci...
+npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+
+> workspace@1.0.0 postinstall
+> prisma generate
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+┌─────────────────────────────────────────────────────────┐
+│  Update available 6.15.0 -> 6.19.0                      │
+│  Run the following to update                            │
+│    npm i --save-dev prisma@latest                       │
+│    npm i @prisma/client@latest                          │
+└─────────────────────────────────────────────────────────┘
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 683ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Need your database queries to be 1000x faster? Accelerate offers you that and more: https://pris.ly/tip-2-accelerate
+
+
+added 489 packages, and audited 490 packages in 29s
+
+52 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+🔧 Prisma generate...
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 861ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+🏗️ Компиляция...
+
+> workspace@1.0.0 build
+> tsc
+
+📁 Создаю директорию логов (если нет)...
+🗄️ Применяю manual миграции...
+DO
+ALTER TABLE
+COMMENT
+COMMENT
+COMMENT
+🔄 Применяю миграцию custom_tour_orders (TEXT -> JSONB)...
+BEGIN
+psql:/srv/bunyod-tour/manual_migrations/002_custom_tour_orders_jsonb.sql:75: NOTICE:  selected_countries is already JSONB, skipping
+psql:/srv/bunyod-tour/manual_migrations/002_custom_tour_orders_jsonb.sql:75: NOTICE:  selected_cities is already JSONB, skipping
+psql:/srv/bunyod-tour/manual_migrations/002_custom_tour_orders_jsonb.sql:75: NOTICE:  tourists is already JSONB, skipping
+psql:/srv/bunyod-tour/manual_migrations/002_custom_tour_orders_jsonb.sql:75: NOTICE:  selected_components is already JSONB, skipping
+DO
+COMMIT
+     column_name     | data_type
+---------------------+-----------
+ selected_cities     | jsonb
+ selected_components | jsonb
+ selected_countries  | jsonb
+ tourists            | jsonb
+(4 rows)
+
+✅ Миграция custom_tour_orders успешно применена
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 764ms
+
+🚀 Перезапуск приложения через PM2...
+[PM2] Applying action reloadProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour        │ fork     │ 81   │ online    │ 0%       │ 7.3mb    │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[PM2] Saving current process list...
+[PM2] Successfully saved in /root/.pm2/dump.pm2
+🩺 Healthcheck...
+⚠️ Обновление прошло, но healthz != 200 (был 000). Проверь логи: pm2 logs bunyod-tour --lines 100
+🎉 Готово.
