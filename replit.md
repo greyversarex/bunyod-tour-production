@@ -41,6 +41,8 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, PriceCalculatorComponents, CustomTourOrders, Countries, Cities, Reviews, ExchangeRates, Slides, News, TravelAgentApplication, TravelAgent, and AgentTourBooking. Relationships are managed through Prisma.
 -   **B2B Travel Agent Partnership System** (Nov 17, 2025):
     -   Public application form at `/travel-agent-apply.html` for partnership requests
+    -   Partnership eligibility section showcasing 8 partner types (travel bloggers, local partners, hotels, students, etc.)
+    -   Fixed header visibility issue: Updated container IDs from `header-placeholder/footer-placeholder` to `header-container/footer-container`
     -   Admin workflow: Review applications → Approve/Reject → Auto-generate credentials and send email
     -   Agent personal cabinet: JWT auth, password management, tour booking requests
     -   Document storage: `/var/bunyod-tour/uploads/documents` (production) with filename sanitization
@@ -59,6 +61,14 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
 -   **Deployment**: Automated deployment script (`update.sh`) with database backup, `git pull`, `npm install`, `prisma migrate deploy`, `npm run seed`, and PM2 restart. PM2 manages process clustering and logging. Nginx serves as a reverse proxy with SSL, security headers, and rate limiting.
 -   **Monitoring**: PM2 and Nginx provide logging, and a `/healthz` endpoint is available for health checks.
 -   **Database Migration**: Utilizes both manual SQL migrations for complex schema changes and Prisma migrations (`prisma migrate deploy`) for regular updates. Seeding is idempotent.
+
+-   **Vehicle Management System** (Nov 17, 2025):
+    -   Public catalog at `/vehicles-catalog.html` with light theme (white background, gray accents)
+    -   Smart city filtering: Cities dynamically update based on selected country
+    -   Filter capabilities: Type, capacity, country, city (removed search by brand/license plate)
+    -   Glassmorphism cards on white background for modern, clean aesthetic
+    -   Full multilingual support with RU/EN translations
+    -   Integration with transfer page showing vehicle catalog information
 
 ## External Dependencies
 

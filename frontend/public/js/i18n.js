@@ -1864,6 +1864,18 @@ window.translations = window.translations || {
     'agent.already_partner': { ru: 'Уже партнер?', en: 'Already a partner?' },
     'agent.login_link': { ru: 'Войти в кабинет', en: 'Login to Dashboard' },
     
+    // Who can become partner section
+    'agent.who_can_title': { ru: 'Кто может стать нашим партнером', en: 'Who Can Become Our Partner' },
+    'agent.partner_type1': { ru: 'Обозреватели путешествий', en: 'Travel reviewers' },
+    'agent.partner_type2': { ru: 'Тревел блогеры', en: 'Travel bloggers' },
+    'agent.partner_type3': { ru: 'Местные партнеры продают туры и экскурсии в своем городе', en: 'Local partners selling tours and excursions in their city' },
+    'agent.partner_type4': { ru: 'Владельцы туристических сайтов, форумов', en: 'Owners of tourism websites and forums' },
+    'agent.partner_type5': { ru: 'Владельцы интернет магазинов с товарами для спорта, туризма', en: 'Owners of online stores with sports and tourism goods' },
+    'agent.partner_type6': { ru: 'Турагентства', en: 'Travel agencies' },
+    'agent.partner_type7': { ru: 'Владельцы отелей', en: 'Hotel owners' },
+    'agent.partner_type8': { ru: 'Студенты и фрилансеры', en: 'Students and freelancers' },
+    'agent.partner_conclusion': { ru: 'Заработать на партнерках в туризме можно практически всем; даже если нет солидного опыта в туризме, можно завести тематический онлайн ресурс и научится его продвигать.', en: 'Almost anyone can earn from tourism partnerships; even if you don\'t have solid tourism experience, you can create a thematic online resource and learn to promote it.' },
+    
     // Agent Login Page
     'agent.login_title': { ru: 'Вход для турагентов - Bunyod-Tour', en: 'Agent Login - Bunyod-Tour' },
     'agent.login_hero_title': { ru: 'Вход для турагентов', en: 'Travel Agent Login' },
