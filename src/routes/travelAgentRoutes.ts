@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import * as travelAgentController from '../controllers/travelAgentController';
 import * as agentBookingController from '../controllers/agentBookingController';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { authenticateJWT as authMiddleware } from '../middleware/auth';
 import { agentAuthMiddleware, requirePasswordChange } from '../middleware/agentAuthMiddleware';
 
 const router = express.Router();

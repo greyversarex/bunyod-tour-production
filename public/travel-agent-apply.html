@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Партнерство - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .partner-hero {
+            background: linear-gradient(135deg, #2F2F2F 0%, #3E3E3E 100%);
+            padding: 80px 20px;
+            text-align: center;
+            color: white;
+        }
+        .partner-hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        .partner-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin: 60px 0;
+        }
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+        }
+        .benefit-card h3 {
+            color: #3E3E3E;
+            margin: 15px 0;
+        }
+        .application-form {
+            max-width: 700px;
+            margin: 60px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3E3E3E;
+        }
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #3E3E3E;
+        }
+        .form-group input[type="file"] {
+            padding: 8px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 4px;
+        }
+        .submit-btn {
+            background: #3E3E3E;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        .submit-btn:hover {
+            background: #2F2F2F;
+        }
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .success-message {
+            display: none;
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .error-message {
+            display: none;
+            background: #f44336;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .required {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <div class="partner-hero">
+        <div class="container">
+            <h1>Станьте нашим партнером</h1>
+            <p style="font-size: 1.2rem; margin-top: 10px;">Присоединяйтесь к ведущей туристической платформе Центральной Азии</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="partner-benefits">
+            <div class="benefit-card">
+                <div style="font-size: 3rem;">💼</div>
+                <h3>Выгодные комиссии</h3>
+                <p>Получайте до 15% комиссии с каждого тура</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 3rem;">🌍</div>
+                <h3>Широкая география</h3>
+                <p>5 стран Центральной Азии, сотни туров</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 3rem;">📊</div>
+                <h3>Личный кабинет</h3>
+                <p>Удобное управление заявками и отчетность</p>
+            </div>
+            <div class="benefit-card">
+                <div style="font-size: 3rem;">🤝</div>
+                <h3>Поддержка 24/7</h3>
+                <p>Всегда на связи для решения ваших вопросов</p>
+            </div>
+        </div>
+
+        <div class="application-form">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #3E3E3E;">Заявка на партнерство</h2>
+            
+            <div class="success-message" id="successMessage">
+                ✓ Заявка успешно отправлена! Мы свяжемся с вами в ближайшее время.
+            </div>
+            
+            <div class="error-message" id="errorMessage">
+                Ошибка при отправке заявки. Пожалуйста, попробуйте еще раз.
+            </div>
+
+            <form id="applicationForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>ФИО <span class="required">*</span></label>
+                    <input type="text" name="fullName" required placeholder="Иванов Иван Иванович">
+                </div>
+
+                <div class="form-group">
+                    <label>Гражданство <span class="required">*</span></label>
+                    <input type="text" name="citizenship" required placeholder="Российская Федерация">
+                </div>
+
+                <div class="form-group">
+                    <label>Адрес <span class="required">*</span></label>
+                    <textarea name="address" required rows="3" placeholder="Полный адрес проживания"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Телефон <span class="required">*</span></label>
+                    <input type="tel" name="phone" required placeholder="+992 ХХХ ХХХ ХХХ">
+                </div>
+
+                <div class="form-group">
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" name="email" required placeholder="your@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Документ, удостоверяющий личность</label>
+                    <input type="file" name="identityDocument" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                    <small style="color: #666;">Паспорт или ID (PDF, JPG, PNG, DOC, DOCX - до 10MB)</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Дополнительные документы</label>
+                    <input type="file" name="otherDocuments" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" multiple>
+                    <small style="color: #666;">Лицензии, сертификаты и т.д. (до 5 файлов)</small>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="agreementAccepted" id="agreementAccepted" required>
+                    <label for="agreementAccepted">
+                        Я принимаю <a href="/agreement.html" target="_blank">условия договора</a> <span class="required">*</span>
+                    </label>
+                </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" name="privacyPolicyAccepted" id="privacyPolicyAccepted" required>
+                    <label for="privacyPolicyAccepted">
+                        Я согласен с <a href="/privacy.html" target="_blank">политикой конфиденциальности</a> <span class="required">*</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="/js/header-footer.js"></script>
+    <script>
+        const form = document.getElementById('applicationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Скрываем предыдущие сообщения
+            successMessage.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Блокируем кнопку
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+
+            try {
+                const formData = new FormData(form);
+                
+                // Отправляем заявку
+                const response = await fetch('/api/travel-agents/applications', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    successMessage.style.display = 'block';
+                    form.reset();
+                    
+                    // Прокручиваем к сообщению
+                    successMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else {
+                    errorMessage.textContent = data.message || 'Ошибка при отправке заявки';
+                    errorMessage.style.display = 'block';
+                    errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                errorMessage.textContent = 'Ошибка соединения. Попробуйте еще раз.';
+                errorMessage.style.display = 'block';
+                errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить заявку';
+            }
+        });
+    </script>
+</body>
+</html>

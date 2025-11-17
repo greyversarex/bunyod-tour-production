@@ -728,4 +728,16 @@ export const emailService = {
   }
 };
 
+/**
+ * Simple email sender for generic use (e.g., travel agent notifications)
+ */
+export async function sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
+  await transporter.sendMail({
+    from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+    to: options.to,
+    subject: options.subject,
+    html: options.html
+  });
+}
+
 export default emailService;
