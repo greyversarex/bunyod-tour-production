@@ -54,6 +54,11 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
       where: { id: parseInt(id) },
       include: {
         tourBlocks: {
+          where: {
+            tour: {
+              isActive: true
+            }
+          },
           include: {
             tour: {
               include: {
@@ -93,6 +98,8 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
         }
       }
     });
+
+    console.log(`📋 Found ${tourBlock?.tourBlocks?.length || 0} tours for block ${id} (via new assignment system)`);
 
     if (!tourBlock) {
       return res.status(404).json({
