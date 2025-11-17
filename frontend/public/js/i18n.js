@@ -1933,6 +1933,20 @@ window.translations = window.translations || {
     'vehicles.results_count': { ru: 'Найдено', en: 'Found' },
     'vehicles.vehicle': { ru: 'транспорт', en: 'vehicle' },
     'vehicles.vehicles': { ru: 'транспорта', en: 'vehicles' },
+    'vehicles.all_countries': { ru: 'Все страны', en: 'All Countries' },
+    'vehicles.capacity_any': { ru: 'Любая', en: 'Any' },
+    'vehicles.capacity_1_4': { ru: '1-4 пассажира', en: '1-4 passengers' },
+    'vehicles.capacity_5_8': { ru: '5-8 пассажиров', en: '5-8 passengers' },
+    'vehicles.capacity_9_15': { ru: '9-15 пассажиров', en: '9-15 passengers' },
+    'vehicles.capacity_16_plus': { ru: '16+ пассажиров', en: '16+ passengers' },
+    'vehicles.search_placeholder': { ru: 'Марка, номер...', en: 'Brand, plate number...' },
+    'vehicles.try_change_filters': { ru: 'Попробуйте изменить фильтры поиска', en: 'Try changing search filters' },
+    'vehicles.found_template': { ru: 'Найдено {count} из {total} транспорта', en: 'Found {count} of {total} vehicles' },
+    
+    // Transfer page - vehicle catalog info
+    'transfer.catalog_info_title': { ru: 'Ознакомьтесь с нашим автопарком', en: 'Browse Our Vehicle Fleet' },
+    'transfer.catalog_info_text': { ru: 'Хотите узнать больше о нашем транспорте? Посмотрите полный каталог с фотографиями, описаниями и ценами всех доступных автомобилей.', en: 'Want to learn more about our vehicles? Check out our complete catalog with photos, descriptions, and prices of all available vehicles.' },
+    'transfer.view_catalog_btn': { ru: 'Смотреть каталог транспорта', en: 'View Vehicle Catalog' },
     
 };
 
