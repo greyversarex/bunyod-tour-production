@@ -55,10 +55,21 @@ const upload = multer({
 // Подать заявку на партнерство
 router.post(
   '/applications',
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.log('🔵 Начало обработки заявки на партнерство');
+    console.log('📦 Content-Type:', req.headers['content-type']);
+    next();
+  },
   upload.fields([
     { name: 'identityDocument', maxCount: 1 },
     { name: 'otherDocuments', maxCount: 5 }
   ]),
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.log('✅ Multer завершил обработку файлов');
+    console.log('📁 Загруженные файлы:', req.files);
+    console.log('📝 Body после Multer:', req.body);
+    next();
+  },
   travelAgentController.submitApplication
 );
 
