@@ -11,6 +11,10 @@ const prisma = new PrismaClient();
  */
 export const submitApplication = async (req: Request, res: Response) => {
   try {
+    console.log('📝 Получена заявка на партнерство');
+    console.log('📦 Body:', req.body);
+    console.log('📁 Files:', req.files);
+    
     const {
       fullName,
       citizenship,
@@ -21,15 +25,26 @@ export const submitApplication = async (req: Request, res: Response) => {
       privacyPolicyAccepted
     } = req.body;
 
+    console.log('✅ Проверка полей:', { fullName, citizenship, address, phone, email });
+    console.log('📝 Согласие:', { agreementAccepted, privacyPolicyAccepted });
+
     // Валидация
     if (!fullName || !citizenship || !address || !phone || !email) {
+      console.log('❌ Не заполнены обязательные поля');
       return res.status(400).json({
         success: false,
         message: 'Заполните все обязательные поля'
       });
     }
 
-    if (!agreementAccepted || !privacyPolicyAccepted) {
+    // FormData отправляет булевы значения как строки, конвертируем
+    const agreementCheck = agreementAccepted === 'true' || agreementAccepted === true;
+    const privacyCheck = privacyPolicyAccepted === 'true' || privacyPolicyAccepted === true;
+    
+    console.log('🔍 Проверка согласия после конвертации:', { agreementCheck, privacyCheck });
+
+    if (!agreementCheck || !privacyCheck) {
+      console.log('❌ Не приняты условия');
       return res.status(400).json({
         success: false,
         message: 'Необходимо принять условия договора и политику конфиденциальности'
@@ -88,10 +103,12 @@ export const submitApplication = async (req: Request, res: Response) => {
         phone,
         email,
         documents: JSON.stringify(documents),
-        agreementAccepted,
-        privacyPolicyAccepted
+        agreementAccepted: agreementCheck,
+        privacyPolicyAccepted: privacyCheck
       }
     });
+    
+    console.log('✅ Заявка успешно создана:', application.id);
 
     return res.status(201).json({
       success: true,
