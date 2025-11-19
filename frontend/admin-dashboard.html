@@ -2257,6 +2257,60 @@
         </div>
     </div>
     
+    <!-- Travel Agent Credentials Modal -->
+    <div id="agentCredentialsModal" class="modal">
+        <div class="modal-content" style="width: 500px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Редактировать учетные данные турагента</h2>
+                <button onclick="closeAgentCredentialsModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="agentCredentialsForm" onsubmit="event.preventDefault(); saveAgentCredentials();">
+                <input type="hidden" id="editAgentId">
+                
+                <div class="mb-4 p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <strong>Турагент:</strong> <span id="agentFullName"></span>
+                    </p>
+                    <p class="text-sm text-gray-600 mt-1">
+                        <strong>Компания:</strong> <span id="agentCompany"></span>
+                    </p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Email (Логин) *</label>
+                    <input type="email" class="form-input" id="editAgentEmail" required placeholder="agent@example.com">
+                    <small class="text-gray-500 mt-1">Используется для входа в систему</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Новый пароль</label>
+                    <input type="text" class="form-input" id="editAgentPassword" placeholder="Оставьте пустым, чтобы не менять">
+                    <small class="text-gray-500 mt-1">Минимум 6 символов. Оставьте пустым, если не нужно менять пароль.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label class="flex items-center gap-2">
+                        <input type="checkbox" id="agentMustChangePassword" class="rounded">
+                        <span class="text-sm">Требовать смену пароля при следующем входе</span>
+                    </label>
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeAgentCredentialsModal()" class="btn btn-secondary">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
     <!-- Slide Edit Modal -->
     <div id="slideEditModal" class="modal">
         <div class="modal-content" style="width: 600px;">
@@ -17921,6 +17975,310 @@ ${docs.map(doc => `- ${doc.filename}`).join('\n')}
                 console.error('Error:', err);
                 showNotification('Ошибка сети', 'error');
             }
+        }
+
+        // ============== УПРАВЛЕНИЕ ТУРАГЕНТАМИ ==============
+        
+        async function loadTravelAgents() {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents`, {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderTravelAgents(data.data || []);
+                } else {
+                    showNotification('Ошибка при загрузке турагентов', 'error');
+                }
+            } catch (err) {
+                console.error('Error loading agents:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        function renderTravelAgents(agents) {
+            const tbody = document.getElementById('travelAgentsList');
+            
+            if (!agents || agents.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-8 text-gray-500">
+                            Турагенты не найдены
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = agents.map(agent => {
+                const statusBadge = agent.status === 'active' 
+                    ? '<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Активен</span>'
+                    : '<span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Приостановлен</span>';
+                
+                const date = new Date(agent.createdAt).toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                
+                return `
+                    <tr>
+                        <td class="font-mono text-sm">#${agent.id}</td>
+                        <td>
+                            <div class="font-medium">${agent.companyName || '—'}</div>
+                            <div class="text-sm text-gray-500">${agent.fullName}</div>
+                        </td>
+                        <td>${agent.email}</td>
+                        <td>${agent.phone || '—'}</td>
+                        <td>${statusBadge}</td>
+                        <td class="text-sm text-gray-600">${date}</td>
+                        <td>
+                            <div class="flex gap-2 items-center">
+                                <button onclick="editTravelAgentCredentials(${agent.id})" 
+                                    class="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 rounded transition-colors"
+                                    title="Редактировать логин и пароль">
+                                    <i class="fas fa-key text-lg"></i>
+                                </button>
+                                <button onclick="viewAgentDetails(${agent.id})" 
+                                    class="text-green-600 hover:text-green-800 hover:bg-green-50 p-2 rounded transition-colors"
+                                    title="Просмотреть детали">
+                                    <i class="fas fa-eye text-lg"></i>
+                                </button>
+                                <button onclick="toggleAgentStatus(${agent.id}, '${agent.status}')" 
+                                    class="text-orange-600 hover:text-orange-800 hover:bg-orange-50 p-2 rounded transition-colors"
+                                    title="${agent.status === 'active' ? 'Приостановить' : 'Активировать'}">
+                                    <i class="fas fa-${agent.status === 'active' ? 'pause' : 'play'}-circle text-lg"></i>
+                                </button>
+                                <button onclick="deleteAgent(${agent.id})" 
+                                    class="text-red-600 hover:text-red-800 hover:bg-red-50 p-2 rounded transition-colors"
+                                    title="Удалить">
+                                    <i class="fas fa-trash-alt text-lg"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        async function editTravelAgentCredentials(agentId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await res.json();
+                
+                if (data.success && data.data) {
+                    const agent = data.data;
+                    
+                    // Заполняем форму
+                    document.getElementById('editAgentId').value = agent.id;
+                    document.getElementById('agentFullName').textContent = agent.fullName;
+                    document.getElementById('agentCompany').textContent = agent.companyName || '—';
+                    document.getElementById('editAgentEmail').value = agent.email;
+                    document.getElementById('editAgentPassword').value = '';
+                    document.getElementById('agentMustChangePassword').checked = agent.mustChangePassword || false;
+                    
+                    // Открываем модальное окно
+                    document.getElementById('agentCredentialsModal').classList.add('active');
+                } else {
+                    showNotification('Ошибка при загрузке данных турагента', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        function closeAgentCredentialsModal() {
+            document.getElementById('agentCredentialsModal').classList.remove('active');
+            document.getElementById('agentCredentialsForm').reset();
+        }
+        
+        async function saveAgentCredentials() {
+            const agentId = document.getElementById('editAgentId').value;
+            const email = document.getElementById('editAgentEmail').value.trim();
+            const password = document.getElementById('editAgentPassword').value.trim();
+            const mustChangePassword = document.getElementById('agentMustChangePassword').checked;
+            
+            if (!email) {
+                showNotification('Email обязателен', 'error');
+                return;
+            }
+            
+            if (password && password.length < 6) {
+                showNotification('Пароль должен быть не менее 6 символов', 'error');
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            const updateData = {
+                email,
+                mustChangePassword
+            };
+            
+            if (password) {
+                updateData.password = password;
+            }
+            
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('Учетные данные успешно обновлены', 'success');
+                    closeAgentCredentialsModal();
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function viewAgentDetails(agentId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await res.json();
+                
+                if (data.success && data.data) {
+                    const agent = data.data;
+                    const date = new Date(agent.createdAt).toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    
+                    alert(`
+ИНФОРМАЦИЯ О ТУРАГЕНТЕ
+
+ID: #${agent.id}
+ФИО: ${agent.fullName}
+Компания: ${agent.companyName || '—'}
+Email: ${agent.email}
+Телефон: ${agent.phone || '—'}
+Гражданство: ${agent.citizenship || '—'}
+Адрес: ${agent.address || '—'}
+Сайт: ${agent.website || '—'}
+
+Статус: ${agent.status === 'active' ? 'Активен' : 'Приостановлен'}
+Дата регистрации: ${date}
+Требуется смена пароля: ${agent.mustChangePassword ? 'Да' : 'Нет'}
+                    `.trim());
+                } else {
+                    showNotification('Ошибка при загрузке данных', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function toggleAgentStatus(agentId, currentStatus) {
+            const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+            const action = newStatus === 'active' ? 'активировать' : 'приостановить';
+            
+            if (!confirm(`Вы уверены, что хотите ${action} этого турагента?`)) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification(`Турагент успешно ${newStatus === 'active' ? 'активирован' : 'приостановлен'}`, 'success');
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        async function deleteAgent(agentId) {
+            if (!confirm('Вы уверены, что хотите удалить этого турагента?\n\nЭто действие необратимо!')) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/agents/${agentId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    showNotification('Турагент успешно удален', 'success');
+                    loadTravelAgents();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+        
+        function searchTravelAgents() {
+            const searchText = document.getElementById('travelAgentSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#travelAgentsList tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        }
+        
+        function filterTravelAgents() {
+            const statusFilter = document.getElementById('travelAgentStatusFilter').value;
+            const rows = document.querySelectorAll('#travelAgentsList tr');
+            
+            rows.forEach(row => {
+                if (!statusFilter) {
+                    row.style.display = '';
+                    return;
+                }
+                
+                const text = row.textContent.toLowerCase();
+                const shouldShow = (statusFilter === 'active' && text.includes('активен')) ||
+                                  (statusFilter === 'suspended' && text.includes('приостановлен'));
+                row.style.display = shouldShow ? '' : 'none';
+            });
         }
 
     </script>

@@ -40,7 +40,7 @@ class LayoutLoader {
             const headerHTML = await response.text();
             
             // 🎯 УМНАЯ ВСТАВКА: используем контейнер если есть, иначе начало body
-            const headerContainer = document.getElementById('header-container');
+            const headerContainer = document.getElementById('header-container') || document.getElementById('header-placeholder');
             if (headerContainer) {
                 headerContainer.innerHTML = headerHTML;
                 
@@ -78,7 +78,7 @@ class LayoutLoader {
             const footerHTML = await response.text();
             
             // 🎯 УМНАЯ ВСТАВКА: используем контейнер если есть, иначе конец body
-            const footerContainer = document.getElementById('footer-container');
+            const footerContainer = document.getElementById('footer-container') || document.getElementById('footer-placeholder');
             if (footerContainer) {
                 footerContainer.innerHTML = footerHTML;
             } else {

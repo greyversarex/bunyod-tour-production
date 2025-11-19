@@ -525,7 +525,13 @@ export const updateAgent = async (req: Request, res: Response) => {
     // Обновление пароля если указан
     if (password && password.trim().length > 0) {
       updateData.password = await bcrypt.hash(password, 10);
+      // Если пароль обновлен, по умолчанию не требуем смену (админ установил новый)
       updateData.mustChangePassword = false;
+    }
+    
+    // Явное управление флагом mustChangePassword (если передано в запросе)
+    if (typeof req.body.mustChangePassword === 'boolean') {
+      updateData.mustChangePassword = req.body.mustChangePassword;
     }
 
     const updatedAgent = await prisma.travelAgent.update({
@@ -775,6 +781,43 @@ export const changePassword = async (req: Request, res: Response) => {
     return res.status(500).json({
       success: false,
       message: 'Ошибка при смене пароля'
+    });
+  }
+};
+
+/**
+ * Удалить турагента (админ)
+ */
+export const deleteAgent = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Проверяем существование турагента
+    const agent = await prisma.travelAgent.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!agent) {
+      return res.status(404).json({
+        success: false,
+        message: 'Турагент не найден'
+      });
+    }
+
+    // Удаляем турагента (связанные заявки на туры будут удалены автоматически по каскаду)
+    await prisma.travelAgent.delete({
+      where: { id: parseInt(id) }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Турагент успешно удален'
+    });
+  } catch (error) {
+    console.error('Error deleting agent:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ошибка при удалении турагента'
     });
   }
 };

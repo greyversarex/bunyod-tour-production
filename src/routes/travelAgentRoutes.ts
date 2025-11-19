@@ -105,6 +105,7 @@ router.get('/admin/agents', authMiddleware, travelAgentController.getAllAgents);
 router.get('/admin/agents/:id', authMiddleware, travelAgentController.getAgentById);
 router.put('/admin/agents/:id', authMiddleware, travelAgentController.updateAgent);
 router.patch('/admin/agents/:id/status', authMiddleware, travelAgentController.updateAgentStatus);
+router.delete('/admin/agents/:id', authMiddleware, travelAgentController.deleteAgent);
 
 // Заявки от турагентов
 router.get('/admin/bookings', authMiddleware, agentBookingController.getAllBookings);
