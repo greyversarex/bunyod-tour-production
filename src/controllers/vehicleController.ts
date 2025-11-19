@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
+import { Prisma } from '@prisma/client';
 import { 
   getLanguageFromRequest, 
   createLocalizedResponse, 
@@ -314,7 +315,7 @@ export const createVehicle = async (req: Request, res: Response): Promise<Respon
         type: type.toLowerCase(),
         licensePlate,
         capacity: parseInt(capacity),
-        images: imagePaths.length > 0 ? JSON.stringify(imagePaths) : null,
+        images: imagePaths.length > 0 ? imagePaths : Prisma.JsonNull,
         pricePerDay: pricePerDay ? parseFloat(pricePerDay) : null,
         currency: currency || 'TJS',
         countryId: countryId ? parseInt(countryId) : null,
@@ -426,7 +427,7 @@ export const updateVehicle = async (req: Request, res: Response): Promise<Respon
     if (files && files.length > 0) {
       // New images uploaded - replace all existing images
       const imagePaths = files.map(file => `/uploads/vehicles/${file.filename}`);
-      updateData.images = JSON.stringify(imagePaths);
+      updateData.images = imagePaths;
     }
     // If no new files uploaded, keep existing images (don't touch updateData.images)
     

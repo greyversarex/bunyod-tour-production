@@ -989,7 +989,7 @@ model Vehicle {
   type            String
   licensePlate    String   @unique @map("license_plate")
   capacity        Int
-  images          String?
+  images          Json?
   pricePerDay     Float?   @map("price_per_day")
   currency        String?  @default("TJS")
   countryId       Int?     @map("country_id")

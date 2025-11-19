@@ -181,6 +181,12 @@ app.use((req, res, next) => {
 // Add direct route for /api/objects/direct/* to serve uploaded images
 app.use('/api/objects/direct', express.static(path.join(__dirname, 'uploads/images')));
 
+// Create static file handlers once (not on every request)
+const guidesStaticHandler = express.static(path.join(__dirname, 'uploads/guides'));
+const slidesStaticHandler = express.static(path.join(__dirname, 'uploads/slides'));
+const imagesStaticHandler = express.static(path.join(__dirname, 'uploads/images'));
+const vehiclesStaticHandler = express.static(path.join(__dirname, 'uploads/vehicles'));
+
 // Add secure route for tour guide photos (only images, not documents)
 app.use('/uploads/guides', (req, res, next) => {
   // Security: Only allow image files, block documents
@@ -188,7 +194,7 @@ app.use('/uploads/guides', (req, res, next) => {
   const fileExtension = path.extname(req.path).toLowerCase();
   
   if (allowedExtensions.includes(fileExtension)) {
-    express.static(path.join(__dirname, 'uploads/guides'))(req, res, next);
+    guidesStaticHandler(req, res, next);
   } else {
     res.status(403).json({ 
       success: false, 
@@ -204,7 +210,7 @@ app.use('/uploads/slides', (req, res, next) => {
   const fileExtension = path.extname(req.path).toLowerCase();
   
   if (allowedExtensions.includes(fileExtension)) {
-    express.static(path.join(__dirname, 'uploads/slides'))(req, res, next);
+    slidesStaticHandler(req, res, next);
   } else {
     res.status(403).json({ 
       success: false, 
@@ -220,7 +226,7 @@ app.use('/uploads/images', (req, res, next) => {
   const fileExtension = path.extname(req.path).toLowerCase();
   
   if (allowedExtensions.includes(fileExtension)) {
-    express.static(path.join(__dirname, 'uploads/images'))(req, res, next);
+    imagesStaticHandler(req, res, next);
   } else {
     res.status(403).json({ 
       success: false, 
@@ -236,8 +242,10 @@ app.use('/uploads/vehicles', (req, res, next) => {
   const fileExtension = path.extname(req.path).toLowerCase();
   
   if (allowedExtensions.includes(fileExtension)) {
-    express.static(path.join(__dirname, 'uploads/vehicles'))(req, res, next);
+    console.log('✅ Serving vehicle image:', req.path);
+    vehiclesStaticHandler(req, res, next);
   } else {
+    console.log('❌ Blocked non-image request to vehicles:', req.path);
     res.status(403).json({ 
       success: false, 
       message: 'Access denied: Only image files are allowed' 
