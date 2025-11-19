@@ -175,6 +175,8 @@ async function loadVehicles() {
         }
     } catch (error) {
         console.error('Error loading vehicles:', error);
+        // CRITICAL: Clear slideshows before showing error to prevent memory leaks
+        clearAllVehicleSlideshows();
         showNoResults();
     }
 }
@@ -259,6 +261,10 @@ function renderVehicles() {
     const grid = document.getElementById('vehiclesGrid');
     const noResults = document.getElementById('noResults');
     
+    // CRITICAL: Clear all existing slideshows FIRST to prevent memory leaks
+    // This must happen before the zero-results check to ensure intervals are always cleared
+    clearAllVehicleSlideshows();
+    
     if (filteredVehicles.length === 0) {
         showNoResults();
         return;
@@ -279,17 +285,30 @@ function createVehicleCard(vehicle) {
     const card = document.createElement('div');
     card.className = 'vehicle-card';
     
-    // Get first image or placeholder
-    let imageSrc = '/api/placeholder/400/200';
+    // Parse images array and normalize paths
+    let vehicleImages = [];
     if (vehicle.images) {
         try {
             const images = typeof vehicle.images === 'string' ? JSON.parse(vehicle.images) : vehicle.images;
-            if (images && images.length > 0) {
-                imageSrc = images[0].startsWith('http') ? images[0] : `/uploads/vehicles/${images[0]}`;
+            if (Array.isArray(images) && images.length > 0) {
+                // Normalize image paths
+                vehicleImages = images.map(img => {
+                    // If already absolute URL (http/https) or starts with /, use as is
+                    if (img.startsWith('http') || img.startsWith('/')) {
+                        return img;
+                    }
+                    // Otherwise prepend /uploads/vehicles/
+                    return `/uploads/vehicles/${img}`;
+                });
             }
         } catch (e) {
             console.error('Error parsing vehicle images:', e);
         }
+    }
+    
+    // Add placeholder if no images
+    if (vehicleImages.length === 0) {
+        vehicleImages = ['/api/placeholder/400/200'];
     }
     
     // Get vehicle name
@@ -314,13 +333,38 @@ function createVehicleCard(vehicle) {
         `;
     }
     
-    // Get location info
-    const location = vehicle.country || vehicle.city ? 
-        `<p class="vehicle-info mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${vehicle.city ? vehicle.city.nameRu || vehicle.city.nameEn || '' : ''}${vehicle.city && vehicle.country ? ', ' : ''}${vehicle.country ? vehicle.country.nameRu || vehicle.country.nameEn || '' : ''}</p>` : '';
+    // Get location info with proper translation
+    let locationText = '';
+    if (vehicle.country || vehicle.city) {
+        const cityName = vehicle.city ? (lang === 'ru' ? vehicle.city.nameRu : vehicle.city.nameEn) || vehicle.city.nameRu || vehicle.city.nameEn || '' : '';
+        const countryName = vehicle.country ? (lang === 'ru' ? vehicle.country.nameRu : vehicle.country.nameEn) || vehicle.country.nameRu || vehicle.country.nameEn || '' : '';
+        const separator = cityName && countryName ? ', ' : '';
+        locationText = `<p class="vehicle-info mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${cityName}${separator}${countryName}</p>`;
+    }
+    
+    // Generate unique ID for this card
+    const uniqueId = `vehicle-${vehicle.id}-${Date.now()}`;
     
     card.innerHTML = `
         <div class="relative">
-            <img src="${imageSrc}" alt="${name}" class="vehicle-image" onerror="this.src='/api/placeholder/400/200'">
+            <div class="vehicle-image-container relative overflow-hidden" id="img-container-${uniqueId}">
+                ${vehicleImages.map((imgSrc, index) => `
+                    <img src="${imgSrc}" 
+                         alt="${name}" 
+                         class="vehicle-image ${index === 0 ? 'active' : ''}" 
+                         style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: ${index === 0 ? '1' : '0'}; transition: opacity 0.5s ease-in-out;"
+                         onerror="this.src='/api/placeholder/400/200'">
+                `).join('')}
+            </div>
+            ${vehicleImages.length > 1 ? `
+                <div class="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+                    ${vehicleImages.map((_, index) => `
+                        <div class="slideshow-dot ${index === 0 ? 'active' : ''}" 
+                             style="width: 8px; height: 8px; border-radius: 50%; background: ${index === 0 ? 'white' : 'rgba(255,255,255,0.5)'}; cursor: pointer;"
+                             onclick="switchVehicleImage('${uniqueId}', ${index})"></div>
+                    `).join('')}
+                </div>
+            ` : ''}
             <div class="absolute top-3 left-3">
                 <span class="glass-badge">${typeTranslation}</span>
             </div>
@@ -328,7 +372,7 @@ function createVehicleCard(vehicle) {
         </div>
         <div class="vehicle-card-content">
             <h3 class="vehicle-title">${name}</h3>
-            ${location}
+            ${locationText}
             <div class="space-y-1">
                 ${vehicle.licensePlate ? `<p class="vehicle-info"><i class="fas fa-hashtag mr-2"></i>${vehicle.licensePlate}</p>` : ''}
                 <p class="vehicle-info">
@@ -338,14 +382,67 @@ function createVehicleCard(vehicle) {
                 ${vehicle.year ? `<p class="vehicle-info"><i class="fas fa-calendar mr-2"></i>${vehicle.year}</p>` : ''}
             </div>
             ${priceDisplay}
-            <button onclick="contactAboutVehicle(${vehicle.id})" class="w-full mt-4 px-4 py-3 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg" style="background-color: #3E3E3E;" onmouseover="this.style.backgroundColor='#2F2F2F'" onmouseout="this.style.backgroundColor='#3E3E3E'">
-                <i class="fas fa-phone mr-2"></i>
-                <span data-translate="vehicles.contact">Связаться</span>
-            </button>
         </div>
     `;
     
+    // Start auto slideshow if multiple images
+    if (vehicleImages.length > 1) {
+        startVehicleSlideshow(uniqueId, vehicleImages.length);
+    }
+    
     return card;
+}
+
+// Vehicle slideshow management
+const vehicleSlideshows = new Map();
+
+function clearAllVehicleSlideshows() {
+    // Clear all intervals to prevent memory leaks
+    vehicleSlideshows.forEach((slideshow, id) => {
+        if (slideshow.interval) {
+            clearInterval(slideshow.interval);
+        }
+    });
+    vehicleSlideshows.clear();
+}
+
+function startVehicleSlideshow(uniqueId, imageCount) {
+    if (imageCount <= 1) return;
+    
+    // Store slideshow state
+    const slideshowState = {
+        currentIndex: 0,
+        interval: null
+    };
+    
+    slideshowState.interval = setInterval(() => {
+        slideshowState.currentIndex = (slideshowState.currentIndex + 1) % imageCount;
+        switchVehicleImage(uniqueId, slideshowState.currentIndex);
+    }, 3000); // Change image every 3 seconds
+    
+    vehicleSlideshows.set(uniqueId, slideshowState);
+}
+
+function switchVehicleImage(uniqueId, index) {
+    const container = document.getElementById(`img-container-${uniqueId}`);
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    const dots = container.parentElement.querySelectorAll('.slideshow-dot');
+    
+    images.forEach((img, i) => {
+        img.style.opacity = i === index ? '1' : '0';
+    });
+    
+    dots.forEach((dot, i) => {
+        dot.style.background = i === index ? 'white' : 'rgba(255,255,255,0.5)';
+    });
+    
+    // Update stored current index
+    const slideshow = vehicleSlideshows.get(uniqueId);
+    if (slideshow) {
+        slideshow.currentIndex = index;
+    }
 }
 
 // Contact about vehicle
