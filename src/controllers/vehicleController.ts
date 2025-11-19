@@ -226,7 +226,6 @@ export const createVehicle = async (req: Request, res: Response): Promise<Respon
       type, 
       licensePlate, 
       capacity, 
-      images, 
       pricePerDay, 
       currency, 
       countryId, 
@@ -236,7 +235,7 @@ export const createVehicle = async (req: Request, res: Response): Promise<Respon
       isActive 
     } = req.body;
 
-    // Parse JSON strings if needed
+    // Parse JSON strings if needed (from FormData)
     if (typeof name === 'string') {
       try {
         name = JSON.parse(name);
@@ -299,14 +298,12 @@ export const createVehicle = async (req: Request, res: Response): Promise<Respon
       });
     }
 
-    // Parse images if string
-    let parsedImages = images;
-    if (typeof images === 'string') {
-      try {
-        parsedImages = JSON.parse(images);
-      } catch (e) {
-        parsedImages = [images];
-      }
+    // Process uploaded image files
+    const files = req.files as Express.Multer.File[];
+    let imagePaths: string[] = [];
+    
+    if (files && files.length > 0) {
+      imagePaths = files.map(file => `/uploads/vehicles/${file.filename}`);
     }
 
     // Create vehicle
@@ -317,14 +314,14 @@ export const createVehicle = async (req: Request, res: Response): Promise<Respon
         type: type.toLowerCase(),
         licensePlate,
         capacity: parseInt(capacity),
-        images: parsedImages ? JSON.stringify(parsedImages) : null,
+        images: imagePaths.length > 0 ? JSON.stringify(imagePaths) : null,
         pricePerDay: pricePerDay ? parseFloat(pricePerDay) : null,
         currency: currency || 'TJS',
         countryId: countryId ? parseInt(countryId) : null,
         cityId: cityId ? parseInt(cityId) : null,
         brand: brand || null,
         year: year ? parseInt(year) : null,
-        isActive: isActive !== undefined ? Boolean(isActive) : true
+        isActive: isActive !== undefined ? (isActive === 'true' || isActive === true) : true
       },
       include: {
         vehicleCountry: true,
@@ -414,16 +411,9 @@ export const updateVehicle = async (req: Request, res: Response): Promise<Respon
       }
     }
 
-    // Parse images if string
-    let parsedImages = images;
-    if (images && typeof images === 'string') {
-      try {
-        parsedImages = JSON.parse(images);
-      } catch (e) {
-        parsedImages = [images];
-      }
-    }
-
+    // Process uploaded image files
+    const files = req.files as Express.Multer.File[];
+    
     // Prepare update data
     const updateData: any = {};
     if (name) updateData.name = name;
@@ -431,14 +421,22 @@ export const updateVehicle = async (req: Request, res: Response): Promise<Respon
     if (type) updateData.type = type.toLowerCase();
     if (licensePlate) updateData.licensePlate = licensePlate;
     if (capacity) updateData.capacity = parseInt(capacity);
-    if (parsedImages !== undefined) updateData.images = parsedImages ? JSON.stringify(parsedImages) : null;
+    
+    // Only update images if new files were uploaded OR if explicitly requested to clear
+    if (files && files.length > 0) {
+      // New images uploaded - replace all existing images
+      const imagePaths = files.map(file => `/uploads/vehicles/${file.filename}`);
+      updateData.images = JSON.stringify(imagePaths);
+    }
+    // If no new files uploaded, keep existing images (don't touch updateData.images)
+    
     if (pricePerDay !== undefined) updateData.pricePerDay = pricePerDay ? parseFloat(pricePerDay) : null;
     if (currency) updateData.currency = currency;
     if (countryId !== undefined) updateData.countryId = countryId ? parseInt(countryId) : null;
     if (cityId !== undefined) updateData.cityId = cityId ? parseInt(cityId) : null;
     if (brand !== undefined) updateData.brand = brand || null;
     if (year !== undefined) updateData.year = year ? parseInt(year) : null;
-    if (isActive !== undefined) updateData.isActive = Boolean(isActive);
+    if (isActive !== undefined) updateData.isActive = (isActive === 'true' || isActive === true);
 
     // Update vehicle
     const vehicle = await prisma.vehicle.update({
