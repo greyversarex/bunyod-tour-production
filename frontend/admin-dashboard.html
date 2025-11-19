@@ -4242,6 +4242,17 @@
             };
         }
         
+        // Для загрузки файлов - НЕ устанавливаем Content-Type, браузер сделает это автоматически
+        function getFileUploadHeaders() {
+            const token = localStorage.getItem('authToken');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            // НЕ добавляем Content-Type - браузер автоматически установит multipart/form-data
+            return headers;
+        }
+        
         // Authentication
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             console.log('🔐 Login form submitted');
@@ -17502,7 +17513,7 @@
                 
                 const res = await fetch(url, {
                     method: method,
-                    headers: getAuthHeaders(),
+                    headers: getFileUploadHeaders(),
                     body: formData
                 });
                 
