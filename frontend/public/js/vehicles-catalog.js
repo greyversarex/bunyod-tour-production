@@ -339,7 +339,7 @@ function createVehicleCard(vehicle) {
         const cityName = vehicle.city ? (lang === 'ru' ? vehicle.city.nameRu : vehicle.city.nameEn) || vehicle.city.nameRu || vehicle.city.nameEn || '' : '';
         const countryName = vehicle.country ? (lang === 'ru' ? vehicle.country.nameRu : vehicle.country.nameEn) || vehicle.country.nameRu || vehicle.country.nameEn || '' : '';
         const separator = cityName && countryName ? ', ' : '';
-        locationText = `<p class="vehicle-info mb-2"><i class="fas fa-map-marker-alt mr-2"></i>${cityName}${separator}${countryName}</p>`;
+        locationText = `<p class="vehicle-info mb-2"><i class="fas fa-map-marker-alt" style="display: inline-block; width: 16px; margin-right: 8px;"></i>${cityName}${separator}${countryName}</p>`;
     }
     
     // Generate unique ID for this card
@@ -374,12 +374,12 @@ function createVehicleCard(vehicle) {
             <h3 class="vehicle-title">${name}</h3>
             ${locationText}
             <div class="space-y-1">
-                ${vehicle.licensePlate ? `<p class="vehicle-info"><i class="fas fa-hashtag mr-2"></i>${vehicle.licensePlate}</p>` : ''}
+                ${vehicle.licensePlate ? `<p class="vehicle-info"><i class="fas fa-hashtag" style="display: inline-block; width: 16px; margin-right: 8px;"></i>${vehicle.licensePlate}</p>` : ''}
                 <p class="vehicle-info">
-                    <i class="fas fa-users mr-2"></i>
+                    <i class="fas fa-users" style="display: inline-block; width: 16px; margin-right: 8px;"></i>
                     ${vehicle.capacity} ${window.getTranslation ? window.getTranslation('vehicles.passengers', lang) : 'пассажиров'}
                 </p>
-                ${vehicle.year ? `<p class="vehicle-info"><i class="fas fa-calendar mr-2"></i>${vehicle.year}</p>` : ''}
+                ${vehicle.year ? `<p class="vehicle-info"><i class="fas fa-calendar" style="display: inline-block; width: 16px; margin-right: 8px;"></i>${vehicle.year}</p>` : ''}
             </div>
             ${priceDisplay}
         </div>
