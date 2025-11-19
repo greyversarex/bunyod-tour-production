@@ -13939,6 +13939,16 @@
                 parentItem.classList.remove('expanded');
             }
             
+            // Initialize travel agents submenu as closed
+            const travelAgentsSubmenu = document.getElementById('travel-agents-submenu');
+            if (travelAgentsSubmenu) {
+                travelAgentsSubmenu.style.display = 'none';
+            }
+            const travelAgentsParent = document.querySelector('.nav-item-parent[data-section="travel-agents"]');
+            if (travelAgentsParent) {
+                travelAgentsParent.classList.remove('expanded');
+            }
+            
             // Add click handlers for all navigation items (including submenu items)
             const navItems = document.querySelectorAll('.nav-item[data-section], .nav-subitem[data-section]');
             navItems.forEach(item => {
@@ -13949,6 +13959,15 @@
                     // Handle custom tour parent item - toggle submenu only
                     if (section === 'custom-tour' && this.classList.contains('nav-item-parent')) {
                         const submenu = document.getElementById('custom-tour-submenu');
+                        const isExpanded = submenu.style.display === 'block';
+                        submenu.style.display = isExpanded ? 'none' : 'block';
+                        this.classList.toggle('expanded');
+                        return; // Don't switch section, just toggle submenu
+                    }
+                    
+                    // Handle travel agents parent item - toggle submenu only
+                    if (section === 'travel-agents' && this.classList.contains('nav-item-parent')) {
+                        const submenu = document.getElementById('travel-agents-submenu');
                         const isExpanded = submenu.style.display === 'block';
                         submenu.style.display = isExpanded ? 'none' : 'block';
                         this.classList.toggle('expanded');
@@ -14312,6 +14331,16 @@
             const parentItem = document.querySelector('.nav-item-parent[data-section="custom-tour"]');
             if (parentItem) {
                 parentItem.classList.remove('expanded');
+            }
+            
+            // Collapse travel agents submenu when leaving travel agents sections
+            const travelAgentsSubmenu = document.getElementById('travel-agents-submenu');
+            if (travelAgentsSubmenu) {
+                travelAgentsSubmenu.style.display = 'none';
+            }
+            const travelAgentsParent = document.querySelector('.nav-item-parent[data-section="travel-agents"]');
+            if (travelAgentsParent) {
+                travelAgentsParent.classList.remove('expanded');
             }
 
             // Show selected section - map section names to section IDs
