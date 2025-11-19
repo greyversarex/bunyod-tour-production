@@ -2287,7 +2287,12 @@
                 
                 <div class="form-group">
                     <label class="form-label">Новый пароль</label>
-                    <input type="text" class="form-input" id="editAgentPassword" placeholder="Оставьте пустым, чтобы не менять">
+                    <div class="flex gap-2">
+                        <input type="text" class="form-input flex-1" id="editAgentPassword" placeholder="Оставьте пустым, чтобы не менять">
+                        <button type="button" onclick="generateAgentPassword()" class="btn btn-secondary whitespace-nowrap" title="Сгенерировать случайный пароль">
+                            <i class="fas fa-random"></i> Сгенерировать
+                        </button>
+                    </div>
                     <small class="text-gray-500 mt-1">Минимум 6 символов. Оставьте пустым, если не нужно менять пароль.</small>
                 </div>
                 
@@ -18109,6 +18114,48 @@ ${docs.map(doc => `- ${doc.filename}`).join('\n')}
         function closeAgentCredentialsModal() {
             document.getElementById('agentCredentialsModal').classList.remove('active');
             document.getElementById('agentCredentialsForm').reset();
+        }
+        
+        function generateAgentPassword() {
+            // Генерация криптографически стойкого пароля: 12 символов
+            const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+            const numbers = '0123456789';
+            const special = '!@#$%^&*';
+            const all = uppercase + lowercase + numbers + special;
+            
+            // Функция для получения криптографически безопасного случайного индекса
+            function getSecureRandomIndex(max) {
+                const randomBuffer = new Uint32Array(1);
+                window.crypto.getRandomValues(randomBuffer);
+                return randomBuffer[0] % max;
+            }
+            
+            let password = '';
+            // Гарантируем хотя бы один символ каждого типа
+            password += uppercase[getSecureRandomIndex(uppercase.length)];
+            password += lowercase[getSecureRandomIndex(lowercase.length)];
+            password += numbers[getSecureRandomIndex(numbers.length)];
+            password += special[getSecureRandomIndex(special.length)];
+            
+            // Добавляем еще 8 случайных символов
+            for (let i = 0; i < 8; i++) {
+                password += all[getSecureRandomIndex(all.length)];
+            }
+            
+            // Перемешиваем символы криптографически безопасным способом (Fisher-Yates)
+            const chars = password.split('');
+            for (let i = chars.length - 1; i > 0; i--) {
+                const j = getSecureRandomIndex(i + 1);
+                [chars[i], chars[j]] = [chars[j], chars[i]];
+            }
+            password = chars.join('');
+            
+            // Устанавливаем пароль в поле
+            document.getElementById('editAgentPassword').value = password;
+            
+            // Показываем уведомление
+            showNotification('Пароль сгенерирован: ' + password + ' (скопируйте его!)', 'success', 8000);
         }
         
         async function saveAgentCredentials() {
