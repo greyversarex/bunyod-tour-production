@@ -267,53 +267,65 @@
     <div id="footer-container"></div>
 
     <script>
-        document.getElementById('applicationForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const submitBtn = document.getElementById('submitBtn');
-            const successMessage = document.getElementById('successMessage');
-            const errorMessage = document.getElementById('errorMessage');
-            const formData = new FormData(e.target);
+        document.addEventListener('DOMContentLoaded', function() {
+            const applicationForm = document.getElementById('applicationForm');
             
-            // Добавляем обязательные поля для backend
-            const agreeChecked = document.getElementById('agreeCheckbox').checked;
-            formData.set('agreementAccepted', agreeChecked ? 'true' : 'false');
-            formData.set('privacyPolicyAccepted', agreeChecked ? 'true' : 'false');
+            if (!applicationForm) {
+                console.error('❌ Форма applicationForm не найдена!');
+                return;
+            }
+            
+            console.log('✅ Форма найдена, добавляем обработчик');
+            
+            applicationForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
 
-            successMessage.classList.add('hidden');
-            errorMessage.classList.add('hidden');
-
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span data-translate="agent.sending">Отправка...</span>';
-
-            try {
-                const response = await fetch('/api/travel-agents/applications', {
-                    method: 'POST',
-                    body: formData,
-                });
-
-                const data = await response.json();
+                const submitBtn = document.getElementById('submitBtn');
+                const successMessage = document.getElementById('successMessage');
+                const errorMessage = document.getElementById('errorMessage');
+                const formData = new FormData(e.target);
                 
-                console.log('Response:', response.status, data);
+                // Добавляем обязательные поля для backend
+                const agreeChecked = document.getElementById('agreeCheckbox').checked;
+                formData.set('agreementAccepted', agreeChecked ? 'true' : 'false');
+                formData.set('privacyPolicyAccepted', agreeChecked ? 'true' : 'false');
 
-                if (response.ok && data.success) {
-                    successMessage.classList.remove('hidden');
-                    e.target.reset();
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                } else {
-                    errorMessage.textContent = data.message || 'Ошибка при отправке заявки';
+                successMessage.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span data-translate="agent.sending">Отправка...</span>';
+
+                try {
+                    console.log('🚀 Отправка заявки на /api/travel-agents/applications');
+                    const response = await fetch('/api/travel-agents/applications', {
+                        method: 'POST',
+                        body: formData,
+                    });
+
+                    const data = await response.json();
+                    
+                    console.log('📡 Response:', response.status, data);
+
+                    if (response.ok && data.success) {
+                        successMessage.classList.remove('hidden');
+                        e.target.reset();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    } else {
+                        errorMessage.textContent = data.message || 'Ошибка при отправке заявки';
+                        errorMessage.classList.remove('hidden');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                } catch (error) {
+                    console.error('❌ Application error:', error);
+                    errorMessage.textContent = 'Ошибка при отправке заявки. Попробуйте еще раз.';
                     errorMessage.classList.remove('hidden');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span data-translate="agent.submit_button">Отправить заявку</span>';
                 }
-            } catch (error) {
-                console.error('Application error:', error);
-                errorMessage.textContent = 'Ошибка при отправке заявки. Попробуйте еще раз.';
-                errorMessage.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span data-translate="agent.submit_button">Отправить заявку</span>';
-            }
+            });
         });
     </script>
 </body>
