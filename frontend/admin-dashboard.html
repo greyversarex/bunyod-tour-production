@@ -14513,6 +14513,9 @@
                 case 'travel-agent-applications':
                     loadApplications();
                     break;
+                case 'agent-tour-bookings':
+                    loadAgentBookings();
+                    break;
                 case 'settings':
                     // Load settings if needed
                     break;
@@ -18337,6 +18340,147 @@ Email: ${agent.email}
                                   (statusFilter === 'suspended' && text.includes('приостановлен'));
                 row.style.display = shouldShow ? '' : 'none';
             });
+        }
+        
+        // ============== ЗАЯВКИ ТУРАГЕНТОВ НА ТУРЫ ==============
+        
+        async function loadAgentBookings() {
+            const statusFilter = document.getElementById('agentBookingStatusFilter')?.value || '';
+            const apiUrl = getApiUrl();
+            
+            try {
+                const url = statusFilter 
+                    ? `${apiUrl}/travel-agents/admin/bookings?status=${statusFilter}`
+                    : `${apiUrl}/travel-agents/admin/bookings`;
+                    
+                const res = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderAgentBookings(data.data || []);
+                } else {
+                    document.getElementById('agentBookingsList').innerHTML = 
+                        '<tr><td colspan="8" class="text-center text-red-600 py-4">Ошибка загрузки заявок</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading agent bookings:', err);
+                document.getElementById('agentBookingsList').innerHTML = 
+                    '<tr><td colspan="8" class="text-center text-red-600 py-4">Ошибка сети</td></tr>';
+            }
+        }
+        
+        function renderAgentBookings(bookings) {
+            const tbody = document.getElementById('agentBookingsList');
+            
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-8">Нет заявок на туры</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = bookings.map(booking => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (booking.status) {
+                    case 'pending':
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        statusText = 'Ожидает';
+                        break;
+                    case 'confirmed':
+                        statusClass = 'bg-blue-100 text-blue-800';
+                        statusText = 'Подтверждено';
+                        break;
+                    case 'completed':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = 'Завершено';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = 'Отменено';
+                        break;
+                }
+                
+                const startDate = new Date(booking.tourStartDate).toLocaleDateString('ru-RU');
+                const endDate = new Date(booking.tourEndDate).toLocaleDateString('ru-RU');
+                const agentName = booking.agent ? (booking.agent.companyName || booking.agent.fullName) : '—';
+                const tourName = booking.tour ? (booking.tour.title?.ru || booking.tour.title || booking.tourName) : booking.tourName;
+                
+                return `
+                    <tr>
+                        <td>${booking.bookingNumber}</td>
+                        <td>${agentName}</td>
+                        <td>${tourName}</td>
+                        <td>${startDate} — ${endDate}</td>
+                        <td>${booking.touristsCount}</td>
+                        <td>${booking.totalPrice ? booking.totalPrice.toFixed(2) + ' TJS' : '—'}</td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <div class="flex gap-2">
+                                ${booking.status === 'pending' ? `
+                                    <button onclick="updateBookingStatus(${booking.id}, 'confirmed')" class="btn-sm bg-blue-600 hover:bg-blue-700 text-white" title="Подтвердить">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button onclick="updateBookingStatus(${booking.id}, 'cancelled')" class="btn-sm btn-danger" title="Отменить">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                                ${booking.status === 'confirmed' ? `
+                                    <button onclick="updateBookingStatus(${booking.id}, 'completed')" class="btn-sm bg-green-600 hover:bg-green-700 text-white" title="Завершить">
+                                        <i class="fas fa-flag-checkered"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function filterAgentBookings() {
+            loadAgentBookings();
+        }
+        
+        async function updateBookingStatus(bookingId, newStatus) {
+            const confirmMessages = {
+                'confirmed': 'Вы уверены, что хотите подтвердить эту заявку?',
+                'completed': 'Вы уверены, что тур завершен?',
+                'cancelled': 'Вы уверены, что хотите отменить эту заявку?'
+            };
+            
+            if (!confirm(confirmMessages[newStatus])) {
+                return;
+            }
+            
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/travel-agents/admin/bookings/${bookingId}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    const statusTexts = {
+                        'confirmed': 'подтверждена',
+                        'completed': 'завершена',
+                        'cancelled': 'отменена'
+                    };
+                    showNotification(`Заявка успешно ${statusTexts[newStatus]}`, 'success');
+                    loadAgentBookings();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
         }
 
     </script>
