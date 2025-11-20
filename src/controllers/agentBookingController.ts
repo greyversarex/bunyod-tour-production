@@ -118,13 +118,13 @@ export const createBooking = async (req: Request, res: Response) => {
         tourId: parsedTourId,
         tourName: typeof tour.title === 'string' ? tour.title : JSON.stringify(tour.title),
         tourStartDate: parsedDate,
-        tourEndDate: parsedDate, // Пока ставим такую же дату
+        tourEndDate: parsedDate,
         touristsCount: parsedTouristsCount,
         tourists: JSON.stringify([touristData]),
         totalPrice: tour.price ? parseFloat(tour.price.toString()) * parsedTouristsCount : null,
-        agentCommission: null, // Пока без комиссии
+        agentCommission: null,
         notes: specialRequests ? specialRequests.trim() : null
-      }
+      } as any
     });
 
     console.log('✅ Заявка создана:', booking.bookingNumber);
@@ -191,7 +191,7 @@ export const getMyBookings = async (req: Request, res: Response) => {
 
       return {
         bookingId: booking.bookingNumber,
-        tourId: booking.tourId,
+        tourId: (booking as any).tourId,
         tourDate: booking.tourStartDate,
         numberOfTourists: booking.touristsCount,
         status: booking.status,
