@@ -27,68 +27,119 @@ const generateBookingNumber = async (): Promise<string> => {
 export const createBooking = async (req: Request, res: Response) => {
   try {
     const agentId = (req as any).agent?.agentId;
+    console.log('📝 Получена заявка от турагента:', agentId);
+    console.log('📦 Данные формы:', req.body);
+    
     const {
-      tourName,
-      tourStartDate,
-      tourEndDate,
-      touristsCount,
-      tourists,
-      totalPrice,
-      agentCommission,
-      notes
+      tourId,
+      tourDate,
+      numberOfTourists,
+      clientName,
+      clientEmail,
+      clientPhone,
+      specialRequests
     } = req.body;
 
-    // Валидация
-    if (!tourName || !tourStartDate || !tourEndDate || !touristsCount || !tourists) {
+    // Парсинг и нормализация
+    const parsedTourId = tourId ? Number(tourId) : null;
+    const parsedTouristsCount = numberOfTourists ? Number(numberOfTourists) : null;
+    const trimmedName = clientName ? clientName.trim() : '';
+    const trimmedEmail = clientEmail ? clientEmail.trim() : '';
+    const trimmedPhone = clientPhone ? clientPhone.trim() : '';
+    const trimmedDate = tourDate ? tourDate.trim() : '';
+
+    // Валидация обязательных полей
+    if (!trimmedName || !trimmedEmail || !trimmedPhone || !trimmedDate) {
+      console.log('❌ Не хватает обязательных полей');
       return res.status(400).json({
         success: false,
         message: 'Заполните все обязательные поля'
       });
     }
 
-    if (touristsCount < 1) {
+    // Валидация числовых полей
+    if (!parsedTourId || !Number.isInteger(parsedTourId) || parsedTourId < 1) {
+      console.log('❌ Неверный ID тура:', tourId);
+      return res.status(400).json({
+        success: false,
+        message: 'Неверный ID тура'
+      });
+    }
+
+    if (!parsedTouristsCount || !Number.isInteger(parsedTouristsCount) || parsedTouristsCount < 1) {
+      console.log('❌ Неверное количество туристов:', numberOfTourists);
       return res.status(400).json({
         success: false,
         message: 'Количество туристов должно быть больше 0'
       });
     }
 
-    // Парсинг списка туристов если это строка
-    let touristsData = tourists;
-    if (typeof tourists === 'string') {
-      try {
-        touristsData = JSON.parse(tourists);
-      } catch (e) {
-        touristsData = tourists;
-      }
+    // Валидация даты
+    const parsedDate = new Date(trimmedDate);
+    if (Number.isNaN(parsedDate.getTime())) {
+      console.log('❌ Неверная дата:', trimmedDate);
+      return res.status(400).json({
+        success: false,
+        message: 'Неверная дата. Используйте формат ГГГГ-ММ-ДД'
+      });
     }
+
+    // Получить данные тура из БД
+    const tour = await prisma.tour.findUnique({
+      where: { id: parsedTourId }
+    });
+
+    if (!tour) {
+      console.log('❌ Тур не найден:', tourId);
+      return res.status(404).json({
+        success: false,
+        message: 'Тур не найден'
+      });
+    }
+
+    console.log('✅ Тур найден:', tour.title);
+
+    // Формируем данные туриста в JSON
+    const touristData = {
+      name: trimmedName,
+      email: trimmedEmail,
+      phone: trimmedPhone
+    };
 
     // Генерация номера заявки
     const bookingNumber = await generateBookingNumber();
+    console.log('🔢 Номер заявки:', bookingNumber);
 
     // Создание заявки
     const booking = await prisma.agentTourBooking.create({
       data: {
         agentId,
         bookingNumber,
-        tourName,
-        tourStartDate: new Date(tourStartDate),
-        tourEndDate: new Date(tourEndDate),
-        touristsCount,
-        tourists: typeof touristsData === 'string' ? touristsData : JSON.stringify(touristsData),
-        totalPrice: totalPrice ? parseFloat(totalPrice) : null,
-        agentCommission: agentCommission ? parseFloat(agentCommission) : null,
-        notes
+        tourName: typeof tour.title === 'string' ? tour.title : JSON.stringify(tour.title),
+        tourStartDate: parsedDate,
+        tourEndDate: parsedDate, // Пока ставим такую же дату
+        touristsCount: parsedTouristsCount,
+        tourists: JSON.stringify([touristData]),
+        totalPrice: tour.price ? parseFloat(tour.price.toString()) * parsedTouristsCount : null,
+        agentCommission: null, // Пока без комиссии
+        notes: specialRequests ? specialRequests.trim() : null
       }
     });
+
+    console.log('✅ Заявка создана:', booking.bookingNumber);
 
     return res.status(201).json({
       success: true,
       message: 'Заявка успешно создана',
-      data: booking
+      booking: {
+        bookingId: booking.bookingNumber,
+        tourName: booking.tourName,
+        tourDate: booking.tourStartDate,
+        status: booking.status
+      }
     });
   } catch (error) {
-    console.error('Error creating booking:', error);
+    console.error('❌ Error creating booking:', error);
     return res.status(500).json({
       success: false,
       message: 'Ошибка при создании заявки'
