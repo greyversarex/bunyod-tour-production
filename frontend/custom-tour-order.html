@@ -508,15 +508,6 @@
                                             <input type="checkbox" ${isSelected ? 'checked' : ''} 
                                                 class="h-5 w-5 text-gray-600 pointer-events-none">
                                         </div>
-                                        ${isSelected ? `
-                                            <div class="mt-3">
-                                                <label class="text-xs text-gray-600">Количество:</label>
-                                                <input type="number" min="1" value="${getComponentQuantity(comp.id)}" 
-                                                    onchange="updateComponentQuantity(${comp.id}, this.value)"
-                                                    onclick="event.stopPropagation()"
-                                                    class="w-20 px-2 py-1 border rounded text-sm">
-                                            </div>
-                                        ` : ''}
                                     </div>
                                 `;
                             }).join('')}
@@ -535,29 +526,25 @@
             if (index >= 0) {
                 selectedComponents.splice(index, 1);
             } else {
-                selectedComponents.push({ id: comp.id, quantity: 1, price: comp.price });
+                selectedComponents.push({ 
+                    id: comp.id, 
+                    price: comp.price, 
+                    unit: comp.unit 
+                });
             }
             
             renderComponents();
             updateTotalPrice();
         }
 
-        function getComponentQuantity(componentId) {
-            const comp = selectedComponents.find(sc => sc.id === componentId);
-            return comp ? comp.quantity : 1;
-        }
-
-        function updateComponentQuantity(componentId, quantity) {
-            const comp = selectedComponents.find(sc => sc.id === componentId);
-            if (comp) {
-                comp.quantity = parseInt(quantity) || 1;
-                updateTotalPrice();
-            }
-        }
 
         function updateTotalPrice() {
+            const touristCount = tourists.length || 1; // Минимум 1 турист
+            
             const total = selectedComponents.reduce((sum, comp) => {
-                return sum + (comp.price * comp.quantity);
+                // Если компонент рассчитывается "за человека", умножаем на количество туристов
+                const multiplier = comp.unit === 'человек' ? touristCount : 1;
+                return sum + (comp.price * multiplier);
             }, 0);
             
             document.getElementById('totalPrice').textContent = `${total.toFixed(2)} TJS`;
@@ -575,6 +562,7 @@
             tourists.push(name);
             input.value = '';
             renderTourists();
+            updateTotalPrice(); // Пересчитать цену при добавлении туриста
         }
 
         function renderTourists() {
@@ -602,6 +590,7 @@
         function removeTourist(index) {
             tourists.splice(index, 1);
             renderTourists();
+            updateTotalPrice(); // Пересчитать цену при удалении туриста
         }
 
         // Form submission
