@@ -398,6 +398,9 @@
                     document.getElementById('passwordChangeAlert').style.display = 'block';
                     switchTab('password');
                 }
+                
+                // Initialize form handlers after DOM is ready
+                initializeFormHandlers();
             } catch (error) {
                 console.error('Error parsing agent info:', error);
                 window.location.href = '/agent-login.html';
@@ -450,8 +453,17 @@
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
-        // Handle booking form
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+        function initializeFormHandlers() {
+            console.log('✅ Инициализация обработчиков форм');
+            
+            // Handle booking form
+            const bookingForm = document.getElementById('bookingForm');
+            if (!bookingForm) {
+                console.error('❌ Форма bookingForm не найдена');
+                return;
+            }
+            
+            bookingForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const message = document.getElementById('bookingMessage');
@@ -571,7 +583,8 @@
                 btn.disabled = false;
                 btn.textContent = 'Сменить пароль';
             }
-        });
+            });
+        }
 
         // Load bookings
         async function loadBookings() {
