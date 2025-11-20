@@ -52,9 +52,8 @@ const upload = multer({
 
 // ============ ПУБЛИЧНЫЕ МАРШРУТЫ ============
 
-// Подать заявку на партнерство
-router.post(
-  '/applications',
+// Подать заявку на партнерство (оба маршрута для совместимости)
+const applicationHandler = [
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.log('🔵 Начало обработки заявки на партнерство');
     console.log('📦 Content-Type:', req.headers['content-type']);
@@ -71,7 +70,10 @@ router.post(
     next();
   },
   travelAgentController.submitApplication
-);
+];
+
+router.post('/apply', ...applicationHandler);
+router.post('/applications', ...applicationHandler);
 
 // Авторизация турагента
 router.post('/auth/login', travelAgentController.agentLogin);
