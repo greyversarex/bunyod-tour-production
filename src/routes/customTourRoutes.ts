@@ -16,9 +16,9 @@ router.get('/', adminAuthMiddleware, customTourController.getAllComponents);
 
 /**
  * GET /api/custom-tour-components/country/:countryId
- * Get components by country
+ * Get components by country (PUBLIC - needed for custom tour order form)
  */
-router.get('/country/:countryId', adminAuthMiddleware, customTourController.getComponentsByCountry);
+router.get('/country/:countryId', customTourController.getComponentsByCountry);
 
 /**
  * GET /api/custom-tour-components/categories

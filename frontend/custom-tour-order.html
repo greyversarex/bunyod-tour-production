@@ -221,16 +221,22 @@
 
         // Load countries
         async function loadCountries() {
+            console.log('🔄 loadCountries() called - fetching countries...');
             try {
                 const response = await fetch('/api/countries');
+                console.log('📡 Countries API response status:', response.status);
                 const data = await response.json();
+                console.log('📊 Countries data:', data);
                 
                 if (data.success) {
                     allCountries = data.data;
+                    console.log('✅ Loaded', allCountries.length, 'countries');
                     renderCountries();
+                } else {
+                    console.error('❌ Failed to load countries:', data);
                 }
             } catch (error) {
-                console.error('Error loading countries:', error);
+                console.error('❌ Error loading countries:', error);
             }
         }
 
@@ -437,22 +443,27 @@
         }
 
         async function loadComponentsForCountries() {
+            console.log('🔄 loadComponentsForCountries() called for countries:', selectedCountries);
             if (selectedCountries.length === 0) {
+                console.log('⚠️ No countries selected, clearing components');
                 allComponents = [];
                 renderComponents();
                 return;
             }
             
             try {
-                const promises = selectedCountries.map(countryId =>
-                    fetch(`/api/custom-tour-components/country/${countryId}`).then(r => r.json())
-                );
+                const promises = selectedCountries.map(countryId => {
+                    console.log(`📡 Fetching components for country ${countryId}...`);
+                    return fetch(`/api/custom-tour-components/country/${countryId}`).then(r => r.json());
+                });
                 
                 const results = await Promise.all(promises);
+                console.log('📊 Components API results:', results);
                 allComponents = results.flatMap(r => r.success ? r.data : []);
+                console.log('✅ Loaded', allComponents.length, 'components');
                 renderComponents();
             } catch (error) {
-                console.error('Error loading components:', error);
+                console.error('❌ Error loading components:', error);
             }
         }
 
@@ -714,10 +725,18 @@
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        // Since script is at the end of body, DOM is already loaded
+        // Check if DOM is ready, if so execute immediately, otherwise wait
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadCountries();
+                updatePlaceholders();
+            });
+        } else {
+            // DOM already loaded, execute immediately
             loadCountries();
             updatePlaceholders();
-        });
+        }
     </script>
 </body>
 </html>
