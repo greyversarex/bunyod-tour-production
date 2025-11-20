@@ -469,52 +469,61 @@
 
         function renderComponents() {
             const container = document.getElementById('componentsContainer');
+            const lang = window.currentLanguage || 'ru';
             
             if (allComponents.length === 0) {
                 container.innerHTML = '<p class="text-gray-500 text-center py-4">Выберите страны, чтобы увидеть доступные компоненты</p>';
                 return;
             }
             
-            // Group by category
-            const byCategory = {};
+            // Group by country
+            const byCountry = {};
             allComponents.forEach(comp => {
-                if (!byCategory[comp.category]) byCategory[comp.category] = [];
-                byCategory[comp.category].push(comp);
+                if (!byCountry[comp.countryId]) byCountry[comp.countryId] = [];
+                byCountry[comp.countryId].push(comp);
             });
             
-            container.innerHTML = Object.entries(byCategory).map(([category, components]) => `
-                <div>
-                    <h4 class="font-semibold text-gray-700 mb-3 capitalize">${category}</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        ${components.map(comp => {
-                            const nameRu = typeof comp.name === 'object' ? comp.name.ru : comp.name;
-                            const isSelected = selectedComponents.some(sc => sc.id === comp.id);
-                            return `
-                                <div class="component-card border rounded-lg p-4 cursor-pointer ${isSelected ? 'selected' : ''}"
-                                    onclick="toggleComponent(${comp.id})">
-                                    <div class="flex justify-between items-start">
-                                        <div class="flex-1">
-                                            <div class="font-medium text-gray-900">${nameRu}</div>
-                                            <div class="text-sm text-gray-600 mt-1">${comp.price} TJS / ${comp.unit}</div>
+            container.innerHTML = Object.entries(byCountry).map(([countryId, components]) => {
+                // Find country name from allCountries
+                const country = allCountries.find(c => c.id === parseInt(countryId));
+                const countryName = country 
+                    ? (typeof country.name === 'object' ? country.name[lang] || country.name.ru : country.name)
+                    : 'Страна';
+                
+                return `
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3 text-lg">${countryName}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${components.map(comp => {
+                                const nameRu = typeof comp.name === 'object' ? comp.name.ru : comp.name;
+                                const isSelected = selectedComponents.some(sc => sc.id === comp.id);
+                                return `
+                                    <div class="component-card border rounded-lg p-4 cursor-pointer ${isSelected ? 'selected' : ''}"
+                                        onclick="toggleComponent(${comp.id})">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <div class="font-medium text-gray-900">${nameRu}</div>
+                                                <div class="text-sm text-gray-600 mt-1">${comp.price} TJS / ${comp.unit}</div>
+                                            </div>
+                                            <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                                                class="h-5 w-5 text-gray-600 pointer-events-none">
                                         </div>
-                                        <input type="checkbox" ${isSelected ? 'checked' : ''} 
-                                            class="h-5 w-5 text-gray-600 pointer-events-none">
+                                        ${isSelected ? `
+                                            <div class="mt-3">
+                                                <label class="text-xs text-gray-600">Количество:</label>
+                                                <input type="number" min="1" value="${getComponentQuantity(comp.id)}" 
+                                                    onchange="updateComponentQuantity(${comp.id}, this.value)"
+                                                    onclick="event.stopPropagation()"
+                                                    class="w-20 px-2 py-1 border rounded text-sm">
+                                            </div>
+                                        ` : ''}
                                     </div>
-                                    ${isSelected ? `
-                                        <div class="mt-3">
-                                            <label class="text-xs text-gray-600">Количество:</label>
-                                            <input type="number" min="1" value="${getComponentQuantity(comp.id)}" 
-                                                onchange="updateComponentQuantity(${comp.id}, this.value)"
-                                                onclick="event.stopPropagation()"
-                                                class="w-20 px-2 py-1 border rounded text-sm">
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            `;
-                        }).join('')}
+                                `;
+                            }).join('')}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function toggleComponent(componentId) {
