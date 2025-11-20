@@ -238,6 +238,28 @@
             <i class="fas fa-exclamation-triangle"></i>
             <strong>Внимание!</strong> Необходимо сменить пароль перед началом работы.
         </div>
+        
+        <!-- Partnership Status Card -->
+        <div id="partnershipStatusCard" class="card" style="margin-top: 20px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-handshake" style="color: #3E3E3E;"></i>
+                        Статус партнерства
+                    </h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div>
+                            <span style="color: #666; font-size: 14px;">Статус аккаунта:</span>
+                            <span id="agentStatusBadge" style="margin-left: 10px; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;"></span>
+                        </div>
+                        <div>
+                            <span style="color: #666; font-size: 14px;">Партнер с:</span>
+                            <span id="partnerSince" style="margin-left: 10px; font-weight: 600; color: #3E3E3E;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('booking')">Заявка на тур</button>
@@ -386,6 +408,37 @@
             document.getElementById('agentId').textContent = agentInfo.agentId || '-';
             document.getElementById('companyName').textContent = agentInfo.companyName || '-';
             document.getElementById('agentEmail').textContent = agentInfo.email || '-';
+            
+            // Display partnership status
+            if (agentInfo.status) {
+                const statusCard = document.getElementById('partnershipStatusCard');
+                const statusBadge = document.getElementById('agentStatusBadge');
+                const partnerSince = document.getElementById('partnerSince');
+                
+                // Show status card
+                statusCard.style.display = 'block';
+                
+                // Set status badge
+                if (agentInfo.status === 'active') {
+                    statusBadge.textContent = 'Активный';
+                    statusBadge.style.background = '#d4edda';
+                    statusBadge.style.color = '#155724';
+                } else if (agentInfo.status === 'suspended') {
+                    statusBadge.textContent = 'Приостановлен';
+                    statusBadge.style.background = '#f8d7da';
+                    statusBadge.style.color = '#721c24';
+                }
+                
+                // Set partnership date
+                if (agentInfo.createdAt) {
+                    const date = new Date(agentInfo.createdAt);
+                    partnerSince.textContent = date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                }
+            }
         }
 
         function switchTab(tabName) {
