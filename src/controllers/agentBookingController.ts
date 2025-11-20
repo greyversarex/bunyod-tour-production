@@ -115,6 +115,7 @@ export const createBooking = async (req: Request, res: Response) => {
       data: {
         agentId,
         bookingNumber,
+        tourId: parsedTourId,
         tourName: typeof tour.title === 'string' ? tour.title : JSON.stringify(tour.title),
         tourStartDate: parsedDate,
         tourEndDate: parsedDate, // Пока ставим такую же дату
@@ -165,21 +166,48 @@ export const getMyBookings = async (req: Request, res: Response) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Парсинг JSON данных туристов
-    const bookingsWithTourists = bookings.map(booking => ({
-      ...booking,
-      tourists: booking.tourists ? (() => {
-        try {
-          return JSON.parse(booking.tourists);
-        } catch (e) {
-          return booking.tourists;
+    // Трансформируем данные под формат frontend
+    const transformedBookings = bookings.map(booking => {
+      // Парсим tourName если это JSON, иначе создаем структуру {ru, en}
+      let tourTitle: any = { ru: booking.tourName, en: null };
+      try {
+        const parsed = JSON.parse(booking.tourName);
+        if (typeof parsed === 'object' && parsed !== null) {
+          tourTitle = parsed;
         }
-      })() : null
-    }));
+      } catch (e) {
+        // Оставляем структуру по умолчанию {ru: tourName, en: null}
+      }
+
+      // Парсим данные туристов
+      let tourists = null;
+      if (booking.tourists) {
+        try {
+          tourists = JSON.parse(booking.tourists);
+        } catch (e) {
+          tourists = booking.tourists;
+        }
+      }
+
+      return {
+        bookingId: booking.bookingNumber,
+        tourId: booking.tourId,
+        tourDate: booking.tourStartDate,
+        numberOfTourists: booking.touristsCount,
+        status: booking.status,
+        createdAt: booking.createdAt,
+        tour: {
+          title: tourTitle
+        },
+        tourists,
+        totalPrice: booking.totalPrice,
+        notes: booking.notes
+      };
+    });
 
     return res.json({
       success: true,
-      data: bookingsWithTourists
+      bookings: transformedBookings
     });
   } catch (error) {
     console.error('Error fetching bookings:', error);

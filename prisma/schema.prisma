@@ -104,6 +104,7 @@ model Tour {
   tourHotels              TourHotel[]
   tourMapPoints           TourMapPoint[]
   pricingComponents       TourPricingComponent[]
+  agentTourBookings       AgentTourBooking[]
   assignedGuide           Guide?                   @relation("AssignedGuide", fields: [assignedGuideId], references: [id])
   category                Category                 @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   tourCity                City?                    @relation(fields: [cityId], references: [id])
@@ -966,6 +967,7 @@ model AgentTourBooking {
   id                     Int       @id @default(autoincrement())
   agentId                Int       @map("agent_id")
   bookingNumber          String    @unique @map("booking_number")
+  tourId                 Int?      @map("tour_id")
   tourName               String    @map("tour_name")
   tourStartDate          DateTime  @map("tour_start_date")
   tourEndDate            DateTime  @map("tour_end_date")
@@ -978,6 +980,7 @@ model AgentTourBooking {
   createdAt              DateTime  @default(now()) @map("created_at")
   updatedAt              DateTime  @updatedAt @map("updated_at")
   agent                  TravelAgent @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  tour                   Tour?      @relation(fields: [tourId], references: [id], onDelete: SetNull)
 
   @@map("agent_tour_bookings")
 }
