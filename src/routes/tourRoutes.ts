@@ -17,6 +17,7 @@ router.get('/:id', TourController.getTourById);
 router.post('/', TourController.createTour);
 router.put('/:id', TourController.updateTour);
 router.post('/:id/publish', TourController.publishTour); // 📝 Публикация черновика
+router.post('/:id/duplicate', TourController.duplicateTour); // 📋 Дублирование тура
 router.delete('/:id', TourController.deleteTour);
 
 // Booking request routes for tours

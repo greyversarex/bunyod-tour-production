@@ -1210,6 +1210,162 @@ export class TourController {
   }
 
   /**
+   * Duplicate a tour (copy)
+   * POST /api/tours/:id/duplicate
+   */
+  static async duplicateTour(req: Request, res: Response, next: NextFunction) {
+    try {
+      const id = parseInt(req.params.id);
+      
+      if (isNaN(id)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid tour ID'
+        });
+      }
+
+      console.log('📋 Duplicating tour with ID:', id);
+
+      const originalTour = await TourModel.findById(id);
+      
+      if (!originalTour) {
+        return res.status(404).json({
+          success: false,
+          error: 'Tour not found'
+        });
+      }
+
+      console.log('✅ Original tour found, creating duplicate...');
+
+      const titleObj = safeJsonParse(originalTour.title);
+      const newTitle = {
+        ru: `${titleObj.ru || 'Копия'} (Копия)`,
+        en: titleObj.en ? `${titleObj.en} (Copy)` : null
+      };
+
+      const newTourData: any = {
+        title: JSON.stringify(newTitle),
+        description: originalTour.description,
+        shortDescription: originalTour.shortDescription,
+        duration: originalTour.duration,
+        price: originalTour.price,
+        priceType: originalTour.priceType,
+        originalPrice: originalTour.originalPrice,
+        categoryId: originalTour.categoryId,
+        countryId: originalTour.countryId,
+        cityId: originalTour.cityId,
+        country: originalTour.country,
+        city: originalTour.city,
+        durationDays: originalTour.durationDays,
+        durationType: originalTour.durationType,
+        format: originalTour.format,
+        tourType: originalTour.tourType,
+        difficulty: originalTour.difficulty,
+        maxPeople: originalTour.maxPeople,
+        minPeople: originalTour.minPeople,
+        mainImage: originalTour.mainImage,
+        images: originalTour.images,
+        services: originalTour.services,
+        highlights: originalTour.highlights,
+        itinerary: originalTour.itinerary,
+        itineraryEn: originalTour.itineraryEn,
+        included: originalTour.included,
+        includes: originalTour.includes,
+        excluded: originalTour.excluded,
+        pickupInfo: originalTour.pickupInfo,
+        pickupInfoEn: originalTour.pickupInfoEn,
+        startTimeOptions: originalTour.startTimeOptions,
+        languages: originalTour.languages,
+        availableMonths: originalTour.availableMonths,
+        availableDays: originalTour.availableDays,
+        isFeatured: false,
+        isDraft: true,
+        startDate: originalTour.startDate,
+        endDate: originalTour.endDate,
+        rating: 0,
+        reviewsCount: 0,
+        pricingComponents: originalTour.pricingComponents,
+        profitMargin: originalTour.profitMargin
+      };
+
+      if ((originalTour as any).tourCountries && (originalTour as any).tourCountries.length > 0) {
+        newTourData.countriesIds = (originalTour as any).tourCountries.map((tc: any) => tc.countryId);
+      }
+
+      if ((originalTour as any).tourCities && (originalTour as any).tourCities.length > 0) {
+        newTourData.citiesIds = (originalTour as any).tourCities.map((tc: any) => tc.cityId);
+        const cityNights: Record<string, number> = {};
+        (originalTour as any).tourCities.forEach((tc: any) => {
+          cityNights[tc.cityId.toString()] = tc.nightsCount || 1;
+        });
+        newTourData.cityNights = cityNights;
+      }
+
+      if ((originalTour as any).tourCategoryAssignments && (originalTour as any).tourCategoryAssignments.length > 0) {
+        newTourData.categoriesIds = (originalTour as any).tourCategoryAssignments.map((tca: any) => tca.categoryId);
+      }
+
+      if ((originalTour as any).tourHotels && (originalTour as any).tourHotels.length > 0) {
+        newTourData.hotelIds = (originalTour as any).tourHotels.map((th: any) => th.hotelId);
+      }
+
+      if ((originalTour as any).tourGuides && (originalTour as any).tourGuides.length > 0) {
+        newTourData.guideIds = (originalTour as any).tourGuides.map((tg: any) => tg.guideId);
+      }
+
+      if ((originalTour as any).tourDrivers && (originalTour as any).tourDrivers.length > 0) {
+        newTourData.driverIds = (originalTour as any).tourDrivers.map((td: any) => td.driverId);
+      }
+
+      if ((originalTour as any).tourBlockAssignments && (originalTour as any).tourBlockAssignments.length > 0) {
+        newTourData.tourBlockIds = (originalTour as any).tourBlockAssignments.map((tba: any) => tba.tourBlockId);
+      }
+
+      if ((originalTour as any).tourMapPoints && (originalTour as any).tourMapPoints.length > 0) {
+        newTourData.mapPoints = (originalTour as any).tourMapPoints.map((tmp: any) => ({
+          lat: tmp.latitude,
+          lng: tmp.longitude,
+          title: tmp.description || '',
+          description: tmp.description || '',
+          stepNumber: tmp.stepNumber
+        }));
+      }
+
+      console.log('📦 Creating new tour with data:', newTourData);
+
+      const newTour = await TourModel.create(newTourData);
+
+      console.log('✅ Tour duplicated successfully with ID:', newTour.id);
+
+      const parsedTour = {
+        ...newTour,
+        title: safeJsonParse(newTour.title),
+        description: safeJsonParse(newTour.description)
+      };
+
+      const response: ApiResponse = {
+        success: true,
+        data: parsedTour,
+        message: 'Tour duplicated successfully'
+      };
+
+      return res.status(201).json(response);
+    } catch (error) {
+      console.error('❌ Error duplicating tour:', error);
+      
+      if (error instanceof Error) {
+        console.error('❌ Error details:', error.message);
+        console.error('❌ Error stack:', error.stack);
+      }
+      
+      return res.status(500).json({
+        success: false,
+        error: 'Error duplicating tour: ' + (error instanceof Error ? error.message : 'Unknown error')
+      });
+    }
+  }
+
+  /**
    * Search tours with advanced filtering
    * GET /api/tours/search
    */
