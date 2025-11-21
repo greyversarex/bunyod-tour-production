@@ -1,4 +1,4 @@
-modules = ["web", "nodejs-18", "php-8.2", "postgresql-16"]
+modules = ["web", "nodejs-18", "php-8.2"]
 run = "npm run start"
 [agent]
 expertMode = true
@@ -109,3 +109,8 @@ externalPort = 6000
 deploymentTarget = "autoscale"
 run = ["node", "index.js"]
 build = ["npx", "prisma", "generate"]
+
+[userenv]
+
+[userenv.shared]
+JWT_SECRET = "0dc19b76faa4dfa2eb83f8f5785167f05b15635c58dde741d58125e2e2af870b"
