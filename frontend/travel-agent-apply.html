@@ -87,7 +87,7 @@
                 <!-- Expandable Partnership Info -->
                 <div class="mt-6">
                     <p class="text-sm text-gray-700 leading-relaxed">
-                        Наши партнёры делятся на две группы: стратегические партнёры и туристические партнёры. Со стратегическими партнёрами мы работаем по традиционному принципу, но с туристическими партнёрами, также известными как турагентства, мы работаем преимущественно через онлайн-платформы, в частности, через наш веб-сайт.
+                        Наши партнёры делятся на две группы: стратегические партнёры и туристические партнёры. Со стратегическими партнёрами мы работаем по традиционному принципу, но с туристическими партнёрами, также известными как турагентства, мы работаем преимущественно через онлайн-платформы, в частности, через наш веб-сайт.<span id="expandedInfo" class="hidden"> Наше предложение будущим тур-партнерам (турагентам) это вознаграждение (комиссия) в размере 10% от стоимости реализованных (проданных) турпакетов, которые размещены (опубликованы) на нашем веб-сайте по адресу <a href="https://bunyodtour.tj" class="text-gray-900 font-medium hover:underline">https://bunyodtour.tj</a>. Обратите внимание, что у нас нет строгих ограничений по выбору турагентов — нашим тур-партнером (турагентом) может стать любое физическое или юридическое лицо, отвечающее основным критериям и требованиям турагента и проживающее или осуществляющее деятельность на территории стран Центральной Азии.</span>
                     </p>
                     
                     <div class="mt-3 text-center">
@@ -95,14 +95,8 @@
                             <svg id="expandIcon" class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
-                            <span class="text-sm font-medium">Показать полностью</span>
+                            <span class="text-sm font-medium" data-translate="agent.show_more">Показать полностью</span>
                         </button>
-                    </div>
-                    
-                    <div id="expandedInfo" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-700 leading-relaxed">
-                            Наше предложение будущим тур-партнерам (турагентам) это вознаграждение (комиссия) в размере 10% от стоимости реализованных (проданных) турпакетов, которые размещены (опубликованы) на нашем веб-сайте по адресу <a href="https://bunyodtour.tj" class="text-gray-900 font-medium hover:underline">https://bunyodtour.tj</a>. Обратите внимание, что у нас нет строгих ограничений по выбору турагентов — нашим тур-партнером (турагентом) может стать любое физическое или юридическое лицо, отвечающее основным критериям и требованиям турагента и проживающее или осуществляющее деятельность на территории стран Центральной Азии.
-                        </p>
                     </div>
                 </div>
             </div>
@@ -120,21 +114,21 @@
                 <!-- Partner Type Selector -->
                 <div class="mb-8">
                     <label class="block text-sm font-semibold text-gray-700 mb-3 text-center">
-                        Выберите тип партнёра <span class="text-red-500">*</span>
+                        <span data-translate="agent.select_partner_type">Выберите тип партнёра</span> <span class="text-red-500">*</span>
                     </label>
                     <div class="flex gap-4 justify-center">
                         <label class="flex-1 max-w-xs cursor-pointer">
                             <input type="radio" name="partnerType" value="individual" id="partnerTypeIndividual" class="peer sr-only" checked>
                             <div class="px-6 py-4 text-center border-2 border-gray-200 rounded-xl peer-checked:border-gray-800 peer-checked:bg-gray-50 transition-all hover:border-gray-400">
                                 <span class="text-lg">👤</span>
-                                <div class="font-semibold text-gray-800 mt-2">Физическое лицо</div>
+                                <div class="font-semibold text-gray-800 mt-2" data-translate="agent.individual">Физическое лицо</div>
                             </div>
                         </label>
                         <label class="flex-1 max-w-xs cursor-pointer">
                             <input type="radio" name="partnerType" value="legal" id="partnerTypeLegal" class="peer sr-only">
                             <div class="px-6 py-4 text-center border-2 border-gray-200 rounded-xl peer-checked:border-gray-800 peer-checked:bg-gray-50 transition-all hover:border-gray-400">
                                 <span class="text-lg">🏢</span>
-                                <div class="font-semibold text-gray-800 mt-2">Юридическое лицо</div>
+                                <div class="font-semibold text-gray-800 mt-2" data-translate="agent.legal_entity">Юридическое лицо</div>
                             </div>
                         </label>
                     </div>
@@ -313,15 +307,18 @@
             if (expandInfoBtn && expandedInfo) {
                 expandInfoBtn.addEventListener('click', function() {
                     const isExpanded = !expandedInfo.classList.contains('hidden');
+                    const btnText = expandInfoBtn.querySelector('span');
                     
                     if (isExpanded) {
                         expandedInfo.classList.add('hidden');
                         expandIcon.classList.remove('rotate-180');
-                        expandInfoBtn.querySelector('span').textContent = 'Показать полностью';
+                        btnText.setAttribute('data-translate', 'agent.show_more');
+                        btnText.textContent = 'Показать полностью';
                     } else {
                         expandedInfo.classList.remove('hidden');
                         expandIcon.classList.add('rotate-180');
-                        expandInfoBtn.querySelector('span').textContent = 'Скрыть';
+                        btnText.setAttribute('data-translate', 'agent.show_less');
+                        btnText.textContent = 'Скрыть';
                     }
                 });
             }
