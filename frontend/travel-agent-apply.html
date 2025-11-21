@@ -83,6 +83,28 @@
                         <span class="text-sm text-gray-700" data-translate="agent.partner_type8">Студенты и фрилансеры</span>
                     </div>
                 </div>
+                
+                <!-- Expandable Partnership Info -->
+                <div class="mt-6">
+                    <p class="text-sm text-gray-700 leading-relaxed">
+                        Наши партнёры делятся на две группы: стратегические партнёры и туристические партнёры. Со стратегическими партнёрами мы работаем по традиционному принципу, но с туристическими партнёрами, также известными как турагентства, мы работаем преимущественно через онлайн-платформы, в частности, через наш веб-сайт.
+                    </p>
+                    
+                    <div class="mt-3 text-center">
+                        <button id="expandInfoBtn" class="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors">
+                            <svg id="expandIcon" class="w-5 h-5 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                            <span class="text-sm font-medium">Показать полностью</span>
+                        </button>
+                    </div>
+                    
+                    <div id="expandedInfo" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-700 leading-relaxed">
+                            Наше предложение будущим тур-партнерам (турагентам) это вознаграждение (комиссия) в размере 10% от стоимости реализованных (проданных) турпакетов, которые размещены (опубликованы) на нашем веб-сайте по адресу <a href="https://bunyodtour.tj" class="text-gray-900 font-medium hover:underline">https://bunyodtour.tj</a>. Обратите внимание, что у нас нет строгих ограничений по выбору турагентов — нашим тур-партнером (турагентом) может стать любое физическое или юридическое лицо, отвечающее основным критериям и требованиям турагента и проживающее или осуществляющее деятельность на территории стран Центральной Азии.
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -94,6 +116,29 @@
                 <h2 class="text-3xl font-bold text-center text-gray-800 mb-8" data-translate="agent.form_title">
                     Заявка на партнерство
                 </h2>
+                
+                <!-- Partner Type Selector -->
+                <div class="mb-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-3 text-center">
+                        Выберите тип партнёра <span class="text-red-500">*</span>
+                    </label>
+                    <div class="flex gap-4 justify-center">
+                        <label class="flex-1 max-w-xs cursor-pointer">
+                            <input type="radio" name="partnerType" value="individual" id="partnerTypeIndividual" class="peer sr-only" checked>
+                            <div class="px-6 py-4 text-center border-2 border-gray-200 rounded-xl peer-checked:border-gray-800 peer-checked:bg-gray-50 transition-all hover:border-gray-400">
+                                <span class="text-lg">👤</span>
+                                <div class="font-semibold text-gray-800 mt-2">Физическое лицо</div>
+                            </div>
+                        </label>
+                        <label class="flex-1 max-w-xs cursor-pointer">
+                            <input type="radio" name="partnerType" value="legal" id="partnerTypeLegal" class="peer sr-only">
+                            <div class="px-6 py-4 text-center border-2 border-gray-200 rounded-xl peer-checked:border-gray-800 peer-checked:bg-gray-50 transition-all hover:border-gray-400">
+                                <span class="text-lg">🏢</span>
+                                <div class="font-semibold text-gray-800 mt-2">Юридическое лицо</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
                 
                 <div id="successMessage" class="hidden bg-green-50 border-l-4 border-green-500 text-green-800 p-4 rounded-lg mb-6">
                     <div class="flex items-center">
@@ -131,11 +176,11 @@
                         </div>
                     </div>
 
-                    <div>
+                    <div id="companyNameField">
                         <label class="block text-sm font-semibold text-gray-700 mb-2" data-translate="agent.company_name">
                             Название компании
                         </label>
-                        <input type="text" name="companyName" 
+                        <input type="text" name="companyName" id="companyNameInput"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 focus:outline-none transition-colors"
                             data-translate-placeholder="agent.company_placeholder"
                             placeholder="ООО Туристическое агентство">
@@ -163,7 +208,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2" data-translate="agent.address">
-                            Адрес офиса <span class="text-red-500">*</span>
+                            <span id="addressLabel">Адрес офиса</span> <span class="text-red-500">*</span>
                         </label>
                         <input type="text" name="address" required 
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 focus:outline-none transition-colors"
@@ -171,11 +216,11 @@
                             placeholder="г. Душанбе, ул. Рудаки 123">
                     </div>
 
-                    <div>
+                    <div id="websiteField">
                         <label class="block text-sm font-semibold text-gray-700 mb-2" data-translate="agent.website">
                             Сайт компании
                         </label>
-                        <input type="text" name="website" 
+                        <input type="text" name="website" id="websiteInput"
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 focus:outline-none transition-colors"
                             placeholder="www.company.com или https://www.company.com">
                     </div>
@@ -192,7 +237,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-2" data-translate="agent.documents">
-                            Документы (лицензия, регистрация)
+                            <span id="documentsLabel">Документы (лицензия, регистрация)</span>
                         </label>
                         <input type="file" name="otherDocuments" multiple accept=".pdf,.jpg,.jpeg,.png" 
                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-gray-800 focus:outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
@@ -260,6 +305,68 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Expandable Info Toggle
+            const expandInfoBtn = document.getElementById('expandInfoBtn');
+            const expandedInfo = document.getElementById('expandedInfo');
+            const expandIcon = document.getElementById('expandIcon');
+            
+            if (expandInfoBtn && expandedInfo) {
+                expandInfoBtn.addEventListener('click', function() {
+                    const isExpanded = !expandedInfo.classList.contains('hidden');
+                    
+                    if (isExpanded) {
+                        expandedInfo.classList.add('hidden');
+                        expandIcon.classList.remove('rotate-180');
+                        expandInfoBtn.querySelector('span').textContent = 'Показать полностью';
+                    } else {
+                        expandedInfo.classList.remove('hidden');
+                        expandIcon.classList.add('rotate-180');
+                        expandInfoBtn.querySelector('span').textContent = 'Скрыть';
+                    }
+                });
+            }
+            
+            // Partner Type Toggle
+            const partnerTypeIndividual = document.getElementById('partnerTypeIndividual');
+            const partnerTypeLegal = document.getElementById('partnerTypeLegal');
+            const companyNameField = document.getElementById('companyNameField');
+            const websiteField = document.getElementById('websiteField');
+            const addressLabel = document.getElementById('addressLabel');
+            const documentsLabel = document.getElementById('documentsLabel');
+            const companyNameInput = document.getElementById('companyNameInput');
+            const websiteInput = document.getElementById('websiteInput');
+            
+            function updateFormForPartnerType(type) {
+                if (type === 'individual') {
+                    // Физическое лицо
+                    companyNameField.classList.add('hidden');
+                    websiteField.classList.add('hidden');
+                    addressLabel.textContent = 'Адрес проживания';
+                    documentsLabel.textContent = 'Документы (Паспорт, свидетельство, диплом и т.д)';
+                    companyNameInput.removeAttribute('required');
+                    websiteInput.removeAttribute('required');
+                } else {
+                    // Юридическое лицо
+                    companyNameField.classList.remove('hidden');
+                    websiteField.classList.remove('hidden');
+                    addressLabel.textContent = 'Адрес офиса';
+                    documentsLabel.textContent = 'Документы (лицензия, регистрация)';
+                }
+            }
+            
+            if (partnerTypeIndividual && partnerTypeLegal) {
+                partnerTypeIndividual.addEventListener('change', function() {
+                    if (this.checked) updateFormForPartnerType('individual');
+                });
+                
+                partnerTypeLegal.addEventListener('change', function() {
+                    if (this.checked) updateFormForPartnerType('legal');
+                });
+                
+                // Set initial state
+                updateFormForPartnerType('individual');
+            }
+            
             const applicationForm = document.getElementById('applicationForm');
             
             if (!applicationForm) {
