@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет гида | Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/utils.js"></script>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800" data-translate="guide.dashboard">Кабинет гида</h1>
+            <div class="flex items-center gap-4">
+                <span id="guideName" class="text-gray-700 font-semibold"></span>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    <span data-translate="btn.logout">Выход</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600" data-translate="guide.loading">Загрузка...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+            <i class="fas fa-exclamation-circle mr-2"></i>
+            <span id="errorMsg"></span>
+        </div>
+
+        <!-- Tours List -->
+        <div id="content" class="hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6" data-translate="guide.my_tours">Мои туры</h2>
+                
+                <div id="toursContainer" class="space-y-4">
+                    <!-- Tours will be loaded here -->
+                </div>
+
+                <!-- No Tours -->
+                <div id="noTours" class="bg-white rounded-lg p-8 text-center">
+                    <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                    <p class="text-gray-600 text-lg" data-translate="guide.no_tours">У вас нет активных туров</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour Details Modal -->
+    <div id="tourModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-start mb-6">
+                <h3 id="modalTitle" class="text-2xl font-bold text-gray-800"></h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <div id="modalContent" class="space-y-4 mb-6">
+                <!-- Tour details will be loaded here -->
+            </div>
+
+            <div id="modalActions" class="flex gap-4 justify-end">
+                <!-- Action buttons will be inserted here -->
+            </div>
+
+            <button onclick="closeModal()" class="w-full mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition-all">
+                <span data-translate="btn.cancel">Закрыть</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentTourId = null;
+
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('tourGuideToken');
+            const guideData = localStorage.getItem('tourGuideData');
+
+            if (!token || !guideData) {
+                window.location.href = '/guide-login.html';
+                return;
+            }
+
+            const guide = JSON.parse(guideData);
+            document.getElementById('guideName').textContent = guide.name || guide.login;
+
+            loadTours();
+        });
+
+        async function loadTours() {
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch('/api/guide/tours', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('tourGuideToken');
+                        window.location.href = '/guide-login.html';
+                    }
+                    throw new Error('Failed to load tours');
+                }
+
+                const data = await response.json();
+                
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+
+                if (data.success && data.data && data.data.length > 0) {
+                    document.getElementById('noTours').classList.add('hidden');
+                    displayTours(data.data);
+                } else {
+                    document.getElementById('toursContainer').innerHTML = '';
+                    document.getElementById('noTours').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading tours:', error);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('errorMsg').textContent = error.message;
+            }
+        }
+
+        function displayTours(tours) {
+            const container = document.getElementById('toursContainer');
+            container.innerHTML = tours.map(tour => {
+                const title = typeof tour.title === 'object' 
+                    ? (tour.title.ru || tour.title.en || 'Без названия')
+                    : tour.title;
+                
+                const status = getStatusBadge(tour.status);
+                const startDate = new Date(tour.scheduledStartDate).toLocaleDateString('ru-RU');
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-all p-6">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800">${title}</h3>
+                                <p class="text-gray-600 text-sm">
+                                    <i class="fas fa-hashtag mr-1"></i>
+                                    <span data-translate="guide.tour_code">Код:</span> ${tour.uniqueCode}
+                                </p>
+                            </div>
+                            <span class="${status.class}">
+                                <i class="fas ${status.icon} mr-1"></i>
+                                ${status.text}
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-4 mb-4 text-sm text-gray-600">
+                            <div>
+                                <i class="fas fa-calendar mr-1 text-blue-600"></i>
+                                <span data-translate="guide.dates">Дата:</span> ${startDate}
+                            </div>
+                            <div>
+                                <i class="fas fa-users mr-1 text-green-600"></i>
+                                <span data-translate="guide.tourists">Туристы:</span> ${tour.totalTourists}
+                            </div>
+                            <div>
+                                <i class="fas fa-map-marker-alt mr-1 text-red-600"></i>
+                                <span data-translate="guide.days">День:</span> ${tour.currentDay}/${tour.totalDays}
+                            </div>
+                        </div>
+
+                        <button onclick="showTourDetails(${tour.id})" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-eye mr-1"></i>
+                            <span data-translate="guide.view_details">Подробнее</span>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStatusBadge(status) {
+            const statuses = {
+                'scheduled': { text: 'Запланирован', icon: 'fa-calendar', class: 'px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold' },
+                'active': { text: 'В процессе', icon: 'fa-play-circle', class: 'px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold' },
+                'completed': { text: 'Завершён', icon: 'fa-check-circle', class: 'px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold' },
+                'cancelled': { text: 'Отменён', icon: 'fa-times-circle', class: 'px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold' }
+            };
+            return statuses[status] || statuses['scheduled'];
+        }
+
+        async function showTourDetails(tourId) {
+            try {
+                currentTourId = tourId;
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch(`/api/guide/tours/${tourId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load tour details');
+
+                const data = await response.json();
+                const tour = data.data;
+                
+                const title = typeof tour.title === 'object' 
+                    ? (tour.title.ru || tour.title.en || 'Без названия')
+                    : tour.title;
+
+                document.getElementById('modalTitle').textContent = title;
+                
+                const details = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-gray-600 text-sm">Статус</p>
+                            <p class="font-semibold">${getStatusBadge(tour.status).text}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">День</p>
+                            <p class="font-semibold">${tour.currentDay}/${tour.totalDays}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Туристы</p>
+                            <p class="font-semibold">${tour.bookings ? tour.bookings.length : 0} человек</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Гид</p>
+                            <p class="font-semibold">${tour.assignedGuide?.name || 'Не назначен'}</p>
+                        </div>
+                    </div>
+                    ${tour.bookings && tour.bookings.length > 0 ? `
+                        <div class="mt-4">
+                            <p class="text-gray-600 text-sm mb-2">Туристы:</p>
+                            <ul class="space-y-1 text-sm">
+                                ${tour.bookings.map(b => `<li class="text-gray-700">• ${b.customerName || 'Клиент'} (${b.numberOfTourists} чел.)</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : ''}
+                `;
+
+                document.getElementById('modalContent').innerHTML = details;
+
+                const actions = `
+                    ${tour.status === 'scheduled' ? `
+                        <button onclick="startTour(${tourId})" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-play mr-1"></i> <span data-translate="btn.start_tour">Начать тур</span>
+                        </button>
+                    ` : ''}
+                    ${tour.status === 'active' ? `
+                        <button onclick="finishDay(${tourId})" class="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-check mr-1"></i> <span data-translate="btn.finish_day">Завершить день</span>
+                        </button>
+                        ${tour.currentDay === tour.totalDays ? `
+                            <button onclick="finishTour(${tourId})" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all">
+                                <i class="fas fa-flag-checkered mr-1"></i> <span data-translate="btn.finish_tour">Завершить тур</span>
+                            </button>
+                        ` : ''}
+                    ` : ''}
+                `;
+
+                document.getElementById('modalActions').innerHTML = actions;
+                document.getElementById('tourModal').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading tour details:', error);
+                alert('Ошибка загрузки деталей тура');
+            }
+        }
+
+        async function startTour(tourId) {
+            if (!confirm('Начать тур?')) return;
+            await performAction(tourId, 'start');
+        }
+
+        async function finishDay(tourId) {
+            if (!confirm('Завершить день?')) return;
+            await performAction(tourId, 'finish');
+        }
+
+        async function finishTour(tourId) {
+            if (!confirm('Завершить тур?')) return;
+            await performAction(tourId, 'finish');
+        }
+
+        async function performAction(tourId, action) {
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch(`/api/guide/tours/${tourId}/${action}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    closeModal();
+                    loadTours();
+                } else {
+                    alert('Ошибка выполнения действия');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка подключения');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('tourModal').classList.add('hidden');
+        }
+
+        function logout() {
+            if (!confirm('Вы уверены?')) return;
+            localStorage.removeItem('tourGuideToken');
+            localStorage.removeItem('tourGuideData');
+            window.location.href = '/guide-login.html';
+        }
+
+        // Close modal on outside click
+        document.getElementById('tourModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+</body>
+</html>
