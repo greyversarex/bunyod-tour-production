@@ -21,53 +21,137 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const { exec } = require('child_process');
+const session = require('express-session');
 // 🗄️ ДОБАВЛЕНО: Автоматическая инициализация базы данных для новых серверов
 const { initializeDatabase } = require(`${srcPath}/utils/initializeDatabase${isProduction ? '.js' : '.ts'}`);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 🔒 Trust proxy для корректной работы rate limiting в Replit
-app.set('trust proxy', true);
+// ============================================
+// 🔒 NGINX PROXY CONFIGURATION (CRITICAL FOR PWA)
+// ============================================
+app.set('trust proxy', 1); // CRITICAL: Trust X-Forwarded-* headers from Nginx
 
-// ОТКЛЮЧАЕМ глобальные парсеры body - они будут применяться на уровне роутов
-// Это исправляет конфликт с multer для загрузки файлов
-
-// 🔒 CORS: Белый список из переменной окружения CORS_ORIGINS
+// ============================================
+// 🌐 CORS CONFIGURATION (BULLETPROOF FOR PWA/ANDROID)
+// ============================================
 const corsOrigins = process.env.CORS_ORIGINS || '';
 const allowlist = corsOrigins
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
+console.log('🔒 CORS Configuration:');
+console.log(`  - allowlist: ${allowlist.length > 0 ? allowlist.join(', ') : 'ALLOW ALL'}`);
+console.log(`  - credentials: true (CRITICAL for cookies)`);
+console.log(`  - NODE_ENV: ${process.env.NODE_ENV}`);
+
 app.use(cors({
   origin(origin, callback) {
-    // Разрешить запросы без origin (curl, healthcheck, same-origin)
+    // 1. Разрешить запросы без origin (curl, healthcheck, same-origin, service workers)
     if (!origin) return callback(null, true);
     
-    // В режиме разработки разрешить все
+    // 2. В режиме разработки разрешить ВСЕ origins
     if (process.env.NODE_ENV === 'development') {
+      console.log(`✅ CORS: Разработка - разрешено из: ${origin}`);
       return callback(null, true);
     }
     
-    // Разрешить все если установлено *
+    // 3. Разрешить все если установлено * (для продакшена на раннем этапе)
     if (corsOrigins === '*' || allowlist.includes('*')) {
+      console.log(`✅ CORS: Разрешено из: ${origin}`);
       return callback(null, true);
     }
     
-    // Разрешить если в белом списке
+    // 4. Разрешить если в белом списке (или если список пуст = разрешить все)
     if (allowlist.length === 0 || allowlist.includes(origin)) {
+      console.log(`✅ CORS: Разрешено из: ${origin}`);
       return callback(null, true);
     }
     
-    // Заблокировать если не в списке
+    // 5. Заблокировать если не в списке
+    console.log(`❌ CORS: БЛОКИРОВАН из: ${origin}`);
     callback(new Error('Not allowed by CORS'));
   },
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  credentials: true, // CRITICAL: Allow cookies to be sent with cross-origin requests
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
   maxAge: 86400, // 24 часа
+  preflightContinue: false // Важно: пропускаем preflight, если он успешен
 }));
+
+// ============================================
+// 🍪 SESSION CONFIGURATION (BULLETPROOF FOR NGINX + PWA)
+// ============================================
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'bunyod-tour-session-secret-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  proxy: true, // CRITICAL: Trust proxy for secure cookies behind Nginx
+  cookie: {
+    secure: true, // CRITICAL: HTTPS only (Nginx terminates SSL)
+    httpOnly: true, // Prevent JavaScript access to prevent XSS
+    sameSite: 'lax', // CRITICAL: 'lax' для совместимости с Android PWA (не 'strict')
+    maxAge: 24 * 60 * 60 * 1000, // 24 часа
+    domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
+    path: '/'
+  },
+  name: 'bunyodTourSession' // Rename from default 'connect.sid'
+}));
+
+console.log('🍪 Session Configuration:');
+console.log(`  - proxy: true (behind Nginx)`);
+console.log(`  - secure: true (HTTPS)`);
+console.log(`  - sameSite: lax (Android PWA compatible)`);
+console.log(`  - httpOnly: true (XSS protection)`);
+
+// ============================================
+// 🔍 DEBUG MIDDLEWARE FOR PUSH NOTIFICATIONS
+// ============================================
+// Специальный middleware для логирования /api/push/subscribe запросов
+app.use('/api/push/subscribe', (req, res, next) => {
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('📲 PUSH NOTIFICATION SUBSCRIPTION REQUEST');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`Method: ${req.method}`);
+  console.log(`Path: ${req.path}`);
+  console.log(`URL: ${req.originalUrl}`);
+  
+  // Логирование заголовков
+  console.log('📋 Headers:');
+  console.log(`  - Origin: ${req.get('origin') || 'NOT SET'}`);
+  console.log(`  - Referer: ${req.get('referer') || 'NOT SET'}`);
+  console.log(`  - User-Agent: ${req.get('user-agent') || 'NOT SET'}`);
+  console.log(`  - Content-Type: ${req.get('content-type') || 'NOT SET'}`);
+  console.log(`  - Authorization: ${req.get('authorization') ? 'SET' : 'NOT SET'}`);
+  
+  // КРИТИЧНО: Логирование куки
+  console.log('🍪 Cookies:');
+  console.log(`  - Cookie header: ${req.get('cookie') || 'NOT SET'}`);
+  console.log(`  - Session ID: ${req.sessionID || 'NOT SET'}`);
+  console.log(`  - Authenticated user: ${req.user?.id || 'ANONYMOUS'}`);
+  
+  // Логирование CORS заголовков
+  console.log('🔒 CORS Handling:');
+  console.log(`  - Access-Control-Request-Method: ${req.get('access-control-request-method') || 'N/A'}`);
+  console.log(`  - Access-Control-Request-Headers: ${req.get('access-control-request-headers') || 'N/A'}`);
+  
+  // Логирование тела запроса
+  console.log('📦 Request Body:');
+  console.log(`  - Body: ${JSON.stringify(req.body)}`);
+  
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  
+  next();
+});
 
 // 🩺 Health check endpoint (для мониторинга и update.sh)
 app.get('/healthz', (req, res) => {
@@ -445,6 +529,10 @@ async function startServer() {
       console.log(`🔧 Admin: http://0.0.0.0:${PORT}/admin-dashboard.html`);
       console.log(`🌐 API: http://0.0.0.0:${PORT}/api`);
       console.log('🗄️  База данных: PostgreSQL через Prisma');
+      console.log('');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.log('✅ SERVER IS READY FOR PWA/MOBILE PUSH NOTIFICATIONS');
+      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     });
 
     // Graceful shutdown
