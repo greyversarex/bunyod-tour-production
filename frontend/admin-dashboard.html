@@ -6273,6 +6273,9 @@
                                     <button onclick="editTour(${tour.id})" class="text-blue-600 hover:text-blue-800 mr-2" title="Редактировать тур">
                                         <i class="fas fa-edit"></i>
                                     </button>
+                                    <button onclick="duplicateTour(${tour.id})" class="text-purple-600 hover:text-purple-800 mr-2" title="Копировать тур">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
                                     <button onclick="copyReviewLink(${tour.id})" class="text-green-600 hover:text-green-800 mr-2" title="Скопировать ссылку для отзывов">
                                         <i class="fas fa-link"></i>
                                     </button>
@@ -9878,6 +9881,31 @@
             document.querySelectorAll('input[name="selectedHotels"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[name="selectedGuides"]').forEach(cb => cb.checked = false);
             openTourModal(id);
+        }
+        
+        async function duplicateTour(id) {
+            if (confirm('Создать копию этого тура?')) {
+                try {
+                    const response = await fetch(`${getApiUrl()}/tours/${id}/duplicate`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert(`Тур успешно скопирован! Новый тур создан с ID: ${data.data.id}`);
+                        loadTours();
+                    } else {
+                        alert('Ошибка при копировании тура: ' + (data.error || 'Неизвестная ошибка'));
+                    }
+                } catch (error) {
+                    console.error('Error duplicating tour:', error);
+                    alert('Произошла ошибка при копировании тура');
+                }
+            }
         }
         
         function deleteTour(id) {

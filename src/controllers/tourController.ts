@@ -1246,7 +1246,6 @@ export class TourController {
       const newTourData: any = {
         title: JSON.stringify(newTitle),
         description: originalTour.description,
-        shortDescription: originalTour.shortDescription,
         duration: originalTour.duration,
         price: originalTour.price,
         priceType: originalTour.priceType,
@@ -1269,7 +1268,6 @@ export class TourController {
         highlights: originalTour.highlights,
         itinerary: originalTour.itinerary,
         itineraryEn: originalTour.itineraryEn,
-        included: originalTour.included,
         includes: originalTour.includes,
         excluded: originalTour.excluded,
         pickupInfo: originalTour.pickupInfo,
@@ -1283,10 +1281,16 @@ export class TourController {
         startDate: originalTour.startDate,
         endDate: originalTour.endDate,
         rating: 0,
-        reviewsCount: 0,
-        pricingComponents: originalTour.pricingComponents,
-        profitMargin: originalTour.profitMargin
+        reviewsCount: 0
       };
+
+      if ((originalTour as any).profitMargin !== undefined) {
+        newTourData.profitMargin = (originalTour as any).profitMargin;
+      }
+
+      if ((originalTour as any).pricingComponents !== undefined) {
+        newTourData.pricingComponents = (originalTour as any).pricingComponents;
+      }
 
       if ((originalTour as any).tourCountries && (originalTour as any).tourCountries.length > 0) {
         newTourData.countriesIds = (originalTour as any).tourCountries.map((tc: any) => tc.countryId);
@@ -1334,6 +1338,10 @@ export class TourController {
       console.log('📦 Creating new tour with data:', newTourData);
 
       const newTour = await TourModel.create(newTourData);
+
+      if (!newTour) {
+        throw new Error('Failed to create duplicated tour');
+      }
 
       console.log('✅ Tour duplicated successfully with ID:', newTour.id);
 
