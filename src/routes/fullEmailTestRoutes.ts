@@ -198,6 +198,8 @@ router.get('/test-booking-email', async (req: Request, res: Response) => {
           to: email
         }
       });
+    } else {
+      throw new Error('Failed to send booking email');
     }
   } catch (error: any) {
     console.error(`❌ TEST 3 FAILED:`, error.message);
@@ -250,6 +252,8 @@ router.get('/test-admin-email', async (req: Request, res: Response) => {
           adminEmail: process.env.ADMIN_EMAIL
         }
       });
+    } else {
+      throw new Error('Failed to send admin email');
     }
   } catch (error: any) {
     console.error(`❌ TEST 4 FAILED:`, error.message);
