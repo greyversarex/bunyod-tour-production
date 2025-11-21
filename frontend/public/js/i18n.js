@@ -1509,6 +1509,10 @@ window.translations = window.translations || {
     'guide.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
     'guide.first_review': { ru: 'Будьте первым, кто оставит отзыв!', en: 'Be the first to leave a review!' },
     
+    // === REVIEWS (HOMEPAGE) ===
+    'reviews.title': { ru: 'Отзывы наших клиентов', en: 'Customer Reviews' },
+    'reviews.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
+    
     // === GUIDE REVIEW FORM ===
     'guide_review.page_title': { ru: 'Оставить отзыв о гиде | Bunyod-Tour', en: 'Leave Guide Review | Bunyod-Tour' },
     'guide_review.leave_review': { ru: 'Оставить отзыв о гиде', en: 'Leave Guide Review' },
