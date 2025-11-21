@@ -56,7 +56,8 @@ export const getTourBlock = async (req: Request, res: Response): Promise<Respons
         tourBlocks: {
           where: {
             tour: {
-              isActive: true
+              isActive: true,
+              isDraft: false
             }
           },
           include: {

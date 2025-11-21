@@ -1239,12 +1239,12 @@ export class TourController {
 
       const titleObj = safeJsonParse(originalTour.title);
       const newTitle = {
-        ru: `${titleObj.ru || 'Копия'} (Копия)`,
+        ru: `${titleObj.ru || 'Тур'} (Копия)`,
         en: titleObj.en ? `${titleObj.en} (Copy)` : null
       };
 
       const newTourData: any = {
-        title: JSON.stringify(newTitle),
+        title: newTitle,
         description: originalTour.description,
         duration: originalTour.duration,
         price: originalTour.price,
