@@ -76,6 +76,20 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
     -   Full multilingual support with RU/EN translations
     -   Integration with transfer page showing vehicle catalog information
 
+-   **Email Notification System** (Nov 21, 2025):
+    -   **Service Provider**: Timeweb-hosted email (mail.timeweb.com)
+    -   **Configuration**: SMTP_HOST, SMTP_PORT (465), SMTP_USER, SMTP_PASS, SMTP_FROM, ADMIN_EMAIL stored as Replit Secrets
+    -   **Core Service**: `src/services/emailService.ts` uses Nodemailer for SMTP communication
+    -   **Email Types**:
+        - **Booking Confirmation**: Sent to customer after booking created (via `orderController.ts` and `bookingController.ts`)
+        - **Payment Confirmation**: Sent to customer after successful payment via Alif or Payler (with PDF ticket attachment)
+        - **Admin Notification**: Sent to admin email for all new bookings and payments
+        - **Cancellation Email**: Sent when booking/order is cancelled
+    -   **PDF Tickets**: Automatically generated for payment confirmations with booking details, tour info, and reference numbers
+    -   **Email Templates**: Professional HTML templates with company branding, styled headers, and customer information
+    -   **Active in Controllers**: Alif, Payler, Order, Booking, Tour controllers - emails triggered on successful payment/booking
+    -   **Status**: All secrets configured ✅, service ready to send emails upon payment events
+
 ## External Dependencies
 
 -   **Database**: PostgreSQL
