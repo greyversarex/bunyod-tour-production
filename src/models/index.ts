@@ -242,6 +242,18 @@ export class TourModel {
         });
       }
 
+      // 📦 Создаём связи с блоками туров (batch insert для производительности)
+      if (data.tourBlockIds && data.tourBlockIds.length > 0) {
+        await prisma.tourBlockAssignment.createMany({
+          data: data.tourBlockIds.map((tourBlockId: number, index: number) => ({
+            tourId: tour.id,
+            tourBlockId: tourBlockId,
+            isPrimary: index === 0 // Первый блок считается основным
+          }))
+        });
+        console.log(`✅ Создано ${data.tourBlockIds.length} связей с блоками туров для тура ${tour.id}`);
+      }
+
       // 🗺️ Создаём точки карты тура (если переданы)
       if (data.mapPoints) {
         try {

@@ -60,6 +60,7 @@ export interface CreateTourData {
   citiesIds?: number[];
   cityNights?: Record<string, number>; // {cityId: nightsCount}
   categoriesIds?: number[];
+  tourBlockIds?: number[]; // 📦 IDs блоков туров для назначения
   durationDays?: number;
   durationType?: string;
   format?: string;
