@@ -1301,6 +1301,7 @@
                                         <th>Отзыв</th>
                                         <th>Фотографии</th>
                                         <th data-translate="table.status">Статус</th>
+                                        <th>На главной</th>
                                         <th data-translate="table.actions">Действия</th>
                                     </tr>
                                 </thead>
@@ -9610,7 +9611,7 @@
                     let reviews = data.data || data.reviews || [];
                     
                     if (reviews.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500">Нет отзывов</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="10" class="text-center text-gray-500">Нет отзывов</td></tr>';
                         return;
                     }
                     
@@ -9644,18 +9645,31 @@
                                 }
                             </td>
                             <td>
-                                ${!review.isModerated ? `
-                                    <button onclick="approveReview(${review.id})" class="text-green-600 hover:text-green-800 mr-2" title="Одобрить">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                    <button onclick="rejectReview(${review.id})" class="text-red-600 hover:text-red-800" title="Отклонить">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                ` : `
-                                    <button onclick="deleteReview(${review.id})" class="text-red-600 hover:text-red-800" title="Удалить">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                `}
+                                ${review.showOnHomepage ? 
+                                    '<span class="badge badge-success"><i class="fas fa-home"></i> Да</span>' :
+                                    '<span class="badge badge-secondary">Нет</span>'
+                                }
+                            </td>
+                            <td>
+                                <div class="flex gap-1">
+                                    ${!review.isModerated ? `
+                                        <button onclick="approveReview(${review.id})" class="text-green-600 hover:text-green-800" title="Одобрить">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button onclick="rejectReview(${review.id})" class="text-red-600 hover:text-red-800" title="Отклонить">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    ` : `
+                                        ${review.isApproved ? `
+                                            <button onclick="toggleHomepageDisplay(${review.id}, ${!review.showOnHomepage})" class="text-blue-600 hover:text-blue-800" title="${review.showOnHomepage ? 'Убрать с главной' : 'Добавить на главную'}">
+                                                <i class="fas fa-${review.showOnHomepage ? 'eye-slash' : 'eye'}"></i>
+                                            </button>
+                                        ` : ''}
+                                        <button onclick="deleteReview(${review.id})" class="text-red-600 hover:text-red-800" title="Удалить">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    `}
+                                </div>
                             </td>
                         </tr>
                     `).join('');
@@ -10024,6 +10038,33 @@
                 .catch(error => {
                     console.error('Ошибка:', error);
                     alert('Ошибка при удалении отзыва');
+                });
+            }
+        }
+        
+        function toggleHomepageDisplay(id, showOnHomepage) {
+            const action = showOnHomepage ? 'добавить на главную страницу' : 'убрать с главной страницы';
+            if (confirm(`Вы уверены, что хотите ${action} этот отзыв?`)) {
+                fetch(`${getApiUrl()}/reviews/${id}/toggle-homepage`, {
+                    method: 'PUT',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ showOnHomepage })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(showOnHomepage ? 'Отзыв добавлен на главную страницу' : 'Отзыв убран с главной страницы', 'success');
+                        loadReviews();
+                    } else {
+                        showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    showNotification('Ошибка при обновлении отзыва', 'error');
                 });
             }
         }

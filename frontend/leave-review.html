@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оставить отзыв | Bunyod-Tour</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/public/css/common.css">
+    
+    <!-- i18n -->
+    <script src="/public/js/i18n.js" defer></script>
+    <script src="/public/js/utils.js" defer></script>
+    <script src="/public/js/layout-loader.js" defer></script>
+</head>
+<body style="background: #f3f4f6;">
+    <!-- Header будет загружен динамически -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="min-h-screen py-20">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    <span data-translate="reviews.leave_review">Оставить отзыв</span>
+                </h1>
+                <p class="text-gray-600 mb-8" data-translate="reviews.leave_review_desc">
+                    Поделитесь вашими впечатлениями о туре и гиде
+                </p>
+                
+                <form id="reviewForm" class="space-y-6">
+                    <!-- Имя -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.your_name">Ваше имя</span> *
+                        </label>
+                        <input type="text" id="reviewerName" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                               placeholder="Иван Иванов">
+                    </div>
+                    
+                    <!-- Выбор тура -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.select_tour">Выберите тур</span> *
+                        </label>
+                        <select id="tourSelect" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
+                            <option value="">Загрузка туров...</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Рейтинг тура -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.tour_rating">Рейтинг тура</span> *
+                        </label>
+                        <div class="flex gap-2" id="tourRatingStars">
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="tourRating" required>
+                    </div>
+                    
+                    <!-- Рейтинг гида (опционально) -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.guide_rating">Рейтинг гида</span>
+                            <span class="text-gray-500 text-sm">(необязательно)</span>
+                        </label>
+                        <div class="flex gap-2" id="guideRatingStars">
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="guideRating">
+                    </div>
+                    
+                    <!-- Текст отзыва -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.your_review">Ваш отзыв</span> *
+                        </label>
+                        <textarea id="reviewText" required rows="6"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                                  placeholder="Расскажите о вашем опыте путешествия..."></textarea>
+                    </div>
+                    
+                    <!-- Фотографии (опционально) -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.photos">Фотографии</span>
+                            <span class="text-gray-500 text-sm">(необязательно, до 5 фото)</span>
+                        </label>
+                        <input type="file" id="reviewPhotos" accept="image/*" multiple
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <p class="text-sm text-gray-500 mt-1">Максимум 5 фото, до 5 МБ каждое</p>
+                    </div>
+                    
+                    <!-- Кнопка отправки -->
+                    <button type="submit" id="submitBtn"
+                            class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 hover:scale-105">
+                        <span data-translate="btn.submit_review">Отправить отзыв</span>
+                    </button>
+                    
+                    <p class="text-sm text-gray-500 text-center">
+                        <span data-translate="reviews.moderation_notice">
+                            Ваш отзыв будет проверен модератором перед публикацией
+                        </span>
+                    </p>
+                </form>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden mt-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span data-translate="reviews.success_message">
+                        Спасибо! Ваш отзыв успешно отправлен и будет опубликован после модерации.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer будет загружен динамически -->
+    <div id="footer-container"></div>
+    
+    <script>
+        // Загрузка туров
+        async function loadTours() {
+            try {
+                const response = await fetch('/api/tours');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const select = document.getElementById('tourSelect');
+                    const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                    
+                    select.innerHTML = '<option value="">Выберите тур...</option>';
+                    data.data.forEach(tour => {
+                        const title = typeof tour.title === 'object' 
+                            ? (tour.title[currentLang] || tour.title.ru || tour.title.en)
+                            : tour.title;
+                        
+                        const option = document.createElement('option');
+                        option.value = tour.id;
+                        option.textContent = title;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tours:', error);
+            }
+        }
+        
+        // Рейтинг звёздами
+        function setupStarRating(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const stars = container.querySelectorAll('.fa-star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    input.value = rating;
+                    
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-500');
+                        } else {
+                            s.classList.remove('text-yellow-500');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        }
+        
+        // Отправка формы
+        document.getElementById('reviewForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Отправка...';
+            
+            try {
+                // Загружаем фото (если есть)
+                let photoUrls = [];
+                const photosInput = document.getElementById('reviewPhotos');
+                
+                if (photosInput.files.length > 0) {
+                    const formData = new FormData();
+                    for (let i = 0; i < Math.min(photosInput.files.length, 5); i++) {
+                        formData.append('photos', photosInput.files[i]);
+                    }
+                    
+                    const uploadResponse = await fetch('/api/reviews/upload-photos', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const uploadData = await uploadResponse.json();
+                    if (uploadData.success) {
+                        photoUrls = uploadData.data.photos;
+                    }
+                }
+                
+                // Отправляем отзыв
+                const reviewData = {
+                    reviewerName: document.getElementById('reviewerName').value,
+                    tourId: parseInt(document.getElementById('tourSelect').value),
+                    rating: parseInt(document.getElementById('tourRating').value),
+                    guideRating: document.getElementById('guideRating').value 
+                        ? parseInt(document.getElementById('guideRating').value) 
+                        : null,
+                    text: document.getElementById('reviewText').value,
+                    photos: photoUrls.length > 0 ? photoUrls : null
+                };
+                
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviewData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('reviewForm').style.display = 'none';
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                } else {
+                    alert('Ошибка: ' + (data.message || 'Не удалось отправить отзыв'));
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить отзыв';
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Ошибка при отправке отзыва');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить отзыв';
+            }
+        });
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTours();
+            setupStarRating('tourRatingStars', 'tourRating');
+            setupStarRating('guideRatingStars', 'guideRating');
+        });
+    </script>
+</body>
+</html>

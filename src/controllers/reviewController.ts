@@ -303,6 +303,108 @@ export const deleteReview = async (req: Request, res: Response) => {
   }
 };
 
+export const toggleShowOnHomepage = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { showOnHomepage } = req.body;
+
+    if (typeof showOnHomepage !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: 'showOnHomepage must be a boolean value',
+      });
+    }
+
+    const review = await prisma.review.update({
+      where: { id: parseInt(id) },
+      data: { showOnHomepage },
+      include: {
+        customer: true,
+        tour: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+    });
+
+    const language = getLanguageFromRequest(req);
+
+    return res.json({
+      success: true,
+      message: `Review ${showOnHomepage ? 'added to' : 'removed from'} homepage`,
+      data: {
+        ...review,
+        tour: {
+          ...review.tour,
+          title: parseMultilingualField(review.tour.title, language),
+        },
+      },
+    });
+  } catch (error) {
+    console.error('Error toggling review homepage display:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to toggle review homepage display',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+export const getHomepageReviews = async (req: Request, res: Response) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: {
+        showOnHomepage: true,
+        isModerated: true,
+        isApproved: true,
+      },
+      include: {
+        customer: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+        tour: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 10,
+    });
+
+    const language = getLanguageFromRequest(req);
+
+    const formattedReviews = reviews.map(review => ({
+      ...review,
+      photos: review.photos ? JSON.parse(review.photos) : [],
+      tour: {
+        ...review.tour,
+        title: parseMultilingualField(review.tour.title, language),
+      },
+    }));
+
+    return res.json({
+      success: true,
+      data: formattedReviews,
+    });
+  } catch (error) {
+    console.error('Error fetching homepage reviews:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch homepage reviews',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
 export const getReviewStats = async (req: Request, res: Response) => {
   try {
     const { tourId } = req.params;

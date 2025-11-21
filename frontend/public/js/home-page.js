@@ -2902,3 +2902,77 @@ async function loadCityPhotosFromSlides() {
 
 // Вызываем загрузку фото городов при загрузке страницы
 document.addEventListener('DOMContentLoaded', loadCityPhotosFromSlides);
+
+// ==================== REVIEWS SECTION ====================
+
+/**
+ * Загружает отзывы для отображения на главной странице
+ */
+async function loadHomepageReviews() {
+    try {
+        const response = await fetch('/api/reviews/homepage');
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+            displayReviews(data.data);
+            document.getElementById('reviewsSection').style.display = 'block';
+            document.getElementById('noReviews').style.display = 'none';
+        } else {
+            document.getElementById('reviewsSection').style.display = 'none';
+            document.getElementById('noReviews').style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error loading homepage reviews:', error);
+        document.getElementById('reviewsSection').style.display = 'none';
+    }
+}
+
+/**
+ * Отображает отзывы в сетке
+ * @param {Array} reviews - Массив отзывов
+ */
+function displayReviews(reviews) {
+    const grid = document.getElementById('reviewsGrid');
+    const currentLang = getCurrentLanguage();
+    
+    grid.innerHTML = reviews.map(review => {
+        const tourTitle = getMultilingualValue(review.tour, 'title');
+        const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+        const date = new Date(review.createdAt).toLocaleDateString('ru-RU', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        return `
+            <div class="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-all duration-300" 
+                 style="backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.95);">
+                <div class="flex items-start mb-4">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-900 mb-1">${review.reviewerName || 'Аноним'}</h4>
+                        <p class="text-sm text-gray-600">${tourTitle}</p>
+                    </div>
+                    <div class="text-yellow-500 text-lg">${stars}</div>
+                </div>
+                
+                <p class="text-gray-700 mb-4 line-clamp-4">${review.text}</p>
+                
+                ${review.photos && review.photos.length > 0 ? `
+                    <div class="flex gap-2 mb-4 overflow-x-auto">
+                        ${review.photos.slice(0, 3).map(photo => `
+                            <img src="${photo}" alt="Фото отзыва" 
+                                 class="w-20 h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                                 onclick="window.open('${photo}', '_blank')">
+                        `).join('')}
+                        ${review.photos.length > 3 ? `<span class="text-sm text-gray-500 self-center">+${review.photos.length - 3}</span>` : ''}
+                    </div>
+                ` : ''}
+                
+                <p class="text-xs text-gray-500">${date}</p>
+            </div>
+        `;
+    }).join('');
+}
+
+// Загружаем отзывы при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadHomepageReviews);

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
 import * as reviewController from '../controllers/reviewController';
+import { adminAuthMiddleware } from '../controllers/adminController';
 
 const router = Router();
 
@@ -35,6 +36,7 @@ const upload = multer({
 router.post('/', reviewController.createReview);
 router.get('/tours/:tourId', reviewController.getReviewsByTour);
 router.get('/tours/:tourId/stats', reviewController.getReviewStats);
+router.get('/homepage', reviewController.getHomepageReviews);
 
 // Загрузка фотографий для отзывов
 router.post('/upload-photos', upload.array('photos', 5), (req, res) => {
@@ -65,11 +67,12 @@ router.post('/upload-photos', upload.array('photos', 5), (req, res) => {
   }
 });
 
-// Admin routes
-router.get('/', reviewController.getAllReviews);
-router.put('/:id/moderate', reviewController.moderateReview);
-router.put('/:id/approve', reviewController.approveReview);
-router.put('/:id/reject', reviewController.rejectReview);
-router.delete('/:id', reviewController.deleteReview);
+// Admin routes (protected)
+router.get('/', adminAuthMiddleware, reviewController.getAllReviews);
+router.put('/:id/moderate', adminAuthMiddleware, reviewController.moderateReview);
+router.put('/:id/approve', adminAuthMiddleware, reviewController.approveReview);
+router.put('/:id/reject', adminAuthMiddleware, reviewController.rejectReview);
+router.put('/:id/toggle-homepage', adminAuthMiddleware, reviewController.toggleShowOnHomepage);
+router.delete('/:id', adminAuthMiddleware, reviewController.deleteReview);
 
 export default router;
