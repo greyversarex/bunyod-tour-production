@@ -1931,6 +1931,11 @@ window.translations = window.translations || {
     'agent.partner_type7': { ru: 'Владельцы отелей', en: 'Hotel owners' },
     'agent.partner_type8': { ru: 'Студенты и фрилансеры', en: 'Students and freelancers' },
     'agent.partner_conclusion': { ru: 'Заработать на партнерках в туризме можно практически всем', en: 'Almost anyone can earn from tourism partnerships' },
+    'agent.show_more': { ru: 'Показать полностью', en: 'Show More' },
+    'agent.show_less': { ru: 'Скрыть', en: 'Show Less' },
+    'agent.select_partner_type': { ru: 'Выберите тип партнёра', en: 'Select Partner Type' },
+    'agent.individual': { ru: 'Физическое лицо', en: 'Individual' },
+    'agent.legal_entity': { ru: 'Юридическое лицо', en: 'Legal Entity' },
     
     // Agent Login Page
     'agent.login_title': { ru: 'Вход для турагентов - Bunyod-Tour', en: 'Agent Login - Bunyod-Tour' },
