@@ -1293,36 +1293,62 @@ export class TourController {
       }
 
       if ((originalTour as any).tourCountries && (originalTour as any).tourCountries.length > 0) {
-        newTourData.countriesIds = (originalTour as any).tourCountries.map((tc: any) => tc.countryId);
+        newTourData.countriesIds = (originalTour as any).tourCountries
+          .sort((a: any, b: any) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+          .map((tc: any) => tc.countryId);
+        console.log('📍 Copying countries:', newTourData.countriesIds);
+      } else if (originalTour.countryId) {
+        newTourData.countryId = originalTour.countryId;
+        console.log('📍 Copying single country:', originalTour.countryId);
       }
 
       if ((originalTour as any).tourCities && (originalTour as any).tourCities.length > 0) {
-        newTourData.citiesIds = (originalTour as any).tourCities.map((tc: any) => tc.cityId);
+        const sortedCities = (originalTour as any).tourCities
+          .sort((a: any, b: any) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0));
+        
+        newTourData.citiesIds = sortedCities.map((tc: any) => tc.cityId);
+        
         const cityNights: Record<string, number> = {};
-        (originalTour as any).tourCities.forEach((tc: any) => {
+        sortedCities.forEach((tc: any) => {
           cityNights[tc.cityId.toString()] = tc.nightsCount || 1;
         });
         newTourData.cityNights = cityNights;
+        console.log('🏙️ Copying cities:', newTourData.citiesIds, 'with nights:', cityNights);
+      } else if (originalTour.cityId) {
+        newTourData.cityId = originalTour.cityId;
+        console.log('🏙️ Copying single city:', originalTour.cityId);
       }
 
       if ((originalTour as any).tourCategoryAssignments && (originalTour as any).tourCategoryAssignments.length > 0) {
-        newTourData.categoriesIds = (originalTour as any).tourCategoryAssignments.map((tca: any) => tca.categoryId);
+        newTourData.categoriesIds = (originalTour as any).tourCategoryAssignments
+          .sort((a: any, b: any) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+          .map((tca: any) => tca.categoryId);
+        console.log('🏷️ Copying categories:', newTourData.categoriesIds);
+      } else if (originalTour.categoryId) {
+        newTourData.categoryId = originalTour.categoryId;
+        console.log('🏷️ Copying single category:', originalTour.categoryId);
       }
 
       if ((originalTour as any).tourHotels && (originalTour as any).tourHotels.length > 0) {
         newTourData.hotelIds = (originalTour as any).tourHotels.map((th: any) => th.hotelId);
+        console.log('🏨 Copying hotels:', newTourData.hotelIds);
       }
 
       if ((originalTour as any).tourGuides && (originalTour as any).tourGuides.length > 0) {
         newTourData.guideIds = (originalTour as any).tourGuides.map((tg: any) => tg.guideId);
+        console.log('👨‍🏫 Copying guides:', newTourData.guideIds);
       }
 
       if ((originalTour as any).tourDrivers && (originalTour as any).tourDrivers.length > 0) {
         newTourData.driverIds = (originalTour as any).tourDrivers.map((td: any) => td.driverId);
+        console.log('🚗 Copying drivers:', newTourData.driverIds);
       }
 
       if ((originalTour as any).tourBlockAssignments && (originalTour as any).tourBlockAssignments.length > 0) {
-        newTourData.tourBlockIds = (originalTour as any).tourBlockAssignments.map((tba: any) => tba.tourBlockId);
+        newTourData.tourBlockIds = (originalTour as any).tourBlockAssignments
+          .sort((a: any, b: any) => (b.isPrimary ? 1 : 0) - (a.isPrimary ? 1 : 0))
+          .map((tba: any) => tba.tourBlockId);
+        console.log('📦 Copying tour blocks:', newTourData.tourBlockIds);
       }
 
       if ((originalTour as any).tourMapPoints && (originalTour as any).tourMapPoints.length > 0) {
