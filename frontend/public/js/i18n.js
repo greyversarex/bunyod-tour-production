@@ -1931,6 +1931,18 @@ window.translations = window.translations || {
     'agent.partner_type7': { ru: 'Владельцы отелей', en: 'Hotel owners' },
     'agent.partner_type8': { ru: 'Студенты и фрилансеры', en: 'Students and freelancers' },
     'agent.partner_conclusion': { ru: 'Заработать на партнерках в туризме можно практически всем', en: 'Almost anyone can earn from tourism partnerships' },
+    'agent.partnership_info_short': { 
+        ru: 'Наши партнёры делятся на две группы: стратегические партнёры и туристические партнёры. Со стратегическими партнёрами мы работаем по традиционному принципу, но с туристическими партнёрами, также известными как турагентства, мы работаем преимущественно через онлайн-платформы, в частности, через наш веб-сайт.', 
+        en: 'Our partners are divided into two groups: strategic partners and tourism partners. We work with strategic partners using traditional principles, but with tourism partners, also known as travel agencies, we primarily work through online platforms, particularly through our website.' 
+    },
+    'agent.partnership_info_full': { 
+        ru: ' Наше предложение будущим тур-партнерам (турагентам) это вознаграждение (комиссия) в размере 10% от стоимости реализованных (проданных) турпакетов, которые размещены (опубликованы) на нашем веб-сайте по адресу', 
+        en: ' Our offer to future tour partners (travel agents) is a reward (commission) of 10% of the cost of sold tour packages published on our website at' 
+    },
+    'agent.partnership_info_full2': { 
+        ru: '. Обратите внимание, что у нас нет строгих ограничений по выбору турагентов — нашим тур-партнером (турагентом) может стать любое физическое или юридическое лицо, отвечающее основным критериям и требованиям турагента и проживающее или осуществляющее деятельность на территории стран Центральной Азии.', 
+        en: '. Please note that we have no strict restrictions on selecting travel agents — any individual or legal entity meeting basic agent requirements and residing or operating in Central Asian countries can become our tour partner (travel agent).' 
+    },
     'agent.show_more': { ru: 'Показать полностью', en: 'Show More' },
     'agent.show_less': { ru: 'Скрыть', en: 'Show Less' },
     'agent.select_partner_type': { ru: 'Выберите тип партнёра', en: 'Select Partner Type' },
