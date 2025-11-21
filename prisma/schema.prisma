@@ -403,20 +403,21 @@ model BookingRequest {
 }
 
 model Review {
-  id           Int       @id @default(autoincrement())
-  customerId   Int?      @map("customer_id")
-  tourId       Int       @map("tour_id")
-  reviewerName String    @map("reviewer_name")
-  rating       Int
-  guideRating  Int?      @map("guide_rating")
-  text         String
-  photos       String?
-  isModerated  Boolean   @default(false) @map("is_moderated")
-  isApproved   Boolean   @default(false) @map("is_approved")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  tour         Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  id             Int       @id @default(autoincrement())
+  customerId     Int?      @map("customer_id")
+  tourId         Int       @map("tour_id")
+  reviewerName   String    @map("reviewer_name")
+  rating         Int
+  guideRating    Int?      @map("guide_rating")
+  text           String
+  photos         String?
+  isModerated    Boolean   @default(false) @map("is_moderated")
+  isApproved     Boolean   @default(false) @map("is_approved")
+  showOnHomepage Boolean   @default(false) @map("show_on_homepage")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  customer       Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tour           Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
 
   @@map("reviews")
 }
