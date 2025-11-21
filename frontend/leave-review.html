@@ -28,10 +28,10 @@
         <div class="max-w-3xl mx-auto px-6">
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-2">
-                    <span data-translate="reviews.leave_review">Оставить отзыв</span>
+                    <span data-translate="reviews.universal_title">Оставить отзыв</span>
                 </h1>
-                <p class="text-gray-600 mb-8" data-translate="reviews.leave_review_desc">
-                    Поделитесь вашими впечатлениями о туре и гиде
+                <p class="text-gray-600 mb-8" data-translate="reviews.universal_desc">
+                    Поделитесь вашими впечатлениями о туре, гиде или обоих
                 </p>
                 
                 <form id="reviewForm" class="space-y-6">
@@ -54,6 +54,19 @@
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
                             <option value="">Загрузка туров...</option>
                         </select>
+                    </div>
+                    
+                    <!-- Выбор гида (опционально) -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.select_guide">Выберите гида</span>
+                            <span class="text-gray-500 text-sm">(необязательно)</span>
+                        </label>
+                        <select id="guideSelect"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
+                            <option value="">Гид не указан</option>
+                        </select>
+                        <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">Если хотите оценить гида, который вас сопровождал</p>
                     </div>
                     
                     <!-- Рейтинг тура -->
@@ -136,7 +149,7 @@
     <div id="footer-container"></div>
     
     <script>
-        // Загрузка туров
+        // Загрузка туров и гидов
         async function loadTours() {
             try {
                 const response = await fetch('/api/tours');
@@ -160,6 +173,30 @@
                 }
             } catch (error) {
                 console.error('Error loading tours:', error);
+            }
+        }
+        
+        // Загрузка гидов
+        async function loadGuides() {
+            try {
+                const response = await fetch('/api/guides');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const select = document.getElementById('guideSelect');
+                    
+                    select.innerHTML = '<option value="">Гид не указан</option>';
+                    data.data.forEach(guide => {
+                        const name = guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`;
+                        
+                        const option = document.createElement('option');
+                        option.value = guide.id;
+                        option.textContent = name.trim();
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading guides:', error);
             }
         }
         
@@ -218,9 +255,11 @@
                 }
                 
                 // Отправляем отзыв
+                const guideSelectVal = document.getElementById('guideSelect').value;
                 const reviewData = {
                     reviewerName: document.getElementById('reviewerName').value,
                     tourId: parseInt(document.getElementById('tourSelect').value),
+                    guideId: guideSelectVal ? parseInt(guideSelectVal) : null,
                     rating: parseInt(document.getElementById('tourRating').value),
                     guideRating: document.getElementById('guideRating').value 
                         ? parseInt(document.getElementById('guideRating').value) 
@@ -262,6 +301,7 @@
         // Инициализация
         document.addEventListener('DOMContentLoaded', function() {
             loadTours();
+            loadGuides();
             setupStarRating('tourRatingStars', 'tourRating');
             setupStarRating('guideRatingStars', 'guideRating');
         });

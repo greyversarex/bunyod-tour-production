@@ -1512,6 +1512,18 @@ window.translations = window.translations || {
     // === REVIEWS (HOMEPAGE) ===
     'reviews.title': { ru: 'Отзывы наших клиентов', en: 'Customer Reviews' },
     'reviews.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
+    'reviews.universal_title': { ru: 'Оставить отзыв', en: 'Leave a Review' },
+    'reviews.universal_desc': { ru: 'Поделитесь вашими впечатлениями о туре, гиде или обоих', en: 'Share your feedback about the tour, guide, or both' },
+    'reviews.leave_review': { ru: 'Оставить отзыв', en: 'Leave Review' },
+    'reviews.leave_review_desc': { ru: 'Поделитесь вашими впечатлениями о туре и гиде', en: 'Share your feedback about the tour and guide' },
+    'reviews.tour_rating': { ru: 'Рейтинг тура', en: 'Tour Rating' },
+    'reviews.guide_rating': { ru: 'Рейтинг гида', en: 'Guide Rating' },
+    'reviews.your_review': { ru: 'Ваш отзыв', en: 'Your Review' },
+    'reviews.photos': { ru: 'Фотографии', en: 'Photos' },
+    'reviews.moderation_notice': { ru: 'Ваш отзыв будет проверен модератором перед публикацией', en: 'Your review will be moderated before publication' },
+    'reviews.success_message': { ru: 'Спасибо! Ваш отзыв успешно отправлен и будет опубликован после модерации.', en: 'Thank you! Your review has been submitted and will be published after moderation.' },
+    'form.select_guide': { ru: 'Выберите гида', en: 'Select Guide' },
+    'form.guide_help': { ru: 'Если хотите оценить гида, который вас сопровождал', en: 'If you want to rate the guide who accompanied you' },
     
     // === GUIDE REVIEW FORM ===
     'guide_review.page_title': { ru: 'Оставить отзыв о гиде | Bunyod-Tour', en: 'Leave Guide Review | Bunyod-Tour' },
