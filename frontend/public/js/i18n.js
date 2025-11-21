@@ -30,8 +30,15 @@ window.translations = window.translations || {
     'nav.contacts': { ru: 'Контакты', en: 'Contacts' },
     'nav.transfer': { ru: 'Трансфер', en: 'Transfer' },
     'nav.guides': { ru: 'Тургиды', en: 'Tour Guides' },
+    'nav.hire_guide': { ru: 'Найм Тур-гида', en: 'Hire a Tour Guide' },
     'nav.book_tour': { ru: 'Заказ тура', en: 'Book Tour' },
+    'nav.create_tour': { ru: 'Создать свой тур', en: 'Create Your Tour' },
+    'nav.become_partner': { ru: 'Стать Тур-партнёром', en: 'Become a Partner' },
+    'nav.our_hotels': { ru: 'Наши отели', en: 'Our Hotels' },
+    'nav.our_vehicles': { ru: 'Наш автопарк', en: 'Our Fleet' },
     'nav.tourists': { ru: 'Туристам', en: 'For Tourists' },
+    'nav.services': { ru: 'Услуги', en: 'Services' },
+    'nav.travel_agents': { ru: 'Турагентам', en: 'For Travel Agents' },
     'nav.site_guide': { ru: 'Инструкция сайта', en: 'Site Guide' },
     'nav.special_notes': { ru: 'Специальные заметки', en: 'Special Notes' },
     'nav.offer_agreement': { ru: 'Договор оферта', en: 'Offer Agreement' },
@@ -39,6 +46,13 @@ window.translations = window.translations || {
     'nav.promotions': { ru: 'Акции', en: 'Promotions' },
     'nav.news': { ru: 'Новости', en: 'News' },
     'nav.our_agents': { ru: 'Наши турагенты', en: 'Our Tour Agents' },
+    'nav.services': { ru: 'Услуги', en: 'Services' },
+    'nav.hire_guide': { ru: 'Найм Тур-гида', en: 'Hire a Guide' },
+    'nav.create_tour': { ru: 'Создать свой тур', en: 'Create Your Tour' },
+    'nav.become_partner': { ru: 'Стать Тур-партнёром', en: 'Become a Partner' },
+    'nav.our_hotels': { ru: 'Наши отели', en: 'Our Hotels' },
+    'nav.our_vehicles': { ru: 'Наш автопарк', en: 'Our Fleet' },
+    'nav.travel_agents': { ru: 'Турагентам', en: 'For Travel Agents' },
     
     // Кнопки и действия
     'btn.more_details': { ru: 'Подробнее', en: 'More Details' },
@@ -221,7 +235,7 @@ window.translations = window.translations || {
     'service.agency': { ru: 'Турагентство', en: 'Travel Agency' },
     'service.transfer_title': { ru: 'ТРАНСФЕР', en: 'TRANSFER' },
     'service.guides_title': { ru: 'ТУР-ГИДЫ', en: 'TOUR GUIDES' },
-    'service.agency_title': { ru: 'АГЕНТСКИЙ СЕРВИС', en: 'AGENCY SERVICE' },
+    'service.agency_title': { ru: 'B2B ПАРТНЕРСТВО', en: 'B2B PARTNERSHIP' },
     'service.custom_tour_title': { ru: 'СОБСТВЕННЫЙ ТУР', en: 'CUSTOM TOUR' },
     
     // Гиды - карточки и метки
@@ -927,7 +941,7 @@ window.translations = window.translations || {
     // Заголовки сервисов
     'service.transfer_title': { ru: 'ТРАНСФЕР', en: 'TRANSFER' },
     'service.guides_title': { ru: 'ТУР-ГИДЫ', en: 'TOUR GUIDES' },
-    'service.agency_title': { ru: 'АГЕНТСКИЙ СЕРВИС', en: 'AGENCY SERVICE' },
+    'service.agency_title': { ru: 'B2B ПАРТНЕРСТВО', en: 'B2B PARTNERSHIP' },
     'service.custom_tour_title': { ru: 'СОБСТВЕННЫЙ ТУР', en: 'CUSTOM TOUR' },
 
     // Города
@@ -1401,7 +1415,7 @@ window.translations = window.translations || {
     'language.туркменский': { ru: 'Туркменский', en: 'Turkmen' },
     'tour.pickup_label': { ru: 'Место сбора:', en: 'Pickup location:' },
     'home.services.title': { ru: 'Наши услуги', en: 'Our Services' },
-    'home.services.become_agent_btn': { ru: 'Стать Турагентом', en: 'Become an Agent' },
+    'home.services.become_agent_btn': { ru: 'Стать Тур.партнёром', en: 'Become a Partner' },
     'home.services.create_tour_btn': { ru: 'Создать Тур', en: 'Create a Tour' },
     
     // === BOOKING PAGES ===
