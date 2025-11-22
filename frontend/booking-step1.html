@@ -149,11 +149,127 @@
         .hotel-card-content {
             padding: 24px;
         }
+        
+        /* Floating Cities Hint Widget */
+        .cities-hint-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            z-index: 50;
+            transition: all 0.3s ease;
+        }
+        
+        .cities-hint-widget.minimized {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+        
+        .cities-hint-header {
+            background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+        
+        .cities-hint-widget.minimized .cities-hint-header {
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            justify-content: center;
+        }
+        
+        .cities-hint-content {
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        
+        .cities-hint-widget.minimized .cities-hint-content {
+            display: none;
+        }
+        
+        .city-hint-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.2s;
+        }
+        
+        .city-hint-item.selected {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+        }
+        
+        .city-hint-item .icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .city-hint-item .icon.check {
+            color: #10b981;
+        }
+        
+        .city-hint-item .icon.pending {
+            color: #9ca3af;
+        }
+        
+        .hint-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Header Container for dynamic header -->
     <div id="header-container"></div>
+    
+    <!-- Floating Cities Hint Widget -->
+    <div id="cities-hint-widget" class="cities-hint-widget" style="display: none;">
+        <div class="cities-hint-header" onclick="toggleCitiesHint()">
+            <div style="display: flex; align-items: center;">
+                <i class="fas fa-map-marked-alt mr-2"></i>
+                <span id="hint-header-text">Города тура</span>
+            </div>
+            <i id="hint-toggle-icon" class="fas fa-chevron-down"></i>
+        </div>
+        <div class="cities-hint-content" id="cities-hint-content">
+            <!-- Cities list will be populated here -->
+            <div class="text-center text-gray-500 py-4">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+        </div>
+        <span id="hint-badge" class="hint-badge" style="display: none;">0</span>
+    </div>
     
     <!-- Progress Indicator -->
     <div class="bg-white border-b">
@@ -1239,6 +1355,115 @@
             });
             
             container.innerHTML = htmlContent;
+            
+            // ✅ Update cities hint widget after displaying hotels
+            updateCitiesHint();
+        }
+        
+        // 🆕 Floating Cities Hint Widget Functions
+        function toggleCitiesHint() {
+            const widget = document.getElementById('cities-hint-widget');
+            const icon = document.getElementById('hint-toggle-icon');
+            const headerText = document.getElementById('hint-header-text');
+            
+            if (widget.classList.contains('minimized')) {
+                widget.classList.remove('minimized');
+                icon.className = 'fas fa-chevron-down';
+                headerText.style.display = 'block';
+            } else {
+                widget.classList.add('minimized');
+                icon.className = 'fas fa-map-marked-alt';
+                headerText.style.display = 'none';
+            }
+        }
+        
+        function updateCitiesHint() {
+            const widget = document.getElementById('cities-hint-widget');
+            const content = document.getElementById('cities-hint-content');
+            const badge = document.getElementById('hint-badge');
+            
+            // Collect all cities from available hotels
+            const citiesMap = new Map();
+            
+            if (bookingState.availableHotels && bookingState.availableHotels.length > 0) {
+                bookingState.availableHotels.forEach(hotel => {
+                    const cityId = hotel.cityId || hotel.city?.id || 'unknown';
+                    const cityName = getCityName(hotel);
+                    const countryName = getCountryName(hotel);
+                    const nightsCount = window.bookingCityNights?.[cityId] ?? Math.max(1, (bookingState.tour.durationDays || 1) - 1);
+                    
+                    if (!citiesMap.has(cityId)) {
+                        citiesMap.set(cityId, {
+                            id: cityId,
+                            name: cityName,
+                            country: countryName,
+                            nights: nightsCount,
+                            hasSelection: false
+                        });
+                    }
+                });
+            }
+            
+            // Check which cities have hotel selections
+            const roomSelections = bookingState.roomSelection || {};
+            Object.keys(roomSelections).forEach(hotelId => {
+                const hotel = bookingState.availableHotels?.find(h => h.id === parseInt(hotelId));
+                if (hotel) {
+                    const cityId = hotel.cityId || hotel.city?.id || 'unknown';
+                    const cityData = citiesMap.get(cityId);
+                    if (cityData) {
+                        // Check if this hotel has any room selections
+                        const hotelRooms = roomSelections[hotelId];
+                        const hasRooms = hotelRooms && Object.values(hotelRooms).some(qty => qty > 0);
+                        if (hasRooms) {
+                            cityData.hasSelection = true;
+                        }
+                    }
+                }
+            });
+            
+            const citiesArray = Array.from(citiesMap.values());
+            const pendingCount = citiesArray.filter(city => !city.hasSelection).length;
+            
+            if (citiesArray.length === 0) {
+                widget.style.display = 'none';
+                return;
+            }
+            
+            // Show widget
+            widget.style.display = 'block';
+            
+            // Update badge
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+            
+            // Build cities list HTML
+            let citiesHTML = '';
+            
+            if (citiesArray.length > 0) {
+                citiesHTML += '<div class="mb-2 text-sm text-gray-600 font-medium">Необходимо выбрать отели по городам:</div>';
+                
+                citiesArray.forEach(city => {
+                    const nightsText = `${city.nights} ${pluralNights(city.nights)}`;
+                    citiesHTML += `
+                        <div class="city-hint-item ${city.hasSelection ? 'selected' : ''}">
+                            <div class="icon ${city.hasSelection ? 'check' : 'pending'}">
+                                <i class="fas fa-${city.hasSelection ? 'check-circle' : 'circle'}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="font-medium text-sm text-gray-800">${city.country} - ${city.name}</div>
+                                <div class="text-xs text-gray-500">${nightsText}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            
+            content.innerHTML = citiesHTML;
         }
         
         // ✅ Helper function to get city name from hotel
@@ -1394,6 +1619,9 @@
             // ✅ Обновляем видимость кнопки "Продолжить" и стили кнопок счётчиков
             updateContinueButton();
             updateRoomCounterButtons();
+            
+            // 🆕 Update cities hint widget
+            updateCitiesHint();
         }
         
         // ✅ Функция расчета вместимости номеров одного отеля
