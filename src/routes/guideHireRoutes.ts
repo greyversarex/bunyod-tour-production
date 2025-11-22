@@ -7,7 +7,6 @@ import {
   updateGuideHireRequestStatus,
   getAvailableGuides
 } from '../controllers/guideHireController';
-import { guidePaymentController } from '../controllers/guidePaymentController';
 import { adminAuthMiddleware } from '../controllers/adminController';
 import { authenticateTourGuide } from '../middleware/tourGuideAuth';
 
@@ -17,9 +16,6 @@ const router = Router();
 router.get('/available', getAvailableGuides);
 router.get('/:guideId/availability', getGuideAvailability);
 router.post('/hire-request', createGuideHireRequest);
-
-// Payment endpoint для создания заказа из заявки на найм (ТОЛЬКО для админов)
-router.post('/:id/create-order', adminAuthMiddleware, guidePaymentController.createOrderFromGuideHire);
 
 // Endpoints для тургидов (требуют авторизации тургида)
 router.put('/:guideId/availability', authenticateTourGuide, updateGuideAvailability);

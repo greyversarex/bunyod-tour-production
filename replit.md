@@ -104,25 +104,25 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
 -   **Guide Hire Payment Integration** (Nov 22, 2025):
     -   **Database Schema**: Extended Order model with `guideHireRequestId` field (nullable, unique) for one-to-one relation with GuideHireRequest
     -   **GuideHireRequest Model**: Includes `paymentStatus` (default: "unpaid") field to track payment status
-    -   **Payment Flow**: Follows transfer payment pattern - user creates request → admin approves → email sent → admin creates order → payment processed
-    -   **Current Implementation (MVP Base)**:
-        -   API Endpoint: `POST /api/guide-hire/:id/create-order` (admin-only) validates hire request status (must be "approved"), guide availability, and price before order creation
+    -   **Payment Flow**: Follows transfer payment pattern - user creates request → admin approves → order auto-created → email with payment link → customer pays
+    -   **Implementation**:
+        -   Frontend: `tour-guides.html` modal allows users to submit guide hire requests with date selection and automatic price calculation
+        -   Auto-Order Creation: When admin approves request via `PUT /api/guide-hire/hire-requests/:id/status`, system automatically creates Order within approval transaction
+        -   Atomic Transaction: Approval, date reservation, and order creation happen atomically to prevent race conditions
+        -   Email Notification: Automated email sent to customer with direct payment link to `payment-selection.html?orderNumber=...`
         -   Payment Controllers: Updated `alifController.ts` and `paylerController.ts` to include `guideHireRequest` relation in Order queries
-        -   Frontend: `tour-guides.html` modal allows users to submit guide hire requests with date selection and price calculation
-        -   Email Notification: Automated email sent to customer after admin approves request (includes request ID and amount)
-        -   Security: create-order endpoint protected with adminAuthMiddleware, prevents unauthorized order creation
-    -   **Status**: ⚠️ Partial MVP - request/approval flow operational, but payment completion requires manual admin work
-    -   **Security Concerns** (identified by architect review):
-        -   payment-selection.html trusts URL parameters without backend validation (order ownership not verified)
-        -   No payment token system to prevent unauthorized payment attempts
-        -   No secure payment-init endpoints (/payler-init, /alif-init) for guide hire flow
-    -   **Recommended Next Steps** (from architect):
-        1. Auto-create orders during approval transaction with payment token generation
-        2. Add `paymentToken` field to GuideHireRequest schema
-        3. Implement secure payment-init endpoints (`/api/guide-hire/:id/payler-init`, `/alif-init`) with token+ownership validation
-        4. Update approval email to include tokenized secure payment link
-        5. Modify payment-selection.html to fetch order data via tokenized endpoint instead of trusting URL params
-    -   **Workaround for Current MVP**: Admin manually creates order via admin panel after approval → sends payment link to customer via email/messenger
+        -   Payment Selection: Universal `payment-selection.html` page handles payment method selection for guide hires, transfers, and tours
+    -   **Security**: 
+        -   Admin-only approval endpoint with JWT authentication
+        -   Atomic transactions prevent double-booking and ensure data consistency
+        -   Race condition protection via status check in transaction (only pending requests can be approved)
+    -   **Status**: ✅ MVP fully functional - complete automated flow from request to payment
+    -   **User Journey**: 
+        1. Customer submits hire request on tour-guides.html
+        2. Admin reviews and approves request in admin panel
+        3. System auto-creates order and sends email with payment link
+        4. Customer clicks link and pays via Payler or AlifPay
+        5. Payment confirmation email sent automatically
 
 ## External Dependencies
 

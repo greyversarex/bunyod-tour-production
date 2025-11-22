@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
-import { emailService } from '../services/emailService';
+import { sendEmail } from '../services/emailService';
 
 // Утилитарная функция для конвертации валют
 const convertCurrency = async (amount: number, fromCurrency: string, toCurrency: string): Promise<{ convertedAmount: number; rate: number; symbol: string } | null> => {
@@ -528,7 +528,23 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
             }
           });
           
-          return true;
+          // 5. Автоматически создаем заказ для оплаты
+          const orderNumber = `GH-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+          
+          const order = await tx.order.create({
+            data: {
+              orderNumber,
+              customerName: currentRequest.touristName,
+              customerEmail: currentRequest.touristEmail || '',
+              customerPhone: currentRequest.touristPhone || '',
+              totalAmount: currentRequest.totalPrice,
+              currency: currentRequest.currency,
+              status: 'pending',
+              guideHireRequestId: currentRequest.id
+            }
+          });
+          
+          return { orderNumber };
         });
         
         // Получаем обновленную заявку для ответа
@@ -545,13 +561,16 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
           }
         });
 
-        // Отправить email уведомление клиенту после одобрения
-        if (updatedRequest && updatedRequest.touristEmail) {
+        // Отправить email уведомление клиенту с ссылкой на оплату
+        if (updatedRequest && updatedRequest.touristEmail && result.orderNumber) {
           try {
             const guideName = parseJsonField(updatedRequest.guide.name);
             const guideDisplayName = typeof guideName === 'object' ? (guideName.ru || guideName.en || 'Тургид') : guideName;
             
-            await emailService.sendEmail({
+            // Формируем ссылку на оплату
+            const paymentUrl = `${process.env.FRONTEND_URL || 'https://bunyod-tour.replit.app'}/payment-selection.html?orderNumber=${result.orderNumber}&type=guide-hire`;
+            
+            await sendEmail({
               to: updatedRequest.touristEmail,
               subject: 'Ваша заявка на найм тургида одобрена - Bunyod Tour',
               html: `
@@ -564,15 +583,23 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
                   
                   <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="margin-top: 0;">Детали заявки:</h3>
-                    <p><strong>ID заявки:</strong> #${updatedRequest.id}</p>
+                    <p><strong>Номер заказа:</strong> ${result.orderNumber}</p>
                     <p><strong>Тургид:</strong> ${guideDisplayName}</p>
                     <p><strong>Сумма:</strong> ${updatedRequest.totalPrice} ${updatedRequest.currency}</p>
                     <p><strong>Количество дней:</strong> ${selectedDates.length}</p>
                   </div>
                   
-                  <p>В ближайшее время наш администратор свяжется с вами для завершения оформления и организации оплаты.</p>
+                  <p><strong>Вы можете оплатить заказ прямо сейчас:</strong></p>
                   
-                  <p><strong>Примечание:</strong> Для создания заказа и получения ссылки на оплату администратор должен выполнить следующие действия в admin панели после одобрения вашей заявки.</p>
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${paymentUrl}" 
+                       style="display: inline-block; background-color: #3E3E3E; color: white; padding: 15px 40px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                      Перейти к оплате
+                    </a>
+                  </div>
+                  
+                  <p style="color: #666; font-size: 14px;">Или скопируйте эту ссылку в браузер:<br>
+                  <a href="${paymentUrl}">${paymentUrl}</a></p>
                   
                   <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</p>
                   
@@ -584,7 +611,7 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
               `
             });
             
-            console.log(`✅ Approval email sent to ${updatedRequest.touristEmail} for hire request #${updatedRequest.id}`);
+            console.log(`✅ Approval email with payment link sent to ${updatedRequest.touristEmail} - Order: ${result.orderNumber}`);
           } catch (emailError) {
             console.error('❌ Failed to send approval email:', emailError);
             // Не прерываем процесс если email не отправился
