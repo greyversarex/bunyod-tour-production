@@ -4,7 +4,7 @@
  */
 
 import { Request, Response } from 'express';
-import prisma from '../config/database';
+import prisma, { withRetry } from '../config/database';
 
 export const transferPaymentController = {
   /**
@@ -23,12 +23,14 @@ export const transferPaymentController = {
       }
 
       // Получить transfer request с информацией о водителе
-      const transferRequest = await prisma.transferRequest.findUnique({
-        where: { id: transferId },
-        include: {
-          assignedDriver: true
-        }
-      });
+      const transferRequest = await withRetry(() => 
+        prisma.transferRequest.findUnique({
+          where: { id: transferId },
+          include: {
+            assignedDriver: true
+          }
+        })
+      );
 
       if (!transferRequest) {
         return res.status(404).json({
@@ -54,9 +56,11 @@ export const transferPaymentController = {
       }
 
       // Проверить что заказ еще не создан
-      const existingOrder = await prisma.order.findUnique({
-        where: { transferRequestId: transferId }
-      });
+      const existingOrder = await withRetry(() =>
+        prisma.order.findUnique({
+          where: { transferRequestId: transferId }
+        })
+      );
 
       if (existingOrder) {
         return res.json({
@@ -70,23 +74,27 @@ export const transferPaymentController = {
       }
 
       // Получить или создать клиента
-      let customer = await prisma.customer.findFirst({
-        where: {
-          OR: [
-            { email: transferRequest.email || undefined },
-            { phone: transferRequest.phone || undefined }
-          ]
-        }
-      });
+      let customer = await withRetry(() =>
+        prisma.customer.findFirst({
+          where: {
+            OR: [
+              { email: transferRequest.email || undefined },
+              { phone: transferRequest.phone || undefined }
+            ]
+          }
+        })
+      );
 
       if (!customer) {
-        customer = await prisma.customer.create({
-          data: {
-            fullName: transferRequest.fullName,
-            email: transferRequest.email || `noemail_${Date.now()}@bunyodtour.tj`,
-            phone: transferRequest.phone || ''
-          }
-        });
+        customer = await withRetry(() =>
+          prisma.customer.create({
+            data: {
+              fullName: transferRequest.fullName,
+              email: transferRequest.email || `noemail_${Date.now()}@bunyodtour.tj`,
+              phone: transferRequest.phone || ''
+            }
+          })
+        );
       }
 
       // Рассчитать сумму (используем finalPrice если установлена, иначе estimatedPrice)
@@ -103,26 +111,28 @@ export const transferPaymentController = {
       const orderNumber = `TRF-${Date.now()}-${transferId}`;
 
       // Создать заказ
-      const order = await prisma.order.create({
-        data: {
-          orderNumber,
-          customerId: customer.id,
-          transferRequestId: transferId,
-          tourDate: transferRequest.pickupDate,
-          tourists: JSON.stringify([{
-            name: transferRequest.fullName,
-            phone: transferRequest.phone,
-            email: transferRequest.email
-          }]),
-          wishes: transferRequest.specialRequests || '',
-          totalAmount,
-          status: 'pending',
-          paymentStatus: 'unpaid'
-        },
-        include: {
-          customer: true
-        }
-      });
+      const order = await withRetry(() =>
+        prisma.order.create({
+          data: {
+            orderNumber,
+            customerId: customer.id,
+            transferRequestId: transferId,
+            tourDate: transferRequest.pickupDate,
+            tourists: JSON.stringify([{
+              name: transferRequest.fullName,
+              phone: transferRequest.phone,
+              email: transferRequest.email
+            }]),
+            wishes: transferRequest.specialRequests || '',
+            totalAmount,
+            status: 'pending',
+            paymentStatus: 'unpaid'
+          },
+          include: {
+            customer: true
+          }
+        })
+      );
 
       console.log(`✅ Order created for transfer ${transferId}: ${orderNumber}, Amount: ${totalAmount} TJS`);
 
