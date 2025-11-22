@@ -23,6 +23,7 @@ window.translations = window.translations || {
     'nav.tours': { ru: 'Туры', en: 'Tours' },
     'nav.hotels': { ru: 'Отели', en: 'Hotels' },
     'nav.visa_support': { ru: 'Визовая поддержка', en: 'Visa Support' },
+    'nav.order_transfer': { ru: 'Заказать трансфер', en: 'Order Transfer', tj: 'Фармоиши трансфер' },
     'nav.tour_agents': { ru: 'Турагентам', en: 'For Tour Agents' },
     'nav.about': { ru: 'О нас', en: 'About Us' },
     'nav.reviews': { ru: 'Отзывы', en: 'Reviews' },
