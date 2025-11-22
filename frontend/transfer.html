@@ -670,21 +670,30 @@
             // Заполнение select городов (фильтруется по стране)
             function populateCitySelect(countryId = null) {
                 const citySelect = document.getElementById('transferCity');
-                if (!citySelect) return;
+                console.log('🏙️ populateCitySelect() вызван, countryId:', countryId, 'элемент найден:', !!citySelect);
+                if (!citySelect) {
+                    console.error('❌ Элемент transferCity не найден!');
+                    return;
+                }
                 
                 const lang = window.currentLanguage || 'ru';
+                console.log('🌍 Текущий язык:', lang, 'Всего городов:', allCities.length);
                 citySelect.innerHTML = '<option value="" data-i18n="transfer_city_select">Выберите город</option>';
                 
                 const filteredCities = countryId 
                     ? allCities.filter(city => city.countryId == countryId)
                     : allCities;
                 
-                filteredCities.forEach(city => {
+                console.log('🔍 Отфильтровано городов:', filteredCities.length, 'для страны ID:', countryId || 'все');
+                
+                filteredCities.forEach((city, index) => {
                     const option = document.createElement('option');
                     option.value = city.id;
                     option.textContent = lang === 'ru' ? city.nameRu : city.nameEn;
                     citySelect.appendChild(option);
+                    console.log(`  ✓ Добавлен город #${index + 1}:`, option.textContent, '(ID:', city.id, 'CountryID:', city.countryId + ')');
                 });
+                console.log('✅ Всего опций городов в select:', citySelect.options.length);
             }
 
             // Загрузка автомобилей
@@ -834,6 +843,21 @@
             document.getElementById('transferCity')?.addEventListener('change', applyVehicleFilters);
             document.getElementById('vehicleType')?.addEventListener('change', applyVehicleFilters);
             document.getElementById('vehicleCapacity')?.addEventListener('change', applyVehicleFilters);
+
+            // Обработчик смены языка - обновляем селекты стран и городов
+            window.addEventListener('languageChanged', (e) => {
+                console.log('🌍 Язык изменен на:', e.detail.language, '- обновляем селекты стран и городов');
+                const selectedCountryId = document.getElementById('transferCountry')?.value;
+                populateCountrySelect();
+                if (selectedCountryId) {
+                    document.getElementById('transferCountry').value = selectedCountryId;
+                    populateCitySelect(selectedCountryId);
+                } else {
+                    populateCitySelect();
+                }
+                // Обновляем также карусель автомобилей
+                loadVehicles();
+            });
 
             // Инициализация при загрузке
             console.log('🚗 Инициализация трансфера: загрузка стран, городов и автомобилей...');

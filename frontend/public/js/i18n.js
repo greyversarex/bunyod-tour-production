@@ -382,6 +382,7 @@ window.translations = window.translations || {
     
     // Карточка транспорта
     'vehicles.price_per_day': { ru: 'Цена за день', en: 'Price per day' },
+    'vehicles.per_day': { ru: 'за день', en: 'per day' },
     'vehicles.passengers': { ru: 'пассажиров', en: 'passengers' },
     'vehicles.contact': { ru: 'Связаться', en: 'Contact' },
     'vehicles.license_plate': { ru: 'Гос. номер', en: 'License Plate' },
