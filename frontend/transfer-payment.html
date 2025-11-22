@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="transfer_payment_title">Оплата трансфера | Bunyod-Tour</title>
+    <script src="/public/js/i18n.js"></script>
+    <script src="/public/js/booking-state.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .payment-method {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-method:hover {
+            border-color: #6B7280;
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+        }
+        .payment-method.selected {
+            border-color: #6B7280;
+            background: #f8fafc;
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Page Title -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="transfer_payment_heading">Оплата трансфера</h1>
+            <p class="text-gray-600" data-i18n="transfer_payment_subtitle">Проверьте детали вашего заказа и выберите способ оплаты</p>
+        </div>
+
+        <!-- Transfer Details -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="transfer_details">Детали трансфера</h2>
+            
+            <div class="space-y-4">
+                <!-- Vehicle -->
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <i class="fas fa-car text-2xl text-gray-600"></i>
+                    <div>
+                        <p class="text-sm text-gray-500" data-i18n="transfer_vehicle">Автомобиль</p>
+                        <p id="vehicle-name" class="font-semibold text-gray-800">-</p>
+                    </div>
+                </div>
+
+                <!-- Route -->
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <i class="fas fa-route text-2xl text-gray-600"></i>
+                    <div class="flex-1">
+                        <p class="text-sm text-gray-500" data-i18n="transfer_route">Маршрут</p>
+                        <p id="route-info" class="font-semibold text-gray-800">-</p>
+                    </div>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <i class="fas fa-calendar text-2xl text-gray-600"></i>
+                        <div>
+                            <p class="text-sm text-gray-500" data-i18n="transfer_date">Дата</p>
+                            <p id="pickup-date" class="font-semibold text-gray-800">-</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <i class="fas fa-clock text-2xl text-gray-600"></i>
+                        <div>
+                            <p class="text-sm text-gray-500" data-i18n="transfer_time">Время</p>
+                            <p id="pickup-time" class="font-semibold text-gray-800">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passengers -->
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <i class="fas fa-users text-2xl text-gray-600"></i>
+                    <div>
+                        <p class="text-sm text-gray-500" data-i18n="transfer_passengers">Количество пассажиров</p>
+                        <p id="passengers-count" class="font-semibold text-gray-800">-</p>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                    <i class="fas fa-user text-2xl text-gray-600"></i>
+                    <div>
+                        <p class="text-sm text-gray-500" data-i18n="transfer_contact">Контактное лицо</p>
+                        <p id="contact-name" class="font-semibold text-gray-800">-</p>
+                        <p id="contact-phone" class="text-sm text-gray-600">-</p>
+                    </div>
+                </div>
+
+                <!-- Price -->
+                <div class="flex items-center justify-between p-6 bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg border-2 border-gray-200">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1" data-i18n="transfer_total">Итого к оплате</p>
+                        <p id="total-price" class="text-3xl font-bold text-gray-800">0 TJS</p>
+                    </div>
+                    <i class="fas fa-money-bill-wave text-4xl text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="payment_select">Выберите способ оплаты</h2>
+            
+            <div class="space-y-4">
+                <!-- Payler -->
+                <div class="payment-method" data-method="payler" onclick="selectPaymentMethod('payler')">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                            <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-i18n="payment_payler">VISA / MasterCard — Payler</h3>
+                            <p class="text-gray-600 text-sm" data-i18n="payment_payler_desc">Безопасная оплата банковской картой</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                            <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AlifPay -->
+                <div class="payment-method" data-method="alifpay" onclick="selectPaymentMethod('alifpay')">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-green-100 rounded-lg mr-4">
+                            <i class="fab fa-cc-visa text-2xl text-green-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-i18n="payment_alifpay">VISA / MasterCard — AlifPay</h3>
+                            <p class="text-gray-600 text-sm" data-i18n="payment_alifpay_desc">Локальная платежная система Таджикистана</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                            <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-between mt-8">
+                <button onclick="goBack()" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i><span data-i18n="btn_back">Назад</span>
+                </button>
+                <button id="pay-btn" onclick="proceedToPayment()" class="bg-gray-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-gray-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    <span data-i18n="btn_pay">Оплатить</span> <span id="pay-amount">0 TJS</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer Container -->
+        <div id="footer-container"></div>
+    </div>
+
+    <script>
+        let selectedPayment = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize booking state
+            bookingStateManager.init();
+            
+            const state = bookingStateManager.state;
+            console.log('📦 Loaded booking state:', state);
+
+            // Check if this is a transfer booking
+            if (!state.transfer || state.bookingType !== 'transfer') {
+                console.error('❌ No transfer data found in booking state');
+                alert('Ошибка: данные трансфера не найдены. Пожалуйста, заполните форму заказа трансфера.');
+                window.location.href = '/transfer.html';
+                return;
+            }
+
+            // Populate transfer details
+            const transfer = state.transfer;
+            const pricing = state.pricing;
+            const contact = state.contact;
+
+            // Vehicle name
+            document.getElementById('vehicle-name').textContent = transfer.vehicleName || 'Не указано';
+
+            // Route
+            const route = `${transfer.pickupLocation || '?'} → ${transfer.dropoffLocation || '?'}`;
+            document.getElementById('route-info').textContent = route;
+
+            // Date & Time
+            document.getElementById('pickup-date').textContent = transfer.pickupDate || '-';
+            document.getElementById('pickup-time').textContent = transfer.pickupTime || '-';
+
+            // Passengers
+            const passengersText = window.getTranslation ? 
+                `${transfer.numberOfPeople} ${window.getTranslation('transfer_passengers', window.currentLanguage || 'ru')}` :
+                `${transfer.numberOfPeople} пассажиров`;
+            document.getElementById('passengers-count').textContent = passengersText;
+
+            // Contact info
+            document.getElementById('contact-name').textContent = contact.name || '-';
+            document.getElementById('contact-phone').textContent = contact.phone || '-';
+
+            // Total price
+            const currency = pricing.currency || 'TJS';
+            const total = pricing.grandTotal || pricing.transferPrice || 0;
+            document.getElementById('total-price').textContent = `${total} ${currency}`;
+            document.getElementById('pay-amount').textContent = `${total} ${currency}`;
+
+            console.log('✅ Transfer payment page loaded successfully');
+        });
+
+        function selectPaymentMethod(method) {
+            selectedPayment = method;
+            console.log('💳 Payment method selected:', method);
+
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+
+            // Enable pay button
+            document.getElementById('pay-btn').disabled = false;
+
+            // Save to booking state
+            bookingStateManager.setPaymentMethod(method);
+        }
+
+        function goBack() {
+            if (confirm('Вернуться к форме заказа трансфера? Данные сохранятся.')) {
+                window.location.href = '/transfer.html';
+            }
+        }
+
+        function proceedToPayment() {
+            if (!selectedPayment) {
+                alert('Пожалуйста, выберите способ оплаты');
+                return;
+            }
+
+            const payBtn = document.getElementById('pay-btn');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Обработка...';
+
+            // Here you would normally call the payment API
+            // For now, we'll show a success message
+            setTimeout(() => {
+                alert('Функция оплаты в разработке. Вскоре вы сможете оплатить трансфер онлайн!');
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<span>Оплатить</span> <span id="pay-amount">' + 
+                    bookingStateManager.state.pricing.grandTotal + ' ' + 
+                    bookingStateManager.state.pricing.currency + '</span>';
+            }, 1000);
+
+            console.log('💰 Processing payment:', {
+                method: selectedPayment,
+                amount: bookingStateManager.state.pricing.grandTotal,
+                currency: bookingStateManager.state.pricing.currency,
+                transfer: bookingStateManager.state.transfer
+            });
+        }
+    </script>
+</body>
+</html>
