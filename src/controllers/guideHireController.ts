@@ -904,9 +904,9 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
     // Используем 100% raw SQL для полного контроля над блокировкой
     const result = await prisma.$transaction(async (tx) => {
       // 1. КРИТИЧНО: Блокируем и читаем тургида одной операцией
-      const lockedGuide = await tx.$queryRaw<Array<{ id: number; availableDates: string }>>`
-        SELECT id, "availableDates" 
-        FROM "Guide" 
+      const lockedGuide = await tx.$queryRaw<Array<{ id: number; available_dates: string }>>`
+        SELECT id, available_dates 
+        FROM guides 
         WHERE id = ${guide.id} 
         FOR UPDATE
       `;
@@ -916,7 +916,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
       }
 
       // 2. Проверяем доступность дат ПОСЛЕ блокировки строки
-      const currentAvailableDates = parseJsonField(lockedGuide[0].availableDates) || [];
+      const currentAvailableDates = parseJsonField(lockedGuide[0].available_dates) || [];
       const unavailableDatesInTransaction = selectedDates.filter(
         date => !currentAvailableDates.includes(date)
       );
@@ -932,8 +932,8 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
       );
 
       await tx.$executeRaw`
-        UPDATE "Guide" 
-        SET "availableDates" = ${JSON.stringify(newAvailableDates)}
+        UPDATE guides 
+        SET available_dates = ${JSON.stringify(newAvailableDates)}
         WHERE id = ${guide.id}
       `;
 
