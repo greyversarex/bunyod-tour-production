@@ -152,10 +152,10 @@ export const getCustomer = async (req: Request, res: Response) => {
       orders: customer.orders.map(order => ({
         ...order,
         tourists: JSON.parse(order.tourists),
-        tour: {
+        tour: order.tour ? {
           ...order.tour,
           title: parseMultilingualField(order.tour.title, language),
-        },
+        } : null,
       })),
       reviews: customer.reviews.map(review => ({
         ...review,

@@ -22,15 +22,34 @@ export const transferPaymentController = {
         });
       }
 
-      // Получить transfer request с информацией об автомобиле
+      // Получить transfer request с информацией о водителе
       const transferRequest = await prisma.transferRequest.findUnique({
         where: { id: transferId },
+        include: {
+          assignedDriver: true
+        }
       });
 
       if (!transferRequest) {
         return res.status(404).json({
           success: false,
           message: 'Transfer request not found'
+        });
+      }
+
+      // Проверить статус transfer request
+      if (transferRequest.status !== 'approved' && transferRequest.status !== 'confirmed') {
+        return res.status(400).json({
+          success: false,
+          message: `Transfer request must be approved before payment. Current status: ${transferRequest.status}`
+        });
+      }
+
+      // Проверить что назначен водитель
+      if (!transferRequest.assignedDriverId || !transferRequest.assignedDriver) {
+        return res.status(400).json({
+          success: false,
+          message: 'Transfer request must have an assigned driver before payment'
         });
       }
 

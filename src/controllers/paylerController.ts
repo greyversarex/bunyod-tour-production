@@ -26,6 +26,11 @@ export const paylerController = {
         include: {
           customer: true,
           tour: true,
+          transferRequest: {
+            include: {
+              assignedDriver: true
+            }
+          }
         },
       });
 

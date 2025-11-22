@@ -197,11 +197,11 @@ export const getOrder = async (req: Request, res: Response) => {
     const formattedOrder = {
       ...order,
       tourists: JSON.parse(order.tourists),
-      tour: {
+      tour: order.tour ? {
         ...order.tour,
         title: parseMultilingualField(order.tour.title, language),
         description: parseMultilingualField(order.tour.description, language),
-      },
+      } : null,
       hotel: order.hotel ? {
         ...order.hotel,
         name: parseMultilingualField(order.hotel.name, language),
@@ -258,11 +258,11 @@ export const getOrderById = async (req: Request, res: Response) => {
     const formattedOrder = {
       ...order,
       tourists: JSON.parse(order.tourists),
-      tour: {
+      tour: order.tour ? {
         ...order.tour,
         title: parseMultilingualField(order.tour.title, language),
         description: parseMultilingualField(order.tour.description, language),
-      },
+      } : null,
       hotel: order.hotel ? {
         ...order.hotel,
         name: parseMultilingualField(order.hotel.name, language),
@@ -333,10 +333,10 @@ export const getAllOrders = async (req: Request, res: Response) => {
     const formattedOrders = orders.map(order => ({
       ...order,
       tourists: JSON.parse(order.tourists),
-      tour: {
+      tour: order.tour ? {
         ...order.tour,
         title: parseMultilingualField(order.tour.title, language),
-      },
+      } : null,
       hotel: order.hotel ? {
         ...order.hotel,
         name: parseMultilingualField(order.hotel.name, language),

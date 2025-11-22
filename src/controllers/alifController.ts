@@ -24,6 +24,11 @@ export const alifController = {
         include: {
           customer: true,
           tour: true,
+          transferRequest: {
+            include: {
+              assignedDriver: true
+            }
+          }
         },
       });
 
