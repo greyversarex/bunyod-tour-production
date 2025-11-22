@@ -165,6 +165,23 @@ window.translations = window.translations || {
     'transfer_error_contact': { ru: 'Укажите хотя бы один способ связи: email или телефон', en: 'Please provide at least one contact method: email or phone' },
     'transfer_error_message': { ru: 'Произошла ошибка при отправке заявки', en: 'An error occurred while submitting the request' },
     
+    // Страница оплаты трансфера (Transfer Payment)
+    'transfer_payment_title': { ru: 'Оплата трансфера | Bunyod-Tour', en: 'Transfer Payment | Bunyod-Tour' },
+    'transfer_payment_heading': { ru: 'Оплата трансфера', en: 'Transfer Payment' },
+    'transfer_payment_subtitle': { ru: 'Проверьте детали вашего заказа и выберите способ оплаты', en: 'Review your order details and select payment method' },
+    'transfer_details': { ru: 'Детали трансфера', en: 'Transfer Details' },
+    'transfer_vehicle': { ru: 'Автомобиль', en: 'Vehicle' },
+    'transfer_route': { ru: 'Маршрут', en: 'Route' },
+    'transfer_contact': { ru: 'Контактное лицо', en: 'Contact Person' },
+    'transfer_total': { ru: 'Итого к оплате', en: 'Total to Pay' },
+    'payment_select': { ru: 'Выберите способ оплаты', en: 'Select Payment Method' },
+    'payment_payler': { ru: 'VISA / MasterCard — Payler', en: 'VISA / MasterCard — Payler' },
+    'payment_payler_desc': { ru: 'Безопасная оплата банковской картой', en: 'Secure card payment' },
+    'payment_alifpay': { ru: 'VISA / MasterCard — AlifPay', en: 'VISA / MasterCard — AlifPay' },
+    'payment_alifpay_desc': { ru: 'Локальная платежная система Таджикистана', en: 'Local payment system of Tajikistan' },
+    'btn_back': { ru: 'Назад', en: 'Back' },
+    'btn_pay': { ru: 'Оплатить', en: 'Pay' },
+    
     // Страница заказа собственного тура (Custom Tour Order)
     'custom_tour_page_title': { ru: 'Создать собственный тур - Bunyod-Tour', en: 'Create Custom Tour - Bunyod-Tour' },
     'custom_tour_main_title': { ru: 'Создать собственный тур', en: 'Create Custom Tour' },

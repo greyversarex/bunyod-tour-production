@@ -540,21 +540,30 @@
                         
                         if (result.success) {
                             try {
+                                console.log('🚀 Starting transfer data save process...');
+                                
                                 // 🚗 Сохраняем данные трансфера в booking state для оплаты
                                 const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
+                                console.log('📦 Selected vehicle:', selectedVehicle);
+                                
                                 const vehiclePrice = selectedVehicle?.pricePerDay || 0;
                                 const currency = selectedVehicle?.currency || window.selectedCurrency || 'TJS';
+                                console.log('💰 Price:', vehiclePrice, 'Currency:', currency);
                                 
                                 // Инициализируем booking state
+                                console.log('🔄 Initializing booking state manager...');
                                 bookingStateManager.init();
                                 
                                 // Используем правильные методы bookingStateManager для сохранения
+                                console.log('🆔 Setting booking ID:', result.data?.id);
                                 bookingStateManager.setBookingId(result.data?.id || null);
                                 
                                 // Устанавливаем тип бронирования как трансфер
+                                console.log('📝 Setting booking type: transfer');
                                 bookingStateManager.state.bookingType = 'transfer';
                                 
                                 // Сохраняем данные трансфера в отдельное поле
+                                console.log('🚗 Saving transfer data...');
                                 bookingStateManager.state.transfer = {
                                     id: result.data?.id,
                                     vehicleId: selectedVehicleId,
@@ -568,8 +577,10 @@
                                     numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
                                     specialRequests: formData.get('specialRequests') || ''
                                 };
+                                console.log('✅ Transfer data set:', bookingStateManager.state.transfer);
                                 
                                 // Устанавливаем контактные данные
+                                console.log('👤 Saving contact data...');
                                 bookingStateManager.setContact({
                                     name: formData.get('fullName') || '',
                                     phone: phone || '',
@@ -577,6 +588,7 @@
                                 });
                                 
                                 // Устанавливаем цены
+                                console.log('💵 Setting pricing data...');
                                 bookingStateManager.state.pricing.tourBasePrice = 0;
                                 bookingStateManager.state.pricing.transferPrice = vehiclePrice;
                                 bookingStateManager.state.pricing.roomSurcharge = 0;
@@ -585,23 +597,27 @@
                                 bookingStateManager.state.pricing.currency = currency;
                                 
                                 // Устанавливаем язык и валюту
+                                console.log('🌍 Setting language and currency...');
                                 bookingStateManager.setLanguage(window.currentLanguage || 'ru');
                                 bookingStateManager.setSelectedCurrency(currency);
                                 
                                 // Сохраняем состояние в sessionStorage
+                                console.log('💾 Persisting to sessionStorage...');
                                 bookingStateManager.persist();
                                 console.log('✅ Transfer data saved to booking state:', bookingStateManager.state);
                                 
                                 // Небольшая задержка перед редиректом
+                                console.log('🔄 Redirecting to payment page in 100ms...');
                                 setTimeout(() => {
                                     window.location.href = '/transfer-payment.html';
                                 }, 100);
                             } catch (saveError) {
-                                console.error('Ошибка при сохранении данных:', saveError);
-                                // Все равно перенаправляем на страницу оплаты
-                                setTimeout(() => {
-                                    window.location.href = '/transfer-payment.html';
-                                }, 100);
+                                console.error('❌ Ошибка при сохранении данных:', saveError);
+                                console.error('❌ Error stack:', saveError.stack);
+                                console.error('❌ Error message:', saveError.message);
+                                
+                                // НЕ перенаправляем если данные не сохранены
+                                alert('Ошибка при сохранении данных. Пожалуйста, попробуйте снова.');
                             }
                             
                         } else {
