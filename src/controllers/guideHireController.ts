@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
+import { emailService } from '../services/emailService';
 
 // Утилитарная функция для конвертации валют
 const convertCurrency = async (amount: number, fromCurrency: string, toCurrency: string): Promise<{ convertedAmount: number; rate: number; symbol: string } | null> => {
@@ -543,6 +544,52 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
             }
           }
         });
+
+        // Отправить email уведомление клиенту после одобрения
+        if (updatedRequest && updatedRequest.touristEmail) {
+          try {
+            const guideName = parseJsonField(updatedRequest.guide.name);
+            const guideDisplayName = typeof guideName === 'object' ? (guideName.ru || guideName.en || 'Тургид') : guideName;
+            
+            await emailService.sendEmail({
+              to: updatedRequest.touristEmail,
+              subject: 'Ваша заявка на найм тургида одобрена - Bunyod Tour',
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #3E3E3E;">Заявка на найм тургида одобрена!</h2>
+                  
+                  <p>Здравствуйте, ${updatedRequest.touristName}!</p>
+                  
+                  <p>Рады сообщить, что ваша заявка на найм тургида была одобрена нашим администратором.</p>
+                  
+                  <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                    <h3 style="margin-top: 0;">Детали заявки:</h3>
+                    <p><strong>ID заявки:</strong> #${updatedRequest.id}</p>
+                    <p><strong>Тургид:</strong> ${guideDisplayName}</p>
+                    <p><strong>Сумма:</strong> ${updatedRequest.totalPrice} ${updatedRequest.currency}</p>
+                    <p><strong>Количество дней:</strong> ${selectedDates.length}</p>
+                  </div>
+                  
+                  <p>В ближайшее время наш администратор свяжется с вами для завершения оформления и организации оплаты.</p>
+                  
+                  <p><strong>Примечание:</strong> Для создания заказа и получения ссылки на оплату администратор должен выполнить следующие действия в admin панели после одобрения вашей заявки.</p>
+                  
+                  <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</p>
+                  
+                  <p style="margin-top: 30px;">
+                    С уважением,<br>
+                    <strong>Команда Bunyod Tour</strong>
+                  </p>
+                </div>
+              `
+            });
+            
+            console.log(`✅ Approval email sent to ${updatedRequest.touristEmail} for hire request #${updatedRequest.id}`);
+          } catch (emailError) {
+            console.error('❌ Failed to send approval email:', emailError);
+            // Не прерываем процесс если email не отправился
+          }
+        }
 
         res.json({
           success: true,

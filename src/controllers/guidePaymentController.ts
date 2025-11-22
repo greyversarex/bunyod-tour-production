@@ -39,6 +39,15 @@ export const guidePaymentController = {
         });
       }
 
+      // Проверить статус заявки - должна быть одобрена перед оплатой
+      // Это гарантирует что админ проверил заявку и подтвердил доступность гида
+      if (hireRequest.status !== 'approved') {
+        return res.status(400).json({
+          success: false,
+          message: `Guide hire request must be approved before payment. Current status: ${hireRequest.status}. Please wait for admin approval.`
+        });
+      }
+
       // Проверить что гид активен и доступен для найма
       if (!hireRequest.guide.isActive || !hireRequest.guide.isHireable) {
         return res.status(400).json({

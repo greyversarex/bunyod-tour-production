@@ -827,6 +827,11 @@ ${getTranslation('guide.hire')}
 
         async function submitHireRequest() {
             try {
+                const submitBtn = document.getElementById('submitHire');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span data-translate="guides.processing">Обработка...</span>';
+                
+                // Шаг 1: Создать заявку на найм
                 const formData = {
                     guideId: selectedGuideId,
                     touristName: document.getElementById('touristName').value.trim(),
@@ -836,7 +841,8 @@ ${getTranslation('guide.hire')}
                     comments: document.getElementById('hireComments').value.trim()
                 };
                 
-                const response = await fetch('/api/guide-hire/hire-request', {
+                console.log('📝 Creating guide hire request...');
+                const hireResponse = await fetch('/api/guide-hire/hire-request', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -844,17 +850,31 @@ ${getTranslation('guide.hire')}
                     body: JSON.stringify(formData)
                 });
                 
-                const result = await response.json();
+                const hireResult = await hireResponse.json();
                 
-                if (result.success) {
-                    alert('Заявка на найм тургида успешно отправлена! Мы свяжемся с вами в ближайшее время.');
-                    closeHireModal();
-                } else {
-                    alert('Ошибка: ' + result.message);
+                if (!hireResult.success) {
+                    throw new Error(hireResult.message || 'Failed to create hire request');
                 }
+                
+                const hireRequestId = hireResult.data.id;
+                const totalPrice = hireResult.data.totalPrice;
+                const currency = hireResult.data.currency || 'TJS';
+                
+                console.log(`✅ Guide hire request created: ID ${hireRequestId}, Amount: ${totalPrice} ${currency}`);
+                
+                // Показать сообщение об успехе - заказ будет создан после одобрения админом
+                alert(`Заявка на найм тургида успешно отправлена!\n\nСумма: ${totalPrice} ${currency}\n\nНаш администратор проверит доступность гида и свяжется с вами в ближайшее время.\n\nПосле одобрения вы получите ссылку для оплаты на указанный email: ${formData.touristEmail}\n\nСпасибо за ваш запрос!`);
+                
+                closeHireModal();
+                
             } catch (error) {
-                console.error('Error submitting hire request:', error);
-                alert('Произошла ошибка при отправке заявки. Попробуйте еще раз.');
+                console.error('❌ Error in guide hire flow:', error);
+                alert('Ошибка: ' + error.message);
+                
+                // Восстановить кнопку
+                const submitBtn = document.getElementById('submitHire');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span data-translate="guides.submit_hire_request">Отправить заявку на найм</span>';
             }
         }
 

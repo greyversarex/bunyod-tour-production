@@ -101,6 +101,29 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
     -   **Null Safety**: Fixed `orderController.ts` and `customerController.ts` to handle nullable `order.tour` references for transfer orders
     -   **Status**: MVP functional ✅, core payment flow operational for transfer requests
 
+-   **Guide Hire Payment Integration** (Nov 22, 2025):
+    -   **Database Schema**: Extended Order model with `guideHireRequestId` field (nullable, unique) for one-to-one relation with GuideHireRequest
+    -   **GuideHireRequest Model**: Includes `paymentStatus` (default: "unpaid") field to track payment status
+    -   **Payment Flow**: Follows transfer payment pattern - user creates request → admin approves → email sent → admin creates order → payment processed
+    -   **Current Implementation (MVP Base)**:
+        -   API Endpoint: `POST /api/guide-hire/:id/create-order` (admin-only) validates hire request status (must be "approved"), guide availability, and price before order creation
+        -   Payment Controllers: Updated `alifController.ts` and `paylerController.ts` to include `guideHireRequest` relation in Order queries
+        -   Frontend: `tour-guides.html` modal allows users to submit guide hire requests with date selection and price calculation
+        -   Email Notification: Automated email sent to customer after admin approves request (includes request ID and amount)
+        -   Security: create-order endpoint protected with adminAuthMiddleware, prevents unauthorized order creation
+    -   **Status**: ⚠️ Partial MVP - request/approval flow operational, but payment completion requires manual admin work
+    -   **Security Concerns** (identified by architect review):
+        -   payment-selection.html trusts URL parameters without backend validation (order ownership not verified)
+        -   No payment token system to prevent unauthorized payment attempts
+        -   No secure payment-init endpoints (/payler-init, /alif-init) for guide hire flow
+    -   **Recommended Next Steps** (from architect):
+        1. Auto-create orders during approval transaction with payment token generation
+        2. Add `paymentToken` field to GuideHireRequest schema
+        3. Implement secure payment-init endpoints (`/api/guide-hire/:id/payler-init`, `/alif-init`) with token+ownership validation
+        4. Update approval email to include tokenized secure payment link
+        5. Modify payment-selection.html to fetch order data via tokenized endpoint instead of trusting URL params
+    -   **Workaround for Current MVP**: Admin manually creates order via admin panel after approval → sends payment link to customer via email/messenger
+
 ## External Dependencies
 
 -   **Database**: PostgreSQL

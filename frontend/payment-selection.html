@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор способа оплаты | Bunyod-Tour</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/public/js/i18n.js"></script>
+    <script defer src="/public/js/layout-loader.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Title -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Выбор способа оплаты</h1>
+            <p class="text-gray-600">Заказ успешно создан. Выберите способ оплаты для завершения</p>
+        </div>
+
+        <!-- Order Info -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Информация о заказе</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600">Номер заказа:</span>
+                    <span id="orderNumber" class="font-bold text-gray-800">-</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600">Тип услуги:</span>
+                    <span id="orderType" class="font-semibold text-gray-800">-</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-6 bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg border-2 border-gray-200">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1">Сумма к оплате</p>
+                        <p id="totalAmount" class="text-3xl font-bold text-gray-800">0 TJS</p>
+                    </div>
+                    <i class="fas fa-money-bill-wave text-4xl text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Выберите способ оплаты</h2>
+            
+            <div class="space-y-4">
+                <!-- Payler -->
+                <button onclick="selectPaymentMethod('payler')" class="w-full payment-method border-2 border-gray-300 rounded-lg p-6 hover:border-gray-600 hover:shadow-lg transition-all">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                            <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-bold text-gray-800">Payler</h3>
+                            <p class="text-sm text-gray-600">Visa, Mastercard, МИР</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </button>
+
+                <!-- AlifPay -->
+                <button onclick="selectPaymentMethod('alif')" class="w-full payment-method border-2 border-gray-300 rounded-lg p-6 hover:border-gray-600 hover:shadow-lg transition-all">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                            <i class="fas fa-credit-card text-2xl text-gray-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-bold text-gray-800">AlifPay</h3>
+                            <p class="text-sm text-gray-600">Банковские карты Таджикистана</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+            <a href="/" class="inline-block text-gray-600 hover:text-gray-800 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Вернуться на главную
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script>
+        // Get order details from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('orderNumber');
+        const orderType = urlParams.get('type');
+
+        // Display order info
+        if (orderNumber) {
+            document.getElementById('orderNumber').textContent = orderNumber;
+            
+            // Set order type text
+            let typeText = 'Услуга';
+            if (orderType === 'guide-hire') {
+                typeText = 'Найм тургида';
+            } else if (orderType === 'transfer') {
+                typeText = 'Трансфер';
+            } else if (orderType === 'tour') {
+                typeText = 'Тур';
+            }
+            document.getElementById('orderType').textContent = typeText;
+
+            // Fetch order details
+            fetchOrderDetails(orderNumber);
+        } else {
+            alert('Номер заказа не найден. Перенаправляем на главную...');
+            window.location.href = '/';
+        }
+
+        async function fetchOrderDetails(orderNumber) {
+            try {
+                const response = await fetch(`/api/orders/${orderNumber}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const order = result.data;
+                    document.getElementById('totalAmount').textContent = `${order.totalAmount} TJS`;
+                } else {
+                    console.error('Failed to fetch order details:', result.message);
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+            }
+        }
+
+        async function selectPaymentMethod(method) {
+            if (!orderNumber) {
+                alert('Ошибка: номер заказа не найден');
+                return;
+            }
+
+            try {
+                // Create payment based on selected method
+                const endpoint = method === 'payler' ? '/api/payments/payler/create' : '/api/payments/alif/create';
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderNumber })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Redirect to payment gateway
+                    if (result.data.paymentUrl) {
+                        window.location.href = result.data.paymentUrl;
+                    } else if (result.data.sessionId) {
+                        // Payler: redirect to payment page
+                        window.location.href = `https://merchant.payler.com/gapi/Pay?session_id=${result.data.sessionId}`;
+                    } else {
+                        alert('Ошибка: URL оплаты не получен');
+                    }
+                } else {
+                    alert('Ошибка создания платежа: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert('Произошла ошибка при инициализации оплаты');
+            }
+        }
+    </script>
+</body>
+</html>
