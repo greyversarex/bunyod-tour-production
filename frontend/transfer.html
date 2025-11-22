@@ -318,7 +318,7 @@
                     <div class="pt-4">
                         <button type="submit" id="submitBtn"
                             class="w-full text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="background: #6B7280;">
-                            <span id="submitText" data-i18n="transfer_submit_btn">Отправить заявку</span>
+                            <span id="submitText" data-i18n="transfer_submit_btn">Забронировать и оплатить</span>
                             <span id="loadingText" class="hidden">
                                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -527,7 +527,7 @@
                         console.log('Отправка заявки на трансфер:', data);
                         
                         // Отправляем запрос
-                        const response = await fetch('/api/transfer-requests', {
+                        const response = await fetch('/api/transfers/transfer-requests', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
