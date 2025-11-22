@@ -28,6 +28,11 @@ export const alifController = {
             include: {
               assignedDriver: true
             }
+          },
+          guideHireRequest: {
+            include: {
+              guide: true
+            }
           }
         },
       });

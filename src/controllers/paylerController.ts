@@ -30,6 +30,11 @@ export const paylerController = {
             include: {
               assignedDriver: true
             }
+          },
+          guideHireRequest: {
+            include: {
+              guide: true
+            }
           }
         },
       });
