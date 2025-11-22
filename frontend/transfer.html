@@ -82,6 +82,48 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        /* Стили для карусели автомобилей */
+        #vehicleCarousel::-webkit-scrollbar {
+            height: 8px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .vehicle-carousel-card {
+            min-width: 280px;
+            max-width: 280px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            scroll-snap-align: start;
+        }
+        .vehicle-carousel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #3E3E3E;
+        }
+        .vehicle-carousel-card.selected {
+            border-color: #3E3E3E;
+            box-shadow: 0 0 0 3px rgba(62, 62, 62, 0.2);
+        }
+        .vehicle-carousel-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -140,6 +182,28 @@
                             placeholder="+992 XX XXX XXXX">
                     </div>
 
+                    <!-- Выбор страны и города -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="transferCountry" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_country">
+                                Страна
+                            </label>
+                            <select id="transferCountry" name="transferCountry" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="" data-i18n="transfer_country_select">Выберите страну</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="transferCity" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_city">
+                                Город
+                            </label>
+                            <select id="transferCity" name="transferCity" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="" data-i18n="transfer_city_select">Выберите город</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- Детали трансфера -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -186,18 +250,57 @@
                         </div>
                     </div>
 
+                    <!-- Фильтры выбора автомобиля -->
                     <div>
-                        <label for="vehicleType" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_vehicle_type">
-                            Тип транспорта
+                        <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="transfer_vehicle_filters">
+                            Параметры автомобиля
                         </label>
-                        <select id="vehicleType" name="vehicleType" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <option value="" data-i18n="transfer_vehicle_select">Выберите тип транспорта</option>
-                            <option value="sedan" data-i18n="transfer_vehicle_sedan">Седан (1-4 пассажира)</option>
-                            <option value="suv" data-i18n="transfer_vehicle_suv">Внедорожник (1-5 пассажиров)</option>
-                            <option value="minibus" data-i18n="transfer_vehicle_minibus">Микроавтобус (6-12 пассажиров)</option>
-                            <option value="bus" data-i18n="transfer_vehicle_bus">Автобус (13+ пассажиров)</option>
-                        </select>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div>
+                                <label for="vehicleType" class="block text-xs font-medium text-gray-600 mb-2" data-i18n="transfer_vehicle_type">
+                                    Тип транспорта
+                                </label>
+                                <select id="vehicleType" name="vehicleType" 
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="" data-i18n="transfer_vehicle_select">Выберите тип</option>
+                                    <option value="sedan" data-i18n="transfer_vehicle_sedan">Седан</option>
+                                    <option value="suv" data-i18n="transfer_vehicle_suv">Внедорожник</option>
+                                    <option value="minibus" data-i18n="transfer_vehicle_minibus">Микроавтобус</option>
+                                    <option value="bus" data-i18n="transfer_vehicle_bus">Автобус</option>
+                                    <option value="minivan" data-i18n="transfer_vehicle_minivan">Минивэн</option>
+                                    <option value="luxury" data-i18n="transfer_vehicle_luxury">Люкс</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="vehicleCapacity" class="block text-xs font-medium text-gray-600 mb-2" data-i18n="transfer_vehicle_capacity">
+                                    Вместимость
+                                </label>
+                                <select id="vehicleCapacity" name="vehicleCapacity" 
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="" data-i18n="transfer_capacity_any">Любая</option>
+                                    <option value="1-4" data-i18n="transfer_capacity_1_4">1-4 пассажира</option>
+                                    <option value="5-8" data-i18n="transfer_capacity_5_8">5-8 пассажиров</option>
+                                    <option value="9-15" data-i18n="transfer_capacity_9_15">9-15 пассажиров</option>
+                                    <option value="16+" data-i18n="transfer_capacity_16_plus">16+ пассажиров</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Карусель доступных автомобилей -->
+                    <div id="vehicleCarouselSection" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="transfer_available_vehicles">
+                            Доступные автомобили
+                        </label>
+                        <div class="relative">
+                            <div id="vehicleCarousel" class="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scroll-smooth" style="scrollbar-width: thin;">
+                                <!-- Автомобили будут загружены здесь -->
+                            </div>
+                            <div id="noVehiclesMessage" class="hidden text-center py-8 text-gray-500">
+                                <i class="fas fa-car text-4xl mb-3"></i>
+                                <p data-i18n="transfer_no_vehicles">Автомобили не найдены. Попробуйте изменить параметры поиска.</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -407,12 +510,16 @@
                             fullName: formData.get('fullName'),
                             email: email || undefined,
                             phone: phone || undefined,
+                            countryId: formData.get('transferCountry') ? parseInt(formData.get('transferCountry')) : undefined,
+                            cityId: formData.get('transferCity') ? parseInt(formData.get('transferCity')) : undefined,
                             pickupLocation: formData.get('pickupLocation'),
                             dropoffLocation: formData.get('dropoffLocation'),
                             pickupTime: formData.get('pickupTime'),
                             pickupDate: formData.get('pickupDate'),
                             numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
                             vehicleType: formData.get('vehicleType') || undefined,
+                            vehicleCapacity: formData.get('vehicleCapacity') || undefined,
+                            vehicleId: selectedVehicleId || undefined,
                             specialRequests: formData.get('specialRequests') || undefined
                         };
                         
@@ -499,6 +606,240 @@
                     }
                 });
             }
+
+            // === НОВЫЙ КОД: Загрузка стран, городов и автомобилей ===
+            let allCountries = [];
+            let allCities = [];
+            let allVehicles = [];
+            let selectedVehicleId = null;
+
+            // Загрузка стран
+            async function loadCountries() {
+                try {
+                    console.log('📍 Загрузка списка стран...');
+                    const response = await fetch('/api/countries');
+                    const data = await response.json();
+                    console.log('✅ Страны загружены:', data.data.length);
+                    if (data.success) {
+                        allCountries = data.data;
+                        populateCountrySelect();
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки стран:', error);
+                }
+            }
+
+            // Заполнение select стран
+            function populateCountrySelect() {
+                const countrySelect = document.getElementById('transferCountry');
+                console.log('📍 populateCountrySelect() вызван, элемент найден:', !!countrySelect);
+                if (!countrySelect) {
+                    console.error('❌ Элемент transferCountry не найден!');
+                    return;
+                }
+                
+                const lang = window.currentLanguage || 'ru';
+                console.log('🌍 Текущий язык:', lang, 'Стран для добавления:', allCountries.length);
+                countrySelect.innerHTML = '<option value="" data-i18n="transfer_country_select">Выберите страну</option>';
+                
+                allCountries.forEach((country, index) => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = lang === 'ru' ? country.nameRu : country.nameEn;
+                    countrySelect.appendChild(option);
+                    console.log(`  ✓ Добавлена страна #${index + 1}:`, option.textContent, '(ID:', country.id + ')');
+                });
+                console.log('✅ Всего опций в select:', countrySelect.options.length);
+            }
+
+            // Загрузка городов
+            async function loadCities() {
+                try {
+                    console.log('🏙️ Загрузка списка городов...');
+                    const response = await fetch('/api/cities');
+                    const data = await response.json();
+                    console.log('✅ Города загружены:', data.data.length);
+                    if (data.success) {
+                        allCities = data.data;
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки городов:', error);
+                }
+            }
+
+            // Заполнение select городов (фильтруется по стране)
+            function populateCitySelect(countryId = null) {
+                const citySelect = document.getElementById('transferCity');
+                if (!citySelect) return;
+                
+                const lang = window.currentLanguage || 'ru';
+                citySelect.innerHTML = '<option value="" data-i18n="transfer_city_select">Выберите город</option>';
+                
+                const filteredCities = countryId 
+                    ? allCities.filter(city => city.countryId == countryId)
+                    : allCities;
+                
+                filteredCities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = lang === 'ru' ? city.nameRu : city.nameEn;
+                    citySelect.appendChild(option);
+                });
+            }
+
+            // Загрузка автомобилей
+            async function loadVehicles() {
+                try {
+                    const lang = window.currentLanguage || 'ru';
+                    console.log('🚗 Загрузка списка автомобилей...');
+                    const response = await fetch(`/api/vehicles?lang=${lang}`);
+                    const data = await response.json();
+                    console.log('✅ Автомобили загружены:', data.data.length);
+                    if (data.success) {
+                        allVehicles = data.data.filter(v => v.isActive);
+                        console.log('🔧 Применение фильтров автомобилей, активных:', allVehicles.length);
+                        applyVehicleFilters();
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки автомобилей:', error);
+                }
+            }
+
+            // Применение фильтров к автомобилям
+            function applyVehicleFilters() {
+                const country = document.getElementById('transferCountry')?.value || '';
+                const city = document.getElementById('transferCity')?.value || '';
+                const type = document.getElementById('vehicleType')?.value || '';
+                const capacity = document.getElementById('vehicleCapacity')?.value || '';
+                
+                let filtered = allVehicles.filter(vehicle => {
+                    if (country && vehicle.countryId != country) return false;
+                    if (city && vehicle.cityId != city) return false;
+                    if (type && vehicle.type.toLowerCase() !== type.toLowerCase()) return false;
+                    
+                    if (capacity) {
+                        const cap = vehicle.capacity;
+                        if (capacity === '1-4' && (cap < 1 || cap > 4)) return false;
+                        if (capacity === '5-8' && (cap < 5 || cap > 8)) return false;
+                        if (capacity === '9-15' && (cap < 9 || cap > 15)) return false;
+                        if (capacity === '16+' && cap < 16) return false;
+                    }
+                    
+                    return true;
+                });
+                
+                renderVehicleCarousel(filtered);
+            }
+
+            // Отображение карусели автомобилей
+            function renderVehicleCarousel(vehicles) {
+                const carousel = document.getElementById('vehicleCarousel');
+                const carouselSection = document.getElementById('vehicleCarouselSection');
+                const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+                
+                if (!carousel || !carouselSection) return;
+                
+                carousel.innerHTML = '';
+                
+                if (vehicles.length === 0) {
+                    carouselSection.classList.add('hidden');
+                    noVehiclesMessage?.classList.remove('hidden');
+                    return;
+                }
+                
+                carouselSection.classList.remove('hidden');
+                noVehiclesMessage?.classList.add('hidden');
+                
+                const lang = window.currentLanguage || 'ru';
+                
+                vehicles.forEach(vehicle => {
+                    const card = createVehicleCarouselCard(vehicle, lang);
+                    carousel.appendChild(card);
+                });
+            }
+
+            // Создание карточки автомобиля для карусели
+            function createVehicleCarouselCard(vehicle, lang) {
+                const card = document.createElement('div');
+                card.className = 'vehicle-carousel-card';
+                if (selectedVehicleId === vehicle.id) {
+                    card.classList.add('selected');
+                }
+                
+                // Парсинг изображений
+                let vehicleImages = [];
+                if (vehicle.images) {
+                    try {
+                        const images = typeof vehicle.images === 'string' ? JSON.parse(vehicle.images) : vehicle.images;
+                        if (Array.isArray(images) && images.length > 0) {
+                            vehicleImages = images.map(img => {
+                                if (img.startsWith('http') || img.startsWith('/')) return img;
+                                return `/uploads/vehicles/${img}`;
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error parsing vehicle images:', e);
+                    }
+                }
+                
+                if (vehicleImages.length === 0) {
+                    vehicleImages = ['/api/placeholder/400/200'];
+                }
+                
+                const name = lang === 'ru' ? vehicle.nameRu : vehicle.nameEn;
+                const typeKey = `vehicles.type_${vehicle.type.toLowerCase()}`;
+                const typeTranslation = window.getTranslation ? window.getTranslation(typeKey, lang) : vehicle.type;
+                
+                card.innerHTML = `
+                    <img src="${vehicleImages[0]}" alt="${name}" class="vehicle-carousel-img" onerror="this.src='/api/placeholder/400/200'">
+                    <div class="p-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">${name}</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <i class="fas fa-car mr-1"></i>${typeTranslation}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-users mr-1"></i>${vehicle.capacity} ${window.getTranslation ? window.getTranslation('vehicles.passengers', lang) : 'пассажиров'}
+                        </p>
+                        ${vehicle.pricePerDay ? `
+                            <p class="text-sm font-semibold text-gray-900 mt-2">
+                                ${vehicle.pricePerDay} ${vehicle.currency || 'TJS'}/${window.getTranslation ? window.getTranslation('vehicles.per_day', lang) : 'день'}
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => selectVehicle(vehicle.id));
+                
+                return card;
+            }
+
+            // Выбор автомобиля
+            function selectVehicle(vehicleId) {
+                selectedVehicleId = vehicleId;
+                document.querySelectorAll('.vehicle-carousel-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+                console.log('Выбран автомобиль:', vehicleId);
+            }
+
+            // Обработчики изменения фильтров
+            document.getElementById('transferCountry')?.addEventListener('change', (e) => {
+                const countryId = e.target.value;
+                populateCitySelect(countryId);
+                document.getElementById('transferCity').value = '';
+                applyVehicleFilters();
+            });
+
+            document.getElementById('transferCity')?.addEventListener('change', applyVehicleFilters);
+            document.getElementById('vehicleType')?.addEventListener('change', applyVehicleFilters);
+            document.getElementById('vehicleCapacity')?.addEventListener('change', applyVehicleFilters);
+
+            // Инициализация при загрузке
+            console.log('🚗 Инициализация трансфера: загрузка стран, городов и автомобилей...');
+            loadCountries();
+            loadCities();
+            loadVehicles();
         });
     </script>
 </body>
