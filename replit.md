@@ -102,27 +102,32 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
     -   **Status**: MVP functional ✅, core payment flow operational for transfer requests
 
 -   **Guide Hire Payment Integration** (Nov 22, 2025):
-    -   **Database Schema**: Extended Order model with `guideHireRequestId` field (nullable, unique) for one-to-one relation with GuideHireRequest
-    -   **GuideHireRequest Model**: Includes `paymentStatus` (default: "unpaid") field to track payment status
-    -   **Payment Flow**: Follows transfer payment pattern - user creates request → admin approves → order auto-created → email with payment link → customer pays
+    -   **Payment Model**: DIRECT PAYMENT (no admin approval) - tourist selects dates → pays immediately → admin receives notification
+    -   **Database Schema**: 
+        -   Order model with `guideHireRequestId` field (nullable, unique) for one-to-one relation with GuideHireRequest
+        -   GuideHireRequest model with `paymentStatus` field (tracks payment state)
+    -   **Payment Flow**: Tourist selects guide + dates → clicks "Перейти к оплате" → system creates order → immediate redirect to payment page
     -   **Implementation**:
-        -   Frontend: `tour-guides.html` modal allows users to submit guide hire requests with date selection and automatic price calculation
-        -   Auto-Order Creation: When admin approves request via `PUT /api/guide-hire/hire-requests/:id/status`, system automatically creates Order within approval transaction
-        -   Atomic Transaction: Approval, date reservation, and order creation happen atomically to prevent race conditions
-        -   Email Notification: Automated email sent to customer with direct payment link to `payment-selection.html?orderNumber=...`
-        -   Payment Controllers: Updated `alifController.ts` and `paylerController.ts` to include `guideHireRequest` relation in Order queries
-        -   Payment Selection: Universal `payment-selection.html` page handles payment method selection for guide hires, transfers, and tours
+        -   **Public Endpoint**: `POST /api/guide-hire/orders` creates Order directly without approval
+        -   **Atomic Transaction**: Reserves guide dates + creates GuideHireRequest (status="confirmed") + creates Order in single transaction
+        -   **Date Reservation**: Removes selected dates from guide's `availableDates` JSON field to prevent double-booking
+        -   **Multi-currency Support**: Accepts `currency` parameter (TJS, USD, EUR, RUB, CNY) with automatic conversion
+        -   **Frontend**: `tour-guides.html` button changed from "Отправить заявку" to "Перейти к оплате" with immediate redirect
+        -   **Email Notification**: Admin receives notification email about new paid guide hire (not approval request)
+        -   **Payment Controllers**: `alifController.ts` and `paylerController.ts` handle guide hire orders via `guideHireRequest` relation
+        -   **Payment Page**: Universal `payment-selection.html?orderNumber=XXX&type=guide-hire` for method selection
     -   **Security**: 
-        -   Admin-only approval endpoint with JWT authentication
-        -   Atomic transactions prevent double-booking and ensure data consistency
-        -   Race condition protection via status check in transaction (only pending requests can be approved)
-    -   **Status**: ✅ MVP fully functional - complete automated flow from request to payment
+        -   Public endpoint with rate limiting and validation
+        -   Atomic transactions prevent race conditions and double-booking
+        -   Email format validation, date availability checks before order creation
+    -   **Status**: ✅ Fully functional direct booking system - NO admin approval required
     -   **User Journey**: 
-        1. Customer submits hire request on tour-guides.html
-        2. Admin reviews and approves request in admin panel
-        3. System auto-creates order and sends email with payment link
-        4. Customer clicks link and pays via Payler or AlifPay
-        5. Payment confirmation email sent automatically
+        1. Tourist visits tour-guides.html and selects guide
+        2. Picks dates and fills contact form (name, email, phone)
+        3. Clicks "Перейти к оплате" button
+        4. System creates Order and redirects to payment-selection.html
+        5. Tourist pays via Payler or AlifPay
+        6. Payment confirmation email sent to tourist, notification sent to admin
 
 ## External Dependencies
 

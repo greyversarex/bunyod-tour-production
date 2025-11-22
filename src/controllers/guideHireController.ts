@@ -62,6 +62,16 @@ interface GuideHireRequestData {
   comments?: string;
 }
 
+interface DirectGuideHireData {
+  guideId: number;
+  touristName: string;
+  touristEmail: string;
+  touristPhone?: string;
+  selectedDates: string[]; // Format: ["2025-11-23", "2025-11-24"]
+  comments?: string;
+  // currency удален - вычисляется только на сервере из guide.currency
+}
+
 // Утилита для парсинга JSON
 const parseJsonField = (value: any): any => {
   if (!value) return null;
@@ -776,6 +786,259 @@ export const getAvailableGuides = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Ошибка при получении списка доступных тургидов'
+    });
+  }
+};
+
+/**
+ * Создать прямой заказ на найм тургида (без одобрения админа)
+ * POST /api/guide-hire/orders
+ * ПУБЛИЧНЫЙ endpoint - турист создает заказ и сразу переходит к оплате
+ */
+export const createDirectGuideHireOrder = async (req: Request, res: Response) => {
+  try {
+    const {
+      guideId,
+      touristName,
+      touristEmail,
+      touristPhone,
+      selectedDates,
+      comments
+    }: DirectGuideHireData = req.body;
+
+    // Валидация обязательных полей
+    if (!guideId || !touristName || !touristEmail || !selectedDates || selectedDates.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'Не все обязательные поля заполнены'
+      });
+      return;
+    }
+
+    // Проверка email формата
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(touristEmail)) {
+      res.status(400).json({
+        success: false,
+        message: 'Неверный формат email'
+      });
+      return;
+    }
+
+    // Получить тургида с его ценами
+    const guide = await prisma.guide.findUnique({
+      where: { id: parseInt(String(guideId)) },
+      select: {
+        id: true,
+        name: true,
+        pricePerDay: true,
+        currency: true,
+        availableDates: true,
+        isHireable: true,
+        isActive: true
+      }
+    });
+
+    if (!guide) {
+      res.status(404).json({
+        success: false,
+        message: 'Тургид не найден'
+      });
+      return;
+    }
+
+    if (!guide.isActive || !guide.isHireable) {
+      res.status(400).json({
+        success: false,
+        message: 'Тургид недоступен для найма'
+      });
+      return;
+    }
+
+    if (!guide.pricePerDay || guide.pricePerDay <= 0) {
+      res.status(400).json({
+        success: false,
+        message: 'У тургида не установлена цена'
+      });
+      return;
+    }
+
+    // Проверить доступность дат
+    const availableDates = parseJsonField(guide.availableDates) || [];
+    const unavailableDates = selectedDates.filter(date => !availableDates.includes(date));
+
+    if (unavailableDates.length > 0) {
+      res.status(400).json({
+        success: false,
+        message: `Следующие даты недоступны: ${unavailableDates.join(', ')}`
+      });
+      return;
+    }
+
+    // Рассчитать стоимость ТОЛЬКО на сервере (безопасность)
+    const numberOfDays = selectedDates.length;
+    const totalPrice = guide.pricePerDay * numberOfDays;
+    const currency = guide.currency || 'TJS'; // ВСЕГДА используем валюту тургида
+
+    // Создать или найти клиента
+    let customer = await prisma.customer.findFirst({
+      where: {
+        OR: [
+          { email: touristEmail },
+          ...(touristPhone ? [{ phone: touristPhone }] : [])
+        ]
+      }
+    });
+
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          fullName: touristName,
+          email: touristEmail,
+          phone: touristPhone || ''
+        }
+      });
+    }
+
+    // АТОМАРНАЯ ТРАНЗАКЦИЯ: Резервация дат + создание Order + создание GuideHireRequest
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. КРИТИЧНО: Повторная проверка доступности ВНУТРИ транзакции
+      const currentGuide = await tx.guide.findUnique({
+        where: { id: guide.id },
+        select: { availableDates: true }
+      });
+
+      if (!currentGuide) {
+        throw new Error('Guide not found in transaction');
+      }
+
+      const currentAvailableDates = parseJsonField(currentGuide.availableDates) || [];
+      const unavailableDatesInTransaction = selectedDates.filter(
+        date => !currentAvailableDates.includes(date)
+      );
+
+      // Если даты стали недоступны между проверкой и транзакцией - откатываем
+      if (unavailableDatesInTransaction.length > 0) {
+        throw new Error(`Даты уже забронированы другим пользователем: ${unavailableDatesInTransaction.join(', ')}`);
+      }
+
+      // 2. Резервируем даты (убираем из availableDates)
+      const newAvailableDates = currentAvailableDates.filter(
+        (date: string) => !selectedDates.includes(date)
+      );
+
+      await tx.guide.update({
+        where: { id: guide.id },
+        data: {
+          availableDates: JSON.stringify(newAvailableDates)
+        }
+      });
+
+      // 3. Создаем GuideHireRequest со статусом "confirmed" (как audit log)
+      const guideHireRequest = await tx.guideHireRequest.create({
+        data: {
+          guideId: guide.id,
+          touristName,
+          touristEmail,
+          touristPhone: touristPhone || null,
+          selectedDates: JSON.stringify(selectedDates),
+          numberOfDays,
+          totalPrice, // Вычислено на сервере из guide.pricePerDay
+          currency,
+          comments: comments || null,
+          status: 'confirmed', // Сразу confirmed, т.к. турист платит
+          paymentStatus: 'unpaid'
+        }
+      });
+
+      // 4. Создаем Order для оплаты
+      const orderNumber = `GH-${Date.now()}-${guide.id}`;
+      const order = await tx.order.create({
+        data: {
+          orderNumber,
+          customerId: customer.id,
+          guideHireRequestId: guideHireRequest.id,
+          tourDate: selectedDates[0], // Первая дата найма (строка)
+          tourists: JSON.stringify([{
+            name: touristName,
+            phone: touristPhone,
+            email: touristEmail
+          }]),
+          wishes: comments || '',
+          totalAmount: totalPrice, // Вычислено на сервере - БЕЗОПАСНО
+          status: 'pending',
+          paymentStatus: 'unpaid'
+        }
+      });
+
+      return {
+        orderNumber: order.orderNumber,
+        totalAmount: order.totalAmount,
+        currency,
+        orderId: order.id,
+        guideHireRequestId: guideHireRequest.id,
+        guideName: guide.name,
+        numberOfDays
+      };
+    });
+
+    console.log(`✅ Direct guide hire order created: ${result.orderNumber}, Amount: ${result.totalAmount} ${result.currency}, Guide: ${result.guideName}, Days: ${result.numberOfDays}`);
+
+    // Отправить email админу о новом платном найме
+    try {
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.tj';
+      await sendEmail({
+        to: adminEmail,
+        subject: `Новый платный найм тургида - ${guide.name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2 style="color: #3E3E3E;">Новый платный найм тургида</h2>
+            
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Информация о заказе</h3>
+              <p><strong>Номер заказа:</strong> ${result.orderNumber}</p>
+              <p><strong>Тургид:</strong> ${guide.name}</p>
+              <p><strong>Количество дней:</strong> ${result.numberOfDays}</p>
+              <p><strong>Сумма:</strong> ${result.totalAmount} ${result.currency}</p>
+              <p><strong>Даты:</strong> ${selectedDates.join(', ')}</p>
+            </div>
+
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0;">Контакты туриста</h3>
+              <p><strong>Имя:</strong> ${touristName}</p>
+              <p><strong>Email:</strong> ${touristEmail}</p>
+              <p><strong>Телефон:</strong> ${touristPhone || 'Не указан'}</p>
+              ${comments ? `<p><strong>Комментарии:</strong> ${comments}</p>` : ''}
+            </div>
+
+            <p><strong>Статус оплаты:</strong> Ожидает оплаты</p>
+            <p>Турист был перенаправлен на страницу оплаты.</p>
+          </div>
+        `
+      });
+    } catch (emailError) {
+      console.error('❌ Failed to send admin notification email:', emailError);
+      // Не прерываем процесс если email не отправился
+    }
+
+    res.json({
+      success: true,
+      data: {
+        orderNumber: result.orderNumber,
+        totalAmount: result.totalAmount,
+        currency: result.currency,
+        orderId: result.orderId,
+        paymentUrl: `/payment-selection.html?orderNumber=${result.orderNumber}&type=guide-hire`
+      },
+      message: 'Заказ создан успешно. Переходите к оплате.'
+    });
+
+  } catch (error) {
+    console.error('❌ Error creating direct guide hire order:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при создании заказа',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };

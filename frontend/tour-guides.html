@@ -409,7 +409,7 @@
                                 
                                 <button type="submit" id="submitHire" disabled
                                         class="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white py-3 px-6 rounded-lg font-semibold transition-colors">
-                                    <span data-translate="guides.submit_hire_request">Отправить заявку на найм</span>
+                                    <span data-translate="guides.proceed_to_payment">Перейти к оплате</span>
                                 </button>
                             </form>
                         </div>
@@ -831,7 +831,8 @@ ${getTranslation('guide.hire')}
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i><span data-translate="guides.processing">Обработка...</span>';
                 
-                // Шаг 1: Создать заявку на найм
+                // Создать прямой заказ на найм (без одобрения админа)
+                // БЕЗОПАСНОСТЬ: currency вычисляется только на сервере из guide.currency
                 const formData = {
                     guideId: selectedGuideId,
                     touristName: document.getElementById('touristName').value.trim(),
@@ -841,8 +842,8 @@ ${getTranslation('guide.hire')}
                     comments: document.getElementById('hireComments').value.trim()
                 };
                 
-                console.log('📝 Creating guide hire request...');
-                const hireResponse = await fetch('/api/guide-hire/hire-request', {
+                console.log('🛒 Creating direct guide hire order...');
+                const orderResponse = await fetch('/api/guide-hire/orders', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -850,31 +851,28 @@ ${getTranslation('guide.hire')}
                     body: JSON.stringify(formData)
                 });
                 
-                const hireResult = await hireResponse.json();
+                const orderResult = await orderResponse.json();
                 
-                if (!hireResult.success) {
-                    throw new Error(hireResult.message || 'Failed to create hire request');
+                if (!orderResult.success) {
+                    throw new Error(orderResult.message || 'Failed to create order');
                 }
                 
-                const hireRequestId = hireResult.data.id;
-                const totalPrice = hireResult.data.totalPrice;
-                const currency = hireResult.data.currency || 'TJS';
+                const { orderNumber, totalAmount, currency, paymentUrl } = orderResult.data;
                 
-                console.log(`✅ Guide hire request created: ID ${hireRequestId}, Amount: ${totalPrice} ${currency}`);
+                console.log(`✅ Direct guide hire order created: ${orderNumber}, Amount: ${totalAmount} ${currency}`);
+                console.log(`🔗 Redirecting to payment page: ${paymentUrl}`);
                 
-                // Показать сообщение об успехе - заказ будет создан после одобрения админом
-                alert(`Заявка на найм тургида успешно отправлена!\n\nСумма: ${totalPrice} ${currency}\n\nНаш администратор проверит доступность гида и свяжется с вами в ближайшее время.\n\nПосле одобрения вы получите ссылку для оплаты на указанный email: ${formData.touristEmail}\n\nСпасибо за ваш запрос!`);
-                
-                closeHireModal();
+                // Немедленный редирект на страницу оплаты
+                window.location.href = paymentUrl;
                 
             } catch (error) {
-                console.error('❌ Error in guide hire flow:', error);
-                alert('Ошибка: ' + error.message);
+                console.error('❌ Error creating guide hire order:', error);
+                alert('Ошибка при создании заказа: ' + error.message);
                 
                 // Восстановить кнопку
                 const submitBtn = document.getElementById('submitHire');
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span data-translate="guides.submit_hire_request">Отправить заявку на найм</span>';
+                submitBtn.innerHTML = '<span data-translate="guides.proceed_to_payment">Перейти к оплате</span>';
             }
         }
 

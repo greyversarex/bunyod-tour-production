@@ -5,10 +5,12 @@ import {
   createGuideHireRequest,
   getGuideHireRequests,
   updateGuideHireRequestStatus,
-  getAvailableGuides
+  getAvailableGuides,
+  createDirectGuideHireOrder
 } from '../controllers/guideHireController';
 import { adminAuthMiddleware } from '../controllers/adminController';
 import { authenticateTourGuide } from '../middleware/tourGuideAuth';
+import { orderLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
 
@@ -16,6 +18,7 @@ const router = Router();
 router.get('/available', getAvailableGuides);
 router.get('/:guideId/availability', getGuideAvailability);
 router.post('/hire-request', createGuideHireRequest);
+router.post('/orders', orderLimiter, createDirectGuideHireOrder); // НОВЫЙ: Прямой заказ без одобрения + rate limiting
 
 // Endpoints для тургидов (требуют авторизации тургида)
 router.put('/:guideId/availability', authenticateTourGuide, updateGuideAvailability);
