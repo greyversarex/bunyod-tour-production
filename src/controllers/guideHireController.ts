@@ -900,41 +900,44 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
       });
     }
 
-    // АТОМАРНАЯ ТРАНЗАКЦИЯ: Резервация дат + создание Order + создание GuideHireRequest
+    // АТОМАРНАЯ ТРАНЗАКЦИЯ с ГАРАНТИРОВАННОЙ ROW-LEVEL БЛОКИРОВКОЙ
+    // Используем 100% raw SQL для полного контроля над блокировкой
     const result = await prisma.$transaction(async (tx) => {
-      // 1. КРИТИЧНО: Повторная проверка доступности ВНУТРИ транзакции
-      const currentGuide = await tx.guide.findUnique({
-        where: { id: guide.id },
-        select: { availableDates: true }
-      });
+      // 1. КРИТИЧНО: Блокируем и читаем тургида одной операцией
+      const lockedGuide = await tx.$queryRaw<Array<{ id: number; availableDates: string }>>`
+        SELECT id, "availableDates" 
+        FROM "Guide" 
+        WHERE id = ${guide.id} 
+        FOR UPDATE
+      `;
 
-      if (!currentGuide) {
+      if (!lockedGuide || lockedGuide.length === 0) {
         throw new Error('Guide not found in transaction');
       }
 
-      const currentAvailableDates = parseJsonField(currentGuide.availableDates) || [];
+      // 2. Проверяем доступность дат ПОСЛЕ блокировки строки
+      const currentAvailableDates = parseJsonField(lockedGuide[0].availableDates) || [];
       const unavailableDatesInTransaction = selectedDates.filter(
         date => !currentAvailableDates.includes(date)
       );
 
-      // Если даты стали недоступны между проверкой и транзакцией - откатываем
+      // Если даты стали недоступны - откатываем транзакцию
       if (unavailableDatesInTransaction.length > 0) {
         throw new Error(`Даты уже забронированы другим пользователем: ${unavailableDatesInTransaction.join(', ')}`);
       }
 
-      // 2. Резервируем даты (убираем из availableDates)
+      // 3. Резервируем даты одним raw SQL UPDATE (гарантирует блокировку)
       const newAvailableDates = currentAvailableDates.filter(
         (date: string) => !selectedDates.includes(date)
       );
 
-      await tx.guide.update({
-        where: { id: guide.id },
-        data: {
-          availableDates: JSON.stringify(newAvailableDates)
-        }
-      });
+      await tx.$executeRaw`
+        UPDATE "Guide" 
+        SET "availableDates" = ${JSON.stringify(newAvailableDates)}
+        WHERE id = ${guide.id}
+      `;
 
-      // 3. Создаем GuideHireRequest со статусом "confirmed" (как audit log)
+      // 4. Создаем GuideHireRequest со статусом "confirmed" (как audit log)
       const guideHireRequest = await tx.guideHireRequest.create({
         data: {
           guideId: guide.id,
@@ -951,7 +954,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
         }
       });
 
-      // 4. Создаем Order для оплаты
+      // 5. Создаем Order для оплаты
       const orderNumber = `GH-${Date.now()}-${guide.id}`;
       const order = await tx.order.create({
         data: {
