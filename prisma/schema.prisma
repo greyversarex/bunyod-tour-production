@@ -363,27 +363,29 @@ model Customer {
 }
 
 model Order {
-  id              Int      @id @default(autoincrement())
-  orderNumber     String   @unique @map("order_number")
-  customerId      Int      @map("customer_id")
-  tourId          Int      @map("tour_id")
-  hotelId         Int?     @map("hotel_id")
-  guideId         Int?     @map("guide_id")
-  tourDate        String   @map("tour_date")
-  tourists        String
-  wishes          String?
-  totalAmount     Float    @map("total_amount")
-  status          String   @default("pending")
-  paymentStatus   String   @default("unpaid") @map("payment_status")
-  paymentMethod   String?  @map("payment_method")
-  paymentIntentId String?  @map("payment_intent_id")
-  receiptData     String?  @map("receipt_data")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  customer        Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  guide           Guide?   @relation(fields: [guideId], references: [id])
-  hotel           Hotel?   @relation(fields: [hotelId], references: [id])
-  tour            Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  id                Int              @id @default(autoincrement())
+  orderNumber       String           @unique @map("order_number")
+  customerId        Int              @map("customer_id")
+  tourId            Int?             @map("tour_id")
+  hotelId           Int?             @map("hotel_id")
+  guideId           Int?             @map("guide_id")
+  transferRequestId Int?             @unique @map("transfer_request_id")
+  tourDate          String           @map("tour_date")
+  tourists          String
+  wishes            String?
+  totalAmount       Float            @map("total_amount")
+  status            String           @default("pending")
+  paymentStatus     String           @default("unpaid") @map("payment_status")
+  paymentMethod     String?          @map("payment_method")
+  paymentIntentId   String?          @map("payment_intent_id")
+  receiptData       String?          @map("receipt_data")
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  customer          Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  guide             Guide?           @relation(fields: [guideId], references: [id])
+  hotel             Hotel?           @relation(fields: [hotelId], references: [id])
+  tour              Tour?            @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  transferRequest   TransferRequest? @relation(fields: [transferRequestId], references: [id])
 
   @@map("orders")
 }
@@ -747,10 +749,13 @@ model TransferRequest {
   adminNotes       String?  @map("admin_notes")
   estimatedPrice   Float?   @map("estimated_price")
   finalPrice       Float?   @map("final_price")
+  paymentStatus    String?  @default("unpaid") @map("payment_status")
+  paymentMethod    String?  @map("payment_method")
   assignedDriverId Int?     @map("assigned_driver_id")
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
   assignedDriver   Driver?  @relation(fields: [assignedDriverId], references: [id])
+  order            Order?
 
   @@map("transfer_requests")
 }

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { TransferRequestModel } from '../models';
 import { CreateTransferRequestData, UpdateTransferRequestData } from '../types';
 import { adminAuthMiddleware } from '../controllers/adminController';
+import { transferPaymentController } from '../controllers/transferPaymentController';
 
 const router = Router();
 
@@ -317,5 +318,11 @@ router.delete('/transfer-requests/:id', adminAuthMiddleware, async (req: Request
     });
   }
 });
+
+/**
+ * Create an order from transfer request for payment processing
+ * POST /api/transfers/:id/create-order
+ */
+router.post('/transfers/:id/create-order', transferPaymentController.createOrderFromTransfer);
 
 export default router;

@@ -242,7 +242,7 @@
             }
         }
 
-        function proceedToPayment() {
+        async function proceedToPayment() {
             if (!selectedPayment) {
                 alert('Пожалуйста, выберите способ оплаты');
                 return;
@@ -252,22 +252,108 @@
             payBtn.disabled = true;
             payBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Обработка...';
 
-            // Here you would normally call the payment API
-            // For now, we'll show a success message
-            setTimeout(() => {
-                alert('Функция оплаты в разработке. Вскоре вы сможете оплатить трансфер онлайн!');
+            try {
+                const transfer = bookingStateManager.state.transfer;
+                const transferId = transfer.id;
+
+                if (!transferId) {
+                    throw new Error('Transfer ID not found');
+                }
+
+                console.log('🔄 Step 1: Creating order from transfer...');
+
+                // STEP 1: Создать Order из TransferRequest
+                const createOrderResponse = await fetch(`/api/transfers/${transferId}/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const orderData = await createOrderResponse.json();
+
+                if (!orderData.success) {
+                    throw new Error(orderData.message || 'Failed to create order');
+                }
+
+                const orderNumber = orderData.data.orderNumber;
+                console.log('✅ Order created:', orderNumber);
+
+                // STEP 2: Инициировать платеж через выбранный метод
+                console.log('🔄 Step 2: Initiating payment with', selectedPayment);
+
+                let paymentResponse;
+
+                if (selectedPayment === 'alifpay') {
+                    paymentResponse = await fetch('/api/payments/alif/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else if (selectedPayment === 'payler') {
+                    paymentResponse = await fetch('/api/payments/payler/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else {
+                    throw new Error('Метод оплаты временно недоступен');
+                }
+
+                const paymentData = await paymentResponse.json();
+                console.log('💳 Payment response:', paymentData);
+
+                if (!paymentData.success) {
+                    throw new Error(paymentData.message || 'Payment initiation failed');
+                }
+
+                // STEP 3: Сохранить информацию о заказе и перенаправить
+                sessionStorage.setItem('completedOrder', JSON.stringify({
+                    orderNumber: orderNumber,
+                    paymentMethod: selectedPayment,
+                    transferId: transferId
+                }));
+
+                // Redirect to payment gateway
+                if (selectedPayment === 'alifpay') {
+                    // AlifPay uses POST form submission
+                    const form = document.createElement('form');
+                    form.method = paymentData.method;
+                    form.action = paymentData.action;
+                    
+                    for (const [key, value] of Object.entries(paymentData.formData)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        form.appendChild(input);
+                    }
+                    
+                    document.body.appendChild(form);
+                    console.log('🔄 Redirecting to AlifPay...');
+                    form.submit();
+                } else if (selectedPayment === 'payler') {
+                    // Payler uses direct URL redirect
+                    console.log('🔄 Redirecting to Payler:', paymentData.paymentUrl);
+                    window.location.href = paymentData.paymentUrl;
+                }
+
+            } catch (error) {
+                console.error('❌ Payment error:', error);
+                alert('Ошибка при обработке платежа: ' + error.message);
                 payBtn.disabled = false;
                 payBtn.innerHTML = '<span>Оплатить</span> <span id="pay-amount">' + 
                     bookingStateManager.state.pricing.grandTotal + ' ' + 
                     bookingStateManager.state.pricing.currency + '</span>';
-            }, 1000);
-
-            console.log('💰 Processing payment:', {
-                method: selectedPayment,
-                amount: bookingStateManager.state.pricing.grandTotal,
-                currency: bookingStateManager.state.pricing.currency,
-                transfer: bookingStateManager.state.transfer
-            });
+            }
         }
     </script>
 </body>
