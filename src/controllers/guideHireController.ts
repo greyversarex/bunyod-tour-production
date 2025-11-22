@@ -987,43 +987,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
 
     console.log(`✅ Direct guide hire order created: ${result.orderNumber}, Amount: ${result.totalAmount} ${result.currency}, Guide: ${result.guideName}, Days: ${result.numberOfDays}`);
 
-    // Отправить email админу о новом платном найме
-    try {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.tj';
-      await sendEmail({
-        to: adminEmail,
-        subject: `Новый платный найм тургида - ${guide.name}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #3E3E3E;">Новый платный найм тургида</h2>
-            
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0;">Информация о заказе</h3>
-              <p><strong>Номер заказа:</strong> ${result.orderNumber}</p>
-              <p><strong>Тургид:</strong> ${guide.name}</p>
-              <p><strong>Количество дней:</strong> ${result.numberOfDays}</p>
-              <p><strong>Сумма:</strong> ${result.totalAmount} ${result.currency}</p>
-              <p><strong>Даты:</strong> ${selectedDates.join(', ')}</p>
-            </div>
-
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="margin-top: 0;">Контакты туриста</h3>
-              <p><strong>Имя:</strong> ${touristName}</p>
-              <p><strong>Email:</strong> ${touristEmail}</p>
-              <p><strong>Телефон:</strong> ${touristPhone || 'Не указан'}</p>
-              ${comments ? `<p><strong>Комментарии:</strong> ${comments}</p>` : ''}
-            </div>
-
-            <p><strong>Статус оплаты:</strong> Ожидает оплаты</p>
-            <p>Турист был перенаправлен на страницу оплаты.</p>
-          </div>
-        `
-      });
-    } catch (emailError) {
-      console.error('❌ Failed to send admin notification email:', emailError);
-      // Не прерываем процесс если email не отправился
-    }
-
+    // СНАЧАЛА отправляем ответ клиенту (не блокируем)
     res.json({
       success: true,
       data: {
@@ -1034,6 +998,47 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
         paymentUrl: `/payment-selection.html?orderNumber=${result.orderNumber}&type=guide-hire`
       },
       message: 'Заказ создан успешно. Переходите к оплате.'
+    });
+
+    // ПОТОМ отправляем email админу (неблокирующе, в фоне)
+    // Если email зависнет - это не повлияет на пользователя
+    setImmediate(async () => {
+      try {
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.tj';
+        await sendEmail({
+          to: adminEmail,
+          subject: `Новый платный найм тургида - ${guide.name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #3E3E3E;">Новый платный найм тургида</h2>
+              
+              <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Информация о заказе</h3>
+                <p><strong>Номер заказа:</strong> ${result.orderNumber}</p>
+                <p><strong>Тургид:</strong> ${guide.name}</p>
+                <p><strong>Количество дней:</strong> ${result.numberOfDays}</p>
+                <p><strong>Сумма:</strong> ${result.totalAmount} ${result.currency}</p>
+                <p><strong>Даты:</strong> ${selectedDates.join(', ')}</p>
+              </div>
+
+              <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="margin-top: 0;">Контакты туриста</h3>
+                <p><strong>Имя:</strong> ${touristName}</p>
+                <p><strong>Email:</strong> ${touristEmail}</p>
+                <p><strong>Телефон:</strong> ${touristPhone || 'Не указан'}</p>
+                ${comments ? `<p><strong>Комментарии:</strong> ${comments}</p>` : ''}
+              </div>
+
+              <p><strong>Статус оплаты:</strong> Ожидает оплаты</p>
+              <p>Турист был перенаправлен на страницу оплаты.</p>
+            </div>
+          `
+        });
+        console.log('✅ Admin notification email sent successfully');
+      } catch (emailError) {
+        console.error('❌ Failed to send admin notification email:', emailError);
+        // Email ошибка не влияет на пользователя
+      }
     });
 
   } catch (error) {
