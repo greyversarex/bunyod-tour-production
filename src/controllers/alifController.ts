@@ -44,6 +44,54 @@ export const alifController = {
         });
       }
 
+      // 🔒 SECURITY: Payment revalidation для guide hire orders
+      if (order.guideHireRequestId && order.guideHireRequest) {
+        const guideHireRequest = order.guideHireRequest;
+        const guide = guideHireRequest.guide;
+
+        if (!guide) {
+          return res.status(404).json({
+            success: false,
+            message: 'Guide not found for hire request',
+          });
+        }
+
+        // Проверить что у тургида установлена цена
+        if (!guide.pricePerDay || guide.pricePerDay <= 0) {
+          console.error(`❌ Guide hire payment validation failed: Guide has no price`);
+          return res.status(400).json({
+            success: false,
+            message: 'У тургида не установлена цена',
+          });
+        }
+
+        // Пересчитать ожидаемую цену на основе актуальных данных тургида
+        const expectedPrice = guide.pricePerDay * guideHireRequest.numberOfDays;
+
+        // Сравнить с суммой в заказе (допускаем погрешность 0.01 из-за округления)
+        if (Math.abs(order.totalAmount - expectedPrice) > 0.01) {
+          console.error(`❌ Guide hire payment validation failed: Expected ${expectedPrice}, got ${order.totalAmount}`);
+          return res.status(400).json({
+            success: false,
+            message: 'Цена тургида изменилась. Пожалуйста, создайте новый заказ с актуальной ценой.',
+            expectedPrice,
+            currentPrice: order.totalAmount
+          });
+        }
+
+        // Проверить что заявка на найм все еще активна (confirmed)
+        // ВАЖНО: Даты УЖЕ удалены из availableDates при создании заказа, это нормально
+        if (guideHireRequest.status !== 'confirmed') {
+          console.error(`❌ Guide hire payment validation failed: Request status is ${guideHireRequest.status}`);
+          return res.status(400).json({
+            success: false,
+            message: `Заявка на найм недействительна (статус: ${guideHireRequest.status})`,
+          });
+        }
+
+        console.log(`✅ Guide hire payment validated: ${guide.pricePerDay} x ${guideHireRequest.numberOfDays} days = ${expectedPrice} TJS`);
+      }
+
       const key = process.env.ALIF_MERCHANT_KEY;
       const password = process.env.ALIF_MERCHANT_PASSWORD;
       const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
