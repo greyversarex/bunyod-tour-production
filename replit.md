@@ -90,6 +90,17 @@ The Bunyod-Tour platform is built with a modular MVC architecture using Express.
     -   **Active in Controllers**: Alif, Payler, Order, Booking, Tour controllers - emails triggered on successful payment/booking
     -   **Status**: All secrets configured ✅, service ready to send emails upon payment events
 
+-   **Transfer Payment Integration** (Nov 22, 2025):
+    -   **Database Schema**: Extended Order model with `transferRequestId` field (nullable, unique) for one-to-one relation with TransferRequest
+    -   **TransferRequest Extensions**: Added `paymentStatus` (default: "unpaid") and `paymentMethod` fields to track payment lifecycle
+    -   **Payment Flow**: Reuses existing Booking→Order→Payment architecture with nullable `tourId` in Order model
+    -   **API Endpoint**: `POST /api/transfers/:id/create-order` validates transfer status (approved/confirmed), assigned driver, and finalPrice before order creation
+    -   **Validation Logic**: Enforces business rules: only approved/confirmed transfers with assigned drivers and valid prices can initiate payment
+    -   **Payment Controllers**: Updated `alifController.ts` and `paylerController.ts` to include `transferRequest` relation in Order queries
+    -   **Frontend Integration**: `transfer-payment.html` implements 3-step flow (create order → initiate payment → redirect to Payler/AlifPay gateway)
+    -   **Null Safety**: Fixed `orderController.ts` and `customerController.ts` to handle nullable `order.tour` references for transfer orders
+    -   **Status**: MVP functional ✅, core payment flow operational for transfer requests
+
 ## External Dependencies
 
 -   **Database**: PostgreSQL
