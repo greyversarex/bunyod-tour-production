@@ -318,7 +318,7 @@
                     <div class="pt-4">
                         <button type="submit" id="submitBtn"
                             class="w-full text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="background: #6B7280;">
-                            <span id="submitText" data-i18n="transfer_submit_btn">Забронировать и оплатить</span>
+                            <span id="submitText" data-i18n="transfer_submit_btn">Забронировать</span>
                             <span id="loadingText" class="hidden">
                                 <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -539,60 +539,70 @@
                         console.log('Ответ сервера:', result);
                         
                         if (result.success) {
-                            // 🚗 Сохраняем данные трансфера в booking state для оплаты
-                            const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
-                            const vehiclePrice = selectedVehicle?.pricePerDay || 0;
-                            const currency = selectedVehicle?.currency || window.selectedCurrency || 'TJS';
-                            
-                            // Инициализируем booking state
-                            bookingStateManager.init();
-                            
-                            // Используем правильные методы bookingStateManager для сохранения
-                            bookingStateManager.setBookingId(result.data?.id || null);
-                            
-                            // Устанавливаем тип бронирования как трансфер
-                            bookingStateManager.state.bookingType = 'transfer';
-                            
-                            // Сохраняем данные трансфера в отдельное поле
-                            bookingStateManager.state.transfer = {
-                                id: result.data?.id,
-                                vehicleId: selectedVehicleId,
-                                vehicleName: selectedVehicle ? (window.currentLanguage === 'ru' ? selectedVehicle.nameRu : selectedVehicle.nameEn) : '',
-                                countryId: parseInt(formData.get('transferCountry')),
-                                cityId: parseInt(formData.get('transferCity')),
-                                pickupLocation: formData.get('pickupLocation'),
-                                dropoffLocation: formData.get('dropoffLocation'),
-                                pickupDate: formData.get('pickupDate'),
-                                pickupTime: formData.get('pickupTime'),
-                                numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
-                                specialRequests: formData.get('specialRequests') || ''
-                            };
-                            
-                            // Устанавливаем контактные данные
-                            bookingStateManager.setContact({
-                                name: formData.get('fullName'),
-                                phone: phone,
-                                email: email
-                            });
-                            
-                            // Устанавливаем цены
-                            bookingStateManager.state.pricing.tourBasePrice = 0;
-                            bookingStateManager.state.pricing.transferPrice = vehiclePrice;
-                            bookingStateManager.state.pricing.roomSurcharge = 0;
-                            bookingStateManager.state.pricing.mealSurcharge = 0;
-                            bookingStateManager.state.pricing.grandTotal = vehiclePrice;
-                            bookingStateManager.state.pricing.currency = currency;
-                            
-                            // Устанавливаем язык и валюту
-                            bookingStateManager.setLanguage(window.currentLanguage || 'ru');
-                            bookingStateManager.setSelectedCurrency(currency);
-                            
-                            // Сохраняем состояние в sessionStorage
-                            bookingStateManager.persist();
-                            console.log('✅ Transfer data saved to booking state:', bookingStateManager.state);
-                            
-                            // Перенаправляем на страницу оплаты трансфера
-                            window.location.href = '/transfer-payment.html';
+                            try {
+                                // 🚗 Сохраняем данные трансфера в booking state для оплаты
+                                const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
+                                const vehiclePrice = selectedVehicle?.pricePerDay || 0;
+                                const currency = selectedVehicle?.currency || window.selectedCurrency || 'TJS';
+                                
+                                // Инициализируем booking state
+                                bookingStateManager.init();
+                                
+                                // Используем правильные методы bookingStateManager для сохранения
+                                bookingStateManager.setBookingId(result.data?.id || null);
+                                
+                                // Устанавливаем тип бронирования как трансфер
+                                bookingStateManager.state.bookingType = 'transfer';
+                                
+                                // Сохраняем данные трансфера в отдельное поле
+                                bookingStateManager.state.transfer = {
+                                    id: result.data?.id,
+                                    vehicleId: selectedVehicleId,
+                                    vehicleName: selectedVehicle ? (window.currentLanguage === 'ru' ? selectedVehicle.nameRu : selectedVehicle.nameEn) : '',
+                                    countryId: parseInt(formData.get('transferCountry')) || 0,
+                                    cityId: parseInt(formData.get('transferCity')) || 0,
+                                    pickupLocation: formData.get('pickupLocation') || '',
+                                    dropoffLocation: formData.get('dropoffLocation') || '',
+                                    pickupDate: formData.get('pickupDate') || '',
+                                    pickupTime: formData.get('pickupTime') || '',
+                                    numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
+                                    specialRequests: formData.get('specialRequests') || ''
+                                };
+                                
+                                // Устанавливаем контактные данные
+                                bookingStateManager.setContact({
+                                    name: formData.get('fullName') || '',
+                                    phone: phone || '',
+                                    email: email || ''
+                                });
+                                
+                                // Устанавливаем цены
+                                bookingStateManager.state.pricing.tourBasePrice = 0;
+                                bookingStateManager.state.pricing.transferPrice = vehiclePrice;
+                                bookingStateManager.state.pricing.roomSurcharge = 0;
+                                bookingStateManager.state.pricing.mealSurcharge = 0;
+                                bookingStateManager.state.pricing.grandTotal = vehiclePrice;
+                                bookingStateManager.state.pricing.currency = currency;
+                                
+                                // Устанавливаем язык и валюту
+                                bookingStateManager.setLanguage(window.currentLanguage || 'ru');
+                                bookingStateManager.setSelectedCurrency(currency);
+                                
+                                // Сохраняем состояние в sessionStorage
+                                bookingStateManager.persist();
+                                console.log('✅ Transfer data saved to booking state:', bookingStateManager.state);
+                                
+                                // Небольшая задержка перед редиректом
+                                setTimeout(() => {
+                                    window.location.href = '/transfer-payment.html';
+                                }, 100);
+                            } catch (saveError) {
+                                console.error('Ошибка при сохранении данных:', saveError);
+                                // Все равно перенаправляем на страницу оплаты
+                                setTimeout(() => {
+                                    window.location.href = '/transfer-payment.html';
+                                }, 100);
+                            }
                             
                         } else {
                             // Ошибка валидации или сервера

@@ -156,7 +156,7 @@ window.translations = window.translations || {
     'transfer_no_vehicles': { ru: 'Автомобили не найдены. Попробуйте изменить параметры поиска.', en: 'No vehicles found. Try changing search parameters.' },
     'transfer_special_requests': { ru: 'Дополнительные пожелания', en: 'Special Requests' },
     'transfer_special_requests_placeholder': { ru: 'Детское автокресло, остановки в пути, особые требования...', en: 'Child seat, stops along the way, special requirements...' },
-    'transfer_submit_btn': { ru: 'Забронировать и оплатить', en: 'Book and Pay' },
+    'transfer_submit_btn': { ru: 'Забронировать', en: 'Book Now' },
     'transfer_submit_sending': { ru: 'Отправляется...', en: 'Sending...' },
     'transfer_success_title': { ru: 'Заявка отправлена!', en: 'Request Sent!' },
     'transfer_success_message': { ru: 'Мы свяжемся с вами в ближайшее время для подтверждения трансфера.', en: 'We will contact you shortly to confirm your transfer.' },
