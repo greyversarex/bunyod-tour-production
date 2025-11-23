@@ -160,10 +160,28 @@
                 if (result.success) {
                     // Redirect to payment gateway
                     if (result.data.paymentUrl) {
+                        // Direct URL redirect (Payler new format)
                         window.location.href = result.data.paymentUrl;
                     } else if (result.data.sessionId) {
-                        // Payler: redirect to payment page
+                        // Payler: redirect to payment page (legacy format)
                         window.location.href = `https://merchant.payler.com/gapi/Pay?session_id=${result.data.sessionId}`;
+                    } else if (result.data.method && result.data.action && result.data.formData) {
+                        // AlifPay: submit POST form
+                        const form = document.createElement('form');
+                        form.method = result.data.method;
+                        form.action = result.data.action;
+                        
+                        // Add form fields
+                        Object.keys(result.data.formData).forEach(key => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = result.data.formData[key];
+                            form.appendChild(input);
+                        });
+                        
+                        document.body.appendChild(form);
+                        form.submit();
                     } else {
                         alert('Ошибка: URL оплаты не получен');
                     }

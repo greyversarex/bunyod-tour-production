@@ -132,19 +132,21 @@ export const alifController = {
 
       return res.json({
         success: true,
-        method: 'POST',
-        action: 'https://web.alif.tj/',
-        formData: {
-          key,
-          token,
-          orderId,
-          amount: amountFormatted,
-          callbackUrl,
-          returnUrl,
-          info,
-          email,
-          phone,
-          gate
+        data: {
+          method: 'POST',
+          action: 'https://web.alif.tj/',
+          formData: {
+            key,
+            token,
+            orderId,
+            amount: amountFormatted,
+            callbackUrl,
+            returnUrl,
+            info,
+            email,
+            phone,
+            gate
+          }
         }
       });
 

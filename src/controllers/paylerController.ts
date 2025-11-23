@@ -95,7 +95,7 @@ export const paylerController = {
       }
 
       const paylerKey = process.env.PAYLER_KEY;
-      const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+      const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
 
       if (!paylerKey) {
         return res.status(500).json({
@@ -109,9 +109,9 @@ export const paylerController = {
       const amount = Math.round(order.totalAmount * 100);
       const orderId = order.id.toString();
 
-      // URLs для возврата
-      const returnUrl = `${baseUrl}/payment-success?orderNumber=${orderNumber}`;
-      const failUrl = `${baseUrl}/payment-fail?orderNumber=${orderNumber}`;
+      // URLs для возврата (используем FRONTEND_URL для production)
+      const returnUrl = `${frontendUrl}/payment-success?orderNumber=${orderNumber}`;
+      const failUrl = `${frontendUrl}/payment-fail?orderNumber=${orderNumber}`;
 
       // Email клиента (обязательный параметр)
       const customerEmail = order.customer?.email || 'noemail@bunyodtour.com';
@@ -197,8 +197,10 @@ export const paylerController = {
 
       return res.json({
         success: true,
-        redirectUrl,
-        sessionId,
+        data: {
+          sessionId,
+          paymentUrl: redirectUrl
+        }
       });
 
     } catch (error) {
