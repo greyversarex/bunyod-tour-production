@@ -108,8 +108,23 @@ if ! sudo -u postgres psql -d "$DB_NAME" -f "$APP_DIR/manual_migrations/002_cust
 fi
 echo "✅ Миграция custom_tour_orders успешно применена"
 
-# Prisma db push (синхронизация схемы, не должна падать всё)
-npx prisma db push || true
+# Миграция Order relations (добавление transfer_request_id, guide_hire_request_id) - КРИТИЧНА!
+echo "🔄 Применяю миграцию Order relations (transfer/guide hire)..."
+if ! sudo -u postgres psql -d "$DB_NAME" -f "$APP_DIR/manual_migrations/003_add_order_relations.sql"; then
+  echo "❌ ОШИБКА: Миграция Order relations не применилась!"
+  echo "❌ Прерываю deploy - schema не синхронизирована с БД"
+  exit 1
+fi
+echo "✅ Миграция Order relations успешно применена"
+
+# Prisma db push (синхронизация схемы) - ДОЛЖНА пройти успешно!
+echo "🔄 Синхронизация Prisma схемы с БД..."
+if ! npx prisma db push --accept-data-loss; then
+  echo "❌ ОШИБКА: Prisma db push не удался!"
+  echo "❌ Schema не синхронизирована с БД"
+  exit 1
+fi
+echo "✅ Prisma схема синхронизирована"
 
 echo "🚀 Перезапуск приложения через PM2..."
 pm2 startOrReload ecosystem.config.js --only "$PM2_APP"
