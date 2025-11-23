@@ -1,0 +1,118 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 200 | grep -A 10 -B 10 "payment\|payler\|alif"
+0|bunyod-t | 2025-11-23T22:14:09: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-23T22:14:09: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-23T22:14:13: 🔄 Creating order from booking: { bookingId: '99', paymentOption: 'full' }
+0|bunyod-t | 2025-11-23T22:14:13: 💳 Full payment: 1487 TJS
+0|bunyod-t | 2025-11-23T22:14:13: 🔄 Creating AlifPay Legacy payment: Order 39, Amount 1487 TJS
+
+^C
+[root@archlinux bunyod-tour]# tail -100 /srv/bunyod-tour/logs/pm2-out.log
+2025-11-23T22:13:52: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763625053148-85432047.png
+2025-11-23T22:13:52: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763625053007-696442503.png
+2025-11-23T22:13:52: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763625053007-696442503.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701149710-761684985.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701149710-761684985.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701149810-173173756.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701149810-173173756.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562453722-921576824.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562453722-921576824.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562443389-304017906.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562443389-304017906.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562453621-725694029.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562453621-725694029.png
+2025-11-23T22:13:53: 📋 Found 0 tours for block 5 (via new assignment system)
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562453953-937832597.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562453953-937832597.png
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763623850050-264549614.png
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763623850050-264549614.png
+2025-11-23T22:13:53: 📋 Found 0 tours for block 6 (via new assignment system)
+2025-11-23T22:13:53: 📋 Found 1 tours for block 7 (via new assignment system)
+2025-11-23T22:13:53: 🔄 Middleware check - Original URL: /placeholder-tour.jpg
+2025-11-23T22:13:53: 🔄 Middleware check - Decoded URL: /placeholder-tour.jpg
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /tour-template.html?tour=33
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /tour-template.html?tour=33
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/js/i18n.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/js/i18n.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/js/multilingual-utils.js?v=2.5
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/js/multilingual-utils.js?v=2.5
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/js/utils.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/js/utils.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/js/layout-loader.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js?v=1759745702
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:13:56: 📋 getTourById called with: { id: 33, language: 'ru', includeRaw: false }
+2025-11-23T22:13:56: 🔍 Searching for tour with ID: 33
+2025-11-23T22:13:56: 📦 Found tour: Yes
+2025-11-23T22:13:56: ✅ Returning tour data successfully for ID: 33 Language: ru
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701129493-370460267.png
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701129493-370460267.png
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701149607-616015407.png
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701149607-616015407.png
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701149810-173173756.png
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701149810-173173756.png
+2025-11-23T22:13:56: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763701149710-761684985.png
+2025-11-23T22:13:56: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763701149710-761684985.png
+2025-11-23T22:14:00: 📋 startBooking получил данные: {
+2025-11-23T22:14:00:   tourId: 33,
+2025-11-23T22:14:00:   hotelId: undefined,
+2025-11-23T22:14:00:   tourDate: '2025-11-29',
+2025-11-23T22:14:00:   numberOfTourists: 1
+2025-11-23T22:14:00: }
+2025-11-23T22:14:00: 📋 Типы данных: {
+2025-11-23T22:14:00:   tourIdType: 'number',
+2025-11-23T22:14:00:   tourDateType: 'string',
+2025-11-23T22:14:00:   numberOfTouristsType: 'number'
+2025-11-23T22:14:00: }
+2025-11-23T22:14:00: 💰 Price calculation: 1487 × 1 tourists = 1487 TJS (group_private, per_person)
+2025-11-23T22:14:00: 📋 Serving booking step 2 with params: [Object: null prototype] { bookingId: '99' }
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /public/js/i18n.js
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /public/js/booking-state.js
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /public/js/booking-state.js
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:14:00: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+2025-11-23T22:14:00: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+2025-11-23T22:14:09: ✅ Step 2 - Preserving final price from Step 1: 1487 TJS (NO recalculation)
+2025-11-23T22:14:09: 📋 Serving booking-step3.html with params: [Object: null prototype] { bookingId: '99' }
+2025-11-23T22:14:09: 🔄 Middleware check - Original URL: /public/js/i18n.js
+2025-11-23T22:14:09: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+2025-11-23T22:14:09: 🔄 Middleware check - Original URL: /public/js/booking-state.js
+2025-11-23T22:14:09: 🔄 Middleware check - Decoded URL: /public/js/booking-state.js
+2025-11-23T22:14:09: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+2025-11-23T22:14:09: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+2025-11-23T22:14:10: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:14:10: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+2025-11-23T22:14:13: 🔄 Creating order from booking: { bookingId: '99', paymentOption: 'full' }
+2025-11-23T22:14:13: 💳 Full payment: 1487 TJS
+2025-11-23T22:14:13: 🔄 Creating AlifPay Legacy payment: Order 39, Amount 1487 TJS
+[root@archlinux bunyod-tour]#
