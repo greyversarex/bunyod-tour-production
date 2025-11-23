@@ -323,6 +323,6 @@ router.delete('/transfer-requests/:id', adminAuthMiddleware, async (req: Request
  * Create an order from transfer request for payment processing
  * POST /api/transfers/:id/create-order
  */
-router.post('/transfers/:id/create-order', transferPaymentController.createOrderFromTransfer);
+router.post('/:id/create-order', transferPaymentController.createOrderFromTransfer);
 
 export default router;
