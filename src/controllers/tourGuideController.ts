@@ -866,8 +866,8 @@ export const collectGuideReviews = async (req: Request, res: Response): Promise<
       guideName = (guide.name as any).ru || (guide.name as any).en || 'Гид';
     }
 
-    // Отправляем email каждому туристу
-    const reviewUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/guide-review-form.html?guideId=${guideId}`;
+    // Отправляем email каждому туристу с универсальной формой отзыва
+    const reviewUrl = `${process.env.FRONTEND_URL || 'http://localhost:5000'}/leave-review.html`;
     
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
@@ -891,11 +891,11 @@ export const collectGuideReviews = async (req: Request, res: Response): Promise<
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #333;">Здравствуйте, ${tourist.name}!</h2>
-                <p style="font-size: 16px; line-height: 1.6;">Спасибо за участие в туре! Мы будем очень признательны, если вы поделитесь своими впечатлениями о работе нашего гида <strong>${guideName}</strong>.</p>
+                <p style="font-size: 16px; line-height: 1.6;">Спасибо за участие в туре! Мы будем очень признательны, если вы поделитесь своими впечатлениями о туре и о работе нашего гида <strong>${guideName}</strong>.</p>
                 <p style="font-size: 16px; line-height: 1.6;">Ваш отзыв поможет нам улучшить качество обслуживания и другим туристам сделать правильный выбор.</p>
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${reviewUrl}" style="background: linear-gradient(135deg, #9333EA 0%, #7E22CE 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
-                    ⭐ Оставить отзыв о гиде
+                  <a href="${reviewUrl}" style="background: linear-gradient(135deg, #3E3E3E 0%, #6B7280 100%); color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; font-size: 16px;">
+                    ⭐ Оставить отзыв
                   </a>
                 </div>
                 <p style="font-size: 14px; color: #666;">Это займет всего пару минут!</p>
