@@ -1,0 +1,60 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 50 | grep -A 10 -B 10 "transfer\|order"
+[TAILING] Tailing last 50 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 50 lines:
+0|bunyod-t | 2025-11-23T06:41:17:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-11-23T06:41:17:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-23T06:41:17:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:31: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:31:
+0|bunyod-t | 2025-11-23T16:08:31:
+0|bunyod-t | 2025-11-23T16:08:31: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:31:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:31:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:08:31:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:08:31:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:08:31:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:31: }
+0|bunyod-t | 2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:36:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:08:36:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:08:36:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:08:36:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:36: }
+0|bunyod-t | 2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:20:14:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:20:14:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:20:14:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:20:14:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:20:14: }
+0|bunyod-t | 2025-11-24T00:41:40: ❌ Payler StartSession failed: 400 Bad Request
+
+/srv/bunyod-tour/logs/pm2-out.log last 50 lines:
+0|bunyod-t | 2025-11-24T00:55:34: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562453621-725694029.png
+0|bunyod-t | 2025-11-24T00:55:34: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562453722-921576824.png
+0|bunyod-t | 2025-11-24T00:55:34: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1763562453722-921576824.png
+0|bunyod-t | 2025-11-24T00:55:34: 📋 Found 0 tours for block 5 (via new assignment system)
+0|bunyod-t | 2025-11-24T00:55:34: 🔄 Middleware check - Original URL: /api/objects/direct/image-1763562453953-937832597.png
