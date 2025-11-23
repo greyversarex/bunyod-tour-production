@@ -1,0 +1,395 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 100 --nostream | grep -A 5 -B 5 -i "error\|payment\|payler\|alif"
+[TAILING] Tailing last 100 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-21T11:46:53:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-21T11:46:53:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-21T13:04:59: ❌ TEST 1 FAILED: Connection timeout
+0|bunyod-t | 2025-11-21T15:13:17: Email send error: Error: Connection timeout
+0|bunyod-t | 2025-11-21T15:13:17:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-21T15:13:17:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-21T15:13:17:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-21T15:13:17:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-21T15:13:17:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-21T15:13:17:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-21T15:13:17:   command: 'CONN'
+0|bunyod-t | 2025-11-21T15:13:17: }
+0|bunyod-t | 2025-11-21T15:50:27: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-21T15:50:27:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-11-21T15:50:27:     at /srv/bunyod-tour/index.js:167:22
+0|bunyod-t | 2025-11-21T15:50:27:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-11-21T15:50:27:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-11-21T15:50:27:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-11-21T15:50:27:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-11-21T15:50:27:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-21T15:50:27:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-21T15:50:27:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-21T15:50:27:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-22T20:40:43: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-22T20:40:43:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-11-22T20:40:43:     at /srv/bunyod-tour/index.js:167:22
+0|bunyod-t | 2025-11-22T20:40:43:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-11-22T20:40:43:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-11-22T20:40:43:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-11-22T20:40:43:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-11-22T20:40:43:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-22T20:40:43:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-22T20:40:43:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-22T20:40:43:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-23T06:41:16: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-23T06:41:16:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-11-23T06:41:16:     at /srv/bunyod-tour/index.js:167:22
+0|bunyod-t | 2025-11-23T06:41:16:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-11-23T06:41:16:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-11-23T06:41:16:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-11-23T06:41:16:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-11-23T06:41:16:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-23T06:41:16:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-23T06:41:16:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-23T06:41:16:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-23T06:41:17: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-23T06:41:17:     at decodeURIComponent (<anonymous>)
+0|bunyod-t | 2025-11-23T06:41:17:     at /srv/bunyod-tour/index.js:167:22
+0|bunyod-t | 2025-11-23T06:41:17:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+0|bunyod-t | 2025-11-23T06:41:17:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+0|bunyod-t | 2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+0|bunyod-t | 2025-11-23T06:41:17:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+0|bunyod-t | 2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+0|bunyod-t | 2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+0|bunyod-t | 2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+0|bunyod-t | 2025-11-23T06:41:17:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+0|bunyod-t | 2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:31: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:31:
+0|bunyod-t | 2025-11-23T16:08:31:
+0|bunyod-t | 2025-11-23T16:08:31: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:31:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:31:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:08:31:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:08:31:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:08:31:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:31: }
+0|bunyod-t | 2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:36:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:08:36:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:08:36:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:08:36:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:36: }
+0|bunyod-t | 2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:20:14:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:20:14:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:20:14:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+--
+0|bunyod-t | 2025-11-23T21:06:12: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-23T21:06:12: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-23T21:06:12: 🔄 Middleware check - Original URL: /uploads/vehicles/vehicle-1763725872921-303762591.webp
+0|bunyod-t | 2025-11-23T21:06:12: 🔄 Middleware check - Decoded URL: /uploads/vehicles/vehicle-1763725872921-303762591.webp
+0|bunyod-t | 2025-11-23T21:06:12: ✅ Serving vehicle image: /vehicle-1763725872921-303762591.webp
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Original URL: /transfer-payment.html
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Decoded URL: /transfer-payment.html
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Original URL: /public/js/booking-state.js
+0|bunyod-t | 2025-11-23T21:06:28: 🔄 Middleware check - Decoded URL: /public/js/booking-state.js
+0|bunyod-t | 2025-11-23T21:06:29: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+[root@archlinux bunyod-tour]# tail -200 /srv/bunyod-tour/logs/pm2-error.log
+2025-11-19T12:49:08:     at ServerResponse.setHeader (node:_http_outgoing:642:11)
+2025-11-19T12:49:08:     at ServerResponse.header (/srv/bunyod-tour/node_modules/express/lib/response.js:684:10)
+2025-11-19T12:49:08:     at ServerResponse.send (/srv/bunyod-tour/node_modules/express/lib/response.js:161:12)
+2025-11-19T12:49:08:     at ServerResponse.json (/srv/bunyod-tour/node_modules/express/lib/response.js:250:15)
+2025-11-19T12:49:08:     at /srv/bunyod-tour/index.js:312:19
+2025-11-19T12:49:08:     at Layer.handleError (/srv/bunyod-tour/node_modules/router/lib/layer.js:116:17)
+2025-11-19T12:49:08:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:340:13)
+2025-11-19T12:49:08:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-19T12:49:08:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-19T12:49:08:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-19T18:12:24: Global error handler: URIError: URI malformed
+2025-11-19T18:12:24:     at decodeURIComponent (<anonymous>)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/index.js:167:22
+2025-11-19T18:12:24:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-19T18:12:24:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-19T18:12:24:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-19T18:12:24:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-19T18:12:24:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-19T18:12:24:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-19T18:12:24: Global error handler: URIError: URI malformed
+2025-11-19T18:12:24:     at decodeURIComponent (<anonymous>)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/index.js:167:22
+2025-11-19T18:12:24:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-19T18:12:24:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-19T18:12:24:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-19T18:12:24:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-19T18:12:24:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-19T18:12:24:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-19T18:12:24:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-20T17:24:28: Global error handler: URIError: URI malformed
+2025-11-20T17:24:28:     at decodeURIComponent (<anonymous>)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/index.js:167:22
+2025-11-20T17:24:28:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-20T17:24:28:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-20T17:24:28:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-20T17:24:28:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-20T17:24:28:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-20T17:24:28:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-20T17:24:28: Global error handler: URIError: URI malformed
+2025-11-20T17:24:28:     at decodeURIComponent (<anonymous>)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/index.js:167:22
+2025-11-20T17:24:28:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-20T17:24:28:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-20T17:24:28:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-20T17:24:28:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-20T17:24:28:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-20T17:24:28:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-20T17:24:28:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-20T22:46:40: Global error handler: URIError: URI malformed
+2025-11-20T22:46:40:     at decodeURIComponent (<anonymous>)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/index.js:167:22
+2025-11-20T22:46:40:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-20T22:46:40:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-20T22:46:40:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-20T22:46:40:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-20T22:46:40:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-20T22:46:40:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-20T22:46:40: Global error handler: URIError: URI malformed
+2025-11-20T22:46:40:     at decodeURIComponent (<anonymous>)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/index.js:167:22
+2025-11-20T22:46:40:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-20T22:46:40:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-20T22:46:40:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-20T22:46:40:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-20T22:46:40:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-20T22:46:40:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-20T22:46:40:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-21T09:44:52:
+2025-11-21T09:44:52: ⚠️  ПРЕДУПРЕЖДЕНИЕ: Отсутствуют опциональные переменные:
+2025-11-21T09:44:52:   - SMTP_USER
+2025-11-21T09:44:52:   - SMTP_PASS
+2025-11-21T09:44:52: Некоторые функции могут не работать (платежи, email рассылка).
+2025-11-21T09:44:52:
+2025-11-21T11:46:53: Global error handler: URIError: URI malformed
+2025-11-21T11:46:53:     at decodeURIComponent (<anonymous>)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/index.js:167:22
+2025-11-21T11:46:53:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-21T11:46:53:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-21T11:46:53:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-21T11:46:53:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-21T11:46:53: Global error handler: URIError: URI malformed
+2025-11-21T11:46:53:     at decodeURIComponent (<anonymous>)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/index.js:167:22
+2025-11-21T11:46:53:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-21T11:46:53:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-21T11:46:53:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-21T11:46:53:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-21T11:46:53:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-21T11:46:53:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-21T13:04:59: ❌ TEST 1 FAILED: Connection timeout
+2025-11-21T15:13:17: Email send error: Error: Connection timeout
+2025-11-21T15:13:17:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+2025-11-21T15:13:17:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+2025-11-21T15:13:17:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+2025-11-21T15:13:17:     at listOnTimeout (node:internal/timers:608:17)
+2025-11-21T15:13:17:     at process.processTimers (node:internal/timers:543:7) {
+2025-11-21T15:13:17:   code: 'ETIMEDOUT',
+2025-11-21T15:13:17:   command: 'CONN'
+2025-11-21T15:13:17: }
+2025-11-21T15:50:27: Global error handler: URIError: URI malformed
+2025-11-21T15:50:27:     at decodeURIComponent (<anonymous>)
+2025-11-21T15:50:27:     at /srv/bunyod-tour/index.js:167:22
+2025-11-21T15:50:27:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-21T15:50:27:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-21T15:50:27:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-21T15:50:27:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-21T15:50:27:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-21T15:50:27:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-21T15:50:27:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-21T15:50:27:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-22T20:40:43: Global error handler: URIError: URI malformed
+2025-11-22T20:40:43:     at decodeURIComponent (<anonymous>)
+2025-11-22T20:40:43:     at /srv/bunyod-tour/index.js:167:22
+2025-11-22T20:40:43:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-22T20:40:43:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-22T20:40:43:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-22T20:40:43:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-22T20:40:43:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-22T20:40:43:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-22T20:40:43:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-22T20:40:43:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-23T06:41:16: Global error handler: URIError: URI malformed
+2025-11-23T06:41:16:     at decodeURIComponent (<anonymous>)
+2025-11-23T06:41:16:     at /srv/bunyod-tour/index.js:167:22
+2025-11-23T06:41:16:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-23T06:41:16:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-23T06:41:16:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-23T06:41:16:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-23T06:41:16:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-23T06:41:16:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-23T06:41:16:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-23T06:41:16:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-23T06:41:17: Global error handler: URIError: URI malformed
+2025-11-23T06:41:17:     at decodeURIComponent (<anonymous>)
+2025-11-23T06:41:17:     at /srv/bunyod-tour/index.js:167:22
+2025-11-23T06:41:17:     at Layer.handleRequest (/srv/bunyod-tour/node_modules/router/lib/layer.js:152:17)
+2025-11-23T06:41:17:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-23T06:41:17:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-23T06:41:17:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:08:31: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:08:31:
+2025-11-23T16:08:31:
+2025-11-23T16:08:31: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:08:31:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:08:31:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:08:31:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:08:31:   code: 'P2022',
+2025-11-23T16:08:31:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:08:31:   clientVersion: '6.15.0'
+2025-11-23T16:08:31: }
+2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:08:36:
+2025-11-23T16:08:36:
+2025-11-23T16:08:36: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:08:36:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:08:36:   code: 'P2022',
+2025-11-23T16:08:36:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:08:36:   clientVersion: '6.15.0'
+2025-11-23T16:08:36: }
+2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:20:14:
+2025-11-23T16:20:14:
+2025-11-23T16:20:14: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:20:14:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:20:14:   code: 'P2022',
+2025-11-23T16:20:14:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:20:14:   clientVersion: '6.15.0'
+2025-11-23T16:20:14: }
+[root@archlinux bunyod-tour]# cd /srv/bunyod-tour
+[root@archlinux bunyod-tour]# npm run build
+
+> workspace@1.0.0 build
+> tsc
+
+[root@archlinux bunyod-tour]# pm2 restart bunyod-tour
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour    │ default     │ 1.0.0   │ fork    │ 2754241  │ 0s     │ 95   │ online    │ 0%       │ 6.6mb    │ root     │ disabled │
+└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 30
+[TAILING] Tailing last 30 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 30 lines:
+0|bunyod-t | 2025-11-23T16:08:31:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:31: }
+0|bunyod-t | 2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36:
+0|bunyod-t | 2025-11-23T16:08:36: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:36:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:08:36:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:08:36:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:08:36:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:08:36: }
+0|bunyod-t | 2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14:
+0|bunyod-t | 2025-11-23T16:20:14: The column `orders.transfer_request_id` does not exist in the current database.
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:20:14:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+0|bunyod-t | 2025-11-23T16:20:14:   code: 'P2022',
+0|bunyod-t | 2025-11-23T16:20:14:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+0|bunyod-t | 2025-11-23T16:20:14:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-23T16:20:14: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 30 lines:
+0|bunyod-t | 2025-11-23T21:12:11: 💳 Full payment: 2470 TJS
+0|bunyod-t | 2025-11-23T21:12:11: 🔄 Creating AlifPay Legacy payment: Order 37, Amount 2470 TJS
+0|bunyod-t | 2025-11-23T21:14:11: [dotenv@17.2.3] injecting env (29) from .env -- tip: ✅ audit secrets and track compliance: https://dotenvx.com/ops
+0|bunyod-t | 2025-11-23T21:14:11: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-11-23T21:14:11:
+0|bunyod-t | 2025-11-23T21:14:11: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-11-23T21:14:11:
+0|bunyod-t | 2025-11-23T21:14:11: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-11-23T21:14:11: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-11-23T21:14:11: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-11-23T21:14:11:
+0|bunyod-t | 2025-11-23T21:14:11: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-11-23T21:14:11:
+0|bunyod-t | 2025-11-23T21:14:11: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-11-23T21:14:11: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-11-23T21:14:11: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-11-23T21:14:11: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-11-23T21:14:11: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-11-23T21:14:11: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-11-23T21:14:11: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-11-23T21:14:11: ✅ База данных готова к работе!
+0|bunyod-t | 2025-11-23T21:14:11: Starting backend API server...
+0|bunyod-t | 2025-11-23T21:14:12: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-11-23T21:14:12: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-11-23T21:14:12: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-11-23T21:14:12: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-11-23T21:14:12: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-11-23T21:14:13: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-11-23T21:14:14: 📊 Инициализация компонентов: создано 0, пропущено 21 (уже существуют)
+0|bunyod-t | 2025-11-23T21:14:14: ✅ Инициализировано 21 компонентов по умолчанию
