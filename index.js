@@ -95,6 +95,23 @@ app.get('/booking-step3.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'booking-step3.html'));
 });
 
+// Payment selection page - explicit route BEFORE static middleware
+app.get('/payment-selection.html', (req, res) => {
+  console.log('💳 Serving payment-selection.html with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'payment-selection.html'));
+});
+
+// Payment success/fail pages - explicit routes BEFORE static middleware
+app.get('/payment-success.html', (req, res) => {
+  console.log('✅ Serving payment-success.html with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'payment-success.html'));
+});
+
+app.get('/payment-fail.html', (req, res) => {
+  console.log('❌ Serving payment-fail.html with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'payment-fail.html'));
+});
+
 // Legacy booking pages - to be removed later
 // app.get('/booking.html', (req, res) => {
 //   res.sendFile(path.join(__dirname, 'frontend', 'booking.html'));
