@@ -1,0 +1,56 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 0
+0|bunyod-tour  | 2025-11-24T01:02:57: 🔄 Middleware check - Original URL: /api/transfers/4/create-order
+0|bunyod-tour  | 2025-11-24T01:02:57: 🔄 Middleware check - Decoded URL: /api/transfers/4/create-order
+^C
+[root@archlinux bunyod-tour]# tail -50 /srv/bunyod-tour/logs/pm2-error.log
+2025-11-23T06:41:17:     at trimPrefix (/srv/bunyod-tour/node_modules/router/index.js:342:13)
+2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:297:9
+2025-11-23T06:41:17:     at processParams (/srv/bunyod-tour/node_modules/router/index.js:582:12)
+2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:291:5)
+2025-11-23T06:41:17:     at /srv/bunyod-tour/node_modules/router/index.js:688:15
+2025-11-23T06:41:17:     at next (/srv/bunyod-tour/node_modules/router/index.js:276:14)
+2025-11-23T06:41:17:     at router.handle (/srv/bunyod-tour/node_modules/router/index.js:186:3)
+2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:08:31: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:08:31:
+2025-11-23T16:08:31:
+2025-11-23T16:08:31: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:08:31:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:08:31:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:08:31:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:08:31:   code: 'P2022',
+2025-11-23T16:08:31:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:08:31:   clientVersion: '6.15.0'
+2025-11-23T16:08:31: }
+2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:08:36:
+2025-11-23T16:08:36:
+2025-11-23T16:08:36: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:08:36:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:08:36:   code: 'P2022',
+2025-11-23T16:08:36:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:08:36:   clientVersion: '6.15.0'
+2025-11-23T16:08:36: }
+2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+2025-11-23T16:20:14:
+2025-11-23T16:20:14:
+2025-11-23T16:20:14: The column `orders.transfer_request_id` does not exist in the current database.
+2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+2025-11-23T16:20:14:     at async getDashboardStats (/srv/bunyod-tour/dist/controllers/adminController.js:189:35) {
+2025-11-23T16:20:14:   code: 'P2022',
+2025-11-23T16:20:14:   meta: { modelName: 'Order', column: 'orders.transfer_request_id' },
+2025-11-23T16:20:14:   clientVersion: '6.15.0'
+2025-11-23T16:20:14: }
+2025-11-24T00:41:40: ❌ Payler StartSession failed: 400 Bad Request
+[root@archlinux bunyod-tour]#
