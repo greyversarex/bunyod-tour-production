@@ -326,10 +326,10 @@
                 if (selectedPayment === 'alifpay') {
                     // AlifPay uses POST form submission
                     const form = document.createElement('form');
-                    form.method = paymentData.method;
-                    form.action = paymentData.action;
+                    form.method = paymentData.data.method;
+                    form.action = paymentData.data.action;
                     
-                    for (const [key, value] of Object.entries(paymentData.formData)) {
+                    for (const [key, value] of Object.entries(paymentData.data.formData)) {
                         const input = document.createElement('input');
                         input.type = 'hidden';
                         input.name = key;
@@ -342,8 +342,8 @@
                     form.submit();
                 } else if (selectedPayment === 'payler') {
                     // Payler uses direct URL redirect
-                    console.log('🔄 Redirecting to Payler:', paymentData.paymentUrl);
-                    window.location.href = paymentData.paymentUrl;
+                    console.log('🔄 Redirecting to Payler:', paymentData.data.paymentUrl);
+                    window.location.href = paymentData.data.paymentUrl;
                 }
 
             } catch (error) {

@@ -1113,13 +1113,13 @@
                     }));
                     
                     // Redirect to payment gateway
-                    if (paymentData.method === 'POST' && paymentData.formData && paymentData.action) {
+                    if (paymentData.data.method === 'POST' && paymentData.data.formData && paymentData.data.action) {
                         // AlifPay Legacy: Create and submit POST form
-                        console.log('🔄 Creating POST form for AlifPay:', paymentData.action);
-                        redirectToAlifPay(paymentData.action, paymentData.formData);
-                    } else if (paymentData.paymentUrl || paymentData.redirectUrl) {
+                        console.log('🔄 Creating POST form for AlifPay:', paymentData.data.action);
+                        redirectToAlifPay(paymentData.data.action, paymentData.data.formData);
+                    } else if (paymentData.data.paymentUrl || paymentData.data.redirectUrl) {
                         // Payler: Direct GET redirect
-                        const redirectUrl = paymentData.paymentUrl || paymentData.redirectUrl;
+                        const redirectUrl = paymentData.data.paymentUrl || paymentData.data.redirectUrl;
                         console.log('🔄 Redirecting to payment gateway:', redirectUrl);
                         window.location.href = redirectUrl;
                     }
