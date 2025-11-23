@@ -252,42 +252,6 @@
         </div>
     </div>
 
-    <!-- Guide Review Collection Modal -->
-    <div id="guideReviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-bold text-gray-800">
-                        <i class="fas fa-star mr-2 text-purple-600"></i>
-                        Отзыв гида
-                    </h3>
-                    <button id="closeGuideReviewModal" class="text-gray-500 hover:text-gray-700">
-                        <i class="fas fa-times text-2xl"></i>
-                    </button>
-                </div>
-
-                <div class="mb-4">
-                    <p class="text-gray-600">Выберите туристов, которым отправить ссылку для оставления отзыва о вашей работе как гида:</p>
-                </div>
-
-                <!-- Tourist List with Checkboxes -->
-                <div id="guideTouristCheckboxList" class="space-y-2 mb-6 max-h-96 overflow-y-auto">
-                    <!-- Will be populated dynamically -->
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex justify-end space-x-3">
-                    <button id="cancelGuideReviewBtn" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg transition-colors">
-                        Отмена
-                    </button>
-                    <button id="sendGuideReviewEmailsBtn" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors">
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        Отправить
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         let guideData = null;
@@ -964,9 +928,6 @@
                                 <button onclick="openReviewCollectionModal(${tour.id})" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
                                     <i class="fas fa-envelope mr-2"></i>Собрать отзывы
                                 </button>
-                                <button onclick="openGuideReviewCollectionModal(${tour.id})" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors">
-                                    <i class="fas fa-star mr-2"></i>Отзыв гида
-                                </button>
                             ` : ''}
                         </div>
                     </div>
@@ -1134,119 +1095,6 @@
             }
         }
 
-        // Open guide review collection modal
-        async function openGuideReviewCollectionModal(tourId) {
-            try {
-                // Fetch tour details including bookings
-                const token = localStorage.getItem('tourGuideToken');
-                const response = await fetch(`/api/guide/tours/${tourId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const result = await response.json();
-                
-                if (!result.success || !result.data) {
-                    alert('Ошибка загрузки данных тура');
-                    return;
-                }
-
-                const tour = result.data;
-                
-                if (!tour.bookings || tour.bookings.length === 0) {
-                    alert('Нет бронирований для сбора отзывов о гиде');
-                    return;
-                }
-
-                // Collect all tourists from bookings
-                const tourists = [];
-                tour.bookings.forEach(booking => {
-                    if (booking.contactEmail) {
-                        tourists.push({
-                            name: booking.contactName || 'Клиент',
-                            email: booking.contactEmail,
-                            bookingId: booking.id
-                        });
-                    }
-                });
-
-                if (tourists.length === 0) {
-                    alert('Нет туристов с email для отправки отзывов');
-                    return;
-                }
-
-                // Populate tourist checkboxes
-                const touristList = document.getElementById('guideTouristCheckboxList');
-                touristList.innerHTML = tourists.map((tourist, index) => `
-                    <label class="flex items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer">
-                        <input type="checkbox" 
-                               class="guide-tourist-checkbox w-5 h-5 text-purple-600 rounded mr-3" 
-                               data-name="${tourist.name}" 
-                               data-email="${tourist.email}"
-                               checked>
-                        <div class="flex-1">
-                            <span class="font-semibold">${tourist.name}</span>
-                            <span class="text-sm text-gray-600 ml-2">${tourist.email}</span>
-                        </div>
-                    </label>
-                `).join('');
-
-                // Show modal
-                document.getElementById('guideReviewModal').classList.remove('hidden');
-                
-                // Store tour ID for sending
-                window.currentGuideReviewTourId = tourId;
-            } catch (error) {
-                console.error('Error loading tour for guide reviews:', error);
-                alert('Ошибка при загрузке данных тура');
-            }
-        }
-
-        // Send guide review emails
-        async function sendGuideReviewEmails() {
-            const tourId = window.currentGuideReviewTourId;
-            
-            // Get selected tourists
-            const checkboxes = document.querySelectorAll('.guide-tourist-checkbox:checked');
-            const selectedTourists = Array.from(checkboxes).map(cb => ({
-                name: cb.dataset.name,
-                email: cb.dataset.email
-            }));
-
-            if (selectedTourists.length === 0) {
-                alert('Выберите хотя бы одного туриста');
-                return;
-            }
-
-            try {
-                const token = localStorage.getItem('tourGuideToken');
-                const response = await fetch(`/api/guide/collect-guide-reviews`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        tourId: tourId,
-                        selectedTourists: selectedTourists
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert(`✅ ${result.message || 'Письма с приглашением оставить отзыв о гиде успешно отправлены'}`);
-                    document.getElementById('guideReviewModal').classList.add('hidden');
-                } else {
-                    throw new Error(result.message || 'Failed to send guide review emails');
-                }
-            } catch (error) {
-                console.error('Error sending guide review emails:', error);
-                alert('Ошибка при отправке писем: ' + error.message);
-            }
-        }
-
         // Event listeners
         document.getElementById('closeModal').addEventListener('click', () => {
             document.getElementById('tourModal').classList.add('hidden');
@@ -1261,17 +1109,6 @@
         });
 
         document.getElementById('sendReviewEmailsBtn').addEventListener('click', sendReviewEmails);
-
-        // Guide review modal event listeners
-        document.getElementById('closeGuideReviewModal').addEventListener('click', () => {
-            document.getElementById('guideReviewModal').classList.add('hidden');
-        });
-
-        document.getElementById('cancelGuideReviewBtn').addEventListener('click', () => {
-            document.getElementById('guideReviewModal').classList.add('hidden');
-        });
-
-        document.getElementById('sendGuideReviewEmailsBtn').addEventListener('click', sendGuideReviewEmails);
 
         document.getElementById('refreshBtn').addEventListener('click', loadTours);
 
