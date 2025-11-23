@@ -1,0 +1,20 @@
+/srv/bunyod-tour/logs/pm2-error.log last 50 lines:
+0|bunyod-t | 2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:31: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:31:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:36: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:08:36:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:20:14: Invalid `prisma.order.findMany()` invocation:
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-23T16:20:14:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+[root@archlinux bunyod-tour]#
