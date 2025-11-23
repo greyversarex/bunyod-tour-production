@@ -1,0 +1,84 @@
+[root@archlinux bunyod-tour]# npx prisma migrate resolve --applied "20251111205611_add_nights_count_to_tour_cities"
+npx prisma migrate resolve --applied "20251112092819_add_city_nights_to_bookings"
+npx prisma migrate resolve --applied "20251112181403_add_custom_tour_orders"
+npx prisma migrate resolve --applied "20251113224500_add_custom_tour_cities"
+npx prisma migrate resolve --applied "20251114000000_add_tour_map_points"
+npx prisma migrate resolve --applied "20251117130946_add_travel_agent_b2b_system"
+npx prisma migrate resolve --applied "20251117150257_add_vehicle_model"
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251111205611_add_nights_count_to_tour_cities marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251112092819_add_city_nights_to_bookings marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251112181403_add_custom_tour_orders marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251113224500_add_custom_tour_cities marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251114000000_add_tour_map_points marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251117130946_add_travel_agent_b2b_system marked as applied.
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251117150257_add_vehicle_model marked as applied.
+
+[root@archlinux bunyod-tour]# npx prisma migrate status
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+8 migrations found in prisma/migrations
+
+Database schema is up to date!
+[root@archlinux bunyod-tour]# pm2 restart bunyod-tour
+Use --update-env to update environment variables
+[PM2] Applying action restartProcessId on app [bunyod-tour](ids: [ 0 ])
+[PM2] [bunyod-tour](0) ✓
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour        │ fork     │ 94   │ online    │ 0%       │ 6.5mb    │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 100 | grep -i error
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-11-21T15:13:17: Email send error: Error: Connection timeout
+0|bunyod-t | 2025-11-21T15:13:17:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-21T15:13:17:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-21T15:50:27: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-22T20:40:43: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-23T06:41:16: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-23T06:41:17: Global error handler: URIError: URI malformed
+0|bunyod-t | 2025-11-23T16:08:31: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:31:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:08:36: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:08:36:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-23T16:20:14: Global error handler: PrismaClientKnownRequestError:
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:7283)
+0|bunyod-t | 2025-11-23T16:20:14:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
