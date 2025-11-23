@@ -19,6 +19,13 @@ echo "✅ Бэкап готов"
 
 # 1. Стянуть свежий код БЕЗ конфликтов
 echo "📥 Git fetch/reset..."
+
+# КРИТИЧНО: Временно удалить symlink uploads чтобы git reset не ругался
+if [ -L "$APP_DIR/uploads" ]; then
+  echo "🔗 Временно удаляю symlink uploads для git reset..."
+  rm "$APP_DIR/uploads"
+fi
+
 git fetch origin --prune
 git reset --hard origin/main
 
