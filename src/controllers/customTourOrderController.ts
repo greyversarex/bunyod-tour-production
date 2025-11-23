@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../config/database';
+import { sendEmail } from '../services/emailService';
 
 // Утилита для парсинга JSON
 const parseJsonField = (value: any): any => {
