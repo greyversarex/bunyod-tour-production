@@ -1,0 +1,60 @@
+[root@archlinux bunyod-tour]# npx prisma migrate status
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+8 migrations found in prisma/migrations
+Your local migration history and the migrations table from your database are different:
+
+The last common migration is: 20251111170846_init
+
+The migrations have not yet been applied:
+20251111205611_add_nights_count_to_tour_cities
+20251112092819_add_city_nights_to_bookings
+20251112181403_add_custom_tour_orders
+20251113224500_add_custom_tour_cities
+20251114000000_add_tour_map_points
+20251117130946_add_travel_agent_b2b_system
+20251117150257_add_vehicle_model
+
+The migration from the database are not found locally in prisma/migrations:
+000_init
+[root@archlinux bunyod-tour]# npx prisma migrate resolve --applied "20251111170846_init"
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+Migration 20251111170846_init marked as applied.
+
+[root@archlinux bunyod-tour]# npx prisma migrate deploy
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+8 migrations found in prisma/migrations
+
+Applying migration `20251111205611_add_nights_count_to_tour_cities`
+Error: P3018
+
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+
+Migration name: 20251111205611_add_nights_count_to_tour_cities
+
+Database error code: 42701
+
+Database error:
+ERROR: column "nights_count" of relation "tour_cities" already exists
+
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E42701), message: "column \"nights_count\" of relation \"tour_cities\" already exists", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("tablecmds.c"), line: Some(7478), routine: Some("check_for_column_name_collision") }
+
+
+[root@archlinux bunyod-tour]# npx prisma db push
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+Datasource "db": PostgreSQL database "bunyod_tour", schema "public" at "localhost:5432"
+
+The database is already in sync with the Prisma schema.
+
+✔ Generated Prisma Client (v6.15.0) to ./node_modules/@prisma/client in 849ms
+
+[root@archlinux bunyod-tour]#
