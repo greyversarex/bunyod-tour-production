@@ -415,50 +415,86 @@ export const paylerController = {
 
         console.log('✅ Payment confirmed for order:', order_id);
 
-        // CUSTOM TOUR: Upsert CustomTourOrder record after successful payment
+        // CUSTOM TOUR: Update CustomTourOrder status after successful payment
         if (order.orderNumber.startsWith('CT-')) {
           try {
             if (!order.customer) {
-              console.error(`❌ Cannot create CustomTourOrder: customer is null for order ${order.orderNumber}`);
-              // Return early - cannot process CT order without customer
+              console.error(`❌ Cannot process CustomTourOrder: customer is null for order ${order.orderNumber}`);
               return res.status(200).json({ success: true });
             }
 
-            const customTourData = JSON.parse(order.wishes || '{}');
-            
-            if (customTourData.type === 'custom_tour') {
-              // Idempotency: Upsert using orderNumber as unique key (robust against duplicate callbacks)
-              await prisma.customTourOrder.upsert({
-                where: { orderNumber: order.orderNumber },
-                create: {
-                  orderId: order.id,
-                  orderNumber: order.orderNumber,
-                  fullName: order.customer.fullName,
-                  email: order.customer.email || '',
-                  phone: order.customer.phone,
-                  selectedCountries: JSON.stringify(customTourData.selectedCountries || []),
-                  selectedCities: JSON.stringify(customTourData.selectedCities || []),
-                  tourists: order.tourists,
-                  selectedComponents: JSON.stringify(customTourData.selectedComponents || []),
-                  customerNotes: customTourData.customerNotes || null,
-                  totalPrice: order.totalAmount,
-                  totalDays: customTourData.totalDays || 0,
-                  status: 'paid'
-                },
-                update: {
-                  status: 'paid' // On duplicate callback, just confirm payment status
-                }
-              });
-                
-              console.log(`✅ CustomTourOrder upserted for order ${order.orderNumber}`);
+            // Defensive: Parse wishes safely
+            let customTourData;
+            try {
+              customTourData = order.wishes ? JSON.parse(order.wishes) : null;
+            } catch (parseError) {
+              console.error(`❌ Failed to parse order.wishes for ${order.orderNumber}:`, parseError);
+              // Return 200 to prevent Payler retry
+              return res.status(200).json({ success: true });
             }
 
-            // Skip emails for CT orders - admin already notified on creation
-            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - skipping tour-specific emails`);
+            // Update CustomTourOrder status to 'paid' (already created in createDirectCustomTourOrder)
+            const updatedCustomOrder = await prisma.customTourOrder.updateMany({
+              where: { orderNumber: order.orderNumber },
+              data: { status: 'paid' }
+            });
+
+            if (updatedCustomOrder.count === 0) {
+              console.warn(`⚠️ CustomTourOrder not found for ${order.orderNumber}, may need manual check`);
+            } else {
+              console.log(`✅ CustomTourOrder status updated to 'paid' for order ${order.orderNumber}`);
+            }
+
+            // Send simple confirmation email to tourist
+            try {
+              const touristEmail = order.customer.email;
+              if (touristEmail) {
+                const countries = customTourData?.selectedCountries || [];
+                const countriesText = countries.length > 0 ? countries.join(', ') : 'Центральная Азия';
+                
+                await emailService.sendEmail({
+                  to: touristEmail,
+                  subject: `Оплата принята - Собственный тур ${order.orderNumber}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                      <h2 style="color: #3E3E3E;">Спасибо за оплату!</h2>
+                      
+                      <p>Здравствуйте, ${order.customer.fullName}!</p>
+                      
+                      <p>Ваш платеж успешно получен.</p>
+                      
+                      <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="margin-top: 0;">Детали заказа</h3>
+                        <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                        <p><strong>Направления:</strong> ${countriesText}</p>
+                        <p><strong>Продолжительность:</strong> ${customTourData?.totalDays || 0} дней</p>
+                        <p><strong>Оплачено:</strong> ${order.totalAmount} TJS</p>
+                      </div>
+
+                      <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения деталей тура.</p>
+                      
+                      <p>С уважением,<br><strong>Команда Bunyod Tour</strong></p>
+                      
+                      <p style="font-size: 12px; color: #666; margin-top: 30px;">
+                        Если у вас есть вопросы, свяжитесь с нами по телефону или email.
+                      </p>
+                    </div>
+                  `
+                });
+                
+                console.log(`✅ Confirmation email sent to tourist: ${touristEmail}`);
+              }
+            } catch (emailError) {
+              console.error('❌ Failed to send tourist confirmation email:', emailError);
+              // Don't fail the payment
+            }
+
+            // Email admin was already sent when order was created
+            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - tourist notified`);
             return res.status(200).json({ success: true });
 
           } catch (customTourError) {
-            console.error('❌ Failed to upsert CustomTourOrder:', customTourError);
+            console.error('❌ Failed to process CustomTourOrder payment:', customTourError);
             // Return 200 even on error to prevent Payler retry
             return res.status(200).json({ success: true });
           }

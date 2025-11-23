@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 import prisma from '../config/database';
-import { sendEmail } from '../services/emailService';
 
 // Утилита для парсинга JSON
 const parseJsonField = (value: any): any => {
@@ -490,21 +489,50 @@ export const createDirectCustomTourOrder = async (req: Request, res: Response): 
       customerNotes: customerNotes || ''
     };
 
-    const order = await prisma.order.create({
-      data: {
-        orderNumber,
-        customerId: customer.id,
-        tourDate: new Date().toISOString().split('T')[0], // Today as placeholder
-        tourists: JSON.stringify(tourists.map((name: string) => ({
-          name: name.trim(),
-          phone: phone,
-          email: email || ''
-        }))),
-        wishes: JSON.stringify(customTourData), // Store as JSON
-        totalAmount: calculatedTotalPrice,
-        status: 'pending',
-        paymentStatus: 'unpaid'
-      }
+    // Create Order and CustomTourOrder atomically in a transaction (железобетонно)
+    const order = await prisma.$transaction(async (tx) => {
+      // Step 1: Create Order
+      const createdOrder = await tx.order.create({
+        data: {
+          orderNumber,
+          customerId: customer.id,
+          tourDate: new Date().toISOString().split('T')[0], // Today as placeholder
+          tourists: JSON.stringify(tourists.map((name: string) => ({
+            name: name.trim(),
+            phone: phone,
+            email: email || ''
+          }))),
+          wishes: JSON.stringify(customTourData), // Store as JSON
+          totalAmount: calculatedTotalPrice,
+          status: 'pending',
+          paymentStatus: 'unpaid'
+        }
+      });
+
+      // Step 2: Create CustomTourOrder with orderId and orderNumber for robust idempotency
+      await tx.customTourOrder.create({
+        data: {
+          orderId: createdOrder.id,
+          orderNumber: createdOrder.orderNumber,
+          fullName: fullName.trim(),
+          email: email ? email.trim() : '',
+          phone: phone.trim(),
+          selectedCountries: JSON.stringify(selectedCountries),
+          selectedCities: JSON.stringify(selectedCities || []),
+          tourists: JSON.stringify(tourists.map((name: string) => ({
+            name: name.trim(),
+            phone: phone,
+            email: email || ''
+          }))),
+          selectedComponents: JSON.stringify(selectedComponents),
+          customerNotes: customerNotes || null,
+          totalPrice: calculatedTotalPrice,
+          totalDays: totalDays,
+          status: 'pending' // Will be updated to 'paid' by webhook
+        }
+      });
+
+      return createdOrder;
     });
 
     console.log(`✅ Direct custom tour order created: ${order.orderNumber}, Amount: ${order.totalAmount} TJS, Tourist: ${fullName}`);

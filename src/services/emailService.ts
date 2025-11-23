@@ -725,6 +725,16 @@ export const emailService = {
       console.error('Email server configuration error:', error);
       return false;
     }
+  },
+
+  // Generic email sender for custom messages
+  async sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
+    await transporter.sendMail({
+      from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+      to: options.to,
+      subject: options.subject,
+      html: options.html
+    });
   }
 };
 
