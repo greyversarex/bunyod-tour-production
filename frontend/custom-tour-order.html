@@ -647,7 +647,8 @@
                     totalDays: tourDuration
                 };
                 
-                const response = await fetch('/api/custom-tour-orders', {
+                // DIRECT PAYMENT: Create payable order and redirect to payment
+                const response = await fetch('/api/custom-tour-orders/create-payable-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
@@ -657,9 +658,11 @@
                 
                 if (data.success) {
                     showNotification(getTranslation('custom_tour_success_message'), 'success');
+                    
+                    // Redirect to payment page after 1 second
                     setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                        window.location.href = data.data.paymentUrl;
+                    }, 1000);
                 } else {
                     showNotification(data.message || getTranslation('custom_tour_error_submit'), 'error');
                 }

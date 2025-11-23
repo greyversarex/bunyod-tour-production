@@ -389,6 +389,7 @@ model Order {
   tour                Tour?             @relation(fields: [tourId], references: [id], onDelete: Cascade)
   transferRequest     TransferRequest?  @relation(fields: [transferRequestId], references: [id])
   guideHireRequest    GuideHireRequest? @relation(fields: [guideHireRequestId], references: [id])
+  customTourOrder     CustomTourOrder?
 
   @@map("orders")
 }
@@ -777,6 +778,12 @@ model CustomTourOrder {
   totalDays          Int?     @map("total_days")
   customerNotes      String?  @map("customer_notes")
   adminNotes         String?  @map("admin_notes")
+  
+  // Relation to Order for robust idempotency
+  orderId            Int?     @unique @map("order_id")
+  order              Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderNumber        String?  @unique @map("order_number")
+  
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 

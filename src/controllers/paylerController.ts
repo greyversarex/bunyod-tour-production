@@ -94,6 +94,70 @@ export const paylerController = {
         console.log(`✅ Guide hire payment validated: ${guide.pricePerDay} x ${guideHireRequest.numberOfDays} days = ${expectedPrice} TJS`);
       }
 
+      // 🔒 SECURITY: Payment revalidation для custom tour orders
+      if (orderNumber.startsWith('CT-')) {
+        try {
+          const customTourData = JSON.parse(order.wishes || '{}');
+          
+          if (customTourData.type !== 'custom_tour' || !customTourData.selectedComponents) {
+            console.error('❌ Custom tour payment validation failed: Invalid order data');
+            return res.status(400).json({
+              success: false,
+              message: 'Недействительный заказ собственного тура',
+            });
+          }
+
+          // Пересчитать цену на основе актуальных данных компонентов
+          const componentIds = customTourData.selectedComponents.map((c: any) => c.id);
+          const dbComponents = await prisma.customTourComponent.findMany({
+            where: {
+              id: { in: componentIds },
+              isActive: true
+            }
+          });
+
+          if (dbComponents.length !== customTourData.selectedComponents.length) {
+            console.error('❌ Custom tour payment validation failed: Some components unavailable');
+            return res.status(400).json({
+              success: false,
+              message: 'Некоторые компоненты тура больше недоступны',
+            });
+          }
+
+          let expectedPrice = 0;
+          for (const component of customTourData.selectedComponents) {
+            const dbComponent = dbComponents.find((c: any) => c.id === component.id);
+            if (!dbComponent) {
+              return res.status(400).json({
+                success: false,
+                message: `Компонент ${component.id} не найден`,
+              });
+            }
+            expectedPrice += dbComponent.price * (component.quantity || 1);
+          }
+
+          expectedPrice = Math.round(expectedPrice * 100) / 100;
+
+          if (Math.abs(order.totalAmount - expectedPrice) > 0.01) {
+            console.error(`❌ Custom tour payment validation failed: Expected ${expectedPrice}, got ${order.totalAmount}`);
+            return res.status(400).json({
+              success: false,
+              message: 'Цены компонентов изменились. Пожалуйста, создайте новый заказ.',
+              expectedPrice,
+              currentPrice: order.totalAmount
+            });
+          }
+
+          console.log(`✅ Custom tour payment validated: ${expectedPrice} TJS`);
+        } catch (error) {
+          console.error('❌ Custom tour payment validation error:', error);
+          return res.status(400).json({
+            success: false,
+            message: 'Ошибка валидации заказа собственного тура',
+          });
+        }
+      }
+
       const paylerKey = process.env.PAYLER_KEY;
       const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
 
@@ -351,8 +415,63 @@ export const paylerController = {
 
         console.log('✅ Payment confirmed for order:', order_id);
 
-        // Отправить email подтверждение клиенту и уведомление администратору
+        // CUSTOM TOUR: Upsert CustomTourOrder record after successful payment
+        if (order.orderNumber.startsWith('CT-')) {
+          try {
+            if (!order.customer) {
+              console.error(`❌ Cannot create CustomTourOrder: customer is null for order ${order.orderNumber}`);
+              // Return early - cannot process CT order without customer
+              return res.status(200).json({ success: true });
+            }
+
+            const customTourData = JSON.parse(order.wishes || '{}');
+            
+            if (customTourData.type === 'custom_tour') {
+              // Idempotency: Upsert using orderNumber as unique key (robust against duplicate callbacks)
+              await prisma.customTourOrder.upsert({
+                where: { orderNumber: order.orderNumber },
+                create: {
+                  orderId: order.id,
+                  orderNumber: order.orderNumber,
+                  fullName: order.customer.fullName,
+                  email: order.customer.email || '',
+                  phone: order.customer.phone,
+                  selectedCountries: JSON.stringify(customTourData.selectedCountries || []),
+                  selectedCities: JSON.stringify(customTourData.selectedCities || []),
+                  tourists: order.tourists,
+                  selectedComponents: JSON.stringify(customTourData.selectedComponents || []),
+                  customerNotes: customTourData.customerNotes || null,
+                  totalPrice: order.totalAmount,
+                  totalDays: customTourData.totalDays || 0,
+                  status: 'paid'
+                },
+                update: {
+                  status: 'paid' // On duplicate callback, just confirm payment status
+                }
+              });
+                
+              console.log(`✅ CustomTourOrder upserted for order ${order.orderNumber}`);
+            }
+
+            // Skip emails for CT orders - admin already notified on creation
+            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - skipping tour-specific emails`);
+            return res.status(200).json({ success: true });
+
+          } catch (customTourError) {
+            console.error('❌ Failed to upsert CustomTourOrder:', customTourError);
+            // Return 200 even on error to prevent Payler retry
+            return res.status(200).json({ success: true });
+          }
+        }
+
+        // REGULAR ORDERS: Send email confirmations
+        // (CT orders return early above, so we only reach here for tour/transfer/guide orders)
         try {
+          if (!order.customer) {
+            console.warn('⚠️ Order has no customer, skipping email notifications');
+            return res.status(200).json({ success: true });
+          }
+
           // Email клиенту с билетом
           await emailService.sendPaymentConfirmation(order, order.customer);
           console.log('✅ Confirmation email sent to customer:', order.customer.email);

@@ -5,6 +5,13 @@ import { adminAuthMiddleware } from '../controllers/adminController';
 const router = express.Router();
 
 /**
+ * PUBLIC endpoint for direct custom tour order creation with payment
+ * POST /api/custom-tour-orders/create-payable-order
+ * Creates order and redirects to payment (NO admin approval needed)
+ */
+router.post('/create-payable-order', customTourOrderController.createDirectCustomTourOrder);
+
+/**
  * Public endpoint - Create new custom tour order
  * POST /api/custom-tour-orders
  */
