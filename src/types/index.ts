@@ -205,6 +205,7 @@ export interface CreateTransferRequestData {
   numberOfPeople?: number;
   vehicleType?: 'sedan' | 'suv' | 'minibus' | 'bus';
   specialRequests?: string;
+  estimatedPrice?: number;  // ✅ Базовая цена трансфера для прямой оплаты
 }
 
 export interface UpdateTransferRequestData {
