@@ -102,6 +102,15 @@ router.post('/transfer-requests', async (req: Request, res: Response) => {
       return;
     }
 
+    // ✅ НОВОЕ: Validate estimatedPrice для прямой оплаты
+    if (!data.estimatedPrice || data.estimatedPrice <= 0) {
+      res.status(400).json({
+        success: false,
+        error: 'estimatedPrice is required and must be greater than 0 for direct payment'
+      });
+      return;
+    }
+
     // Validate time format (HH:MM)
     const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
     if (!timeRegex.test(data.pickupTime)) {
