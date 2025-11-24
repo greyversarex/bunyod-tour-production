@@ -181,11 +181,78 @@ export const createGuide = async (req: Request, res: Response) => {
       hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
     };
 
-    // 📧 Отправить email уведомление админу о новом гиде
+    // 📧 Отправить email уведомление гиду (если указан email)
     try {
       const guideName = typeof guide.name === 'string' ? JSON.parse(guide.name) : guide.name;
       const guideNameRu = guideName?.ru || guideName?.en || 'Неизвестный гид';
       
+      // Получить email гида из contact (безопасный парсинг)
+      let guideEmail = null;
+      if (contact) {
+        try {
+          // Попробовать распарсить как JSON
+          const contactData = typeof contact === 'string' ? JSON.parse(contact) : contact;
+          guideEmail = contactData?.email || null;
+        } catch {
+          // Если парсинг не удался, возможно это просто email строка
+          if (typeof contact === 'string' && contact.includes('@')) {
+            guideEmail = contact;
+          }
+        }
+      }
+
+      // Отправить email гиду
+      if (guideEmail && guideEmail.includes('@')) {
+        const loginCredentials = login && password ? `
+          <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #2e7d32;">🔑 Ваши данные для входа:</h3>
+            <p><strong>Логин:</strong> ${login}</p>
+            <p><strong>Временный пароль:</strong> ${password}</p>
+            <p style="font-size: 13px; color: #666; margin-top: 10px;">⚠️ Рекомендуем сменить пароль после первого входа</p>
+          </div>
+        ` : '';
+
+        await emailService.sendEmail({
+          to: guideEmail,
+          subject: `🎉 Добро пожаловать в Bunyod-Tour, ${guideNameRu}!`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+                <h1>🌟 Добро пожаловать в команду Bunyod-Tour!</h1>
+              </div>
+              
+              <div style="padding: 30px; background: #f8f9fa;">
+                <p style="font-size: 16px;">Здравствуйте, <strong>${guideNameRu}</strong>!</p>
+                <p>Вы успешно добавлены в нашу платформу в качестве гида.</p>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin-top: 0; color: #1f2937;">📋 Ваш профиль:</h3>
+                  <p><strong>ID:</strong> ${guide.id}</p>
+                  <p><strong>Опыт:</strong> ${guide.experience || 'Не указан'} лет</p>
+                  <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'Не указана'} ${guide.currency || 'TJS'}</p>
+                  <p><strong>Доступен для найма:</strong> ${guide.isHireable ? 'Да ✅' : 'Нет'}</p>
+                </div>
+
+                ${loginCredentials}
+
+                <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/tour-guide-login.html" 
+                   style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+                  🔐 Войти в личный кабинет
+                </a>
+
+                <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                  Если у вас есть вопросы, свяжитесь с нами:<br>
+                  📧 Email: ${process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj'}<br>
+                  🌐 Сайт: ${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}
+                </p>
+              </div>
+            </div>
+          `
+        });
+        console.log(`✅ Email приветствие отправлено гиду: ${guideEmail}`);
+      }
+
+      // Отправить уведомление админу
       await emailService.sendEmail({
         to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
         subject: `🎉 Новый гид добавлен: ${guideNameRu}`,
@@ -201,11 +268,11 @@ export const createGuide = async (req: Request, res: Response) => {
               <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
                 <p><strong>Имя:</strong> ${guideNameRu}</p>
                 <p><strong>ID:</strong> ${guide.id}</p>
+                <p><strong>Email:</strong> ${guideEmail || 'Не указан'}</p>
                 <p><strong>Опыт:</strong> ${guide.experience || 'Не указан'} лет</p>
                 <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'Не указана'} ${guide.currency || 'TJS'}</p>
                 <p><strong>Доступен для найма:</strong> ${guide.isHireable ? 'Да' : 'Нет'}</p>
                 <p><strong>Активен:</strong> ${guide.isActive ? 'Да' : 'Нет'}</p>
-                ${contact ? `<p><strong>Контакт:</strong> ${typeof contact === 'string' ? contact : JSON.stringify(contact)}</p>` : ''}
               </div>
 
               <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/admin-dashboard.html" 
@@ -770,21 +837,43 @@ export const updateGuide = async (req: Request, res: Response) => {
 export const deleteGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { permanent } = req.query; // ?permanent=true для полного удаления
 
-    await prisma.guide.update({
-      where: { id: parseInt(id) },
-      data: { isActive: false },
-    });
+    if (permanent === 'true') {
+      // ✅ Полное удаление гида из БД (cascade delete сработает автоматически)
+      await prisma.guide.delete({
+        where: { id: parseInt(id) },
+      });
 
-    return res.json({
-      success: true,
-      message: 'Guide deactivated successfully',
-    });
+      console.log(`🗑️ Гид ${id} полностью удален из БД (включая кабинет)`);
+      
+      return res.json({
+        success: true,
+        message: 'Guide permanently deleted',
+      });
+    } else {
+      // ✅ Деактивация + сброс доступа к кабинету (удалить login/password)
+      await prisma.guide.update({
+        where: { id: parseInt(id) },
+        data: { 
+          isActive: false,
+          login: null,      // ✅ Удалить логин - не может войти в кабинет
+          password: null    // ✅ Удалить пароль - не может войти в кабинет
+        },
+      });
+
+      console.log(`⛔ Гид ${id} деактивирован, доступ к кабинету закрыт`);
+
+      return res.json({
+        success: true,
+        message: 'Guide deactivated and cabinet access removed',
+      });
+    }
   } catch (error) {
-    console.error('Error deactivating guide:', error);
+    console.error('Error deleting guide:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to deactivate guide',
+      message: 'Failed to delete guide',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }
