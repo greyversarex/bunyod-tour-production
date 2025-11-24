@@ -196,6 +196,16 @@ export const alifController = {
           tour: true,
           hotel: true,
           guide: true,
+          transferRequest: {
+            include: {
+              assignedDriver: true
+            }
+          },
+          guideHireRequest: {
+            include: {
+              guide: true
+            }
+          }
         },
       });
 
@@ -239,30 +249,83 @@ export const alifController = {
             await emailService.sendAdminNotification(order, order.customer, order.tour);
             console.log('✅ Tour payment emails sent');
           } else {
-            // Оплата гида/трансфера/собственного тура - простое уведомление
-            const orderTypeText = order.orderNumber.startsWith('GH-') ? 'найм гида' 
-              : order.orderNumber.startsWith('TR-') ? 'трансфер'
-              : order.orderNumber.startsWith('CT-') ? 'собственный тур'
-              : 'услуга';
+            // Оплата гида/трансфера/собственного тура - детальное уведомление
+            const isGuideHire = order.orderNumber.startsWith('GH-');
+            const isTransfer = order.orderNumber.startsWith('TR-');
+            const isCustomTour = order.orderNumber.startsWith('CT-');
+            
+            const orderTypeText = isGuideHire ? 'Найм гида' 
+              : isTransfer ? 'Трансфер'
+              : isCustomTour ? 'Собственный тур'
+              : 'Услуга';
+
+            // Формируем детали заказа
+            let detailsHTML = '';
+            
+            if (isGuideHire && order.guideHireRequest?.guide) {
+              const guide = order.guideHireRequest.guide;
+              const guideName = typeof guide.name === 'object' && guide.name !== null ? (guide.name as any).ru || (guide.name as any).en || 'Не указано' : String(guide.name || 'Не указано');
+              
+              detailsHTML = `
+                <p><strong>Гид:</strong> ${guideName}</p>
+                <p><strong>Языки:</strong> ${guide.languages || 'не указаны'}</p>
+                <p><strong>Выбранные даты:</strong> ${order.guideHireRequest.selectedDates || 'не указаны'}</p>
+                <p><strong>Количество дней:</strong> ${order.guideHireRequest.numberOfDays}</p>
+                <p><strong>Цена за день:</strong> ${guide.pricePerDay} TJS</p>
+              `;
+            } else if (isTransfer && order.transferRequest) {
+              const transfer = order.transferRequest;
+              
+              detailsHTML = `
+                <p><strong>Откуда:</strong> ${transfer.pickupLocation || 'не указано'}</p>
+                <p><strong>Куда:</strong> ${transfer.dropoffLocation || 'не указано'}</p>
+                <p><strong>Дата:</strong> ${transfer.pickupDate || 'не указана'}</p>
+                <p><strong>Время:</strong> ${transfer.pickupTime || 'не указано'}</p>
+                <p><strong>Количество человек:</strong> ${transfer.numberOfPeople || 1}</p>
+                ${transfer.specialRequests ? `<p><strong>Пожелания:</strong> ${transfer.specialRequests}</p>` : ''}
+              `;
+            } else {
+              detailsHTML = `
+                <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'не указана'}</p>
+              `;
+            }
 
             // Email клиенту
             await emailService.sendEmail({
               to: order.customer.email,
               subject: `✅ Оплата подтверждена - ${orderTypeText}`,
               html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa;">
                   <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center;">
-                    <h1>✅ Оплата успешно подтверждена!</h1>
+                    <h1 style="margin: 0;">✅ Оплата подтверждена!</h1>
                   </div>
-                  <div style="padding: 30px; background: #f8f9fa;">
-                    <p>Уважаемый(ая) ${order.customer.fullName},</p>
-                    <p>Ваш платеж успешно обработан!</p>
-                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  
+                  <div style="padding: 30px;">
+                    <p style="font-size: 16px;">Уважаемый(ая) <strong>${order.customer.fullName}</strong>,</p>
+                    <p>Благодарим за оплату! Ваш заказ успешно обработан.</p>
+                    
+                    <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <h2 style="margin-top: 0; color: #059669; font-size: 20px;">📋 Детали заказа</h2>
                       <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
                       <p><strong>Услуга:</strong> ${orderTypeText}</p>
-                      <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                      ${detailsHTML}
+                      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                      <p style="font-size: 18px; color: #059669;"><strong>Итого:</strong> ${order.totalAmount} TJS</p>
+                      <p style="color: #10b981; font-size: 14px;">✓ Оплачено</p>
                     </div>
-                    <p>С вами свяжется наш менеджер для уточнения деталей.</p>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin: 25px 0;">
+                      <p style="margin: 0;"><strong>ℹ️ Важно:</strong> Сохраните этот номер заказа для связи с нами.</p>
+                    </div>
+                  </div>
+                  
+                  <div style="background: #3E3E3E; color: white; padding: 30px; text-align: center;">
+                    <h3 style="margin-top: 0;">Bunyod-Tour</h3>
+                    <p style="margin: 5px 0;">📍 Душанбе, Таджикистан</p>
+                    <p style="margin: 5px 0;">📞 Телефон: +992 XXX XXX XXX</p>
+                    <p style="margin: 5px 0;">✉️ Email: info@bunyodtour.tj</p>
+                    <p style="margin: 5px 0;">🌐 Сайт: <a href="https://bunyodtour.tj" style="color: #10b981;">bunyodtour.tj</a></p>
+                    <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">Туристическая платформа Центральной Азии</p>
                   </div>
                 </div>
               `
