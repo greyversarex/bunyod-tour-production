@@ -172,47 +172,113 @@ export const getOrder = async (req: Request, res: Response) => {
     const { orderNumber } = req.params;
     const language = getLanguageFromRequest(req);
 
-    const order = await prisma.order.findUnique({
-      where: { orderNumber },
-      include: {
-        customer: true,
-        tour: {
-          include: {
-            category: true,
-          },
-        },
-        hotel: true,
-        guide: true,
-      },
-    });
+    // Определить тип заказа по префиксу orderNumber
+    let formattedOrder: any = null;
 
-    if (!order) {
+    if (orderNumber.startsWith('GH-')) {
+      // Guide Hire Order
+      const guideHireOrder = await prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+          customer: true,
+          guideHireRequest: {
+            include: {
+              guide: true
+            }
+          }
+        }
+      });
+
+      if (guideHireOrder && guideHireOrder.guideHireRequest) {
+        formattedOrder = {
+          ...guideHireOrder,
+          orderType: 'guide-hire',
+          totalAmount: guideHireOrder.totalAmount,
+          currency: 'TJS'
+        };
+      }
+    } else if (orderNumber.startsWith('TR-')) {
+      // Transfer Order
+      const transferOrder = await prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+          customer: true,
+          transferRequest: true
+        }
+      });
+
+      if (transferOrder && transferOrder.transferRequest) {
+        formattedOrder = {
+          ...transferOrder,
+          orderType: 'transfer',
+          totalAmount: transferOrder.totalAmount,
+          currency: 'TJS'
+        };
+      }
+    } else if (orderNumber.startsWith('CT-')) {
+      // Custom Tour Order
+      const customTourOrder = await prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+          customer: true,
+          customTourOrder: true
+        }
+      });
+
+      if (customTourOrder && customTourOrder.customTourOrder) {
+        formattedOrder = {
+          ...customTourOrder,
+          orderType: 'custom-tour',
+          totalAmount: customTourOrder.totalAmount,
+          currency: 'TJS'
+        };
+      }
+    } else {
+      // Regular Tour Order (BT-* или без префикса)
+      const order = await prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+          customer: true,
+          tour: {
+            include: {
+              category: true,
+            },
+          },
+          hotel: true,
+          guide: true,
+        },
+      });
+
+      if (order) {
+        formattedOrder = {
+          ...order,
+          orderType: 'tour',
+          tourists: order.tourists ? JSON.parse(order.tourists) : [],
+          tour: order.tour ? {
+            ...order.tour,
+            title: parseMultilingualField(order.tour.title, language),
+            description: parseMultilingualField(order.tour.description, language),
+          } : null,
+          hotel: order.hotel ? {
+            ...order.hotel,
+            name: parseMultilingualField(order.hotel.name, language),
+            description: order.hotel.description ? parseMultilingualField(order.hotel.description, language) : null,
+          } : null,
+          guide: order.guide ? {
+            ...order.guide,
+            name: parseMultilingualField(order.guide.name, language),
+            description: order.guide.description ? parseMultilingualField(order.guide.description, language) : null,
+          } : null,
+        };
+      }
+    }
+
+    if (!formattedOrder) {
       return res.status(404).json({
         success: false,
         message: 'Order not found',
       });
     }
-
-    // Process multilingual fields correctly
-    const formattedOrder = {
-      ...order,
-      tourists: JSON.parse(order.tourists),
-      tour: order.tour ? {
-        ...order.tour,
-        title: parseMultilingualField(order.tour.title, language),
-        description: parseMultilingualField(order.tour.description, language),
-      } : null,
-      hotel: order.hotel ? {
-        ...order.hotel,
-        name: parseMultilingualField(order.hotel.name, language),
-        description: order.hotel.description ? parseMultilingualField(order.hotel.description, language) : null,
-      } : null,
-      guide: order.guide ? {
-        ...order.guide,
-        name: parseMultilingualField(order.guide.name, language),
-        description: order.guide.description ? parseMultilingualField(order.guide.description, language) : null,
-      } : null,
-    };
 
     return res.json({
       success: true,

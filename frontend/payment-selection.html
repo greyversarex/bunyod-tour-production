@@ -123,7 +123,7 @@
 
         async function fetchOrderDetails(orderNumber) {
             try {
-                const response = await fetch(`/api/orders/${orderNumber}`);
+                const response = await fetch(`/api/orders/number/${orderNumber}`);
                 const result = await response.json();
                 
                 if (result.success && result.data) {
