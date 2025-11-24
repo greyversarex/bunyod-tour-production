@@ -233,13 +233,58 @@ export const alifController = {
 
         // Отправить email подтверждение клиенту и уведомление администратору
         try {
-          // Email клиенту с билетом
-          await emailService.sendPaymentConfirmation(order, order.customer);
-          console.log('✅ Confirmation email sent to customer:', order.customer.email);
-          
-          // Email администратору о новой оплате
-          await emailService.sendAdminNotification(order, order.customer, order.tour);
-          console.log('✅ Admin notification email sent');
+          if (order.tour) {
+            // Оплата тура - стандартный email с PDF билетом
+            await emailService.sendPaymentConfirmation(order, order.customer);
+            await emailService.sendAdminNotification(order, order.customer, order.tour);
+            console.log('✅ Tour payment emails sent');
+          } else {
+            // Оплата гида/трансфера/собственного тура - простое уведомление
+            const orderTypeText = order.orderNumber.startsWith('GH-') ? 'найм гида' 
+              : order.orderNumber.startsWith('TR-') ? 'трансфер'
+              : order.orderNumber.startsWith('CT-') ? 'собственный тур'
+              : 'услуга';
+
+            // Email клиенту
+            await emailService.sendEmail({
+              to: order.customer.email,
+              subject: `✅ Оплата подтверждена - ${orderTypeText}`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center;">
+                    <h1>✅ Оплата успешно подтверждена!</h1>
+                  </div>
+                  <div style="padding: 30px; background: #f8f9fa;">
+                    <p>Уважаемый(ая) ${order.customer.fullName},</p>
+                    <p>Ваш платеж успешно обработан!</p>
+                    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                      <p><strong>Услуга:</strong> ${orderTypeText}</p>
+                      <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                    </div>
+                    <p>С вами свяжется наш менеджер для уточнения деталей.</p>
+                  </div>
+                </div>
+              `
+            });
+
+            // Email админу
+            await emailService.sendEmail({
+              to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+              subject: `💰 Новый платеж: ${orderTypeText} - ${order.totalAmount} TJS`,
+              html: `
+                <div style="font-family: Arial, sans-serif;">
+                  <h2>💰 Получен новый платеж!</h2>
+                  <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                  <p><strong>Услуга:</strong> ${orderTypeText}</p>
+                  <p><strong>Клиент:</strong> ${order.customer.fullName} (${order.customer.email})</p>
+                  <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                  <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/admin-dashboard.html">Перейти в админ панель</a>
+                </div>
+              `
+            });
+            console.log('✅ Non-tour payment emails sent');
+          }
         } catch (emailError) {
           console.error('❌ Email sending failed:', emailError);
         }

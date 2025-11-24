@@ -39,21 +39,9 @@ export const transferPaymentController = {
         });
       }
 
-      // Проверить статус transfer request
-      if (transferRequest.status !== 'approved' && transferRequest.status !== 'confirmed') {
-        return res.status(400).json({
-          success: false,
-          message: `Transfer request must be approved before payment. Current status: ${transferRequest.status}`
-        });
-      }
-
-      // Проверить что назначен водитель
-      if (!transferRequest.assignedDriverId || !transferRequest.assignedDriver) {
-        return res.status(400).json({
-          success: false,
-          message: 'Transfer request must have an assigned driver before payment'
-        });
-      }
+      // ✅ ПРЯМАЯ ОПЛАТА: Разрешаем оплату в любом статусе (как guide hire)
+      // Водитель будет назначен админом после оплаты
+      // (Проверка assignedDriver убрана для прямой оплаты)
 
       // Проверить что заказ еще не создан
       const existingOrder = await withRetry(() =>
@@ -97,6 +85,14 @@ export const transferPaymentController = {
         );
       }
 
+      // ✅ CRITICAL: Проверить что customer создан успешно
+      if (!customer) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to create customer'
+        });
+      }
+
       // Рассчитать сумму (используем finalPrice если установлена, иначе estimatedPrice)
       const totalAmount = transferRequest.finalPrice || transferRequest.estimatedPrice || 0;
 
@@ -107,8 +103,8 @@ export const transferPaymentController = {
         });
       }
 
-      // Сгенерировать orderNumber
-      const orderNumber = `TRF-${Date.now()}-${transferId}`;
+      // Сгенерировать orderNumber (формат: TR-timestamp-customerId)
+      const orderNumber = `TR-${Date.now()}-${customer.id}`;
 
       // Создать заказ
       const order = await withRetry(() =>

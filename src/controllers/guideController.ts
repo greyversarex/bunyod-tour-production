@@ -8,6 +8,7 @@ import {
   parseMultilingualField,
   safeJsonParse
 } from '../utils/multilingual';
+import { emailService } from '../services/emailService';
 
 // ✅ Унифицированная функция нормализации путей к фото
 const normalizePhotoPath = (photoPath: string | null): string | null => {
@@ -179,6 +180,46 @@ export const createGuide = async (req: Request, res: Response) => {
       guideCity: processedGuideCity,
       hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
     };
+
+    // 📧 Отправить email уведомление админу о новом гиде
+    try {
+      const guideName = typeof guide.name === 'string' ? JSON.parse(guide.name) : guide.name;
+      const guideNameRu = guideName?.ru || guideName?.en || 'Неизвестный гид';
+      
+      await emailService.sendEmail({
+        to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+        subject: `🎉 Новый гид добавлен: ${guideNameRu}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+              <h1>✨ Новый гид добавлен!</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa;">
+              <h2 style="color: #1f2937;">Информация о гиде:</h2>
+              
+              <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <p><strong>Имя:</strong> ${guideNameRu}</p>
+                <p><strong>ID:</strong> ${guide.id}</p>
+                <p><strong>Опыт:</strong> ${guide.experience || 'Не указан'} лет</p>
+                <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'Не указана'} ${guide.currency || 'TJS'}</p>
+                <p><strong>Доступен для найма:</strong> ${guide.isHireable ? 'Да' : 'Нет'}</p>
+                <p><strong>Активен:</strong> ${guide.isActive ? 'Да' : 'Нет'}</p>
+                ${contact ? `<p><strong>Контакт:</strong> ${typeof contact === 'string' ? contact : JSON.stringify(contact)}</p>` : ''}
+              </div>
+
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/admin-dashboard.html" 
+                 style="display: inline-block; background: #3E3E3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+                Перейти в админ панель
+              </a>
+            </div>
+          </div>
+        `
+      });
+      console.log(`📧 Email уведомление о новом гиде отправлено админу`);
+    } catch (emailError) {
+      console.error('⚠️ Не удалось отправить email о новом гиде (некритично):', emailError);
+    }
     
     return res.status(201).json({
       success: true,
