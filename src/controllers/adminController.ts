@@ -146,6 +146,15 @@ export class AdminController {
       }
 
       const decoded = jwt.verify(token, JWT_SECRET) as any;
+      
+      // ✅ Validate decoded token has adminId
+      if (!decoded.adminId) {
+        return res.status(401).json({
+          success: false,
+          error: 'Invalid token format'
+        });
+      }
+
       const admin = await prisma.admin.findUnique({
         where: { id: decoded.adminId }
       });
@@ -354,6 +363,16 @@ export const adminAuthMiddleware = async (req: Request, res: Response, next: Nex
     }
 
     const decoded = jwt.verify(token, JWT_SECRET) as any;
+    
+    // ✅ Validate decoded token has adminId
+    if (!decoded.adminId) {
+      res.status(401).json({
+        success: false,
+        error: 'Invalid token format'
+      });
+      return;
+    }
+
     const admin = await prisma.admin.findUnique({
       where: { id: decoded.adminId }
     });

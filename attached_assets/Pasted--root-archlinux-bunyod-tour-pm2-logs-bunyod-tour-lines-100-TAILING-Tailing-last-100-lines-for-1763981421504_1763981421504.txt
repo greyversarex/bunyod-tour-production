@@ -1,0 +1,374 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 100
+[TAILING] Tailing last 100 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-11-24T12:20:49:     },
+0|bunyod-t | 2025-11-24T12:20:49:     hotel: true,
+0|bunyod-t | 2025-11-24T12:20:49:     guide: true
+0|bunyod-t | 2025-11-24T12:20:49:   }
+0|bunyod-t | 2025-11-24T12:20:49: }
+0|bunyod-t | 2025-11-24T12:20:49:
+0|bunyod-t | 2025-11-24T12:20:49: Argument `id` is missing.
+0|bunyod-t | 2025-11-24T12:20:49:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-24T12:20:49:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-24T12:20:49:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-24T12:20:49:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-24T12:20:49:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-24T12:20:49:     at async getOrderById (/srv/bunyod-tour/dist/controllers/orderController.js:209:23) {
+0|bunyod-t | 2025-11-24T12:20:49:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-24T12:20:49: }
+0|bunyod-t | 2025-11-24T12:21:20: Error fetching order: PrismaClientValidationError:
+0|bunyod-t | 2025-11-24T12:21:20: Invalid `prisma.order.findUnique()` invocation:
+0|bunyod-t | 2025-11-24T12:21:20:
+0|bunyod-t | 2025-11-24T12:21:20: {
+0|bunyod-t | 2025-11-24T12:21:20:   where: {
+0|bunyod-t | 2025-11-24T12:21:20: +   id: Int
+0|bunyod-t | 2025-11-24T12:21:20:   },
+0|bunyod-t | 2025-11-24T12:21:20:   include: {
+0|bunyod-t | 2025-11-24T12:21:20:     customer: true,
+0|bunyod-t | 2025-11-24T12:21:20:     tour: {
+0|bunyod-t | 2025-11-24T12:21:20:       include: {
+0|bunyod-t | 2025-11-24T12:21:20:         category: true
+0|bunyod-t | 2025-11-24T12:21:20:       }
+0|bunyod-t | 2025-11-24T12:21:20:     },
+0|bunyod-t | 2025-11-24T12:21:20:     hotel: true,
+0|bunyod-t | 2025-11-24T12:21:20:     guide: true
+0|bunyod-t | 2025-11-24T12:21:20:   }
+0|bunyod-t | 2025-11-24T12:21:20: }
+0|bunyod-t | 2025-11-24T12:21:20:
+0|bunyod-t | 2025-11-24T12:21:20: Argument `id` is missing.
+0|bunyod-t | 2025-11-24T12:21:20:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-24T12:21:20:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-24T12:21:20:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-24T12:21:20:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-24T12:21:20:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-24T12:21:20:     at async getOrderById (/srv/bunyod-tour/dist/controllers/orderController.js:209:23) {
+0|bunyod-t | 2025-11-24T12:21:20:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-24T12:21:20: }
+0|bunyod-t | 2025-11-24T12:21:48: Error fetching order: PrismaClientValidationError:
+0|bunyod-t | 2025-11-24T12:21:48: Invalid `prisma.order.findUnique()` invocation:
+0|bunyod-t | 2025-11-24T12:21:48:
+0|bunyod-t | 2025-11-24T12:21:48: {
+0|bunyod-t | 2025-11-24T12:21:48:   where: {
+0|bunyod-t | 2025-11-24T12:21:48: +   id: Int
+0|bunyod-t | 2025-11-24T12:21:48:   },
+0|bunyod-t | 2025-11-24T12:21:48:   include: {
+0|bunyod-t | 2025-11-24T12:21:48:     customer: true,
+0|bunyod-t | 2025-11-24T12:21:48:     tour: {
+0|bunyod-t | 2025-11-24T12:21:48:       include: {
+0|bunyod-t | 2025-11-24T12:21:48:         category: true
+0|bunyod-t | 2025-11-24T12:21:48:       }
+0|bunyod-t | 2025-11-24T12:21:48:     },
+0|bunyod-t | 2025-11-24T12:21:48:     hotel: true,
+0|bunyod-t | 2025-11-24T12:21:48:     guide: true
+0|bunyod-t | 2025-11-24T12:21:48:   }
+0|bunyod-t | 2025-11-24T12:21:48: }
+0|bunyod-t | 2025-11-24T12:21:48:
+0|bunyod-t | 2025-11-24T12:21:48: Argument `id` is missing.
+0|bunyod-t | 2025-11-24T12:21:48:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-24T12:21:48:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-24T12:21:48:     at async getOrderById (/srv/bunyod-tour/dist/controllers/orderController.js:209:23) {
+0|bunyod-t | 2025-11-24T12:21:48:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-24T12:21:48: }
+0|bunyod-t | 2025-11-24T12:22:49: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T12:22:49:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T12:22:49:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T12:22:49:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T12:22:49:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T12:22:49:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T12:22:49:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T12:22:49:   command: 'CONN'
+0|bunyod-t | 2025-11-24T12:22:49: }
+0|bunyod-t | 2025-11-24T12:23:47: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T12:23:47:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T12:23:47:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T12:23:47:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T12:23:47:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T12:23:47:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T12:23:47:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T12:23:47:   command: 'CONN'
+0|bunyod-t | 2025-11-24T12:23:47: }
+0|bunyod-t | 2025-11-24T13:37:55: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:37:58: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:38:54: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T13:38:54:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T13:38:54:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T13:38:54:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T13:38:54:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T13:38:54:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T13:38:54:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T13:38:54:   command: 'CONN'
+0|bunyod-t | 2025-11-24T13:38:54: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 100 lines:
+0|bunyod-t | 2025-11-24T13:36:24:
+0|bunyod-t | 2025-11-24T13:36:24: Argument `where` of type AdminWhereUniqueInput needs at least one of `id`, `username` or `email` arguments. Available options are marked with ?.
+0|bunyod-t | 2025-11-24T13:36:24: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:24: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:24: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:24: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:31: prisma:error
+0|bunyod-t | 2025-11-24T13:36:31: Invalid `prisma.admin.findUnique()` invocation:
+0|bunyod-t | 2025-11-24T13:36:31:
+0|bunyod-t | 2025-11-24T13:36:31: {
+0|bunyod-t | 2025-11-24T13:36:31:   where: {
+0|bunyod-t | 2025-11-24T13:36:31:     id: undefined,
+0|bunyod-t | 2025-11-24T13:36:31: ?   username?: String,
+0|bunyod-t | 2025-11-24T13:36:31: ?   email?: String,
+0|bunyod-t | 2025-11-24T13:36:31: ?   AND?: AdminWhereInput | AdminWhereInput[],
+0|bunyod-t | 2025-11-24T13:36:31: ?   OR?: AdminWhereInput[],
+0|bunyod-t | 2025-11-24T13:36:31: ?   NOT?: AdminWhereInput | AdminWhereInput[],
+0|bunyod-t | 2025-11-24T13:36:31: ?   password?: StringFilter | String,
+0|bunyod-t | 2025-11-24T13:36:31: ?   fullName?: StringFilter | String,
+0|bunyod-t | 2025-11-24T13:36:31: ?   role?: StringFilter | String,
+0|bunyod-t | 2025-11-24T13:36:31: ?   isActive?: BoolFilter | Boolean,
+0|bunyod-t | 2025-11-24T13:36:31: ?   createdAt?: DateTimeFilter | DateTime,
+0|bunyod-t | 2025-11-24T13:36:31: ?   updatedAt?: DateTimeFilter | DateTime
+0|bunyod-t | 2025-11-24T13:36:31:   }
+0|bunyod-t | 2025-11-24T13:36:31: }
+0|bunyod-t | 2025-11-24T13:36:31:
+0|bunyod-t | 2025-11-24T13:36:31: Argument `where` of type AdminWhereUniqueInput needs at least one of `id`, `username` or `email` arguments. Available options are marked with ?.
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /tour-guides.html
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /tour-guides.html
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /public/js/multilingual-utils.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /public/js/multilingual-utils.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1763954907288-673800189.jpg
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1763954907288-673800189.jpg
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-24T13:36:39: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-24T13:36:54: ✅ Direct guide hire order created: GH-1763980614417-5, Amount: 600 TJS, Guide: {"ru":"Хушкадамов Фарход","en":"Хушкадамов Фарход"}, Days: 2
+0|bunyod-t | 2025-11-24T13:36:54: 💳 Serving payment-selection.html with params: [Object: null prototype] {
+0|bunyod-t | 2025-11-24T13:36:54:   orderNumber: 'GH-1763980614417-5',
+0|bunyod-t | 2025-11-24T13:36:54:   type: 'guide-hire'
+0|bunyod-t | 2025-11-24T13:36:54: }
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Original URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Decoded URL: /public/js/layout-loader.js
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Original URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-24T13:36:54: 🔄 Middleware check - Decoded URL: /_header.html?v=1.6
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Original URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Decoded URL: /_footer.html?v=1.4
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:55: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:36:57: ✅ Guide hire payment validated: 300 x 2 days = 600 TJS
+0|bunyod-t | 2025-11-24T13:36:57: 🔄 Creating AlifPay Legacy payment: Order 46, Amount 600 TJS
+0|bunyod-t | 2025-11-24T13:37:55: ✅ Guide hire payment validated: 300 x 2 days = 600 TJS
+0|bunyod-t | 2025-11-24T13:37:55: 🔄 Creating Payler payment: Order 46, Amount 60000 дирамов (600 TJS)
+0|bunyod-t | 2025-11-24T13:37:55: 📤 Payler request: {
+0|bunyod-t | 2025-11-24T13:37:55:   key: '***',
+0|bunyod-t | 2025-11-24T13:37:55:   type: 'OneStep',
+0|bunyod-t | 2025-11-24T13:37:55:   currency: 'TJS',
+0|bunyod-t | 2025-11-24T13:37:55:   amount: '60000',
+0|bunyod-t | 2025-11-24T13:37:55:   order_id: '46',
+0|bunyod-t | 2025-11-24T13:37:55:   email: 'Faha.H@mail.ru',
+0|bunyod-t | 2025-11-24T13:37:55:   return_url_success: 'http://147.45.213.8:5000/payment-success?orderNumber=GH-1763980614417-5',
+0|bunyod-t | 2025-11-24T13:37:55:   return_url_decline: 'http://147.45.213.8:5000/payment-fail?orderNumber=GH-1763980614417-5'
+0|bunyod-t | 2025-11-24T13:37:55: }
+0|bunyod-t | 2025-11-24T13:37:55: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:37:55: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 46"}}
+0|bunyod-t | 2025-11-24T13:37:58: ✅ Guide hire payment validated: 300 x 2 days = 600 TJS
+0|bunyod-t | 2025-11-24T13:37:58: 🔄 Creating Payler payment: Order 46, Amount 60000 дирамов (600 TJS)
+0|bunyod-t | 2025-11-24T13:37:58: 📤 Payler request: {
+0|bunyod-t | 2025-11-24T13:37:58:   key: '***',
+0|bunyod-t | 2025-11-24T13:37:58:   type: 'OneStep',
+0|bunyod-t | 2025-11-24T13:37:58:   currency: 'TJS',
+0|bunyod-t | 2025-11-24T13:37:58:   amount: '60000',
+0|bunyod-t | 2025-11-24T13:37:58:   order_id: '46',
+0|bunyod-t | 2025-11-24T13:37:58:   email: 'Faha.H@mail.ru',
+0|bunyod-t | 2025-11-24T13:37:58:   return_url_success: 'http://147.45.213.8:5000/payment-success?orderNumber=GH-1763980614417-5',
+0|bunyod-t | 2025-11-24T13:37:58:   return_url_decline: 'http://147.45.213.8:5000/payment-fail?orderNumber=GH-1763980614417-5'
+0|bunyod-t | 2025-11-24T13:37:58: }
+0|bunyod-t | 2025-11-24T13:37:58: 📥 Payler response status: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:37:58: 📥 Payler response body: {"error":{"code":3,"message":"Ранее создан заказ с указанным идентификатором: 46"}}
+0|bunyod-t | 2025-11-24T13:39:18: 🔄 Middleware check - Original URL: /public/css/layout.css?v=1.6
+0|bunyod-t | 2025-11-24T13:39:18: 🔄 Middleware check - Decoded URL: /public/css/layout.css?v=1.6
+
+^C
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --err --lines 50
+[TAILING] Tailing last 50 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 50 lines:
+0|bunyod-t | 2025-11-24T12:21:48:   include: {
+0|bunyod-t | 2025-11-24T12:21:48:     customer: true,
+0|bunyod-t | 2025-11-24T12:21:48:     tour: {
+0|bunyod-t | 2025-11-24T12:21:48:       include: {
+0|bunyod-t | 2025-11-24T12:21:48:         category: true
+0|bunyod-t | 2025-11-24T12:21:48:       }
+0|bunyod-t | 2025-11-24T12:21:48:     },
+0|bunyod-t | 2025-11-24T12:21:48:     hotel: true,
+0|bunyod-t | 2025-11-24T12:21:48:     guide: true
+0|bunyod-t | 2025-11-24T12:21:48:   }
+0|bunyod-t | 2025-11-24T12:21:48: }
+0|bunyod-t | 2025-11-24T12:21:48:
+0|bunyod-t | 2025-11-24T12:21:48: Argument `id` is missing.
+0|bunyod-t | 2025-11-24T12:21:48:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-24T12:21:48:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-24T12:21:48:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-24T12:21:48:     at async getOrderById (/srv/bunyod-tour/dist/controllers/orderController.js:209:23) {
+0|bunyod-t | 2025-11-24T12:21:48:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-24T12:21:48: }
+0|bunyod-t | 2025-11-24T12:22:49: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T12:22:49:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T12:22:49:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T12:22:49:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T12:22:49:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T12:22:49:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T12:22:49:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T12:22:49:   command: 'CONN'
+0|bunyod-t | 2025-11-24T12:22:49: }
+0|bunyod-t | 2025-11-24T12:23:47: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T12:23:47:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T12:23:47:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T12:23:47:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T12:23:47:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T12:23:47:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T12:23:47:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T12:23:47:   command: 'CONN'
+0|bunyod-t | 2025-11-24T12:23:47: }
+0|bunyod-t | 2025-11-24T13:37:55: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:37:58: ❌ Payler StartSession failed: 400 Bad Request
+0|bunyod-t | 2025-11-24T13:38:54: ❌ Failed to send admin notification email: Error: Connection timeout
+0|bunyod-t | 2025-11-24T13:38:54:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-24T13:38:54:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-24T13:38:54:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-24T13:38:54:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-24T13:38:54:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-24T13:38:54:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-24T13:38:54:   command: 'CONN'
+0|bunyod-t | 2025-11-24T13:38:54: }
+
+^C
+[root@archlinux bunyod-tour]# sudo tail -n 100 /var/log/nginx/access.log
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /_footer.html?v=1.4 HTTP/1.1" 200 18153 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /_header.html?v=1.6 HTTP/1.1" 200 20463 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/countries HTTP/1.1" 200 3537 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/city-card-photos HTTP/1.1" 200 6093 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/reviews/homepage HTTP/1.1" 200 26 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /public/css/layout.css?v=1.6 HTTP/1.1" 200 8928 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/cities HTTP/1.1" 200 5180 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1760931691157-394148299.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761106227929-573345484.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761106019963-777062205.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1760931805332-852053121.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /Logo-Ru_1754635713718.png HTTP/1.1" 200 115772 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761105908436-186643727.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761105917844-971233816.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/categories HTTP/1.1" 200 1230 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1760931781337-763197191.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761106206104-813421712.png HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /attached_assets/city-card-photos/city-card-1761396143257-701149385.jpg HTTP/1.1" 404 124 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/tour-blocks HTTP/1.1" 200 2123 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/slides HTTP/1.1" 200 1572 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /uploads/slides/slide-1761312792840-862970338.jpg HTTP/1.1" 404 102 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /uploads/slides/slide-1763332523263-464019075.jpg HTTP/1.1" 200 134638 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /uploads/slides/slide-1760347690487-963049369.jpg HTTP/1.1" 404 102 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /uploads/slides/slide-1760963906838-979765079.jpg HTTP/1.1" 404 102 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:44 +0300] "GET /api/tour-blocks/1/tours HTTP/1.1" 200 365227 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520684952-851241477.png HTTP/1.1" 200 65384 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699129-958087549.png HTTP/1.1" 200 83134 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698896-635796911.png HTTP/1.1" 200 96330 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698974-39695552.png HTTP/1.1" 200 152668 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698820-462292111.png HTTP/1.1" 200 94636 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699205-535034864.png HTTP/1.1" 200 24012 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699339-792273617.png HTTP/1.1" 200 50676 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/2/tours HTTP/1.1" 200 145464 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699856-854772021.png HTTP/1.1" 200 77190 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699447-4309185.png HTTP/1.1" 200 233768 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699960-697242737.png HTTP/1.1" 200 98440 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763904342481-475572708.png HTTP/1.1" 200 87520 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308398-7241608.png HTTP/1.1" 200 120402 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/3/tours HTTP/1.1" 200 734742 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520700220-913413129.png HTTP/1.1" 200 415856 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308801-21104232.png HTTP/1.1" 200 255648 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545290017-175108477.png HTTP/1.1" 200 268404 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308489-654306485.png HTTP/1.1" 200 292006 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545309132-972979502.png HTTP/1.1" 200 178340 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308585-480176835.png HTTP/1.1" 200 237110 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308916-586686667.png HTTP/1.1" 200 127282 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625023233-442593610.png HTTP/1.1" 200 209894 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625052944-982592220.png HTTP/1.1" 200 197296 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625053251-803496284.png HTTP/1.1" 200 108734 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625053071-437445747.png HTTP/1.1" 200 181170 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/4/tours HTTP/1.1" 200 178815 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625053007-696442503.png HTTP/1.1" 200 101688 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625053334-899335981.png HTTP/1.1" 200 90248 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763625053148-85432047.png HTTP/1.1" 200 315478 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /placeholder-tour.jpg HTTP/1.1" 404 74 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308688-736804879.png HTTP/1.1" 200 245192 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520684952-851241477.png HTTP/1.1" 200 65384 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698820-462292111.png HTTP/1.1" 200 94636 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699129-958087549.png HTTP/1.1" 200 83134 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/5/tours HTTP/1.1" 200 26 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698896-635796911.png HTTP/1.1" 200 96330 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520698974-39695552.png HTTP/1.1" 200 152668 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699205-535034864.png HTTP/1.1" 200 24012 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699339-792273617.png HTTP/1.1" 200 50676 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699447-4309185.png HTTP/1.1" 200 233768 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/6/tours HTTP/1.1" 200 26 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699856-854772021.png HTTP/1.1" 200 77190 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520699960-697242737.png HTTP/1.1" 200 98440 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763904342481-475572708.png HTTP/1.1" 200 87520 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763520700220-913413129.png HTTP/1.1" 200 415856 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545290017-175108477.png HTTP/1.1" 200 268404 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/tour-blocks/7/tours HTTP/1.1" 200 26905 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308398-7241608.png HTTP/1.1" 200 120402 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308801-21104232.png HTTP/1.1" 200 255648 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308489-654306485.png HTTP/1.1" 200 292006 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545309132-972979502.png HTTP/1.1" 200 178340 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763545308585-480176835.png HTTP/1.1" 200 237110 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763562443389-304017906.png HTTP/1.1" 200 238680 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763562453621-725694029.png HTTP/1.1" 200 406556 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763701149607-616015407.png HTTP/1.1" 200 1237904 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763701149810-173173756.png HTTP/1.1" 200 2256681 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763701149710-761684985.png HTTP/1.1" 200 3707895 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763562453722-921576824.png HTTP/1.1" 200 562332 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763562453953-937832597.png HTTP/1.1" 200 3993612 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763623850050-264549614.png HTTP/1.1" 200 254878 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763970217967-848607663.png HTTP/1.1" 200 79808 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:45 +0300] "GET /api/objects/direct/image-1763970228287-450653536.png HTTP/1.1" 200 34738 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:46 +0300] "GET /api/objects/direct/image-1763970228369-860494503.png HTTP/1.1" 200 87600 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:46 +0300] "GET /api/objects/direct/image-1763970228453-767979297.png HTTP/1.1" 200 193158 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:46 +0300] "GET /api/objects/direct/image-1763970228607-567108580.png HTTP/1.1" 200 250642 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:46 +0300] "GET /api/objects/direct/image-1763970228531-190353059.png HTTP/1.1" 200 132516 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+89.248.172.33 - - [24/Nov/2025:11:47:46 +0300] "GET /api/objects/direct/image-1763701129493-370460267.png HTTP/1.1" 200 2584067 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+93.174.93.114 - - [24/Nov/2025:11:48:10 +0300] "GET /favicon.ico HTTP/1.1" 404 65 "http://147.45.213.8/?repl_preview=1763974063816" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36"
+176.65.148.246 - - [24/Nov/2025:11:51:17 +0300] "GET / HTTP/1.0" 200 72457 "-" "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"
+213.209.157.254 - - [24/Nov/2025:12:05:52 +0300] "GET /.git/config HTTP/1.1" 404 65 "-" "Mozilla/5.0 (Linux; Android 7.1.1; Moto E (4) Plus) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.111 Mobile Safari/537.36"
+87.120.191.124 - - [24/Nov/2025:12:14:08 +0300] "GET / HTTP/1.1" 200 72457 "-" "Hello World"
+193.34.213.150 - - [24/Nov/2025:12:53:20 +0300] "GET / HTTP/1.1" 200 72457 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+43.133.220.37 - - [24/Nov/2025:12:56:41 +0300] "GET / HTTP/1.1" 200 72457 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+20.169.105.44 - - [24/Nov/2025:12:59:33 +0300] "GET /manager/html HTTP/1.1" 404 66 "-" "Mozilla/5.0 zgrab/0.x"
+64.62.197.167 - - [24/Nov/2025:13:15:58 +0300] "\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\xFF8A\xCA\xD2\xD5 \xA9\x8A\xD3/\x8F\xAC\x06\xB2B\x98\xF6\x8FU\xCD\x15\xE7\xD1~\x90\xC2\x82g\xDD:\x82\x00\x00\x1A\xC0/\xC0+\xC0\x11\xC0\x07\xC0\x13\xC0\x09\xC0\x14\xC0" 400 150 "-" "-"
+[root@archlinux bunyod-tour]# sudo tail -n 100 /var/log/nginx/error.log
+tail: cannot open '/var/log/nginx/error.log' for reading: No such file or directory
+[root@archlinux bunyod-tour]# pm2 status
+┌────┬────────────────────┬──────────┬──────┬───────────┬──────────┬──────────┐
+│ id │ name               │ mode     │ ↺    │ status    │ cpu      │ memory   │
+├────┼────────────────────┼──────────┼──────┼───────────┼──────────┼──────────┤
+│ 0  │ bunyod-tour        │ fork     │ 4    │ online    │ 0%       │ 140.1mb  │
+└────┴────────────────────┴──────────┴──────┴───────────┴──────────┴──────────┘
+[root@archlinux bunyod-tour]# pm2 env bunyod-tour | grep PAYLER
+[PM2][ERROR] Modules with id bunyod-tour not found
+[root@archlinux bunyod-tour]#

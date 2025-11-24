@@ -13,7 +13,11 @@ const EMAIL_CONFIG = {
   },
   tls: {
     rejectUnauthorized: false // Allow self-signed certificates
-  }
+  },
+  // ✅ Добавлены timeout настройки для предотвращения зависаний
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 30000,   // 30 seconds
+  socketTimeout: 60000      // 60 seconds
 };
 
 // Create reusable transporter

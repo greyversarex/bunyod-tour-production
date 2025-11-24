@@ -299,6 +299,14 @@ export const getOrderById = async (req: Request, res: Response) => {
     const { id } = req.params;
     const language = getLanguageFromRequest(req);
 
+    // ✅ Validate id parameter
+    if (!id || isNaN(parseInt(id))) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid order ID',
+      });
+    }
+
     const order = await prisma.order.findUnique({
       where: { id: parseInt(id) },
       include: {
