@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import prisma from '../config/database';
-import { sendEmail } from '../services/emailService';
 
 // Получить активные туры для админ панели
 export const getActiveTours = async (req: Request, res: Response): Promise<void> => {
@@ -295,87 +294,6 @@ export const createTourGuide = async (req: Request, res: Response): Promise<void
     });
 
     console.log('✅ Tour guide created:', guide.login);
-
-    // 📧 Отправить email гиду с учетными данными
-    if (email && email.includes('@')) {
-      try {
-        await sendEmail({
-          to: email,
-          subject: '🎉 Добро пожаловать в Bunyod-Tour!',
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h1 style="margin: 0;">🌟 Добро пожаловать в команду Bunyod-Tour!</h1>
-              </div>
-              
-              <div style="padding: 30px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
-                <p style="font-size: 16px;">Здравствуйте, <strong>${name}</strong>!</p>
-                <p>Вы успешно добавлены в нашу платформу в качестве тургида.</p>
-                
-                <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
-                  <h3 style="margin-top: 0; color: #2e7d32;">🔑 Ваши данные для входа:</h3>
-                  <p><strong>Логин:</strong> ${login}</p>
-                  <p><strong>Временный пароль:</strong> ${password}</p>
-                  <p style="font-size: 13px; color: #666; margin-top: 10px;">⚠️ Рекомендуем сменить пароль после первого входа</p>
-                </div>
-
-                <div style="text-align: center; margin: 25px 0;">
-                  <a href="${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}/guide-login.html" 
-                     style="display: inline-block; background: #667eea; color: white; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-weight: bold;">
-                    🔐 Войти в личный кабинет
-                  </a>
-                </div>
-
-                <p style="margin-top: 30px; color: #666; font-size: 14px;">
-                  Если у вас есть вопросы, свяжитесь с нами:<br>
-                  📧 Email: ${process.env.ADMIN_EMAIL || 'info@bunyodtour.tj'}<br>
-                  🌐 Сайт: ${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}
-                </p>
-                
-                <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-                <p style="text-align: center; color: #999; font-size: 12px;">
-                  © ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.
-                </p>
-              </div>
-            </div>
-          `
-        });
-        console.log(`📧 Email с учетными данными отправлен гиду: ${email}`);
-      } catch (emailError) {
-        console.error('⚠️ Не удалось отправить email гиду:', emailError);
-      }
-
-      // Уведомление админу
-      try {
-        await sendEmail({
-          to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
-          subject: `✨ Новый тургид добавлен: ${name}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: #3E3E3E; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0;">
-                <h2 style="margin: 0;">✨ Новый тургид добавлен!</h2>
-              </div>
-              <div style="padding: 20px; background: #f8f9fa; border-radius: 0 0 10px 10px;">
-                <p><strong>Имя:</strong> ${name}</p>
-                <p><strong>Логин:</strong> ${login}</p>
-                <p><strong>Email:</strong> ${email}</p>
-                <p><strong>Телефон:</strong> ${phone || 'Не указан'}</p>
-                <p><strong>Дата создания:</strong> ${new Date().toLocaleString('ru-RU')}</p>
-                <div style="text-align: center; margin-top: 20px;">
-                  <a href="${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}/admin-dashboard.html" 
-                     style="display: inline-block; background: #3E3E3E; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px;">
-                    Открыть админ панель
-                  </a>
-                </div>
-              </div>
-            </div>
-          `
-        });
-        console.log('📧 Уведомление админу о новом гиде отправлено');
-      } catch (adminEmailError) {
-        console.error('⚠️ Не удалось отправить уведомление админу:', adminEmailError);
-      }
-    }
 
     res.json({
       success: true,
