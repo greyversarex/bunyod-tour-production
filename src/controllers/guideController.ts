@@ -38,7 +38,8 @@ export const createGuide = async (req: Request, res: Response) => {
       description, 
       photo, 
       languages, 
-      contact, 
+      contact,
+      email, // 📧 Поле email из формы
       experience, 
       rating, 
       isActive,
@@ -186,23 +187,29 @@ export const createGuide = async (req: Request, res: Response) => {
       const guideName = typeof guide.name === 'string' ? JSON.parse(guide.name) : guide.name;
       const guideNameRu = guideName?.ru || guideName?.en || 'Неизвестный гид';
       
-      // Получить email гида из contact (безопасный парсинг)
+      // 📧 Получить email гида напрямую из поля email или из contact
       let guideEmail = null;
-      if (contact) {
+      
+      // Сначала проверяем отдельное поле email
+      if (email && typeof email === 'string' && email.includes('@') && !email.includes('noemail')) {
+        guideEmail = email;
+      }
+      // Если нет, пробуем получить из contact
+      else if (contact) {
         try {
-          // Попробовать распарсить как JSON
           const contactData = typeof contact === 'string' ? JSON.parse(contact) : contact;
           guideEmail = contactData?.email || null;
         } catch {
-          // Если парсинг не удался, возможно это просто email строка
           if (typeof contact === 'string' && contact.includes('@')) {
             guideEmail = contact;
           }
         }
       }
 
+      console.log(`📧 Попытка отправки email гиду: ${guideEmail || 'email не указан'}`);
+
       // Отправить email гиду
-      if (guideEmail && guideEmail.includes('@')) {
+      if (guideEmail && guideEmail.includes('@') && !guideEmail.includes('noemail')) {
         const loginCredentials = login && password ? `
           <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #2e7d32;">🔑 Ваши данные для входа:</h3>
