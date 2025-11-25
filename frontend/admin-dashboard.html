@@ -5048,6 +5048,8 @@
                 categoriesIds: selectedCategories.map(cat => parseInt(cat.id)),
                 tourBlockIds: Array.from(document.querySelectorAll('input[name="tourBlocks"]:checked')).map(cb => parseInt(cb.value)),
                 isFeatured: safeGetValue('tourIsFeatured', false, 'checkbox'),
+                isPromotion: safeGetValue('tourIsPromotion', false, 'checkbox'),
+                discountPercent: safeGetValue('tourDiscountPercent', 0, 'float'),
                 isActive: true,
                 // Собираем выбранные отели
                 hotelIds: Array.from(document.querySelectorAll('input[name="selectedHotels"]:checked')).map(cb => parseInt(cb.value)),
@@ -7040,6 +7042,24 @@
                             }
                         }, 800); // Ждем загрузки блоков туров
                         
+                        // 🔥 ДОБАВЛЕНО: Загрузка данных акции при редактировании
+                        const tourIsPromotionCheckbox = document.getElementById("tourIsPromotion");
+                        const tourDiscountPercentInput = document.getElementById("tourDiscountPercent");
+                        const discountFieldContainer = document.getElementById("discountFieldContainer");
+                        
+                        if (tourIsPromotionCheckbox && tourDiscountPercentInput && discountFieldContainer) {
+                            if (tour.isPromotion) {
+                                tourIsPromotionCheckbox.checked = true;
+                                discountFieldContainer.style.display = "flex";
+                                tourDiscountPercentInput.value = tour.discountPercent || "";
+                                console.log("🔥 Акция загружена: скидка", tour.discountPercent, "%");
+                            } else {
+                                tourIsPromotionCheckbox.checked = false;
+                                discountFieldContainer.style.display = "none";
+                                tourDiscountPercentInput.value = "";
+                            }
+                        }
+
                         // Заполнение pickupInfo в основной форме
                         const tourPickupInfoField = document.getElementById('tourPickupInfo');
                         if (tourPickupInfoField && tour.pickupInfo) {
@@ -7251,6 +7271,18 @@
         }
         
         // Функция для сохранения как черновик
+        // Функция для показа/скрытия поля скидки
+        function toggleDiscountField() {
+            const isPromotion = document.getElementById("tourIsPromotion").checked;
+            const discountContainer = document.getElementById("discountFieldContainer");
+            if (isPromotion) {
+                discountContainer.style.display = "flex";
+            } else {
+                discountContainer.style.display = "none";
+                document.getElementById("tourDiscountPercent").value = "";
+            }
+        }
+
         function saveTourAsDraft() {
             saveTourForm(true); // isDraft = true
         }
@@ -7465,6 +7497,8 @@
                 includes: JSON.stringify(includedServices), // 🎯 ДОБАВЛЕНО: Отправляем включенные услуги
                 isActive: !isDraft, // 📝 Черновики неактивны (isDraft=true → isActive=false)
                 isFeatured: false,
+                isPromotion: safeGetValue('tourIsPromotion', false, 'checkbox'),
+                discountPercent: safeGetValue('tourDiscountPercent', 0, 'float'),
                 isDraft: isDraft // 📝 Добавляем статус черновика
             };
             
