@@ -7,6 +7,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { parseMultilingualField } from '../utils/multilingual';
 import prisma from '../config/database';
+import { emailService } from '../services/emailService';
 // JWT_SECRET is validated at server startup - will never be undefined here
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -1019,6 +1020,95 @@ export const createTourGuideProfile = async (req: Request, res: Response): Promi
     });
 
     console.log('✅ Новый гид создан в таблице Guide:', guide.id);
+
+    // 📧 Отправить email уведомление гиду
+    try {
+      // Получаем имя гида для письма
+      let guideName = name;
+      try {
+        const parsedName = typeof name === 'string' ? JSON.parse(name) : name;
+        guideName = parsedName?.ru || parsedName?.en || name;
+      } catch {
+        guideName = name;
+      }
+
+      console.log(`📧 Попытка отправки email гиду: ${email}`);
+
+      if (email && email.includes('@') && !email.includes('noemail')) {
+        const loginCredentials = login && password ? `
+          <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
+            <h3 style="margin-top: 0; color: #2e7d32;">🔑 Ваши данные для входа:</h3>
+            <p><strong>Логин:</strong> ${login}</p>
+            <p><strong>Пароль:</strong> ${password}</p>
+            <p style="font-size: 13px; color: #666; margin-top: 10px;">⚠️ Рекомендуем сменить пароль после первого входа</p>
+          </div>
+        ` : '';
+
+        await emailService.sendEmail({
+          to: email,
+          subject: `🎉 Добро пожаловать в Bunyod-Tour, ${guideName}!`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+                <h1>🌟 Добро пожаловать в команду Bunyod-Tour!</h1>
+              </div>
+              
+              <div style="padding: 30px; background: #f8f9fa;">
+                <p style="font-size: 16px;">Здравствуйте, <strong>${guideName}</strong>!</p>
+                <p>Вы успешно добавлены в нашу платформу в качестве гида.</p>
+                
+                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                  <h3 style="margin-top: 0; color: #1f2937;">📋 Ваш профиль:</h3>
+                  <p><strong>ID:</strong> ${guide.id}</p>
+                  <p><strong>Опыт:</strong> ${guide.experience || 0} лет</p>
+                </div>
+
+                ${loginCredentials}
+
+                <a href="${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}/tour-guide-login.html" 
+                   style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+                  🔐 Войти в личный кабинет
+                </a>
+
+                <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                  Если у вас есть вопросы, свяжитесь с нами:<br>
+                  📧 Email: ${process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj'}<br>
+                  🌐 Сайт: ${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}
+                </p>
+              </div>
+            </div>
+          `
+        });
+        console.log(`✅ Email приветствие отправлено гиду: ${email}`);
+      } else {
+        console.log(`⚠️ Email не отправлен: email не указан или недействителен (${email})`);
+      }
+
+      // Отправить уведомление админу
+      await emailService.sendEmail({
+        to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+        subject: `🎉 Новый гид добавлен: ${guideName}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+              <h1>✨ Новый гид добавлен!</h1>
+            </div>
+            <div style="padding: 30px; background: #f8f9fa;">
+              <p><strong>ID:</strong> ${guide.id}</p>
+              <p><strong>Имя:</strong> ${guideName}</p>
+              <p><strong>Email:</strong> ${email}</p>
+              <p><strong>Логин:</strong> ${login || 'не указан'}</p>
+              <p><strong>Опыт:</strong> ${guide.experience || 0} лет</p>
+              <p><strong>Статус:</strong> ${guide.isActive ? 'Активен ✅' : 'Неактивен'}</p>
+            </div>
+          </div>
+        `
+      });
+      console.log(`✅ Уведомление админу отправлено`);
+    } catch (emailError) {
+      console.error('❌ Ошибка отправки email:', emailError);
+      // Не прерываем создание гида из-за ошибки email
+    }
 
     res.status(201).json({
       success: true,
