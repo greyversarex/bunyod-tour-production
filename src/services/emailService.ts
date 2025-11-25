@@ -4,7 +4,17 @@ import puppeteer from 'puppeteer';
 
 let connectionSettings: any;
 
-async function getCredentials() {
+async function getCredentials(): Promise<{apiKey: string, email: string}> {
+  // 1. Сначала проверяем переменные окружения (для production)
+  if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM_EMAIL) {
+    console.log('📧 Using SendGrid from environment variables');
+    return {
+      apiKey: process.env.SENDGRID_API_KEY,
+      email: process.env.SENDGRID_FROM_EMAIL
+    };
+  }
+
+  // 2. Затем пробуем Replit интеграцию (для development)
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -12,24 +22,31 @@ async function getCredentials() {
     ? 'depl ' + process.env.WEB_REPL_RENEWAL 
     : null;
 
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
-  }
+  if (hostname && xReplitToken) {
+    try {
+      connectionSettings = await fetch(
+        'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+        {
+          headers: {
+            'Accept': 'application/json',
+            'X_REPLIT_TOKEN': xReplitToken
+          }
+        }
+      ).then(res => res.json()).then(data => data.items?.[0]);
 
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
+      if (connectionSettings?.settings?.api_key && connectionSettings?.settings?.from_email) {
+        console.log('📧 Using SendGrid from Replit integration');
+        return {
+          apiKey: connectionSettings.settings.api_key,
+          email: connectionSettings.settings.from_email
+        };
       }
+    } catch (error) {
+      console.warn('⚠️ Replit SendGrid integration not available:', error);
     }
-  ).then(res => res.json()).then(data => data.items?.[0]);
-
-  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
-    throw new Error('SendGrid not connected');
   }
-  return {apiKey: connectionSettings.settings.api_key, email: connectionSettings.settings.from_email};
+
+  throw new Error('SendGrid not configured. Set SENDGRID_API_KEY and SENDGRID_FROM_EMAIL in .env');
 }
 
 async function getUncachableSendGridClient() {

@@ -1,0 +1,59 @@
+[root@archlinux bunyod-tour]# curl -v --connect-timeout 5 telnet://mail.timeweb.com:465
+curl -v --connect-timeout 5 telnet://mail.timeweb.com:587
+* Host mail.timeweb.com:465 was resolved.
+* IPv6: (none)
+* IPv4: 178.248.239.157
+*   Trying 178.248.239.157:465...
+* Connection timed out after 5000 milliseconds
+* closing connection #0
+curl: (28) Connection timed out after 5000 milliseconds
+* Host mail.timeweb.com:587 was resolved.
+* IPv6: (none)
+* IPv4: 178.248.239.157
+*   Trying 178.248.239.157:587...
+* Connection timed out after 5000 milliseconds
+* closing connection #0
+curl: (28) Connection timed out after 5000 milliseconds
+[root@archlinux bunyod-tour]# nslookup mail.timeweb.com
+ping -c 3 mail.timeweb.com
+-bash: nslookup: command not found
+PING mail.timeweb.com (178.248.239.157) 56(84) bytes of data.
+64 bytes from 178.248.239.157: icmp_seq=1 ttl=59 time=0.863 ms
+64 bytes from 178.248.239.157: icmp_seq=2 ttl=59 time=0.607 ms
+64 bytes from 178.248.239.157: icmp_seq=3 ttl=59 time=0.571 ms
+
+--- mail.timeweb.com ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2020ms
+rtt min/avg/max/mdev = 0.571/0.680/0.863/0.130 ms
+[root@archlinux bunyod-tour]# # Проверка правильного сервера
+curl -v --connect-timeout 5 telnet://smtp.timeweb.ru:465
+curl -v --connect-timeout 5 telnet://smtp.timeweb.ru:2525
+curl -v --connect-timeout 5 telnet://smtp.timeweb.ru:25
+* Host smtp.timeweb.ru:465 was resolved.
+* IPv6: (none)
+* IPv4: 176.57.223.7, 176.57.223.12, 176.57.223.13
+*   Trying 176.57.223.7:465...
+*   Trying 176.57.223.12:465...
+*   Trying 176.57.223.13:465...
+* Connection timed out after 5002 milliseconds
+* closing connection #0
+curl: (28) Connection timed out after 5002 milliseconds
+* Host smtp.timeweb.ru:2525 was resolved.
+* IPv6: (none)
+* IPv4: 176.57.223.7, 176.57.223.12, 176.57.223.13
+*   Trying 176.57.223.7:2525...
+*   Trying 176.57.223.12:2525...
+*   Trying 176.57.223.13:2525...
+* Connection timed out after 5002 milliseconds
+* closing connection #0
+curl: (28) Connection timed out after 5002 milliseconds
+* Host smtp.timeweb.ru:25 was resolved.
+* IPv6: (none)
+* IPv4: 176.57.223.7, 176.57.223.13, 176.57.223.12
+*   Trying 176.57.223.7:25...
+*   Trying 176.57.223.13:25...
+*   Trying 176.57.223.12:25...
+* Connection timed out after 5002 milliseconds
+* closing connection #0
+curl: (28) Connection timed out after 5002 milliseconds
+[root@archlinux bunyod-tour]#
