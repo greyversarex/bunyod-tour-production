@@ -1,0 +1,250 @@
+[TAILING] Tailing last 100 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-11-25T09:02:19:       }
+0|bunyod-t | 2025-11-25T09:02:19:     },
+0|bunyod-t | 2025-11-25T09:02:19:     updatedAt: new Date("2025-11-25T06:02:19.686Z"),
+0|bunyod-t | 2025-11-25T09:02:19:     image: "/uploads/slides/slide-1764050539528-351482617.webp"
+0|bunyod-t | 2025-11-25T09:02:19:   }
+0|bunyod-t | 2025-11-25T09:02:19: }
+0|bunyod-t | 2025-11-25T09:02:19:
+0|bunyod-t | 2025-11-25T09:02:19: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:19:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:19:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:19:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:19:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:19: }
+0|bunyod-t | 2025-11-25T09:02:28: Error updating slide: PrismaClientValidationError:
+0|bunyod-t | 2025-11-25T09:02:28: Invalid `prisma.slide.update()` invocation:
+0|bunyod-t | 2025-11-25T09:02:28:
+0|bunyod-t | 2025-11-25T09:02:28: {
+0|bunyod-t | 2025-11-25T09:02:28:   where: {
+0|bunyod-t | 2025-11-25T09:02:28:     id: 4
+0|bunyod-t | 2025-11-25T09:02:28:   },
+0|bunyod-t | 2025-11-25T09:02:28:   data: {
+0|bunyod-t | 2025-11-25T09:02:28:     title: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Бунёд-Тур всегда с нами!",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Bunyod-Tour is always with us!"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     description: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Покорим Таджикистан и Центральную Азию с Бунёд-Тур!",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Let's conquer Tajikistan and Central Asia with Bunyod-Tour!"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     link: "https://bunyodtour.tj/",
+0|bunyod-t | 2025-11-25T09:02:28:     buttonText: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Наши туры здесь",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:28:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:28:     city: {
+0|bunyod-t | 2025-11-25T09:02:28:       connect: {
+0|bunyod-t | 2025-11-25T09:02:28: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:28:       }
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     updatedAt: new Date("2025-11-25T06:02:28.867Z"),
+0|bunyod-t | 2025-11-25T09:02:28:     image: "/uploads/slides/slide-1764050548676-416968856.webp"
+0|bunyod-t | 2025-11-25T09:02:28:   }
+0|bunyod-t | 2025-11-25T09:02:28: }
+0|bunyod-t | 2025-11-25T09:02:28:
+0|bunyod-t | 2025-11-25T09:02:28: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:28:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:28:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:28:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:28:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:28: }
+0|bunyod-t | 2025-11-25T09:02:45: Error updating slide: PrismaClientValidationError:
+0|bunyod-t | 2025-11-25T09:02:45: Invalid `prisma.slide.update()` invocation:
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: {
+0|bunyod-t | 2025-11-25T09:02:45:   where: {
+0|bunyod-t | 2025-11-25T09:02:45:     id: 4
+0|bunyod-t | 2025-11-25T09:02:45:   },
+0|bunyod-t | 2025-11-25T09:02:45:   data: {
+0|bunyod-t | 2025-11-25T09:02:45:     title: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Бунёд-Тур всегда с нами!",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Bunyod-Tour is always with us!"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     description: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Покорим Таджикистан и Центральную Азию с Бунёд-Тур!",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Let's conquer Tajikistan and Central Asia with Bunyod-Tour!"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     link: "https://bunyodtour.tj/",
+0|bunyod-t | 2025-11-25T09:02:45:     buttonText: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Наши туры здесь",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:45:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:45:     city: {
+0|bunyod-t | 2025-11-25T09:02:45:       connect: {
+0|bunyod-t | 2025-11-25T09:02:45: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:45:       }
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     updatedAt: new Date("2025-11-25T06:02:45.631Z"),
+0|bunyod-t | 2025-11-25T09:02:45:     image: "/uploads/slides/slide-1764050565381-801085755.webp"
+0|bunyod-t | 2025-11-25T09:02:45:   }
+0|bunyod-t | 2025-11-25T09:02:45: }
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:45:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:45:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:45:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:45:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:45: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 100 lines:
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1764062692510-939487317.png
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1764062692510-939487317.png
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:24:56: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1762747406055-929729292.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1762747406055-929729292.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761893428854-574171512.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761893428854-574171512.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761711617304-755619286.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761711617304-755619286.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761650976145-431308119.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761650976145-431308119.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761717297857-874691633.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761717297857-874691633.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761712623267-975869741.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761712623267-975869741.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761719299908-944260824.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761719299908-944260824.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761648078405-918732948.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761648078405-918732948.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761647311602-541281092.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761647311602-541281092.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761642374558-269693397.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761642374558-269693397.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761639662200-598753624.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761639662200-598753624.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761638585178-286324893.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761638585178-286324893.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761640594218-846576125.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761640594218-846576125.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761632397508-510034357.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761632397508-510034357.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761634650983-329552405.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761634650983-329552405.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761630594227-270895882.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761630594227-270895882.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761629395764-574982543.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761629395764-574982543.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761626808748-543147605.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761626808748-543147605.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761625382327-665808678.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761625382327-665808678.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761628287582-499314512.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761628287582-499314512.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761623992283-546244300.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761623992283-546244300.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761622497051-27116297.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761622497051-27116297.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761564867349-898380557.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761564867349-898380557.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761563380833-925028809.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761563380833-925028809.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761557803638-849299727.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761557803638-849299727.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761562129233-871945006.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761562129233-871945006.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761558427379-363869632.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761558427379-363869632.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761555719128-95901143.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761555719128-95901143.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761552977707-394861798.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761552977707-394861798.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761551957230-704202880.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761551957230-704202880.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761550792727-858971730.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761550792727-858971730.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761538943434-367055799.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761538943434-367055799.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761542389189-14577693.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761542389189-14577693.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761538162339-70550782.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761538162339-70550782.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761535885327-898587032.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761535885327-898587032.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761537367738-998879601.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761537367738-998879601.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761463377707-235768778.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761463377707-235768778.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761459643211-241645238.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761459643211-241645238.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761459060720-508670407.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761459060720-508670407.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761458849483-728310157.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761458849483-728310157.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761727411004-991720550.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761727411004-991720550.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761729276023-571155854.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761729276023-571155854.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761727268077-346335096.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761727268077-346335096.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761725691579-627454899.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761725691579-627454899.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761724764154-600467355.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761724764154-600467355.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Original URL: /uploads/images/image-1761724028967-383326833.png
+0|bunyod-t | 2025-11-25T12:24:59: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761724028967-383326833.png
+0|bunyod-t | 2025-11-25T12:25:00: 🔄 Middleware check - Original URL: /uploads/images/image-1760593174266-469209931.png
+0|bunyod-t | 2025-11-25T12:25:00: 🔄 Middleware check - Decoded URL: /uploads/images/image-1760593174266-469209931.png
+
+0|bunyod-tour  | 2025-11-25T12:25:36: ⛔ Гид 9 деактивирован, доступ к кабинету закрыт
+0|bunyod-tour  | 2025-11-25T12:25:38: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-tour  | 2025-11-25T12:25:38: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-tour  | 2025-11-25T12:25:38: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-tour  | 2025-11-25T12:25:38: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-tour  | 2025-11-25T12:26:05: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-tour  | 2025-11-25T12:26:09: 📝 Получен запрос на создание гида
+0|bunyod-tour  | 2025-11-25T12:26:09: 📁 Получены файлы: [Object: null prototype] {
+0|bunyod-tour  | 2025-11-25T12:26:09:   avatar: [
+0|bunyod-tour  | 2025-11-25T12:26:09:     {
+0|bunyod-tour  | 2025-11-25T12:26:09:       fieldname: 'avatar',
+0|bunyod-tour  | 2025-11-25T12:26:09:       originalname: 'ChatGPT Image 26 Ð°Ð²Ð³. 2025 Ð³., 13_35_09.png',
+0|bunyod-tour  | 2025-11-25T12:26:09:       encoding: '7bit',
+0|bunyod-tour  | 2025-11-25T12:26:09:       mimetype: 'image/png',
+0|bunyod-tour  | 2025-11-25T12:26:09:       destination: '/srv/bunyod-tour/uploads/guides',
+0|bunyod-tour  | 2025-11-25T12:26:09:       filename: 'avatar-1764062765995-428574850.png',
+0|bunyod-tour  | 2025-11-25T12:26:09:       path: '/srv/bunyod-tour/uploads/guides/avatar-1764062765995-428574850.png',
+0|bunyod-tour  | 2025-11-25T12:26:09:       size: 2855064
+0|bunyod-tour  | 2025-11-25T12:26:09:     }
+0|bunyod-tour  | 2025-11-25T12:26:09:   ]
+0|bunyod-tour  | 2025-11-25T12:26:09: }
+0|bunyod-tour  | 2025-11-25T12:26:36: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-tour  | 2025-11-25T12:26:38: 📝 Получен запрос на создание гида
+0|bunyod-tour  | 2025-11-25T12:26:38: 📁 Получены файлы: [Object: null prototype] {
+0|bunyod-tour  | 2025-11-25T12:26:38:   avatar: [
+0|bunyod-tour  | 2025-11-25T12:26:38:     {
+0|bunyod-tour  | 2025-11-25T12:26:38:       fieldname: 'avatar',
+0|bunyod-tour  | 2025-11-25T12:26:38:       originalname: 'ChatGPT Image 26 Ð°Ð²Ð³. 2025 Ð³., 13_35_09.png',
+0|bunyod-tour  | 2025-11-25T12:26:38:       encoding: '7bit',
+0|bunyod-tour  | 2025-11-25T12:26:38:       mimetype: 'image/png',
+0|bunyod-tour  | 2025-11-25T12:26:38:       destination: '/srv/bunyod-tour/uploads/guides',
+0|bunyod-tour  | 2025-11-25T12:26:38:       filename: 'avatar-1764062796104-628575704.png',
+0|bunyod-tour  | 2025-11-25T12:26:38:       path: '/srv/bunyod-tour/uploads/guides/avatar-1764062796104-628575704.png',
+0|bunyod-tour  | 2025-11-25T12:26:38:       size: 2855064
+0|bunyod-tour  | 2025-11-25T12:26:38:     }
+0|bunyod-tour  | 2025-11-25T12:26:38:   ]
+0|bunyod-tour  | 2025-11-25T12:26:38: }
+0|bunyod-tour  | 2025-11-25T12:26:38: 📷 Аватар сохранен: /srv/bunyod-tour/uploads/guides/avatar-1764062796104-628575704.png
+0|bunyod-tour  | 2025-11-25T12:26:38: ✅ Новый гид создан в таблице Guide: 10
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1764062796104-628575704.png
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1764062796104-628575704.png
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-tour  | 2025-11-25T12:26:40: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
