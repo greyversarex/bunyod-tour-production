@@ -3563,6 +3563,28 @@
         </div>
     </div>
 
+    <!-- Tour Monitoring Details Modal -->
+    <div id="tourMonitoringModal" class="modal">
+        <div class="modal-content" style="width: 900px; max-height: 90vh; overflow-y: auto;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-semibold">Детали тура</h2>
+                <button onclick="closeTourMonitoringModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="tourMonitoringDetails">
+                <!-- Tour details will be loaded here -->
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="closeTourMonitoringModal()" class="btn btn-secondary">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Booking Details Modal -->
     <div id="bookingModal" class="modal">
         <div class="modal-content" style="width: 700px;">
@@ -9557,16 +9579,18 @@
                 });
                 const finishedData = await finishedResponse.json();
                 
+                // Сохраняем полный список для статистики и модальных окон
                 allMonitoringTours = [
                     ...(activeData.data || []),
                     ...(finishedData.data || [])
                 ];
 
-                // Обновляем статистику
+                // Обновляем статистику (из полного списка, но считаем только туристов из туров с бронированиями)
                 updateMonitoringStats(allMonitoringTours);
                 
-                // Отображаем туры
-                displayMonitoringTours(allMonitoringTours);
+                // Отображаем только туры с бронированиями
+                const toursWithBookings = allMonitoringTours.filter(tour => tour.bookingsCount > 0);
+                displayMonitoringTours(toursWithBookings);
                 
             } catch (error) {
                 console.error('Error loading tour monitoring:', error);
@@ -9689,11 +9713,14 @@
             });
             event.target.classList.add('active');
 
-            let filteredTours = allMonitoringTours;
+            // Сначала фильтруем только туры с бронированиями
+            let filteredTours = allMonitoringTours.filter(t => t.bookingsCount > 0);
+            
+            // Затем применяем фильтр по статусу
             if (filter === 'active') {
-                filteredTours = allMonitoringTours.filter(t => t.status === 'active' || t.status === 'pending');
+                filteredTours = filteredTours.filter(t => t.status === 'active' || t.status === 'pending');
             } else if (filter === 'finished') {
-                filteredTours = allMonitoringTours.filter(t => t.status === 'finished');
+                filteredTours = filteredTours.filter(t => t.status === 'finished');
             }
 
             displayMonitoringTours(filteredTours);
@@ -9707,24 +9734,205 @@
                 const data = await response.json();
                 const tour = data.data;
                 
-                // Показать детали тура в alert (временно - можно создать модальное окно)
                 const title = getTourName(tour);
                 const guideName = tour.assignedGuide ? getGuideName(tour.assignedGuide) : 'Не назначен';
+                const currentDay = tour.currentDay || 0;
+                const totalDays = tour.totalDays || tour.durationDays || 1;
+                const progress = totalDays > 0 ? Math.round((currentDay / totalDays) * 100) : 0;
                 
-                alert(`
-Тур: ${title}
-Код: ${tour.uniqueCode}
-Гид: ${guideName}
-Статус: ${tour.status}
-Прогресс: День ${tour.currentDay || 0} из ${tour.totalDays || 0}
-Туристы: ${tour.totalTourists || 0}
-Бронирований: ${tour.bookings ? tour.bookings.length : 0}
-${tour.completedDays && tour.completedDays.length > 0 ? `\nЗавершённые дни: ${tour.completedDays.join(', ')}` : ''}
-                `.trim());
+                // Статус бейдж
+                const statusBadge = tour.status === 'active'
+                    ? '<span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">Активен</span>'
+                    : tour.status === 'pending'
+                    ? '<span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">Ожидает</span>'
+                    : '<span class="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold">Завершён</span>';
+
+                // Прогресс бар
+                const progressBar = tour.status === 'active' || tour.status === 'finished' ? `
+                    <div class="w-full mt-2">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-semibold text-gray-600">День ${currentDay}/${totalDays}</span>
+                            <span class="text-sm font-bold ${tour.status === 'finished' ? 'text-green-600' : 'text-blue-600'}">
+                                ${tour.status === 'finished' ? '100' : progress}%
+                            </span>
+                        </div>
+                        <div style="width: 100%; height: 10px; background: #e5e7eb; border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: ${tour.status === 'finished' ? 100 : progress}%; 
+                                background: ${tour.status === 'finished' ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #3b82f6, #2563eb)'};
+                                transition: width 0.3s ease; border-radius: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                ` : '';
+
+                // Список туристов
+                let touristsHtml = '';
+                if (tour.tourists && tour.tourists.length > 0) {
+                    touristsHtml = `
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-users text-blue-500 mr-2"></i>
+                                Туристы (${tour.tourists.length})
+                            </h4>
+                            <div class="bg-gray-50 rounded-lg overflow-hidden">
+                                <table class="w-full text-sm">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left font-semibold">#</th>
+                                            <th class="px-4 py-2 text-left font-semibold">ФИО</th>
+                                            <th class="px-4 py-2 text-left font-semibold">Паспорт</th>
+                                            <th class="px-4 py-2 text-left font-semibold">Контакт</th>
+                                            <th class="px-4 py-2 text-left font-semibold">Отель</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${tour.tourists.map((tourist, idx) => `
+                                            <tr class="border-t border-gray-200 hover:bg-gray-100">
+                                                <td class="px-4 py-2">${idx + 1}</td>
+                                                <td class="px-4 py-2 font-medium">${tourist.fullName || tourist.name || 'Не указано'}</td>
+                                                <td class="px-4 py-2">${tourist.passportNumber || '—'}</td>
+                                                <td class="px-4 py-2">
+                                                    ${tourist.contactEmail ? `<a href="mailto:${tourist.contactEmail}" class="text-blue-600 hover:underline">${tourist.contactEmail}</a>` : ''}
+                                                    ${tourist.contactPhone ? `<br><span class="text-gray-600">${tourist.contactPhone}</span>` : ''}
+                                                </td>
+                                                <td class="px-4 py-2">${tourist.hotel?.name?.ru || tourist.hotel?.name?.en || '—'}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Завершённые дни (отчётность гида)
+                let completedDaysHtml = '';
+                if (tour.completedDays && tour.completedDays.length > 0) {
+                    completedDaysHtml = `
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-clipboard-check text-green-500 mr-2"></i>
+                                Отчётность гида
+                            </h4>
+                            <div class="grid grid-cols-7 gap-2">
+                                ${Array.from({length: totalDays}, (_, i) => i + 1).map(day => {
+                                    const isCompleted = tour.completedDays.includes(day);
+                                    return `
+                                        <div class="p-2 rounded-lg text-center ${isCompleted ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}">
+                                            <div class="text-xs font-medium">День ${day}</div>
+                                            <i class="fas ${isCompleted ? 'fa-check-circle text-green-600' : 'fa-circle text-gray-300'} mt-1"></i>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Отзывы
+                let reviewsHtml = '';
+                if (tour.reviews && tour.reviews.length > 0) {
+                    reviewsHtml = `
+                        <div class="mt-6">
+                            <h4 class="text-lg font-semibold mb-3 flex items-center">
+                                <i class="fas fa-star text-yellow-500 mr-2"></i>
+                                Отзывы (${tour.reviews.length})
+                            </h4>
+                            <div class="space-y-3">
+                                ${tour.reviews.map(review => `
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-medium">${review.customer?.fullName || 'Гость'}</span>
+                                            <div class="flex items-center">
+                                                ${Array.from({length: 5}, (_, i) => `
+                                                    <i class="fas fa-star ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}"></i>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <p class="text-gray-600 text-sm">${review.comment || ''}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Формируем полный контент
+                const detailsHtml = `
+                    <div class="space-y-4">
+                        <!-- Основная информация -->
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-route text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">${title}</h3>
+                                        <p class="text-sm text-gray-600">Код: ${tour.uniqueCode || '—'}</p>
+                                    </div>
+                                </div>
+                                ${progressBar}
+                            </div>
+                            
+                            <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-user-tie text-white text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-gray-800">${guideName}</h3>
+                                        <p class="text-sm text-gray-600">Гид тура</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-sm text-gray-600">Статус:</span>
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Даты и статистика -->
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <i class="fas fa-calendar-alt text-2xl text-blue-500 mb-2"></i>
+                                <div class="text-xs text-gray-500">Начало</div>
+                                <div class="font-semibold">${tour.scheduledStartDate ? new Date(tour.scheduledStartDate).toLocaleDateString('ru-RU') : '—'}</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <i class="fas fa-calendar-check text-2xl text-green-500 mb-2"></i>
+                                <div class="text-xs text-gray-500">Окончание</div>
+                                <div class="font-semibold">${tour.scheduledEndDate ? new Date(tour.scheduledEndDate).toLocaleDateString('ru-RU') : '—'}</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <i class="fas fa-users text-2xl text-purple-500 mb-2"></i>
+                                <div class="text-xs text-gray-500">Туристы</div>
+                                <div class="font-semibold">${tour.totalTourists || 0}</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-4 text-center">
+                                <i class="fas fa-receipt text-2xl text-orange-500 mb-2"></i>
+                                <div class="text-xs text-gray-500">Бронирований</div>
+                                <div class="font-semibold">${tour.bookings?.length || 0}</div>
+                            </div>
+                        </div>
+                        
+                        ${completedDaysHtml}
+                        ${touristsHtml}
+                        ${reviewsHtml}
+                    </div>
+                `;
+
+                document.getElementById('tourMonitoringDetails').innerHTML = detailsHtml;
+                document.getElementById('tourMonitoringModal').classList.add('active');
+                
             } catch (error) {
                 console.error('Error loading tour details:', error);
-                alert('Ошибка загрузки деталей тура');
+                showNotification('Ошибка загрузки деталей тура', 'error');
             }
+        }
+
+        function closeTourMonitoringModal() {
+            document.getElementById('tourMonitoringModal').classList.remove('active');
         }
         
         // Hotels functions - moved to line 4302
