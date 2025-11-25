@@ -55,6 +55,11 @@ export const createGuide = async (req: Request, res: Response) => {
       isHireable
     } = req.body;
     
+    // 🔍 DEBUG: Логируем входящие данные для отладки email
+    console.log('🔍 DEBUG createGuide - email поле:', email);
+    console.log('🔍 DEBUG createGuide - contact поле:', contact);
+    console.log('🔍 DEBUG createGuide - login:', login);
+    
     // Convert numeric fields
     const experienceNumber = experience ? parseInt(experience) : null;
     const ratingNumber = rating ? parseFloat(rating) : null;
