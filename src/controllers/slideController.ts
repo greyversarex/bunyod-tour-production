@@ -326,11 +326,11 @@ export const updateSlide = async (req: any, res: Response): Promise<void> => {
     if (parsedData.order !== undefined) updateData.order = parsedData.order;
     if (parsedData.isActive !== undefined) updateData.isActive = parsedData.isActive;
     
-    // 🔧 CITY RELATION: Use Prisma relation syntax
+    // 🔧 CITY RELATION: Use Prisma relation syntax with validation
     if (parsedData.cityId !== undefined) {
-      if (parsedData.cityId === null) {
+      if (parsedData.cityId === null || !Number.isFinite(parsedData.cityId)) {
         updateData.city = { disconnect: true };
-      } else {
+      } else if (parsedData.cityId > 0) {
         updateData.city = { connect: { id: parsedData.cityId } };
       }
     }
