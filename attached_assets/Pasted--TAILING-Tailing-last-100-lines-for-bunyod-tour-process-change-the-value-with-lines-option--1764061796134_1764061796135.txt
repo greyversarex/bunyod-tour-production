@@ -1,0 +1,204 @@
+[TAILING] Tailing last 100 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 100 lines:
+0|bunyod-t | 2025-11-25T09:02:19:       }
+0|bunyod-t | 2025-11-25T09:02:19:     },
+0|bunyod-t | 2025-11-25T09:02:19:     updatedAt: new Date("2025-11-25T06:02:19.686Z"),
+0|bunyod-t | 2025-11-25T09:02:19:     image: "/uploads/slides/slide-1764050539528-351482617.webp"
+0|bunyod-t | 2025-11-25T09:02:19:   }
+0|bunyod-t | 2025-11-25T09:02:19: }
+0|bunyod-t | 2025-11-25T09:02:19:
+0|bunyod-t | 2025-11-25T09:02:19: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:19:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:19:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:19:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:19:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:19:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:19: }
+0|bunyod-t | 2025-11-25T09:02:28: Error updating slide: PrismaClientValidationError:
+0|bunyod-t | 2025-11-25T09:02:28: Invalid `prisma.slide.update()` invocation:
+0|bunyod-t | 2025-11-25T09:02:28:
+0|bunyod-t | 2025-11-25T09:02:28: {
+0|bunyod-t | 2025-11-25T09:02:28:   where: {
+0|bunyod-t | 2025-11-25T09:02:28:     id: 4
+0|bunyod-t | 2025-11-25T09:02:28:   },
+0|bunyod-t | 2025-11-25T09:02:28:   data: {
+0|bunyod-t | 2025-11-25T09:02:28:     title: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Бунёд-Тур всегда с нами!",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Bunyod-Tour is always with us!"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     description: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Покорим Таджикистан и Центральную Азию с Бунёд-Тур!",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Let's conquer Tajikistan and Central Asia with Bunyod-Tour!"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     link: "https://bunyodtour.tj/",
+0|bunyod-t | 2025-11-25T09:02:28:     buttonText: {
+0|bunyod-t | 2025-11-25T09:02:28:       ru: "Наши туры здесь",
+0|bunyod-t | 2025-11-25T09:02:28:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:28:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:28:     city: {
+0|bunyod-t | 2025-11-25T09:02:28:       connect: {
+0|bunyod-t | 2025-11-25T09:02:28: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:28:       }
+0|bunyod-t | 2025-11-25T09:02:28:     },
+0|bunyod-t | 2025-11-25T09:02:28:     updatedAt: new Date("2025-11-25T06:02:28.867Z"),
+0|bunyod-t | 2025-11-25T09:02:28:     image: "/uploads/slides/slide-1764050548676-416968856.webp"
+0|bunyod-t | 2025-11-25T09:02:28:   }
+0|bunyod-t | 2025-11-25T09:02:28: }
+0|bunyod-t | 2025-11-25T09:02:28:
+0|bunyod-t | 2025-11-25T09:02:28: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:28:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:28:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:28:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:28:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:28:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:28: }
+0|bunyod-t | 2025-11-25T09:02:45: Error updating slide: PrismaClientValidationError:
+0|bunyod-t | 2025-11-25T09:02:45: Invalid `prisma.slide.update()` invocation:
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: {
+0|bunyod-t | 2025-11-25T09:02:45:   where: {
+0|bunyod-t | 2025-11-25T09:02:45:     id: 4
+0|bunyod-t | 2025-11-25T09:02:45:   },
+0|bunyod-t | 2025-11-25T09:02:45:   data: {
+0|bunyod-t | 2025-11-25T09:02:45:     title: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Бунёд-Тур всегда с нами!",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Bunyod-Tour is always with us!"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     description: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Покорим Таджикистан и Центральную Азию с Бунёд-Тур!",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Let's conquer Tajikistan and Central Asia with Bunyod-Tour!"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     link: "https://bunyodtour.tj/",
+0|bunyod-t | 2025-11-25T09:02:45:     buttonText: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Наши туры здесь",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:45:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:45:     city: {
+0|bunyod-t | 2025-11-25T09:02:45:       connect: {
+0|bunyod-t | 2025-11-25T09:02:45: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:45:       }
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     updatedAt: new Date("2025-11-25T06:02:45.631Z"),
+0|bunyod-t | 2025-11-25T09:02:45:     image: "/uploads/slides/slide-1764050565381-801085755.webp"
+0|bunyod-t | 2025-11-25T09:02:45:   }
+0|bunyod-t | 2025-11-25T09:02:45: }
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:45:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:45:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:45:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:45:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:45: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 100 lines:
+0|bunyod-t | 2025-11-25T11:50:45: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T11:52:07: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-t | 2025-11-25T11:52:08: 📝 Получен запрос на создание гида
+0|bunyod-t | 2025-11-25T11:52:08: 📁 Получены файлы: [Object: null prototype] {}
+0|bunyod-t | 2025-11-25T11:52:08: ✅ Новый гид создан в таблице Guide: 6
+0|bunyod-t | 2025-11-25T11:54:33: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T11:54:33: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T11:54:33: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T11:54:33: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:01:22: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-11-25T12:01:22: 🏠 Request URL: /
+0|bunyod-t | 2025-11-25T12:01:22: 🏠 Request path: /
+0|bunyod-t | 2025-11-25T12:06:47: 🏠 Serving home page with query params: [Object: null prototype] {}
+0|bunyod-t | 2025-11-25T12:06:47: 🏠 Request URL: /
+0|bunyod-t | 2025-11-25T12:06:47: 🏠 Request path: /
+0|bunyod-t | 2025-11-25T12:07:24: [dotenv@17.2.3] injecting env (29) from .env -- tip: ⚙️  override existing env vars with { override: true }
+0|bunyod-t | 2025-11-25T12:07:24: 🏭 PRODUCTION MODE: Using pre-compiled JavaScript from dist/
+0|bunyod-t | 2025-11-25T12:07:24:
+0|bunyod-t | 2025-11-25T12:07:24: 🔍 Проверка переменных окружения...
+0|bunyod-t | 2025-11-25T12:07:24:
+0|bunyod-t | 2025-11-25T12:07:24: ✅ Все обязательные переменные окружения установлены
+0|bunyod-t | 2025-11-25T12:07:24: ✅ Значения переменных окружения валидны
+0|bunyod-t | 2025-11-25T12:07:24: 📝 Не настроенные сервисы: STRIPE_SECRET_KEY, PAYME_MERCHANT_ID, CLICK_MERCHANT_ID
+0|bunyod-t | 2025-11-25T12:07:24:
+0|bunyod-t | 2025-11-25T12:07:24: ✅ Валидация окружения завершена успешно
+0|bunyod-t | 2025-11-25T12:07:24:
+0|bunyod-t | 2025-11-25T12:07:25: ✅ Backend API routes loaded successfully (compiled)
+0|bunyod-t | 2025-11-25T12:07:25: 🗄️ Подключение к PostgreSQL через Prisma...
+0|bunyod-t | 2025-11-25T12:07:25: 🔧 Применение схемы базы данных...
+0|bunyod-t | 2025-11-25T12:07:25: 🏭 PRODUCTION: Пропускаем migrate deploy на старте (RUN_MIGRATIONS_ON_BOOT!=true)
+0|bunyod-t | 2025-11-25T12:07:25: 💡 Миграции выполняются через ./update.sh при обновлении
+0|bunyod-t | 2025-11-25T12:07:25: 🏭 PRODUCTION: Пропускаем seed на старте (RUN_SEED_ON_BOOT!=true)
+0|bunyod-t | 2025-11-25T12:07:25: 💡 Сид выполняется через ./update.sh при обновлении
+0|bunyod-t | 2025-11-25T12:07:25: ✅ База данных готова к работе!
+0|bunyod-t | 2025-11-25T12:07:25: Starting backend API server...
+0|bunyod-t | 2025-11-25T12:07:25: 🚀 Unified server running on port 5000
+0|bunyod-t | 2025-11-25T12:07:25: 📱 Frontend: http://0.0.0.0:5000
+0|bunyod-t | 2025-11-25T12:07:25: 🔧 Admin: http://0.0.0.0:5000/admin-dashboard.html
+0|bunyod-t | 2025-11-25T12:07:25: 🌐 API: http://0.0.0.0:5000/api
+0|bunyod-t | 2025-11-25T12:07:25: 🗄️  База данных: PostgreSQL через Prisma
+0|bunyod-t | 2025-11-25T12:07:27: 🧮 Инициализация компонентов калькулятора цен...
+0|bunyod-t | 2025-11-25T12:07:27: 📊 Инициализация компонентов: создано 0, пропущено 21 (уже существуют)
+0|bunyod-t | 2025-11-25T12:07:27: ✅ Инициализировано 21 компонентов по умолчанию
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /admin-dashboard.html
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /admin-dashboard.html
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/utils.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/utils.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /public/js/security-utils.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /public/js/security-utils.js
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061657144-489162020.png
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061657144-489162020.png
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-25T12:07:37: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-25T12:07:38: 🔄 Middleware check - Original URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-11-25T12:07:38: 🔄 Middleware check - Decoded URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Original URL: /$%7BabsoluteImageUrl%7D
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Decoded URL: /${absoluteImageUrl}
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Original URL: /$%7BmainImageUrl%7D
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Decoded URL: /${mainImageUrl}
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Original URL: /$%7BvalidateImageUrl(guide.photo)%7D
+0|bunyod-t | 2025-11-25T12:07:39: 🔄 Middleware check - Decoded URL: /${validateImageUrl(guide.photo)}
+0|bunyod-t | 2025-11-25T12:07:40: 🔄 Middleware check - Original URL: /public/js/custom-tour-cities.js
+0|bunyod-t | 2025-11-25T12:07:40: 🔄 Middleware check - Decoded URL: /public/js/custom-tour-cities.js
+0|bunyod-t | 2025-11-25T12:07:43: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:07:43: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:07:43: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:07:43: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:07:46: ⛔ Гид 6 деактивирован, доступ к кабинету закрыт
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061666743-160679163.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061666743-160679163.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061666962-812100350.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061666962-812100350.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061666848-607763992.png
+0|bunyod-t | 2025-11-25T12:07:47: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061666848-607763992.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061674902-425027149.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061674902-425027149.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061675089-989218944.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061675089-989218944.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Original URL: /api/objects/direct/image-1764061675208-525974556.png
+0|bunyod-t | 2025-11-25T12:07:55: 🔄 Middleware check - Decoded URL: /api/objects/direct/image-1764061675208-525974556.png
+0|bunyod-t | 2025-11-25T12:08:31: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-t | 2025-11-25T12:08:31: 📝 Получен запрос на создание гида
+0|bunyod-t | 2025-11-25T12:08:31: 📁 Получены файлы: [Object: null prototype] {}
+0|bunyod-t | 2025-11-25T12:08:31: ✅ Новый гид создан в таблице Guide: 7
+0|bunyod-t | 2025-11-25T12:08:33: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:08:33: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:08:33: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:08:33: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
