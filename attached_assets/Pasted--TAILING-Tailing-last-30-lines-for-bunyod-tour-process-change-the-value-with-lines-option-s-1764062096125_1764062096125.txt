@@ -1,0 +1,64 @@
+[TAILING] Tailing last 30 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 30 lines:
+0|bunyod-t | 2025-11-25T09:02:45:     description: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Покорим Таджикистан и Центральную Азию с Бунёд-Тур!",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Let's conquer Tajikistan and Central Asia with Bunyod-Tour!"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     link: "https://bunyodtour.tj/",
+0|bunyod-t | 2025-11-25T09:02:45:     buttonText: {
+0|bunyod-t | 2025-11-25T09:02:45:       ru: "Наши туры здесь",
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:45:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:45:     city: {
+0|bunyod-t | 2025-11-25T09:02:45:       connect: {
+0|bunyod-t | 2025-11-25T09:02:45: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:45:       }
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     updatedAt: new Date("2025-11-25T06:02:45.631Z"),
+0|bunyod-t | 2025-11-25T09:02:45:     image: "/uploads/slides/slide-1764050565381-801085755.webp"
+0|bunyod-t | 2025-11-25T09:02:45:   }
+0|bunyod-t | 2025-11-25T09:02:45: }
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:45:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:45:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:45:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:45:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:45: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 30 lines:
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Original URL: /uploads/images/image-1761724028967-383326833.png
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761724028967-383326833.png
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Original URL: /uploads/images/image-1761724764154-600467355.png
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761724764154-600467355.png
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Original URL: /uploads/images/image-1761725691579-627454899.png
+0|bunyod-t | 2025-11-25T12:13:15: 🔄 Middleware check - Decoded URL: /uploads/images/image-1761725691579-627454899.png
+0|bunyod-t | 2025-11-25T12:14:19: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-t | 2025-11-25T12:14:21: 📝 Получен запрос на создание гида
+0|bunyod-t | 2025-11-25T12:14:21: 📁 Получены файлы: [Object: null prototype] {
+0|bunyod-t | 2025-11-25T12:14:21:   avatar: [
+0|bunyod-t | 2025-11-25T12:14:21:     {
+0|bunyod-t | 2025-11-25T12:14:21:       fieldname: 'avatar',
+0|bunyod-t | 2025-11-25T12:14:21:       originalname: 'ChatGPT Image 26 Ð°Ð²Ð³. 2025 Ð³., 13_35_09.png',
+0|bunyod-t | 2025-11-25T12:14:21:       encoding: '7bit',
+0|bunyod-t | 2025-11-25T12:14:21:       mimetype: 'image/png',
+0|bunyod-t | 2025-11-25T12:14:21:       destination: '/srv/bunyod-tour/uploads/guides',
+0|bunyod-t | 2025-11-25T12:14:21:       filename: 'avatar-1764062059492-401554488.png',
+0|bunyod-t | 2025-11-25T12:14:21:       path: '/srv/bunyod-tour/uploads/guides/avatar-1764062059492-401554488.png',
+0|bunyod-t | 2025-11-25T12:14:21:       size: 2855064
+0|bunyod-t | 2025-11-25T12:14:21:     }
+0|bunyod-t | 2025-11-25T12:14:21:   ]
+0|bunyod-t | 2025-11-25T12:14:21: }
+0|bunyod-t | 2025-11-25T12:14:21: 📷 Аватар сохранен: /srv/bunyod-tour/uploads/guides/avatar-1764062059492-401554488.png
+0|bunyod-t | 2025-11-25T12:14:21: ✅ Новый гид создан в таблице Guide: 8
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1764062059492-401554488.png
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1764062059492-401554488.png
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:14:23: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
