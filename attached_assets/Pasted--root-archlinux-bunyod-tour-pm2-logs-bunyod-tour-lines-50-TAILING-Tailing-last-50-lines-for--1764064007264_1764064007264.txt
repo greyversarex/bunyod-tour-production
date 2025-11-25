@@ -1,0 +1,105 @@
+[root@archlinux bunyod-tour]# pm2 logs bunyod-tour --lines 50
+[TAILING] Tailing last 50 lines for [bunyod-tour] process (change the value with --lines option)
+/srv/bunyod-tour/logs/pm2-error.log last 50 lines:
+0|bunyod-t | 2025-11-25T09:02:45:       en: "Our tours are here"
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     order: 1,
+0|bunyod-t | 2025-11-25T09:02:45:     isActive: true,
+0|bunyod-t | 2025-11-25T09:02:45:     city: {
+0|bunyod-t | 2025-11-25T09:02:45:       connect: {
+0|bunyod-t | 2025-11-25T09:02:45: +       id: Int
+0|bunyod-t | 2025-11-25T09:02:45:       }
+0|bunyod-t | 2025-11-25T09:02:45:     },
+0|bunyod-t | 2025-11-25T09:02:45:     updatedAt: new Date("2025-11-25T06:02:45.631Z"),
+0|bunyod-t | 2025-11-25T09:02:45:     image: "/uploads/slides/slide-1764050565381-801085755.webp"
+0|bunyod-t | 2025-11-25T09:02:45:   }
+0|bunyod-t | 2025-11-25T09:02:45: }
+0|bunyod-t | 2025-11-25T09:02:45:
+0|bunyod-t | 2025-11-25T09:02:45: Argument `id` is missing.
+0|bunyod-t | 2025-11-25T09:02:45:     at _n (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:29:1363)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6926)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.handleAndLogRequestError (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6608)
+0|bunyod-t | 2025-11-25T09:02:45:     at ei.request (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:121:6315)
+0|bunyod-t | 2025-11-25T09:02:45:     at async a (/srv/bunyod-tour/node_modules/@prisma/client/runtime/library.js:130:9551)
+0|bunyod-t | 2025-11-25T09:02:45:     at async updateSlide (/srv/bunyod-tour/dist/controllers/slideController.js:299:23) {
+0|bunyod-t | 2025-11-25T09:02:45:   clientVersion: '6.15.0'
+0|bunyod-t | 2025-11-25T09:02:45: }
+0|bunyod-t | 2025-11-25T12:44:48: ❌ Ошибка отправки email: Error: Connection timeout
+0|bunyod-t | 2025-11-25T12:44:48:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-25T12:44:48:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-25T12:44:48:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-25T12:44:48:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-25T12:44:48:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-25T12:44:48:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-25T12:44:48:   command: 'CONN'
+0|bunyod-t | 2025-11-25T12:44:48: }
+0|bunyod-t | 2025-11-25T12:45:08: ❌ Ошибка отправки email: Error: Connection timeout
+0|bunyod-t | 2025-11-25T12:45:08:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-25T12:45:08:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-25T12:45:08:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-25T12:45:08:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-25T12:45:08:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-25T12:45:08:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-25T12:45:08:   command: 'CONN'
+0|bunyod-t | 2025-11-25T12:45:08: }
+0|bunyod-t | 2025-11-25T12:46:06: ❌ Ошибка отправки email: Error: Connection timeout
+0|bunyod-t | 2025-11-25T12:46:06:     at SMTPConnection._formatError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:809:19)
+0|bunyod-t | 2025-11-25T12:46:06:     at SMTPConnection._onError (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:795:20)
+0|bunyod-t | 2025-11-25T12:46:06:     at Timeout.<anonymous> (/srv/bunyod-tour/node_modules/nodemailer/lib/smtp-connection/index.js:237:22)
+0|bunyod-t | 2025-11-25T12:46:06:     at listOnTimeout (node:internal/timers:608:17)
+0|bunyod-t | 2025-11-25T12:46:06:     at process.processTimers (node:internal/timers:543:7) {
+0|bunyod-t | 2025-11-25T12:46:06:   code: 'ETIMEDOUT',
+0|bunyod-t | 2025-11-25T12:46:06:   command: 'CONN'
+0|bunyod-t | 2025-11-25T12:46:06: }
+
+/srv/bunyod-tour/logs/pm2-out.log last 50 lines:
+0|bunyod-t | 2025-11-25T12:44:42: 🔄 Middleware check - Decoded URL: /admin-dashboard.html
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/utils.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/utils.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/dropdown-helpers.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/unified-form-handler.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/admin-helpers.js?v=7
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/i18n.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/security-utils.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/security-utils.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /Logo-Ru_1754635713718.png
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /$%7BmainImageUrl%7D
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /${mainImageUrl}
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /public/js/custom-tour-cities.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /public/js/custom-tour-cities.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /$%7Be.target.result%7D
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /${e.target.result}
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Original URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-11-25T12:44:45: 🔄 Middleware check - Decoded URL: /components/ObjectUploader.js
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1764063856874-581811980.png
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1764063856874-581811980.png
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1764063876467-783884293.png
+0|bunyod-t | 2025-11-25T12:44:48: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1764063876467-783884293.png
+0|bunyod-t | 2025-11-25T12:44:52: ⛔ Гид 13 деактивирован, доступ к кабинету закрыт
+0|bunyod-t | 2025-11-25T12:44:55: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:44:55: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:44:55: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:44:55: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:45:10: ⛔ Гид 12 деактивирован, доступ к кабинету закрыт
+0|bunyod-t | 2025-11-25T12:45:11: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:45:11: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:45:11: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:45:11: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:45:36: ⏭️  Skipping body parsers for file upload: /guide/create-with-auth
+0|bunyod-t | 2025-11-25T12:45:36: 📝 Получен запрос на создание гида
+0|bunyod-t | 2025-11-25T12:45:36: 📁 Получены файлы: [Object: null prototype] {}
+0|bunyod-t | 2025-11-25T12:45:36: ✅ Новый гид создан в таблице Guide: 14
+0|bunyod-t | 2025-11-25T12:45:36: 📧 Попытка отправки email гиду: greyversarex@gmail.com
+0|bunyod-t | 2025-11-25T12:46:18: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:46:18: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628433385-286265445.png
+0|bunyod-t | 2025-11-25T12:46:18: 🔄 Middleware check - Original URL: /uploads/guides/avatar-1761628517654-764707613.jpg
+0|bunyod-t | 2025-11-25T12:46:18: 🔄 Middleware check - Decoded URL: /uploads/guides/avatar-1761628517654-764707613.jpg
