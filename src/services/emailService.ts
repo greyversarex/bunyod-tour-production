@@ -1,29 +1,46 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { Order, Customer, Tour } from '@prisma/client';
 import puppeteer from 'puppeteer';
 
-// Email configuration - in production, use environment variables
-const EMAIL_CONFIG = {
-  host: process.env.SMTP_HOST || 'mail.timeweb.com',
-  port: parseInt(process.env.SMTP_PORT || '465'),
-  secure: parseInt(process.env.SMTP_PORT || '465') === 465, // true for 465 (SSL), false for 587 (TLS)
-  auth: {
-    user: process.env.SMTP_USER || 'booking@bunyodtour.tj',
-    pass: process.env.SMTP_PASS || 'your-password'
-  },
-  tls: {
-    rejectUnauthorized: false // Allow self-signed certificates
-  },
-  // ✅ Добавлены timeout настройки для предотвращения зависаний
-  connectionTimeout: 30000, // 30 seconds
-  greetingTimeout: 30000,   // 30 seconds
-  socketTimeout: 60000      // 60 seconds
-};
+let connectionSettings: any;
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport(EMAIL_CONFIG);
+async function getCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY 
+    ? 'repl ' + process.env.REPL_IDENTITY 
+    : process.env.WEB_REPL_RENEWAL 
+    ? 'depl ' + process.env.WEB_REPL_RENEWAL 
+    : null;
 
-// PDF Generation Function
+  if (!xReplitToken) {
+    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  }
+
+  connectionSettings = await fetch(
+    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=sendgrid',
+    {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    }
+  ).then(res => res.json()).then(data => data.items?.[0]);
+
+  if (!connectionSettings || (!connectionSettings.settings.api_key || !connectionSettings.settings.from_email)) {
+    throw new Error('SendGrid not connected');
+  }
+  return {apiKey: connectionSettings.settings.api_key, email: connectionSettings.settings.from_email};
+}
+
+async function getUncachableSendGridClient() {
+  const {apiKey, email} = await getCredentials();
+  sgMail.setApiKey(apiKey);
+  return {
+    client: sgMail,
+    fromEmail: email
+  };
+}
+
 async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer> {
   const tourists = JSON.parse(order.tourists || '[]');
   const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
@@ -33,7 +50,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
   const bookingRef = `BT-${order.id}${new Date().getFullYear()}`;
   const submissionTime = new Date(order.createdAt || Date.now());
   
-  // Parse tour services
   let services = [];
   try {
     if (order.tour?.services) {
@@ -44,7 +60,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
     console.warn('Error parsing tour services:', e);
   }
   
-  // Create HTML for PDF (matching booking-step3.html voucher design)
   const html = `
     <!DOCTYPE html>
     <html>
@@ -84,26 +99,21 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
     </head>
     <body>
       <div class="container">
-        <!-- Company Header -->
         <div class="company-header">
           <div class="company-name">BUNYOD-TOUR</div>
           <div class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</div>
         </div>
         
         <div class="voucher-content">
-          <!-- Header with Date and Status -->
           <div class="voucher-header">
             <div class="date">📅 ${new Date(order.tourDate).toLocaleDateString('ru-RU')}</div>
             <div class="status-badge">ПОДТВЕРЖДЕН</div>
           </div>
           
-          <!-- Tour Title -->
           <div class="tour-title">${tourTitle}</div>
           <div class="tour-subtitle">${tourType} - ${tourDuration} ${tourDuration > 1 ? 'дней' : 'день'}</div>
           
-          <!-- Two Column Layout -->
           <div class="two-column">
-            <!-- Left Column -->
             <div>
               ${customer.fullName ? `
                 <div class="section">
@@ -143,7 +153,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
               </div>
             </div>
             
-            <!-- Right Column -->
             <div>
               <div class="section">
                 <div class="section-title">${bookingRef}</div>
@@ -193,7 +202,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
             </div>
           ` : ''}
           
-          <!-- Total Amount -->
           <div class="amount-box">
             <div class="amount-label">Итоговая сумма:</div>
             <div class="amount-value">${Math.round(order.totalAmount).toLocaleString()} TJS</div>
@@ -201,7 +209,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
           </div>
         </div>
         
-        <!-- Footer -->
         <div class="footer">
           © ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.<br>
           734042, Таджикистан, г. Душанбе, ул. Айни 104
@@ -211,7 +218,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
     </html>
   `;
   
-  // Generate PDF using Puppeteer with system Chromium
   const browser = await puppeteer.launch({
     executablePath: '/nix/store/qa9cnw4v5xkxyip6mb9kxqfq1z4x2dx1-chromium-138.0.7204.100/bin/chromium-browser',
     headless: true,
@@ -246,7 +252,6 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
   }
 }
 
-// Email templates
 const emailTemplates = {
   bookingConfirmation: (order: any, customer: Customer, tour: any) => ({
     subject: `Подтверждение бронирования №${order.orderNumber}`,
@@ -258,7 +263,6 @@ const emailTemplates = {
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 0; }
           .company-header { background: #3E3E3E; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-          .company-logo { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; display: block; }
           .company-name { font-size: 28px; font-weight: bold; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
           .company-subtitle { font-size: 14px; margin: 5px 0 0 0; opacity: 0.9; }
           .voucher-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
@@ -273,7 +277,6 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="company-header">
-            <img src="${process.env.PUBLIC_URL || 'http://localhost:5000'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
@@ -327,15 +330,9 @@ const emailTemplates = {
               <p>${order.guide.name?.ru || order.guide.name?.en || 'Guide'}</p>
             ` : ''}
             
-            <div style="text-align: center;">
-              <a href="http://localhost:5000/my-bookings.html?order=${order.orderNumber}" class="button">
-                Посмотреть детали заказа
-              </a>
-            </div>
-            
             <div class="footer">
               <p><strong>Контакты для связи:</strong></p>
-              <p>📞 +992 123 456 789 | ✉️ support@bunyod-tour.com</p>
+              <p>📞 +992 93 126 1134 | ✉️ info@bunyodtour.tj</p>
               <p>© 2025 Bunyod-Tour. Все права защищены.</p>
             </div>
           </div>
@@ -355,7 +352,6 @@ const emailTemplates = {
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 0; }
           .company-header { background: #3E3E3E; color: white; padding: 20px; text-align: center; border-radius: 10px 10px 0 0; }
-          .company-logo { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 15px; display: block; }
           .company-name { font-size: 28px; font-weight: bold; margin: 0; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
           .company-subtitle { font-size: 14px; margin: 5px 0 0 0; opacity: 0.9; }
           .header { background: #ef4444; color: white; padding: 30px; text-align: center; }
@@ -365,7 +361,6 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="company-header">
-            <img src="${process.env.PUBLIC_URL || 'http://localhost:5000'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
@@ -398,7 +393,6 @@ const emailTemplates = {
           body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
           .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
           .company-header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 25px; text-align: center; }
-          .company-logo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 15px; display: block; border: 3px solid white; }
           .company-name { font-size: 32px; font-weight: bold; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
           .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
           .greeting-section { background: #fff; padding: 30px; border-bottom: 2px solid #f3f4f6; }
@@ -408,44 +402,17 @@ const emailTemplates = {
           .success-title { font-size: 28px; font-weight: bold; margin: 0 0 10px 0; }
           .success-subtitle { font-size: 16px; opacity: 0.95; margin: 0; }
           .voucher-section { background: #fff; padding: 30px; }
-          .voucher-header { text-align: center; border-bottom: 3px dashed #e5e7eb; padding-bottom: 20px; margin-bottom: 25px; }
-          .order-number { font-size: 24px; font-weight: bold; color: #667eea; margin: 0; }
-          .order-date { color: #6b7280; font-size: 14px; margin: 5px 0 0 0; }
-          .section-title { background: #f3f4f6; padding: 12px 15px; font-weight: bold; color: #1f2937; margin: 25px 0 15px 0; border-left: 4px solid #667eea; }
-          .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-          .detail-item { }
-          .detail-label { font-size: 12px; color: #6b7280; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
-          .detail-value { font-size: 15px; font-weight: 600; color: #1f2937; }
-          .tourists-list { background: #f9fafb; padding: 15px; border-radius: 8px; margin: 15px 0; }
-          .tourist-item { padding: 10px; border-bottom: 1px solid #e5e7eb; }
-          .tourist-item:last-child { border-bottom: none; }
-          .tourist-name { font-weight: 600; color: #1f2937; }
-          .tourist-details { font-size: 13px; color: #6b7280; margin-top: 3px; }
-          .itinerary-day { background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #667eea; }
-          .itinerary-day-title { font-weight: bold; color: #667eea; margin-bottom: 8px; }
-          .itinerary-activities { font-size: 14px; color: #4b5563; line-height: 1.8; }
-          .payment-summary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 25px 0; }
-          .payment-amount { font-size: 36px; font-weight: bold; margin: 10px 0; }
-          .payment-status { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: inline-block; font-size: 14px; }
           .contact-section { background: #f3f4f6; padding: 20px; text-align: center; margin-top: 30px; border-radius: 8px; }
-          .contact-item { display: inline-block; margin: 0 15px; font-size: 14px; color: #4b5563; }
           .footer { text-align: center; padding: 25px; background: #f9fafb; color: #6b7280; font-size: 13px; }
-          .btn-primary { display: inline-block; padding: 14px 30px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
-          @media only screen and (max-width: 600px) {
-            .detail-grid { grid-template-columns: 1fr; }
-          }
         </style>
       </head>
       <body>
         <div class="container">
-          <!-- Company Header -->
           <div class="company-header">
-            <img src="${process.env.PUBLIC_URL || 'http://bunyodtour.tj'}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="company-logo">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
           
-          <!-- Greeting Message with PDF Note -->
           <div class="greeting-section">
             <p class="greeting-text">Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
             <p class="greeting-text">
@@ -457,7 +424,6 @@ const emailTemplates = {
             </p>
           </div>
           
-          <!-- Contact Section -->
           <div class="voucher-section">
             <div class="contact-section">
               <h3 style="margin-top: 0; color: #1f2937;">Контактная информация</h3>
@@ -465,14 +431,12 @@ const emailTemplates = {
                 <p style="margin: 5px 0;">☎️ +992 93 126 1134, +992 915 123 344</p>
                 <p style="margin: 5px 0;">💌 info@bunyodtour.tj</p>
                 <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj/ru" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
-                <p style="margin: 5px 0;">🌐 <a href="https://www.bunyodtour.com/" style="color: #667eea; text-decoration: none;">bunyodtour.com</a> (via TA)</p>
                 <p style="margin: 5px 0;">📱 WhatsApp: <a href="https://wa.me/992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
-                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a>, <a href="https://t.me/+992882353434" style="color: #667eea; text-decoration: none;">+992 882 35 3434</a></p>
+                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
               </div>
             </div>
           </div>
           
-          <!-- Footer -->
           <div class="footer">
             <p style="margin: 10px 0; font-size: 15px;"><strong>С уважением,</strong></p>
             <p style="margin: 5px 0; font-size: 14px;"><strong>Администрация ООО «Бунёд-Тур»</strong></p>
@@ -519,7 +483,6 @@ const emailTemplates = {
           .info-value { font-weight: 600; color: #1f2937; }
           .amount-box { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0; }
           .amount { font-size: 36px; font-weight: bold; }
-          .btn { display: inline-block; padding: 14px 28px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; }
           .footer { text-align: center; padding: 20px; background: #f9fafb; color: #6b7280; font-size: 13px; }
         </style>
       </head>
@@ -535,7 +498,6 @@ const emailTemplates = {
           </div>
           
           <div class="content">
-            <!-- Order Info -->
             <div class="info-block">
               <div class="info-title">📋 Информация о заказе</div>
               <div class="info-row">
@@ -552,7 +514,6 @@ const emailTemplates = {
               </div>
             </div>
             
-            <!-- Tour Info -->
             <div class="info-block">
               <div class="info-title">🗺️ Детали тура</div>
               <div class="info-row">
@@ -571,15 +532,8 @@ const emailTemplates = {
                 <span class="info-label">Отель</span>
                 <span class="info-value">${hotelName}</span>
               </div>
-              ${order.pickupLocation ? `
-              <div class="info-row">
-                <span class="info-label">Место встречи</span>
-                <span class="info-value">${order.pickupLocation}</span>
-              </div>
-              ` : ''}
             </div>
             
-            <!-- Customer Info -->
             <div class="info-block">
               <div class="info-title">👤 Информация о клиенте</div>
               <div class="info-row">
@@ -596,17 +550,10 @@ const emailTemplates = {
               </div>
             </div>
             
-            <!-- Amount Box -->
             <div class="amount-box">
               <div style="font-size: 16px; margin-bottom: 5px;">Сумма заказа</div>
               <div class="amount">${order.totalAmount} ${order.currency || 'TJS'}</div>
               <div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">Оплачено ${order.paymentMethod || 'онлайн'}</div>
-            </div>
-            
-            <div style="text-align: center;">
-              <a href="${process.env.PUBLIC_URL || 'http://bunyodtour.tj'}/admin-dashboard.html" class="btn">
-                Открыть в админ-панели →
-              </a>
             </div>
           </div>
           
@@ -622,51 +569,50 @@ const emailTemplates = {
   }
 };
 
-// Email service functions
 export const emailService = {
-  // Send booking confirmation email
   async sendBookingConfirmation(order: any, customer: Customer, tour: any): Promise<boolean> {
     try {
+      const { client, fromEmail } = await getUncachableSendGridClient();
       const template = emailTemplates.bookingConfirmation(order, customer, tour);
       
-      await transporter.sendMail({
-        from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+      await client.send({
         to: customer.email,
+        from: fromEmail,
         subject: template.subject,
         html: template.html
       });
       
-      console.log(`Booking confirmation email sent to ${customer.email}`);
+      console.log(`✅ Booking confirmation email sent to ${customer.email} via SendGrid`);
       return true;
     } catch (error) {
-      console.error('Error sending booking confirmation email:', error);
+      console.error('❌ Error sending booking confirmation email:', error);
       return false;
     }
   },
   
-  // Send cancellation email
   async sendCancellationEmail(order: any, customer: Customer): Promise<boolean> {
     try {
+      const { client, fromEmail } = await getUncachableSendGridClient();
       const template = emailTemplates.bookingCancellation(order, customer);
       
-      await transporter.sendMail({
-        from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+      await client.send({
         to: customer.email,
+        from: fromEmail,
         subject: template.subject,
         html: template.html
       });
       
-      console.log(`Cancellation email sent to ${customer.email}`);
+      console.log(`✅ Cancellation email sent to ${customer.email} via SendGrid`);
       return true;
     } catch (error) {
-      console.error('Error sending cancellation email:', error);
+      console.error('❌ Error sending cancellation email:', error);
       return false;
     }
   },
   
-  // Send payment confirmation email
   async sendPaymentConfirmation(order: any, customer: Customer): Promise<boolean> {
     try {
+      const { client, fromEmail } = await getUncachableSendGridClient();
       const template = emailTemplates.paymentConfirmation(order, customer);
       
       console.log('Generating PDF ticket...');
@@ -676,82 +622,82 @@ export const emailService = {
       const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
       const filename = `Ticket-${order.orderNumber}-${tourTitle.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.pdf`;
       
-      await transporter.sendMail({
-        from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+      await client.send({
         to: customer.email,
+        from: fromEmail,
         subject: template.subject,
         html: template.html,
         attachments: [
           {
+            content: pdfBuffer.toString('base64'),
             filename: filename,
-            content: pdfBuffer,
-            contentType: 'application/pdf'
+            type: 'application/pdf',
+            disposition: 'attachment'
           }
         ]
       });
       
-      console.log(`Payment confirmation email with PDF ticket sent to ${customer.email}`);
+      console.log(`✅ Payment confirmation email with PDF ticket sent to ${customer.email} via SendGrid`);
       return true;
     } catch (error) {
-      console.error('Error sending payment confirmation email:', error);
+      console.error('❌ Error sending payment confirmation email:', error);
       return false;
     }
   },
   
-  // Send admin notification
   async sendAdminNotification(order: any, customer: Customer, tour: any): Promise<boolean> {
     try {
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.com';
+      const { client, fromEmail } = await getUncachableSendGridClient();
+      const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
       const template = emailTemplates.adminNotification(order, customer, tour);
       
-      await transporter.sendMail({
-        from: `"Bunyod-Tour System" <${EMAIL_CONFIG.auth.user}>`,
+      await client.send({
         to: adminEmail,
+        from: fromEmail,
         subject: template.subject,
         html: template.html
       });
       
-      console.log(`Admin notification email sent to ${adminEmail}`);
+      console.log(`✅ Admin notification email sent to ${adminEmail} via SendGrid`);
       return true;
     } catch (error) {
-      console.error('Error sending admin notification email:', error);
+      console.error('❌ Error sending admin notification email:', error);
       return false;
     }
   },
   
-  // Test email configuration
   async testEmailConfiguration(): Promise<boolean> {
     try {
-      await transporter.verify();
-      console.log('Email server is ready to send messages');
+      await getUncachableSendGridClient();
+      console.log('✅ SendGrid is ready to send messages');
       return true;
     } catch (error) {
-      console.error('Email server configuration error:', error);
+      console.error('❌ SendGrid configuration error:', error);
       return false;
     }
   },
 
-  // Generic email sender for custom messages
   async sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
-    await transporter.sendMail({
-      from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+    const { client, fromEmail } = await getUncachableSendGridClient();
+    await client.send({
       to: options.to,
+      from: fromEmail,
       subject: options.subject,
       html: options.html
     });
+    console.log(`✅ Email sent to ${options.to} via SendGrid`);
   }
 };
 
-/**
- * Simple email sender for generic use (e.g., travel agent notifications)
- */
 export async function sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
-  await transporter.sendMail({
-    from: `"Bunyod-Tour" <${EMAIL_CONFIG.auth.user}>`,
+  const { client, fromEmail } = await getUncachableSendGridClient();
+  await client.send({
     to: options.to,
+    from: fromEmail,
     subject: options.subject,
     html: options.html
   });
+  console.log(`✅ Email sent to ${options.to} via SendGrid`);
 }
 
 export default emailService;
