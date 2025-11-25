@@ -37,7 +37,14 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
 -   **Authentication**: JWT for administrators; separate dashboards for guides and drivers.
 -   **Security**: Rate limiting, XSS protection, CORS, environment variable validation.
 -   **File Upload System**: Persistent storage outside application directory, symlinked for access; restricted to image files only.
--   **Email Notification System**: Uses Nodemailer for transactional emails (booking confirmations, payment confirmations with PDF tickets, admin notifications, cancellations).
+-   **Email Notification System**: Uses Nodemailer (SMTP via Timeweb) for transactional emails:
+    - Booking confirmations to customers
+    - Payment confirmations with PDF tickets
+    - Admin notifications on new orders/payments
+    - Guide welcome emails with login credentials (on guide creation)
+    - Travel agent approval emails with login credentials
+    - Tour completion notifications to admin
+    - **Updated Nov 25, 2025**: Fixed missing email in `tourHistoryController.createTourGuide`
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 
 **System Design Choices:**
