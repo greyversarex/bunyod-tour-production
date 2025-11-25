@@ -47,11 +47,11 @@ async function loadExchangeRates() {
     }
 }
 
-// Загрузка туров с блоком "Горящие туры"
+// Загрузка туров со скидками (isPromotion = true)
 async function loadHotTours() {
     try {
         const currentLang = getCurrentLanguage();
-        console.log(`🔥 Loading hot tours (lang: ${currentLang})...`);
+        console.log(`🔥 Loading promotional tours (lang: ${currentLang})...`);
         
         // Загружаем ВСЕ туры
         const response = await fetch(`/api/tours?lang=${currentLang}`);
@@ -62,19 +62,17 @@ async function loadHotTours() {
         const result = await response.json();
         
         if (result.success && result.data) {
-            // Фильтруем туры с блоком "hot-tours" (id=8)
-            hotTours = result.data.filter(tour => {
-                return tour.blocks && tour.blocks.some(block => block.slug === 'hot-tours');
-            });
+            // 🔥 Фильтруем туры с флагом isPromotion = true
+            hotTours = result.data.filter(tour => tour.isPromotion === true);
             
-            console.log(`🔥 Hot tours loaded: ${hotTours.length} tours`);
+            console.log(`🔥 Promotional tours loaded: ${hotTours.length} tours`);
             renderHotTours();
         } else {
-            console.error('❌ Failed to load hot tours:', result.error);
+            console.error('❌ Failed to load promotional tours:', result.error);
             showEmptyState();
         }
     } catch (error) {
-        console.error('❌ Error loading hot tours:', error);
+        console.error('❌ Error loading promotional tours:', error);
         showEmptyState();
     }
 }
@@ -113,14 +111,14 @@ function createTourCard(tour) {
     // Рейтинг (если есть)
     const rating = tour.rating || 4.5;
     
-    // Скидка (если есть в данных)
-    const discount = tour.discount || 0;
+    // 🔥 Скидка из нового поля discountPercent
+    const discount = tour.discountPercent || 0;
     
     return `
         <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
             ${discount > 0 ? `
                 <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10">
-                    -${discount}%
+                    -${Math.round(discount)}%
                 </div>
             ` : ''}
             
@@ -162,7 +160,7 @@ function createTourCard(tour) {
     `;
 }
 
-// Получение цены тура с учетом валюты
+// Получение цены тура с учетом валюты и скидки
 function getTourPrice(tour) {
     if (!tour.pricePerPerson || tour.pricePerPerson <= 0) {
         return {
@@ -173,11 +171,25 @@ function getTourPrice(tour) {
     
     const basePrice = tour.pricePerPerson;
     const baseCurrency = tour.currency || 'TJS';
+    const discountPercent = tour.discountPercent || 0;
     
     // Конвертируем цену
     const convertedPrice = convertPrice(basePrice, baseCurrency, currentCurrency);
     
-    // Если есть старая цена (для скидки)
+    // 🔥 Если есть скидка, показываем зачёркнутую старую цену
+    if (tour.isPromotion && discountPercent > 0) {
+        // Вычисляем оригинальную цену до скидки
+        const originalPrice = convertedPrice / (1 - discountPercent / 100);
+        return {
+            html: `
+                <span class="text-lg line-through text-gray-400">${formatPrice(originalPrice, currentCurrency)}</span>
+                <span class="text-2xl font-bold text-red-600 ml-2">${formatPrice(convertedPrice, currentCurrency)}</span>
+            `,
+            value: convertedPrice
+        };
+    }
+    
+    // Если есть старая цена (для скидки) - старый способ
     if (tour.oldPrice && tour.oldPrice > basePrice) {
         const convertedOldPrice = convertPrice(tour.oldPrice, baseCurrency, currentCurrency);
         return {

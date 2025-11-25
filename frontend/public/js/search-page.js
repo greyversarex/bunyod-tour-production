@@ -1307,10 +1307,19 @@ function createTourCard(tour) {
     
     const currentCurrency = window.currentCurrency || 'TJS';
     
+    // 🔥 Скидка из нового поля discountPercent
+    const discountPercent = tour.discountPercent || 0;
+    const isPromotion = tour.isPromotion || false;
+    
     return `
         <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
              onclick="window.location.href='tour-template.html?tour=${tour.id || 1}'">
             <div class="relative overflow-hidden rounded-t-lg">
+                ${isPromotion && discountPercent > 0 ? `
+                <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10 shadow-md">
+                    -${Math.round(discountPercent)}%
+                </div>
+                ` : ''}
                 <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
                     ${tourImages.map((imgSrc, index) => `
                         <img src="${imgSrc}" 
@@ -1358,10 +1367,17 @@ function createTourCard(tour) {
                 <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">${descriptionText}</p>
                 <div class="flex items-start justify-between mt-auto gap-3">
                     <div class="flex-1 flex flex-col justify-center">
-                        ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, currentCurrency)}</div>
-                        ` : ''}
-                        <div class="text-base font-bold text-gray-900 leading-tight">
+                        ${(() => {
+                            // 🔥 Если есть скидка, вычисляем и показываем оригинальную цену
+                            if (isPromotion && discountPercent > 0) {
+                                const originalPrice = tour.price / (1 - discountPercent / 100);
+                                return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(Math.round(originalPrice), currentCurrency)}</div>`;
+                            } else if (tour.originalPrice) {
+                                return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, currentCurrency)}</div>`;
+                            }
+                            return '';
+                        })()}
+                        <div class="text-base font-bold ${isPromotion && discountPercent > 0 ? 'text-red-600' : 'text-gray-900'} leading-tight">
                             <span>${priceText}</span> ${formatPrice(tour.price, currentCurrency)}
                         </div>
                         <div class="text-xs text-gray-500 mt-0.5">${(() => {

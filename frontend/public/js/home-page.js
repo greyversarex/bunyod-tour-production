@@ -2237,6 +2237,10 @@ function renderTourCard(tour, blockId = null) {
     // 🔧 ИСПРАВЛЕНИЕ: Создаем уникальные ID для каждого экземпляра карточки
     const uniqueCardId = blockId ? `${tour.id}-block-${blockId}` : `${tour.id}`;
     
+    // 🔥 Скидка из нового поля discountPercent
+    const discountPercent = tour.discountPercent || 0;
+    const isPromotion = tour.isPromotion || false;
+    
     return `
         <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
              onclick="window.location.href='tour-template.html?tour=${tour.id || 1}'"
@@ -2245,6 +2249,11 @@ function renderTourCard(tour, blockId = null) {
              data-tour-id="${tour.id}"
              data-unique-card-id="${uniqueCardId}">
             <div class="relative overflow-hidden rounded-t-lg">
+                ${isPromotion && discountPercent > 0 ? `
+                <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10 shadow-md">
+                    -${Math.round(discountPercent)}%
+                </div>
+                ` : ''}
                 <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
                     ${tourImages.length > 0 ? 
                         tourImages.map((imgSrc, index) => `
@@ -2335,10 +2344,17 @@ function renderTourCard(tour, blockId = null) {
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1 flex flex-col justify-center">
-                        ${tour.originalPrice ? `
-                            <div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>
-                        ` : ''}
-                        <div class="text-base font-bold text-gray-900 tour-price price-display leading-tight" data-original-price="${tour.price}">
+                        ${(() => {
+                            // 🔥 Если есть скидка, вычисляем и показываем оригинальную цену
+                            if (isPromotion && discountPercent > 0) {
+                                const originalPrice = tour.price / (1 - discountPercent / 100);
+                                return `<div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${Math.round(originalPrice)}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(Math.round(originalPrice), 'TJS')}</div>`;
+                            } else if (tour.originalPrice) {
+                                return `<div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>`;
+                            }
+                            return '';
+                        })()}
+                        <div class="text-base font-bold ${isPromotion && discountPercent > 0 ? 'text-red-600' : 'text-gray-900'} tour-price price-display leading-tight" data-original-price="${tour.price}">
                             <span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.price, 'TJS')}
                         </div>
                         <div class="converted-price text-xs text-gray-600 mt-0.5" style="display: none;"></div>
