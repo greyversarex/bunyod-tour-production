@@ -236,26 +236,20 @@ export const createGuide = async (req: Request, res: Response) => {
               <div style="padding: 30px; background: #f8f9fa;">
                 <p style="font-size: 16px;">Здравствуйте, <strong>${guideNameRu}</strong>!</p>
                 <p>Вы успешно добавлены в нашу платформу в качестве гида.</p>
-                
-                <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-                  <h3 style="margin-top: 0; color: #1f2937;">📋 Ваш профиль:</h3>
-                  <p><strong>ID:</strong> ${guide.id}</p>
-                  <p><strong>Опыт:</strong> ${guide.experience || 'Не указан'} лет</p>
-                  <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'Не указана'} ${guide.currency || 'TJS'}</p>
-                  <p><strong>Доступен для найма:</strong> ${guide.isHireable ? 'Да ✅' : 'Нет'}</p>
-                </div>
 
                 ${loginCredentials}
 
-                <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/tour-guide-login.html" 
+                <a href="https://bunyodtour.tj/tour-guide-login.html" 
                    style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
                   🔐 Войти в личный кабинет
                 </a>
 
                 <p style="margin-top: 30px; color: #666; font-size: 14px;">
                   Если у вас есть вопросы, свяжитесь с нами:<br>
-                  📧 Email: ${process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj'}<br>
-                  🌐 Сайт: ${process.env.FRONTEND_URL || 'https://bunyodtour.tj'}
+                  📧 Email: info@bunyodtour.tj<br>
+                  📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
+                  📞 +992 00-110-0087; +992 88-235-3434<br>
+                  🌐 Сайт: bunyodtour.tj
                 </p>
               </div>
             </div>

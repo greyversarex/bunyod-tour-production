@@ -387,7 +387,13 @@ const emailTemplates = {
           <div class="content">
             <p>Уважаемый(ая) ${customer.fullName},</p>
             <p>Ваше бронирование №${order.orderNumber} было отменено.</p>
-            <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</p>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">
+              Если у вас есть вопросы, свяжитесь с нами:<br>
+              📧 Email: info@bunyodtour.tj<br>
+              📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
+              📞 +992 00-110-0087; +992 88-235-3434<br>
+              🌐 Сайт: bunyodtour.tj
+            </p>
             <p>С уважением,<br>Команда Bunyod-Tour</p>
           </div>
         </div>
@@ -445,11 +451,10 @@ const emailTemplates = {
             <div class="contact-section">
               <h3 style="margin-top: 0; color: #1f2937;">Контактная информация</h3>
               <div style="text-align: left; max-width: 500px; margin: 0 auto; font-size: 14px; line-height: 1.8;">
-                <p style="margin: 5px 0;">☎️ +992 93 126 1134, +992 915 123 344</p>
+                <p style="margin: 5px 0;">☎️ +992 44 625 7575; +992 93-126-1134</p>
+                <p style="margin: 5px 0;">☎️ +992 00-110-0087; +992 88-235-3434</p>
                 <p style="margin: 5px 0;">💌 info@bunyodtour.tj</p>
-                <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj/ru" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
-                <p style="margin: 5px 0;">📱 WhatsApp: <a href="https://wa.me/992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
-                <p style="margin: 5px 0;">✈️ Telegram: <a href="https://t.me/+992915123344" style="color: #667eea; text-decoration: none;">+992 915 123 344</a></p>
+                <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
               </div>
             </div>
           </div>

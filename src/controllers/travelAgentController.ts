@@ -305,18 +305,38 @@ export const approveApplication = async (req: Request, res: Response) => {
         to: application.email,
         subject: 'Ваша заявка на партнерство одобрена - Bunyod-Tour',
         html: `
-          <h2>Добро пожаловать в партнерскую программу Bunyod-Tour!</h2>
-          <p>Уважаемый(ая) ${application.fullName},</p>
-          <p>Ваша заявка на партнерство была одобрена. Ниже ваши учетные данные для входа:</p>
-          <ul>
-            <li><strong>ID Турагента:</strong> ${agentId}</li>
-            <li><strong>Email (логин):</strong> ${application.email}</li>
-            <li><strong>Временный пароль:</strong> ${tempPassword}</li>
-          </ul>
-          <p><strong>Важно:</strong> При первом входе вам необходимо будет сменить пароль.</p>
-          <p><a href="${loginUrl}">Войти в личный кабинет</a></p>
-          <br>
-          <p>С уважением,<br>Команда Bunyod-Tour</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+              <h1>🌟 Добро пожаловать в партнерскую программу Bunyod-Tour!</h1>
+            </div>
+            
+            <div style="padding: 30px; background: #f8f9fa;">
+              <p>Уважаемый(ая) <strong>${application.fullName}</strong>,</p>
+              <p>Ваша заявка на партнерство была одобрена.</p>
+              
+              <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin: 20px 0;">
+                <h3 style="margin-top: 0; color: #2e7d32;">🔑 Ваши данные для входа:</h3>
+                <p><strong>ID Турагента:</strong> ${agentId}</p>
+                <p><strong>Email (логин):</strong> ${application.email}</p>
+                <p><strong>Временный пароль:</strong> ${tempPassword}</p>
+                <p style="font-size: 13px; color: #666; margin-top: 10px;">⚠️ При первом входе вам необходимо будет сменить пароль</p>
+              </div>
+              
+              <a href="${loginUrl}" style="display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin-top: 20px;">
+                🔐 Войти в личный кабинет
+              </a>
+              
+              <p style="margin-top: 30px; color: #666; font-size: 14px;">
+                Если у вас есть вопросы, свяжитесь с нами:<br>
+                📧 Email: info@bunyodtour.tj<br>
+                📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
+                📞 +992 00-110-0087; +992 88-235-3434<br>
+                🌐 Сайт: bunyodtour.tj
+              </p>
+              
+              <p>С уважением,<br><strong>Команда Bunyod-Tour</strong></p>
+            </div>
+          </div>
         `
       });
     } catch (emailError) {

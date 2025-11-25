@@ -611,7 +611,13 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
                   <p style="color: #666; font-size: 14px;">Или скопируйте эту ссылку в браузер:<br>
                   <a href="${paymentUrl}">${paymentUrl}</a></p>
                   
-                  <p>Если у вас есть вопросы, пожалуйста, свяжитесь с нами.</p>
+                  <p style="margin-top: 20px; font-size: 14px; color: #666;">
+                    Если у вас есть вопросы, свяжитесь с нами:<br>
+                    📧 Email: info@bunyodtour.tj<br>
+                    📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
+                    📞 +992 00-110-0087; +992 88-235-3434<br>
+                    🌐 Сайт: bunyodtour.tj
+                  </p>
                   
                   <p style="margin-top: 30px;">
                     С уважением,<br>
