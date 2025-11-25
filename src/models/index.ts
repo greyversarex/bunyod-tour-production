@@ -173,6 +173,8 @@ export class TourModel {
           location: data.location || null,
           services: data.services || null,
           isFeatured: data.isFeatured || false,
+          isPromotion: data.isPromotion || false, // 🔥 Флаг акции
+          discountPercent: data.discountPercent || 0, // 🔥 Процент скидки
           startDate: data.startDate,
           endDate: data.endDate,
           pricingData: data.pricingComponents || null,
@@ -362,6 +364,8 @@ export class TourModel {
     if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
     if (data.isDraft !== undefined) updateData.isDraft = data.isDraft;
+    if (data.isPromotion !== undefined) updateData.isPromotion = data.isPromotion; // 🔥 Флаг акции
+    if (data.discountPercent !== undefined) updateData.discountPercent = data.discountPercent; // 🔥 Процент скидки
     if (data.startDate !== undefined) updateData.startDate = data.startDate;
     if (data.endDate !== undefined) updateData.endDate = data.endDate;
     if (data.pricingComponents !== undefined) updateData.pricingData = data.pricingComponents;

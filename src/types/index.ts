@@ -78,6 +78,8 @@ export interface CreateTourData {
   isFeatured?: boolean;
   isDraft?: boolean;
   isActive?: boolean;
+  isPromotion?: boolean; // 🔥 Флаг акции
+  discountPercent?: number; // 🔥 Процент скидки
   pickupInfo?: string;
   pickupInfoEn?: string;
   startTimeOptions?: string;

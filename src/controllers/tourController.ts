@@ -272,7 +272,7 @@ export class TourController {
   static async createTour(req: Request, res: Response, next: NextFunction) {
     try {
       console.log('Creating tour with data:', req.body);
-      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
+      let { title, description, shortDescription, duration, price, priceType, originalPrice, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, difficulty, maxPeople, minPeople, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, isFeatured, isDraft, isPromotion, discountPercent, startDate, endDate, rating, reviewsCount, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
 
       console.log('💰 Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
 
@@ -528,6 +528,8 @@ export class TourController {
         isFeatured: isFeatured || false,
         isDraft: isSavingDraft, // 📝 Сохраняем статус черновика
         isActive: !isSavingDraft, // 📝 Черновики неактивны
+        isPromotion: isPromotion === true || isPromotion === 'true' || false, // 🔥 Флаг акции
+        discountPercent: parseFloat(discountPercent) || 0, // 🔥 Процент скидки
         startDate: startDate || null,
         endDate: endDate || null,
         rating: ratingNumber,
@@ -706,7 +708,7 @@ export class TourController {
 
       console.log('🔍 FULL REQUEST BODY:', JSON.stringify(req.body, null, 2));
       
-      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
+      let { title, description, duration, price, categoryId, categoriesIds, countryId, cityId, country, city, countriesIds, citiesIds, cityNights, durationDays, durationType, format, tourType, priceType, pickupInfo, pickupInfoEn, startTimeOptions, languages, availableMonths, availableDays, startDate, endDate, shortDescription, mainImage, images, services, highlights, itinerary, itineraryEn, included, includes, excluded, difficulty, maxPeople, minPeople, rating, reviewsCount, isFeatured, isDraft, isPromotion, discountPercent, hotelIds, guideIds, driverIds, tourBlockIds, pricingComponents, profitMargin, mapPoints } = req.body;
 
       console.log('💰 UPDATE: Received profitMargin from frontend:', profitMargin, 'Type:', typeof profitMargin);
       console.log('📊 All keys in req.body:', Object.keys(req.body));
@@ -916,6 +918,13 @@ export class TourController {
       if (isDraft !== undefined) {
         updateData.isDraft = isSavingDraft; // 📝 Обновляем статус черновика
         updateData.isActive = !isSavingDraft; // 📝 Черновики неактивны
+      }
+      // 🔥 Обновляем данные акции
+      if (isPromotion !== undefined) {
+        updateData.isPromotion = isPromotion === true || isPromotion === 'true';
+      }
+      if (discountPercent !== undefined) {
+        updateData.discountPercent = parseFloat(discountPercent) || 0;
       }
       if (pricingComponents !== undefined) updateData.pricingComponents = pricingComponents;
       if (profitMarginNumber !== undefined) updateData.profitMargin = profitMarginNumber;
