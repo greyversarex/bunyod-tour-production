@@ -177,7 +177,7 @@ function getTourPrice(tour) {
     const convertedPrice = convertPrice(basePrice, baseCurrency, currentCurrency);
     
     // 🔥 Если есть скидка, показываем зачёркнутую старую цену
-    if (tour.isPromotion && discountPercent > 0) {
+    if (tour.isPromotion && discountPercent > 0 && convertedPrice > 0) {
         // Вычисляем оригинальную цену до скидки
         const originalPrice = convertedPrice / (1 - discountPercent / 100);
         return {

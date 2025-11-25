@@ -1370,8 +1370,11 @@ function createTourCard(tour) {
                         ${(() => {
                             // 🔥 Если есть скидка, вычисляем и показываем оригинальную цену
                             if (isPromotion && discountPercent > 0) {
-                                const originalPrice = tour.price / (1 - discountPercent / 100);
-                                return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(Math.round(originalPrice), currentCurrency)}</div>`;
+                                const numericPrice = parseFloat(tour.price) || 0;
+                                if (numericPrice > 0) {
+                                    const originalPrice = numericPrice / (1 - discountPercent / 100);
+                                    return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(Math.round(originalPrice), currentCurrency)}</div>`;
+                                }
                             } else if (tour.originalPrice) {
                                 return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, currentCurrency)}</div>`;
                             }

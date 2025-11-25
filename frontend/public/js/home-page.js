@@ -2347,8 +2347,11 @@ function renderTourCard(tour, blockId = null) {
                         ${(() => {
                             // 🔥 Если есть скидка, вычисляем и показываем оригинальную цену
                             if (isPromotion && discountPercent > 0) {
-                                const originalPrice = tour.price / (1 - discountPercent / 100);
-                                return `<div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${Math.round(originalPrice)}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(Math.round(originalPrice), 'TJS')}</div>`;
+                                const numericPrice = parseFloat(tour.price) || 0;
+                                if (numericPrice > 0) {
+                                    const originalPrice = numericPrice / (1 - discountPercent / 100);
+                                    return `<div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${Math.round(originalPrice)}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(Math.round(originalPrice), 'TJS')}</div>`;
+                                }
                             } else if (tour.originalPrice) {
                                 return `<div class="text-xs line-through text-gray-400 mb-0.5 price-display" data-original-price="${tour.originalPrice}"><span data-translate="price.from_prefix">${currentLang === 'en' ? 'from' : 'от'}</span> ${formatPrice(tour.originalPrice, 'TJS')}</div>`;
                             }
