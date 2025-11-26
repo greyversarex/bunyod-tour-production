@@ -1353,93 +1353,83 @@ function createTourCard(tour) {
     const isPromotion = tour.isPromotion || false;
     
     return `
-        <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-md hover:shadow-lg transition-all flex flex-col h-full"
+        <div class="tour-card group cursor-pointer bg-white rounded-lg shadow-lg hover:shadow-xl transition-all flex flex-col"
              onclick="window.location.href='tour-template.html?tour=${tour.id || 1}'">
+            <!-- Изображение - увеличенное h-56 -->
             <div class="relative overflow-hidden rounded-t-lg">
                 ${isPromotion && discountPercent > 0 ? `
-                <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold z-10 shadow-md">
+                <div class="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold z-10 shadow-md">
                     -${Math.round(discountPercent)}%
                 </div>
                 ` : ''}
-                <div class="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center" id="tour-image-container-${uniqueCardId}">
+                <div class="w-full h-56 bg-gradient-to-br from-gray-100 to-gray-200 relative" id="tour-image-container-${uniqueCardId}">
                     ${tourImages.map((imgSrc, index) => `
                         <img src="${imgSrc}" 
                              alt="${titleText}" 
-                             class="w-full h-full object-cover absolute inset-0" 
+                             class="w-full h-full object-cover absolute inset-0 hover:scale-105 transition-transform duration-300" 
                              onerror="this.style.display='none';">
                     `).join('')}
                 </div>
             </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <!-- Локация (только страны, все показываем) -->
-                <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #6B7280;">
-                    <svg class="inline w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span class="font-medium">${getDisplayLocation(tour)}</span>
+            <!-- Контент карточки - фиксированная высота для выравнивания -->
+            <div class="p-5 flex flex-col flex-grow">
+                <!-- Мета-информация - фиксированная высота -->
+                <div class="h-16 mb-3">
+                    <!-- Локация -->
+                    <div class="text-sm mb-1 flex items-center gap-1.5" style="color: #6B7280;">
+                        <svg class="inline w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="font-medium truncate">${getDisplayLocation(tour)}</span>
+                    </div>
+                    <!-- Тип тура и длительность -->
+                    <div class="text-sm flex items-center gap-1.5" style="color: #3B82F6;">
+                        ${getTourTypeIcon(normalizedTourType)}
+                        <span class="font-medium">${tourTypeText}</span>
+                        ${(tour.duration || tour.durationDays) ? `<span class="text-gray-500">• ${formatDuration(tour, currentLang)}</span>` : ''}
+                    </div>
                 </div>
-                <!-- Тип тура -->
-                <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3B82F6;">
-                    ${getTourTypeIcon(normalizedTourType)}
-                    <span class="font-medium">${tourTypeText}</span>${normalizedTourType !== 'individual' && tour.maxPeople ? ` <span class="text-gray-600">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : ''}
-                </div>
-                <!-- Категория тура с множественными категориями и длительность -->
-                <div class="text-xs mb-2" style="color: #3E3E3E;">
-                    ${getCategoryIcon(categoryText)}
-                    <span class="font-medium">${categoryText}${(tour.duration || tour.durationDays) ? `, ${formatDuration(tour, currentLang)}` : ''}</span>
-                    ${allCategories.length > 1 ? `
-                    <span class="relative group cursor-help ml-0.5">
-                        <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
-                        <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
-                            ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
-                            <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                        </div>
-                    </span>
-                    ` : ''}
-                </div>
-                ${tour.rating ? `
-                <div class="text-xs text-green-600 mb-2">
-                    <span class="font-semibold">★ ${tour.rating}</span>
-                    <span class="text-gray-500 ml-1">(${tour.reviewsCount || 0})</span>
-                </div>` : ''}
-                <h3 class="text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-tight">
+                
+                <!-- Заголовок - фиксированная высота 2 строки -->
+                <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 leading-snug line-clamp-2 h-14">
                     ${titleText}
                 </h3>
-                <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed">${descriptionText}</p>
-                <div class="flex items-start justify-between mt-auto gap-3">
-                    <div class="flex-1 flex flex-col justify-center">
+                
+                <!-- Описание - фиксированная высота 3 строки -->
+                <p class="text-sm text-gray-600 mb-4 line-clamp-3 leading-relaxed h-16">${descriptionText}</p>
+                
+                <!-- Цена и кнопка - всегда внизу -->
+                <div class="flex items-center justify-between mt-auto pt-3 border-t border-gray-100">
+                    <div>
                         ${(() => {
-                            // 🔥 Если есть скидка, вычисляем и показываем оригинальную цену
                             if (isPromotion && discountPercent > 0) {
                                 const numericPrice = parseFloat(tour.price) || 0;
                                 if (numericPrice > 0) {
                                     const originalPrice = numericPrice / (1 - discountPercent / 100);
-                                    return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(Math.round(originalPrice), currentCurrency)}</div>`;
+                                    return `<div class="text-sm line-through text-gray-400">${priceText} ${formatPrice(Math.round(originalPrice), currentCurrency)}</div>`;
                                 }
                             } else if (tour.originalPrice) {
-                                return `<div class="text-xs line-through text-gray-400 mb-0.5"><span>${priceText}</span> ${formatPrice(tour.originalPrice, currentCurrency)}</div>`;
+                                return `<div class="text-sm line-through text-gray-400">${priceText} ${formatPrice(tour.originalPrice, currentCurrency)}</div>`;
                             }
                             return '';
                         })()}
-                        <div class="text-base font-bold ${isPromotion && discountPercent > 0 ? 'text-red-600' : 'text-gray-900'} leading-tight">
-                            <span>${priceText}</span> ${formatPrice(tour.price, currentCurrency)}
+                        <div class="text-xl font-bold ${isPromotion && discountPercent > 0 ? 'text-red-600' : 'text-gray-900'}">
+                            ${priceText} ${formatPrice(tour.price, currentCurrency)}
                         </div>
-                        <div class="text-xs text-gray-500 mt-0.5">${(() => {
+                        <div class="text-xs text-gray-500">${(() => {
                             const priceType = tour.priceType || '';
-                            // Обработка enum значений
                             if (priceType === 'per_person' || priceType === 'за человека') {
                                 return currentLang === 'en' ? 'per person' : 'за человека';
                             } else if (priceType === 'per_group' || priceType === 'за группу') {
                                 return currentLang === 'en' ? 'per group' : 'за группу';
                             }
-                            // Fallback на дефолтное значение
                             return priceType || (currentLang === 'en' ? 'per person' : 'за человека');
                         })()}</div>
                     </div>
-                    <button class="hover:opacity-90 text-white px-4 py-2 rounded-lg text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0 self-center" 
-                            style="background-color: #6B7280;"
+                    <button class="hover:opacity-90 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap" 
+                            style="background-color: #3E3E3E;"
                             onclick="event.stopPropagation(); window.location.href='tour-template.html?tour=${tour.id}'">
-                        ${currentLang === 'en' ? 'Book' : 'Бронировать'}
+                        ${currentLang === 'en' ? 'Book now' : 'Бронировать'}
                     </button>
                 </div>
             </div>
