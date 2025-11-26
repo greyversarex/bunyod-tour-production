@@ -258,6 +258,19 @@
             position: relative;
         }
         
+        /* Sticky кнопки для больших модальных окон */
+        .modal-actions-sticky {
+            position: sticky;
+            bottom: -32px;
+            background: white;
+            padding: 16px 0;
+            margin: 0 -32px -32px -32px;
+            padding-left: 32px;
+            padding-right: 32px;
+            border-top: 1px solid #e5e7eb;
+            z-index: 10;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
@@ -2722,7 +2735,7 @@
                     </div>
                 </div>
                 
-                <div class="flex justify-end gap-3 mt-6">
+                <div class="modal-actions-sticky flex justify-end gap-3">
                     <button type="button" onclick="closeHotelModal()" class="btn btn-secondary">
                         Отмена
                     </button>
@@ -3253,7 +3266,7 @@
                 </div>
                 </div>
                 
-                <div class="flex justify-end gap-3 mt-6">
+                <div class="modal-actions-sticky flex justify-end gap-3">
                     <button type="button" onclick="closeTourModal()" class="btn btn-secondary">
                         Отмена
                     </button>
