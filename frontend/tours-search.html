@@ -349,6 +349,30 @@
                         </div>
                     </div>
                     
+                    <!-- Тип тура (перемещён после городов) -->
+                    <div class="filter-section open" id="filter-section-tourtype">
+                        <div class="filter-header" onclick="toggleFilter('tourtype')">
+                            <div class="filter-title" data-translate="search.tour_type">ТИП ТУРА</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="tourtype-content">
+                            <div class="filter-options-wrapper" id="tourtype-checkboxes">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-personal" value="Персональный" onchange="applyFilters()">
+                                    <label for="tourtype-personal" data-translate="tour.type_personal">Персональный</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-group-personal" value="Групповой персональный" onchange="applyFilters()">
+                                    <label for="tourtype-group-personal" data-translate="tour.type_group_personal">Групповой персональный</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-group-common" value="Групповой общий" onchange="applyFilters()">
+                                    <label for="tourtype-group-common" data-translate="tour.type_group_common">Групповой общий</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Категории туров -->
                     <div class="filter-section open" id="filter-section-categories">
                         <div class="filter-header" onclick="toggleFilter('categories')">
@@ -400,31 +424,6 @@
                                 <div class="price-range-inputs">
                                     <input type="number" id="price-min" placeholder="От" data-translate-placeholder="search.price_from" value="0">
                                     <input type="number" id="price-max" placeholder="До" data-translate-placeholder="search.price_to" value="100000">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Тип тура -->
-                    <div class="filter-section" id="filter-section-tourtype">
-                        <div class="filter-header" onclick="toggleFilter('tourtype')">
-                            <div class="filter-title" data-translate="search.tour_type">ТИП ТУРА</div>
-                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
-                        </div>
-                        <div class="filter-content" id="tourtype-content">
-                            <div class="filter-options-wrapper" id="tourtype-checkboxes">
-                                <!-- Типы туров из модального окна -->
-                                <div class="filter-option">
-                                    <input type="checkbox" id="tourtype-personal" value="Персональный" onchange="applyFilters()">
-                                    <label for="tourtype-personal" data-translate="tour.type_personal">Персональный</label>
-                                </div>
-                                <div class="filter-option">
-                                    <input type="checkbox" id="tourtype-group-personal" value="Групповой персональный" onchange="applyFilters()">
-                                    <label for="tourtype-group-personal" data-translate="tour.type_group_personal">Групповой персональный</label>
-                                </div>
-                                <div class="filter-option">
-                                    <input type="checkbox" id="tourtype-group-common" value="Групповой общий" onchange="applyFilters()">
-                                    <label for="tourtype-group-common" data-translate="tour.type_group_common">Групповой общий</label>
                                 </div>
                             </div>
                         </div>
