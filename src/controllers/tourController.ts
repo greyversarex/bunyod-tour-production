@@ -1424,11 +1424,18 @@ export class TourController {
         category,
         date,
         dateFrom, 
-        dateTo 
+        dateTo,
+        isPromotion
       } = req.query;
 
       // Build filter conditions
       const filters: any[] = [];
+      
+      // 🔥 КРИТИЧЕСКИЙ ФИЛЬТР: Акции (isPromotion)
+      if (isPromotion === 'true') {
+        filters.push({ isPromotion: true });
+        console.log('🔥 Filtering by isPromotion=true (Акции)');
+      }
 
       // Text search across multiple fields
       if (query && typeof query === 'string') {
