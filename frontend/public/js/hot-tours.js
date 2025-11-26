@@ -53,8 +53,9 @@ async function loadHotTours() {
         const currentLang = getCurrentLanguage();
         console.log(`🔥 Loading promotional tours (lang: ${currentLang})...`);
         
-        // Загружаем ВСЕ туры
-        const response = await fetch(`/api/tours?lang=${currentLang}`);
+        // Используем search endpoint с фильтром isPromotion=true
+        // Этот endpoint возвращает images (в отличие от /api/tours)
+        const response = await fetch(`/api/tours/search?isPromotion=true&lang=${currentLang}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -62,8 +63,7 @@ async function loadHotTours() {
         const result = await response.json();
         
         if (result.success && result.data) {
-            // 🔥 Фильтруем туры с флагом isPromotion = true
-            hotTours = result.data.filter(tour => tour.isPromotion === true);
+            hotTours = result.data;
             
             console.log(`🔥 Promotional tours loaded: ${hotTours.length} tours`);
             renderHotTours();
