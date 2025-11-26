@@ -2337,8 +2337,8 @@ function renderTourCard(tour, blockId = null) {
                 <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-snug line-clamp-2 min-h-[2.75rem]" data-tour-title="${JSON.stringify(titleData).replace(/"/g, '&quot;')}">
                     ${titleText}
                 </h3>
-                <!-- Описание - фиксированная высота 2 строки -->
-                <p class="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed h-8" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
+                <!-- Описание - минимальная высота 2 строки -->
+                <p class="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed min-h-[2.5rem]" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1 flex flex-col justify-center">
