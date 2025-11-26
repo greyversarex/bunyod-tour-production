@@ -794,11 +794,20 @@ function searchTours() {
         });
     }
     
-    // Apply tour type filter
+    // Apply tour type filter (с нормализацией значений)
     if (state.filters.tourTypes.length > 0) {
         results = results.filter(tour => {
             const tourType = tour.tourType || tour.format;
-            return tourType && state.filters.tourTypes.includes(tourType);
+            if (!tourType) return false;
+            
+            // Нормализуем тип тура из базы данных
+            const normalizedTourType = normalizeTourTypeForFilter(tourType);
+            
+            // Проверяем соответствие с выбранными фильтрами
+            return state.filters.tourTypes.some(filterType => {
+                const normalizedFilterType = normalizeTourTypeForFilter(filterType);
+                return normalizedTourType === normalizedFilterType;
+            });
         });
     }
     
@@ -990,6 +999,38 @@ function updateResultsCount() {
 }
 
 // ============= TOUR TYPE NORMALIZATION =============
+// Нормализует тип тура для фильтрации (сопоставление русских и английских значений)
+function normalizeTourTypeForFilter(tourType) {
+    if (!tourType) return 'unknown';
+    
+    const type = tourType.toLowerCase().trim();
+    
+    // Персональный / Private / Individual (все считаются одним типом)
+    if (type.includes('персональный') || type === 'персональный' ||
+        type.includes('individual') || type === 'individual' ||
+        type.includes('private') || type === 'private') {
+        return 'personal';
+    }
+    
+    // Групповой персональный / Group Private
+    if (type.includes('групповой персональный') || type === 'групповой персональный' ||
+        type.includes('group_private') || type === 'group_private' ||
+        type.includes('group private') || type === 'group private') {
+        return 'group_private';
+    }
+    
+    // Групповой общий / Group Shared / Group General
+    if (type.includes('групповой общий') || type === 'групповой общий' ||
+        type.includes('group_shared') || type === 'group_shared' ||
+        type.includes('group shared') || type === 'group shared' ||
+        type.includes('group_general') || type === 'group_general') {
+        return 'group_shared';
+    }
+    
+    // Default
+    return 'unknown';
+}
+
 // Нормализует тип тура в стандартный enum формат для переводов
 function normalizeTourType(tourType) {
     if (!tourType) return 'group_general';
@@ -1297,11 +1338,12 @@ function createTourCard(tour) {
     const rawTourType = tour.format || tour.tourType || 'group_general';
     const normalizedTourType = normalizeTourType(rawTourType);
     
-    // Прямой перевод без использования getTranslation (которая возвращает ключ если нет перевода)
+    // Прямой перевод типов туров согласно унифицированной таблице
     const tourTypeTranslations = {
-        'group_private': { ru: 'Групповой персональный', en: 'Group Personal' },
-        'group_general': { ru: 'Групповой общий', en: 'Group General' },
-        'individual': { ru: 'Индивидуальный', en: 'Individual' }
+        'individual': { ru: 'Персональный', en: 'Private' },
+        'group_private': { ru: 'Групповой персональный', en: 'Group Private' },
+        'group_general': { ru: 'Групповой общий', en: 'Group Shared' },
+        'group_shared': { ru: 'Групповой общий', en: 'Group Shared' }
     };
     const tourTypeText = tourTypeTranslations[normalizedTourType]?.[currentLang] || rawTourType;
     
