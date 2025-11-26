@@ -103,16 +103,18 @@ function createTourCard(tour) {
     // Получаем цену в выбранной валюте
     const priceInfo = getTourPrice(tour);
     
-    // Получаем первое изображение тура
-    const imageUrl = tour.photos && tour.photos.length > 0 
-        ? tour.photos[0].url 
-        : '/placeholder-tour.jpg';
+    // Получаем первое изображение тура (API возвращает images, не photos)
+    const imageUrl = getTourImage(tour);
     
     // Рейтинг (если есть)
     const rating = tour.rating || 4.5;
     
     // 🔥 Скидка из нового поля discountPercent
     const discount = tour.discountPercent || 0;
+    
+    // Длительность тура
+    const duration = tour.duration || tour.durationDays || '';
+    const durationText = duration ? (currentLang === 'en' ? `${duration} days` : `${duration} дней`) : '';
     
     return `
         <div class="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow flex flex-col relative">
@@ -122,22 +124,24 @@ function createTourCard(tour) {
                 </div>
             ` : ''}
             
-            <div class="h-64 bg-gray-200 overflow-hidden">
+            <a href="/tour.html?id=${tour.id}" class="block h-64 bg-gray-200 overflow-hidden">
                 <img 
                     src="${imageUrl}" 
                     alt="${title}"
                     class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                    onerror="this.src='/placeholder-tour.jpg'"
+                    onerror="this.src='/api/placeholder/400/300'"
                 >
-            </div>
+            </a>
             
             <div class="p-6 flex flex-col flex-grow">
-                <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-xl font-bold text-gray-900 flex-1">${title}</h3>
+                <div class="flex justify-between items-start mb-2">
+                    <a href="/tour.html?id=${tour.id}" class="text-xl font-bold text-gray-900 flex-1 hover:text-gray-700">${title}</a>
                     <div class="flex items-center bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium ml-2">
                         ★ ${rating.toFixed(1)}
                     </div>
                 </div>
+                
+                ${durationText ? `<p class="text-sm text-gray-500 mb-2">${durationText}</p>` : ''}
                 
                 <p class="text-gray-600 mb-4 flex-grow line-clamp-3">
                     ${description}
@@ -148,9 +152,9 @@ function createTourCard(tour) {
                         ${priceInfo.html}
                     </div>
                     <a 
-                        href="/tour-detail.html?id=${tour.id}" 
+                        href="/tour.html?id=${tour.id}" 
                         class="text-white px-4 py-2 rounded-md hover:opacity-90 transition-colors"
-                        style="background-color: #6B7280;"
+                        style="background-color: #3E3E3E;"
                     >
                         ${currentLang === 'en' ? 'Book now' : 'Бронировать'}
                     </a>
@@ -160,21 +164,56 @@ function createTourCard(tour) {
     `;
 }
 
+// Получение изображения тура
+function getTourImage(tour) {
+    // Проверяем mainImage
+    if (tour.mainImage) {
+        return tour.mainImage;
+    }
+    
+    // Проверяем images (может быть строка JSON или массив)
+    if (tour.images) {
+        let images = tour.images;
+        if (typeof images === 'string') {
+            try {
+                images = JSON.parse(images);
+            } catch (e) {
+                return '/api/placeholder/400/300';
+            }
+        }
+        if (Array.isArray(images) && images.length > 0) {
+            return images[0];
+        }
+    }
+    
+    // Проверяем photos
+    if (tour.photos && Array.isArray(tour.photos) && tour.photos.length > 0) {
+        return tour.photos[0].url || tour.photos[0];
+    }
+    
+    return '/api/placeholder/400/300';
+}
+
 // Получение цены тура с учетом валюты и скидки
 function getTourPrice(tour) {
-    if (!tour.pricePerPerson || tour.pricePerPerson <= 0) {
+    // API возвращает price как строку, конвертируем в число
+    const basePrice = parseFloat(tour.price) || parseFloat(tour.pricePerPerson) || 0;
+    
+    if (basePrice <= 0) {
         return {
             html: `<span class="text-xl font-bold text-gray-900">${getCurrentLanguage() === 'en' ? 'Price on request' : 'Цена по запросу'}</span>`,
             value: 0
         };
     }
     
-    const basePrice = tour.pricePerPerson;
     const baseCurrency = tour.currency || 'TJS';
-    const discountPercent = tour.discountPercent || 0;
+    const discountPercent = parseFloat(tour.discountPercent) || 0;
     
     // Конвертируем цену
     const convertedPrice = convertPrice(basePrice, baseCurrency, currentCurrency);
+    
+    const currentLang = getCurrentLanguage();
+    const pricePrefix = currentLang === 'en' ? 'from' : 'от';
     
     // 🔥 Если есть скидка, показываем зачёркнутую старую цену
     if (tour.isPromotion && discountPercent > 0 && convertedPrice > 0) {
@@ -182,27 +221,31 @@ function getTourPrice(tour) {
         const originalPrice = convertedPrice / (1 - discountPercent / 100);
         return {
             html: `
-                <span class="text-lg line-through text-gray-400">${formatPrice(originalPrice, currentCurrency)}</span>
-                <span class="text-2xl font-bold text-red-600 ml-2">${formatPrice(convertedPrice, currentCurrency)}</span>
+                <div class="flex flex-col">
+                    <span class="text-sm line-through text-gray-400">${pricePrefix} ${formatPrice(originalPrice, currentCurrency)}</span>
+                    <span class="text-xl font-bold text-red-600">${pricePrefix} ${formatPrice(convertedPrice, currentCurrency)}</span>
+                </div>
             `,
             value: convertedPrice
         };
     }
     
     // Если есть старая цена (для скидки) - старый способ
-    if (tour.oldPrice && tour.oldPrice > basePrice) {
-        const convertedOldPrice = convertPrice(tour.oldPrice, baseCurrency, currentCurrency);
+    if (tour.oldPrice && parseFloat(tour.oldPrice) > basePrice) {
+        const convertedOldPrice = convertPrice(parseFloat(tour.oldPrice), baseCurrency, currentCurrency);
         return {
             html: `
-                <span class="text-lg line-through text-gray-400">${formatPrice(convertedOldPrice, currentCurrency)}</span>
-                <span class="text-2xl font-bold text-red-600 ml-2">${formatPrice(convertedPrice, currentCurrency)}</span>
+                <div class="flex flex-col">
+                    <span class="text-sm line-through text-gray-400">${pricePrefix} ${formatPrice(convertedOldPrice, currentCurrency)}</span>
+                    <span class="text-xl font-bold text-red-600">${pricePrefix} ${formatPrice(convertedPrice, currentCurrency)}</span>
+                </div>
             `,
             value: convertedPrice
         };
     }
     
     return {
-        html: `<span class="text-2xl font-bold text-red-600">${formatPrice(convertedPrice, currentCurrency)}</span>`,
+        html: `<span class="text-xl font-bold text-gray-900">${pricePrefix} ${formatPrice(convertedPrice, currentCurrency)}</span>`,
         value: convertedPrice
     };
 }
