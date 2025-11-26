@@ -2283,64 +2283,62 @@ function renderTourCard(tour, blockId = null) {
                     `).join('')}
                 </div>` : ''}
             </div>
-            <div class="p-3 sm:p-4 flex flex-col flex-grow">
-                <!-- Локация -->
-                <div class="text-xs text-gray-500 mb-1 sm:mb-2 flex items-center gap-1">
-                    <svg class="inline w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                    </svg>
-                    <span>${getDisplayLocation(tour)}</span>
+            <div class="p-4 flex flex-col flex-grow">
+                <!-- Мета-блок: локация, тип, категория - фиксированная высота -->
+                <div class="h-16 mb-2">
+                    <!-- Локация -->
+                    <div class="text-xs text-gray-500 mb-1 flex items-center gap-1">
+                        <svg class="inline w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="truncate">${getDisplayLocation(tour)}</span>
+                    </div>
+                    <!-- Тип тура -->
+                    <div class="text-xs text-blue-600 mb-1 flex items-center gap-1">
+                        ${getTourTypeIcon(tour.format || tour.tourType)}
+                        <span class="font-medium tour-type-text" data-tour-type="${tour.format || tour.tourType || 'Групповой'}" data-translate="tour_type.${(tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s+/g, '_')}">${(() => {
+                            const tourType = tour.format || tour.tourType || 'Групповой';
+                            const normalizedType = tourType.toLowerCase().replace(/\s+/g, '_');
+                            const translationKey = 'tour_type.' + normalizedType;
+                            const translated = getTranslation(translationKey);
+                            return translated !== translationKey ? translated : tourType;
+                        })()}</span>${(() => {
+                            const tourType = (tour.format || tour.tourType || '').toLowerCase();
+                            const isIndividual = tourType.includes('персональный') && !tourType.includes('групповой');
+                            return !isIndividual && tour.maxPeople ? ` <span class="text-gray-600" data-max-people="${tour.maxPeople}">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '';
+                        })()}
+                    </div>
+                    <!-- Категория тура и длительность -->
+                    <div class="text-xs flex items-center gap-1" style="color: #3E3E3E;">
+                        ${getCategoryIcon(categoryText)}
+                        <span class="font-medium tour-duration truncate" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}" data-tour-duration-type="${tour.durationType || ''}">${(() => {
+                            let result = categoryText;
+                            const hasDuration = tour.duration || tour.durationDays;
+                            
+                            if (hasDuration) {
+                                const formatted = formatDuration(tour, currentLang);
+                                result = categoryText + ', ' + formatted;
+                            }
+                            
+                            return result;
+                        })()}</span>
+                        ${allCategories.length > 1 ? `
+                        <span class="relative group cursor-help ml-0.5 flex-shrink-0">
+                            <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
+                            <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
+                                ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
+                                <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                            </div>
+                        </span>
+                        ` : ''}
+                    </div>
                 </div>
-                <!-- Тип тура -->
-                <div class="text-xs text-blue-600 mb-1 sm:mb-2 flex items-center gap-1">
-                    ${getTourTypeIcon(tour.format || tour.tourType)}
-                    <span class="font-medium tour-type-text" data-tour-type="${tour.format || tour.tourType || 'Групповой'}" data-translate="tour_type.${(tour.format || tour.tourType || 'Групповой').toLowerCase().replace(/\s+/g, '_')}">${(() => {
-                        const tourType = tour.format || tour.tourType || 'Групповой';
-                        const normalizedType = tourType.toLowerCase().replace(/\s+/g, '_');
-                        const translationKey = 'tour_type.' + normalizedType;
-                        const translated = getTranslation(translationKey);
-                        return translated !== translationKey ? translated : tourType;
-                    })()}</span>${(() => {
-                        const tourType = (tour.format || tour.tourType || '').toLowerCase();
-                        const isIndividual = tourType.includes('персональный') && !tourType.includes('групповой');
-                        return !isIndividual && tour.maxPeople ? ` <span class="text-gray-600" data-max-people="${tour.maxPeople}">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : '';
-                    })()}
-                </div>
-                <!-- Категория тура и длительность -->
-                <div class="text-xs mb-1 sm:mb-2 flex items-center gap-1" style="color: #3E3E3E;">
-                    ${getCategoryIcon(categoryText)}
-                    <span class="font-medium tour-duration" data-category-name="${JSON.stringify(categoryData).replace(/"/g, '&quot;')}" data-tour-duration="${tour.duration || ''}" data-tour-duration-days="${tour.durationDays || ''}" data-tour-duration-type="${tour.durationType || ''}">${(() => {
-                        let result = categoryText;
-                        const hasDuration = tour.duration || tour.durationDays;
-                        
-                        if (hasDuration) {
-                            const formatted = formatDuration(tour, currentLang);
-                            result = categoryText + ', ' + formatted;
-                        }
-                        
-                        return result;
-                    })()}</span>
-                    ${allCategories.length > 1 ? `
-                    <span class="relative group cursor-help ml-0.5">
-                        <span class="text-gray-600 font-semibold hover:text-gray-800 transition-colors">...</span>
-                        <div class="absolute left-0 bottom-full mb-2 hidden group-hover:block bg-gray-800 text-white text-xs rounded py-2 px-3 whitespace-nowrap z-10 shadow-lg">
-                            ${allCategories.map((cat, idx) => `<div class="py-0.5">${idx + 1}. ${cat}</div>`).join('')}
-                            <div class="absolute left-4 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
-                        </div>
-                    </span>
-                    ` : ''}
-                </div>
-                ${tour.rating ? `
-                <div class="text-xs text-green-600 mb-1 sm:mb-2">
-                    <span class="font-semibold">★ ${tour.rating}</span>
-                    <span class="text-gray-500 ml-1">(${tour.reviewsCount || 0})</span>
-                </div>` : ''}
-                <!-- Заголовок -->
-                <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-1 sm:mb-2 group-hover:text-blue-600 leading-tight" data-tour-title="${JSON.stringify(titleData).replace(/"/g, '&quot;')}">
+                <!-- Заголовок - фиксированная высота 2 строки -->
+                <h3 class="text-sm sm:text-base font-semibold text-gray-900 mb-2 group-hover:text-blue-600 leading-tight line-clamp-2 h-10" data-tour-title="${JSON.stringify(titleData).replace(/"/g, '&quot;')}">
                     ${titleText}
                 </h3>
-                <!-- Описание -->
-                <p class="text-xs text-gray-600 mb-1 sm:mb-2 line-clamp-2 leading-relaxed" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
+                <!-- Описание - фиксированная высота 2 строки -->
+                <p class="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed h-8" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1 flex flex-col justify-center">
