@@ -1000,31 +1000,30 @@ function updateResultsCount() {
 
 // ============= TOUR TYPE NORMALIZATION =============
 // Нормализует тип тура для фильтрации (сопоставление русских и английских значений)
+// ВАЖНО: Порядок проверок критичен! Сначала проверяем составные типы, потом простые.
 function normalizeTourTypeForFilter(tourType) {
     if (!tourType) return 'unknown';
     
     const type = tourType.toLowerCase().trim();
     
-    // Персональный / Private / Individual (все считаются одним типом)
-    if (type.includes('персональный') || type === 'персональный' ||
-        type.includes('individual') || type === 'individual' ||
-        type.includes('private') || type === 'private') {
-        return 'personal';
-    }
-    
-    // Групповой персональный / Group Private
-    if (type.includes('групповой персональный') || type === 'групповой персональный' ||
-        type.includes('group_private') || type === 'group_private' ||
-        type.includes('group private') || type === 'group private') {
+    // 1. СНАЧАЛА проверяем "Групповой персональный" (содержит слово "персональный")
+    if (type === 'групповой персональный' || type.includes('групповой персональный') ||
+        type === 'group_private' || type.includes('group_private') ||
+        type === 'group private' || type.includes('group private')) {
         return 'group_private';
     }
     
-    // Групповой общий / Group Shared / Group General
-    if (type.includes('групповой общий') || type === 'групповой общий' ||
-        type.includes('group_shared') || type === 'group_shared' ||
-        type.includes('group shared') || type === 'group shared' ||
-        type.includes('group_general') || type === 'group_general') {
+    // 2. Затем проверяем "Групповой общий"
+    if (type === 'групповой общий' || type.includes('групповой общий') ||
+        type === 'group_shared' || type.includes('group_shared') ||
+        type === 'group shared' || type.includes('group shared') ||
+        type === 'group_general' || type.includes('group_general')) {
         return 'group_shared';
+    }
+    
+    // 3. ПОСЛЕДНИМ проверяем "Персональный" (простой тип без "групповой")
+    if (type === 'персональный' || type === 'individual' || type === 'private') {
+        return 'personal';
     }
     
     // Default
