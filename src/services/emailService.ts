@@ -636,33 +636,52 @@ export const emailService = {
     try {
       const { client, fromEmail } = await getUncachableSendGridClient();
       const template = emailTemplates.paymentConfirmation(order, customer);
-      
-      console.log('Generating PDF ticket...');
-      const pdfBuffer = await generateTicketPDF(order, customer);
-      console.log('PDF ticket generated successfully');
-      
       const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
-      const filename = `Ticket-${order.orderNumber}-${tourTitle.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.pdf`;
       
-      await client.send({
+      // Попытка сгенерировать PDF билет
+      let pdfBuffer: Buffer | null = null;
+      try {
+        console.log('📄 Generating PDF ticket...');
+        pdfBuffer = await generateTicketPDF(order, customer);
+        console.log('📄 PDF ticket generated successfully');
+      } catch (pdfError) {
+        console.error('⚠️ PDF generation failed, sending email without attachment:', pdfError);
+        // Продолжаем без PDF - лучше отправить email без билета, чем не отправить вообще
+      }
+      
+      const emailData: any = {
         to: customer.email,
         from: fromEmail,
         subject: template.subject,
-        html: template.html,
-        attachments: [
+        html: template.html
+      };
+      
+      // Добавляем PDF только если он успешно сгенерирован
+      if (pdfBuffer) {
+        const filename = `Ticket-${order.orderNumber}-${tourTitle.replace(/[^a-zA-Z0-9а-яА-Я]/g, '_')}.pdf`;
+        emailData.attachments = [
           {
             content: pdfBuffer.toString('base64'),
             filename: filename,
             type: 'application/pdf',
             disposition: 'attachment'
           }
-        ]
-      });
+        ];
+        console.log('📎 PDF attached to email');
+      } else {
+        console.log('📧 Sending email without PDF attachment (fallback mode)');
+      }
       
-      console.log(`✅ Payment confirmation email with PDF ticket sent to ${customer.email} via SendGrid`);
+      await client.send(emailData);
+      
+      const attachmentStatus = pdfBuffer ? 'with PDF ticket' : 'without PDF (fallback)';
+      console.log(`✅ Payment confirmation email ${attachmentStatus} sent to ${customer.email} via SendGrid`);
       return true;
     } catch (error) {
       console.error('❌ Error sending payment confirmation email:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error stack:', error.stack);
+      }
       return false;
     }
   },
@@ -700,6 +719,34 @@ export const emailService = {
   },
 
   async sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
+    try {
+      console.log(`📧 Attempting to send email to: ${options.to}`);
+      console.log(`📧 Subject: ${options.subject}`);
+      
+      const { client, fromEmail } = await getUncachableSendGridClient();
+      console.log(`📧 Using SendGrid from: ${fromEmail}`);
+      
+      await client.send({
+        to: options.to,
+        from: fromEmail,
+        subject: options.subject,
+        html: options.html
+      });
+      console.log(`✅ Email successfully sent to ${options.to} via SendGrid`);
+    } catch (error) {
+      console.error(`❌ Failed to send email to ${options.to}`);
+      console.error('❌ Email error:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error stack:', error.stack);
+      }
+      throw error; // Re-throw to let caller handle it
+    }
+  }
+};
+
+export async function sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
+  try {
+    console.log(`📧 [Standalone] Attempting to send email to: ${options.to}`);
     const { client, fromEmail } = await getUncachableSendGridClient();
     await client.send({
       to: options.to,
@@ -707,19 +754,11 @@ export const emailService = {
       subject: options.subject,
       html: options.html
     });
-    console.log(`✅ Email sent to ${options.to} via SendGrid`);
+    console.log(`✅ [Standalone] Email sent to ${options.to} via SendGrid`);
+  } catch (error) {
+    console.error(`❌ [Standalone] Failed to send email to ${options.to}:`, error);
+    throw error;
   }
-};
-
-export async function sendEmail(options: { to: string; subject: string; html: string }): Promise<void> {
-  const { client, fromEmail } = await getUncachableSendGridClient();
-  await client.send({
-    to: options.to,
-    from: fromEmail,
-    subject: options.subject,
-    html: options.html
-  });
-  console.log(`✅ Email sent to ${options.to} via SendGrid`);
 }
 
 export default emailService;

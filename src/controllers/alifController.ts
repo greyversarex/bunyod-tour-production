@@ -242,22 +242,40 @@ export const alifController = {
         console.log('✅ Payment confirmed for order:', orderId);
 
         // Отправить email подтверждение клиенту и уведомление администратору
+        
+        // GUARD: Check customer exists FIRST before any logging that accesses customer properties
+        if (!order.customer) {
+          console.warn('⚠️ Order', order.orderNumber, 'has no customer relation, skipping email notifications');
+          console.warn('⚠️ This may indicate missing data - order was marked as paid but notifications skipped');
+          return res.json({ success: true });
+        }
+        
+        console.log('📧 Starting email notification process for order:', order.orderNumber);
+        console.log('📧 Order type:', order.tour ? 'Tour' : (order.orderNumber.startsWith('GH-') ? 'Guide Hire' : (order.orderNumber.startsWith('TR-') ? 'Transfer' : 'Other')));
+        console.log('📧 Customer:', { email: order.customer.email, name: order.customer.fullName });
+        
         try {
           if (order.tour) {
             // Оплата тура - стандартный email с PDF билетом
+            console.log('📧 Sending tour payment confirmation email to:', order.customer.email);
             await emailService.sendPaymentConfirmation(order, order.customer);
+            console.log('📧 Sending admin notification for tour payment');
             await emailService.sendAdminNotification(order, order.customer, order.tour);
-            console.log('✅ Tour payment emails sent');
+            console.log('✅ Tour payment emails sent successfully');
           } else {
             // Оплата гида/трансфера/собственного тура - детальное уведомление
             const isGuideHire = order.orderNumber.startsWith('GH-');
             const isTransfer = order.orderNumber.startsWith('TR-');
             const isCustomTour = order.orderNumber.startsWith('CT-');
             
+            console.log('📧 Non-tour payment detected:', { isGuideHire, isTransfer, isCustomTour, orderNumber: order.orderNumber });
+            
             const orderTypeText = isGuideHire ? 'Найм гида' 
               : isTransfer ? 'Трансфер'
               : isCustomTour ? 'Собственный тур'
               : 'Услуга';
+            
+            console.log('📧 Preparing email for:', orderTypeText);
 
             // Формируем детали заказа
             let detailsHTML = '';
@@ -291,6 +309,7 @@ export const alifController = {
             }
 
             // Email клиенту
+            console.log('📧 Sending customer email to:', order.customer.email);
             await emailService.sendEmail({
               to: order.customer.email,
               subject: `✅ Оплата подтверждена - ${orderTypeText}`,
@@ -330,10 +349,14 @@ export const alifController = {
                 </div>
               `
             });
+            
+            console.log('📧 Customer email sent successfully');
 
             // Email админу
+            const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
+            console.log('📧 Sending admin notification to:', adminEmail);
             await emailService.sendEmail({
-              to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+              to: adminEmail,
               subject: `💰 Новый платеж: ${orderTypeText} - ${order.totalAmount} TJS`,
               html: `
                 <div style="font-family: Arial, sans-serif;">
@@ -346,10 +369,15 @@ export const alifController = {
                 </div>
               `
             });
-            console.log('✅ Non-tour payment emails sent');
+            console.log('✅ Non-tour payment emails sent successfully to customer and admin');
           }
         } catch (emailError) {
-          console.error('❌ Email sending failed:', emailError);
+          console.error('❌ Email sending failed for order:', order.orderNumber);
+          console.error('❌ Email error details:', emailError);
+          // Логируем полный стек ошибки для диагностики
+          if (emailError instanceof Error) {
+            console.error('❌ Email error stack:', emailError.stack);
+          }
         }
       } else {
         await prisma.order.update({
