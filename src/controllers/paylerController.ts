@@ -601,9 +601,10 @@ export const paylerController = {
                   <div style="background: #3E3E3E; color: white; padding: 30px; text-align: center;">
                     <h3 style="margin-top: 0;">Bunyod-Tour</h3>
                     <p style="margin: 5px 0;">📍 Душанбе, Таджикистан</p>
-                    <p style="margin: 5px 0;">📞 Телефон: +992 XXX XXX XXX</p>
-                    <p style="margin: 5px 0;">✉️ Email: info@bunyodtour.tj</p>
-                    <p style="margin: 5px 0;">🌐 Сайт: <a href="https://bunyodtour.tj" style="color: #10b981;">bunyodtour.tj</a></p>
+                    <p style="margin: 5px 0;">📞 +992 44 625 7575; +992 93-126-1134</p>
+                    <p style="margin: 5px 0;">📞 +992 00-110-0087; +992 88-235-3434</p>
+                    <p style="margin: 5px 0;">✉️ info@bunyodtour.tj</p>
+                    <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj" style="color: #10b981;">bunyodtour.tj</a></p>
                     <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">Туристическая платформа Центральной Азии</p>
                   </div>
                 </div>
