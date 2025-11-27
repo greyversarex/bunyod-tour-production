@@ -37,13 +37,21 @@
         <!-- Guide Profile Content -->
         <div id="guide-profile" class="hidden">
             <!-- Guide Header Card -->
-            <div id="guide-card" class="bg-white rounded-xl shadow-lg p-8 mb-8 relative">
+            <div id="guide-card" class="bg-white rounded-xl shadow-lg p-8 mb-8 relative border-2 border-gray-200">
                 <!-- Download Button -->
                 <button id="download-card-btn" onclick="downloadGuideCard()" 
-                        class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 p-3 rounded-lg transition-all shadow-sm"
+                        class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 p-3 rounded-lg transition-all shadow-sm z-10"
                         title="Скачать карточку гида">
                     <i class="fas fa-download text-lg"></i>
                 </button>
+                
+                <!-- Certificate ID Header -->
+                <div class="text-center mb-6 pb-4 border-b-2 border-gray-200">
+                    <h2 class="text-2xl md:text-3xl font-bold tracking-wide" style="font-family: 'Times New Roman', serif; color: #1a5f7a;">
+                        CERTIFICATE ID#<span id="certificate-id" class="ml-1"></span>
+                    </h2>
+                </div>
+                
                 <div class="flex flex-col md:flex-row gap-8">
                     <!-- Guide Photo -->
                     <div class="flex-shrink-0 text-center">
@@ -314,10 +322,13 @@
 
             // Certificate (registration) - показываем сертификат гида
             let certificateText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            let certificateId = '—';
             if (guide.registration) {
                 certificateText = guide.registration;
+                certificateId = guide.registration;
             }
             document.getElementById('guide-certificate').textContent = certificateText;
+            document.getElementById('certificate-id').textContent = certificateId;
 
             // Description - handle multilingual object
             const descriptionText = getMultilingualText(guide.description, lang) || (lang === 'ru' ? 'Описание отсутствует' : 'No description available');
