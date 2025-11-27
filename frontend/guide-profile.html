@@ -87,12 +87,12 @@
                                 </div>
                             </div>
 
-                            <!-- Contact -->
+                            <!-- Сертификат -->
                             <div class="flex items-center gap-3">
-                                <i class="fas fa-phone text-gray-600 text-xl"></i>
+                                <i class="fas fa-certificate text-gray-600 text-xl"></i>
                                 <div>
-                                    <p class="text-sm text-gray-500" data-translate="guide.contact">Контакт</p>
-                                    <p id="guide-contact" class="font-semibold text-gray-800"></p>
+                                    <p class="text-sm text-gray-500" data-translate="guide.certificate">Сертификат</p>
+                                    <p id="guide-certificate" class="font-semibold text-gray-800"></p>
                                 </div>
                             </div>
                         </div>
@@ -281,25 +281,12 @@
             }
             document.getElementById('guide-region').textContent = regionText;
 
-            // Contact - parse JSON if needed
-            let contactText = lang === 'ru' ? 'Не указано' : 'Not specified';
-            if (guide.contact) {
-                try {
-                    // Try to parse JSON contact object
-                    const contactObj = typeof guide.contact === 'string' ? JSON.parse(guide.contact) : guide.contact;
-                    if (contactObj.phone) {
-                        contactText = contactObj.phone;
-                    } else if (contactObj.email) {
-                        contactText = contactObj.email;
-                    } else {
-                        contactText = guide.contact;
-                    }
-                } catch (e) {
-                    // If not JSON, use as is
-                    contactText = guide.contact;
-                }
+            // Certificate (registration) - показываем сертификат гида
+            let certificateText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            if (guide.registration) {
+                certificateText = guide.registration;
             }
-            document.getElementById('guide-contact').textContent = contactText;
+            document.getElementById('guide-certificate').textContent = certificateText;
 
             // Description - handle multilingual object
             const descriptionText = getMultilingualText(guide.description, lang) || (lang === 'ru' ? 'Описание отсутствует' : 'No description available');
