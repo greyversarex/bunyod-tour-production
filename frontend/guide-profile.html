@@ -12,6 +12,7 @@
     <script src="/public/js/i18n.js?v=1759745702"></script>
     <script src="/public/js/layout-loader.js?v=1759745702"></script>
     <script src="/public/js/utils.js?v=1759745702"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body class="bg-gray-50">
     <div id="header-container"></div>
@@ -36,7 +37,13 @@
         <!-- Guide Profile Content -->
         <div id="guide-profile" class="hidden">
             <!-- Guide Header Card -->
-            <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div id="guide-card" class="bg-white rounded-xl shadow-lg p-8 mb-8 relative">
+                <!-- Download Button -->
+                <button id="download-card-btn" onclick="downloadGuideCard()" 
+                        class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 p-3 rounded-lg transition-all shadow-sm"
+                        title="Скачать карточку гида">
+                    <i class="fas fa-download text-lg"></i>
+                </button>
                 <div class="flex flex-col md:flex-row gap-8">
                     <!-- Guide Photo -->
                     <div class="flex-shrink-0 text-center">
@@ -487,6 +494,40 @@
                 displayGuide(guideData);
             }
         });
+
+        // Download guide card as image
+        async function downloadGuideCard() {
+            const card = document.getElementById('guide-card');
+            const downloadBtn = document.getElementById('download-card-btn');
+            const guideName = document.getElementById('guide-name').textContent || 'guide';
+            
+            // Hide download button temporarily
+            downloadBtn.style.display = 'none';
+            
+            try {
+                // Show loading state on button
+                const canvas = await html2canvas(card, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `${guideName.replace(/\s+/g, '_')}_card.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Ошибка при создании изображения. Попробуйте снова.');
+            } finally {
+                // Show download button again
+                downloadBtn.style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>
