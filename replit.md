@@ -58,11 +58,12 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
 -   **Email Notification System**: Uses SendGrid API for transactional emails (Timeweb blocks SMTP ports):
     - **REQUIRED on Production**: Set `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL` in .env
     - Booking confirmations to customers
-    - Payment confirmations with PDF tickets
+    - Payment confirmations with PDF tickets (fallback: email without PDF if Puppeteer fails)
     - Admin notifications on new orders/payments (with order type: Tour/Guide Hire/Transfer/Custom Tour)
     - Guide welcome emails with login credentials (via guideController.createGuide)
     - Travel agent approval emails with login credentials
     - Tour completion notifications to admin
+    - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks
     - Updated: Nov 27, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.
