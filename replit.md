@@ -37,13 +37,15 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
 -   **Authentication**: JWT for administrators; separate dashboards for guides and drivers.
 -   **Security**: Rate limiting, XSS protection, CORS, environment variable validation.
 -   **File Upload System**: Persistent storage outside application directory, symlinked for access; restricted to image files only.
--   **Email Notification System**: Uses Nodemailer (SMTP via Timeweb) for transactional emails:
+-   **Email Notification System**: Uses SendGrid API for transactional emails (Timeweb blocks SMTP ports):
+    - **REQUIRED on Production**: Set `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL` in .env
     - Booking confirmations to customers
     - Payment confirmations with PDF tickets
-    - Admin notifications on new orders/payments
+    - Admin notifications on new orders/payments (with order type: Tour/Guide Hire/Transfer/Custom Tour)
     - Guide welcome emails with login credentials (via guideController.createGuide)
     - Travel agent approval emails with login credentials
     - Tour completion notifications to admin
+    - Updated: Nov 27, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.
 
@@ -64,7 +66,7 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
 -   **Database**: PostgreSQL
 -   **ORM**: Prisma
 -   **Payment Gateways**: Stripe, Payler, AlifPay
--   **Email Service**: Nodemailer
+-   **Email Service**: SendGrid API (@sendgrid/mail)
 -   **Runtime Environment**: Node.js
 -   **Process Manager**: PM2
 -   **Web Server/Reverse Proxy**: Nginx

@@ -508,6 +508,29 @@
                             return;
                         }
                         
+                        // Получаем цену выбранного автомобиля для прямой оплаты
+                        const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
+                        const vehiclePrice = selectedVehicle?.pricePerDay || 0;
+                        
+                        if (!selectedVehicleId || vehiclePrice <= 0) {
+                            const errorTitle = window.getTranslation ? window.getTranslation('error', lang) : 'Ошибка';
+                            const errorMessage = window.getTranslation ? window.getTranslation('transfer_select_vehicle', lang) : 'Пожалуйста, выберите автомобиль';
+                            notificationContent.innerHTML = `
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800">${errorTitle}</h4>
+                                        <p class="text-red-600">${errorMessage}</p>
+                                    </div>
+                                </div>
+                            `;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            return;
+                        }
+                        
                         const data = {
                             fullName: formData.get('fullName'),
                             email: email || undefined,
@@ -522,7 +545,8 @@
                             vehicleType: formData.get('vehicleType') || undefined,
                             vehicleCapacity: formData.get('vehicleCapacity') || undefined,
                             vehicleId: selectedVehicleId || undefined,
-                            specialRequests: formData.get('specialRequests') || undefined
+                            specialRequests: formData.get('specialRequests') || undefined,
+                            estimatedPrice: vehiclePrice // Передаём цену автомобиля для прямой оплаты
                         };
                         
                         console.log('Отправка заявки на трансфер:', data);
@@ -543,11 +567,8 @@
                             try {
                                 console.log('🚀 Starting transfer data save process...');
                                 
-                                // 🚗 Сохраняем данные трансфера в booking state для оплаты
-                                const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
+                                // 🚗 Используем уже определённые данные автомобиля
                                 console.log('📦 Selected vehicle:', selectedVehicle);
-                                
-                                const vehiclePrice = selectedVehicle?.pricePerDay || 0;
                                 const currency = selectedVehicle?.currency || window.selectedCurrency || 'TJS';
                                 console.log('💰 Price:', vehiclePrice, 'Currency:', currency);
                                 
