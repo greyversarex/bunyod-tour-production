@@ -562,6 +562,7 @@ export const getGuideById = async (req: Request, res: Response) => {
       guideCountry: processedGuideCountry,
       guideCity: processedGuideCity,
       hasPassword: !!guide.password && guide.password.trim() !== '', // ✅ Показываем наличие пароля
+      registration: guide.registration, // 📜 Номер сертификата для публичного профиля
     };
 
     // 🔐 АДМИН РЕЖИМ: при includeRaw=true добавляем sensitive data
