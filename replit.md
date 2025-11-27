@@ -17,6 +17,24 @@ Bunyod-Tour is a comprehensive tour booking platform for Central Asia (Tajikista
     4.  Работа должна выполняться с максимальным профессионализмом и ответственностью
     5.  Качество - превыше всего
 
+## Deployment Workflow
+
+**Среда разработки:** Replit (development) → GitHub → Timeweb (production)
+
+**Рабочий процесс:**
+1. Разработка и улучшения выполняются на Replit
+2. Код пушится в GitHub репозиторий
+3. Продакшен сервер (Timeweb) обновляется через `git pull`
+
+**Что переносится между средами:**
+- ✅ Код (JavaScript, TypeScript, HTML, CSS, конфигурации)
+- ✅ Prisma миграции (применяются на продакшене через update.sh)
+- ❌ ENV переменные (настраиваются отдельно на каждом сервере)
+- ❌ Данные базы данных (отдельная PostgreSQL БД на Timeweb)
+- ❌ Загруженные файлы (хранятся локально на каждом сервере)
+
+**Важно:** Изменения схемы БД (Prisma) переносятся через миграции, но сами данные (туры, бронирования, пользователи) остаются на соответствующих серверах.
+
 ## System Architecture
 
 The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and TypeScript for the backend, and Vanilla JavaScript with Tailwind CSS for the frontend. PostgreSQL with Prisma ORM serves as the database.
