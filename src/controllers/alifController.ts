@@ -79,9 +79,12 @@ export const alifController = {
           });
         }
 
-        // Проверить что заявка на найм все еще активна (confirmed)
+        // Проверить что заявка на найм все еще активна (confirmed или approved)
         // ВАЖНО: Даты УЖЕ удалены из availableDates при создании заказа, это нормально
-        if (guideHireRequest.status !== 'confirmed') {
+        // 'confirmed' - для прямой оплаты без одобрения админа
+        // 'approved' - для потока с одобрением админа
+        const validStatuses = ['confirmed', 'approved'];
+        if (!validStatuses.includes(guideHireRequest.status)) {
           console.error(`❌ Guide hire payment validation failed: Request status is ${guideHireRequest.status}`);
           return res.status(400).json({
             success: false,

@@ -1204,7 +1204,8 @@ export class TransferRequestModel {
         pickupDate: data.pickupDate,
         numberOfPeople: data.numberOfPeople || 1,
         vehicleType: data.vehicleType || null,
-        specialRequests: data.specialRequests || null
+        specialRequests: data.specialRequests || null,
+        estimatedPrice: data.estimatedPrice || null
       },
       include: {
         assignedDriver: {

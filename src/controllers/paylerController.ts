@@ -81,9 +81,12 @@ export const paylerController = {
           });
         }
 
-        // Проверить что заявка на найм все еще активна (confirmed)
+        // Проверить что заявка на найм все еще активна (confirmed или approved)
         // ВАЖНО: Даты УЖЕ удалены из availableDates при создании заказа, это нормально
-        if (guideHireRequest.status !== 'confirmed') {
+        // 'confirmed' - для прямой оплаты без одобрения админа
+        // 'approved' - для потока с одобрением админа
+        const validStatuses = ['confirmed', 'approved'];
+        if (!validStatuses.includes(guideHireRequest.status)) {
           console.error(`❌ Guide hire payment validation failed: Request status is ${guideHireRequest.status}`);
           return res.status(400).json({
             success: false,
@@ -212,10 +215,22 @@ export const paylerController = {
 
       if (response.status < 200 || response.status >= 300) {
         console.error('❌ Payler StartSession failed:', response.status, response.statusText);
+        console.error('❌ Payler error details:', responseText);
+        console.error('❌ Request was for order:', orderNumber, 'amount:', amount, 'дирамов');
         return res.status(500).json({
           success: false,
           message: 'Failed to communicate with Payler API',
           details: responseText,
+        });
+      }
+      
+      // Проверка на ошибку в ответе Payler (даже при статусе 200)
+      if (typeof response.data === 'object' && response.data.error) {
+        console.error('❌ Payler API returned error:', response.data.error);
+        return res.status(500).json({
+          success: false,
+          message: response.data.error.message || 'Payler API error',
+          details: response.data.error,
         });
       }
 
