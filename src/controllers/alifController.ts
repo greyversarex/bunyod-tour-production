@@ -273,12 +273,31 @@ export const alifController = {
               console.log(`✅ CustomTourOrder status updated to 'paid' for order ${order.orderNumber}`);
             }
 
-            // Send confirmation email to tourist
+            // Send confirmation email to tourist with components
             try {
               const touristEmail = order.customer.email;
               if (touristEmail) {
                 const countries = customTourData?.selectedCountries || [];
                 const countriesText = countries.length > 0 ? countries.join(', ') : 'Центральная Азия';
+                
+                // Format selected components for email
+                const components = customTourData?.selectedComponents || [];
+                let componentsHTML = '';
+                if (components.length > 0) {
+                  componentsHTML = `
+                    <div style="margin-top: 15px;">
+                      <h4 style="margin-bottom: 10px; color: #3E3E3E;">Включённые услуги:</h4>
+                      <ul style="margin: 0; padding-left: 20px;">
+                        ${components.map((c: any) => {
+                          const name = typeof c.name === 'object' ? (c.name.ru || c.name.en || 'Услуга') : (c.name || 'Услуга');
+                          const price = c.price || 0;
+                          const days = c.days || customTourData?.totalDays || 1;
+                          return `<li style="margin-bottom: 5px;">${name} - ${price} TJS x ${days} дней</li>`;
+                        }).join('')}
+                      </ul>
+                    </div>
+                  `;
+                }
                 
                 await emailService.sendEmail({
                   to: touristEmail,
@@ -296,7 +315,10 @@ export const alifController = {
                         <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
                         <p><strong>Направления:</strong> ${countriesText}</p>
                         <p><strong>Продолжительность:</strong> ${customTourData?.totalDays || 0} дней</p>
-                        <p><strong>Оплачено:</strong> ${order.totalAmount} TJS</p>
+                        <p><strong>Количество туристов:</strong> ${customTourData?.numberOfTourists || 1}</p>
+                        ${componentsHTML}
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;">
+                        <p style="font-size: 18px; color: #10b981;"><strong>Оплачено:</strong> ${order.totalAmount} TJS</p>
                       </div>
 
                       <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения деталей тура.</p>
