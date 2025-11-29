@@ -58,6 +58,142 @@ async function getUncachableSendGridClient() {
   };
 }
 
+function generateInlineTicketHTML(order: any, customer: Customer): string {
+  const tourists = JSON.parse(order.tourists || '[]');
+  const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Тур';
+  const hotelName = order.hotel?.name?.ru || order.hotel?.name?.en || 'Не выбран';
+  const tourDuration = order.tour?.durationDays || parseInt(order.tour?.duration) || 1;
+  const tourType = order.tour?.tourType || order.tour?.format || 'Персональный';
+  const bookingRef = `BT-${order.id}${new Date().getFullYear()}`;
+  const submissionTime = new Date(order.createdAt || Date.now());
+  const tourDate = order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Не указана';
+  
+  let services: any[] = [];
+  try {
+    if (order.tour?.services) {
+      services = typeof order.tour.services === 'string' ? 
+        JSON.parse(order.tour.services) : order.tour.services;
+    }
+  } catch (e) {
+    console.warn('Error parsing tour services:', e);
+  }
+
+  const touristsHTML = tourists.length > 0 
+    ? tourists.map((t: any, i: number) => `
+        <tr style="border-bottom: 1px solid #e5e7eb;">
+          <td style="padding: 10px; text-align: center; color: white; background: #6b7280; width: 30px; border-radius: 4px;">${i + 1}</td>
+          <td style="padding: 10px;">${t.fullName || t.name || 'Турист ' + (i + 1)}</td>
+          <td style="padding: 10px; color: #6b7280;">${t.passportNumber || '-'}</td>
+        </tr>
+      `).join('')
+    : `<tr><td style="padding: 10px;" colspan="3">Турист: ${customer.fullName}</td></tr>`;
+
+  const servicesHTML = services.length > 0 
+    ? services.map((s: any) => {
+        const serviceName = typeof s === 'string' ? s : (s.name?.ru || s.name?.en || s.name || 'Услуга');
+        return `<li style="padding: 5px 0; color: #4b5563;">✓ ${serviceName}</li>`;
+      }).join('')
+    : '<li style="padding: 5px 0; color: #6b7280;">Стандартный пакет услуг</li>';
+
+  return `
+    <div style="max-width: 650px; margin: 30px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 2px solid #3E3E3E;">
+      <!-- Заголовок билета -->
+      <div style="background: #3E3E3E; color: white; padding: 25px; text-align: center;">
+        <h1 style="margin: 0; font-size: 28px; font-weight: bold;">🎫 БИЛЕТ ТУРА</h1>
+        <p style="margin: 8px 0 0 0; font-size: 14px; opacity: 0.9;">BUNYOD-TOUR | Ваш надежный спутник в путешествиях</p>
+      </div>
+      
+      <!-- Статус оплаты -->
+      <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px; text-align: center;">
+        <span style="font-size: 18px; font-weight: bold;">✅ ОПЛАЧЕНО</span>
+      </div>
+      
+      <!-- Информация о туре -->
+      <div style="padding: 25px;">
+        <h2 style="margin: 0 0 15px 0; font-size: 22px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+          ${tourTitle}
+        </h2>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr>
+            <td style="padding: 10px 0; width: 50%; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Номер заказа</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #1f2937;">${order.orderNumber}</p>
+            </td>
+            <td style="padding: 10px 0; width: 50%; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Референс</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: bold; color: #1f2937;">${bookingRef}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Дата тура</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #1f2937;">${tourDate}</p>
+            </td>
+            <td style="padding: 10px 0; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Продолжительность</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #1f2937;">${tourDuration} ${tourDuration === 1 ? 'день' : tourDuration < 5 ? 'дня' : 'дней'}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 10px 0; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Тип тура</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #1f2937;">${tourType}</p>
+            </td>
+            <td style="padding: 10px 0; vertical-align: top;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; text-transform: uppercase;">Отель</p>
+              <p style="margin: 5px 0 0 0; font-size: 16px; color: #1f2937;">${hotelName}</p>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- Туристы -->
+        <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+          <h3 style="margin: 0 0 15px 0; font-size: 14px; color: #1f2937; text-transform: uppercase;">👥 Туристы</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #e5e7eb;">
+                <th style="padding: 8px; text-align: center; width: 30px;">#</th>
+                <th style="padding: 8px; text-align: left;">ФИО</th>
+                <th style="padding: 8px; text-align: left;">Паспорт</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${touristsHTML}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Услуги -->
+        <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+          <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #1f2937; text-transform: uppercase;">📦 Включённые услуги</h3>
+          <ul style="margin: 0; padding-left: 20px; list-style: none;">
+            ${servicesHTML}
+          </ul>
+        </div>
+        
+        <!-- Итого -->
+        <div style="background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 20px; border-radius: 8px; text-align: center;">
+          <p style="margin: 0; font-size: 14px; opacity: 0.9;">ИТОГО К ОПЛАТЕ</p>
+          <p style="margin: 10px 0 0 0; font-size: 32px; font-weight: bold;">${order.totalAmount} ${order.currency || 'TJS'}</p>
+          <p style="margin: 10px 0 0 0; font-size: 12px; opacity: 0.8;">Оплачено: ${submissionTime.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+        </div>
+      </div>
+      
+      <!-- Контактная информация -->
+      <div style="background: #f3f4f6; padding: 20px; text-align: center; border-top: 2px dashed #d1d5db;">
+        <p style="margin: 0 0 10px 0; font-size: 14px; color: #4b5563;">
+          <strong>Важно:</strong> Предъявите этот билет гиду в день тура
+        </p>
+        <p style="margin: 0; font-size: 13px; color: #6b7280;">
+          📞 +992 44 625 7575 | +992 93-126-1134<br>
+          📧 info@bunyodtour.tj | 🌐 bunyodtour.tj
+        </p>
+      </div>
+    </div>
+  `;
+}
+
 async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer> {
   const tourists = JSON.parse(order.tourists || '[]');
   const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
@@ -635,25 +771,125 @@ export const emailService = {
   async sendPaymentConfirmation(order: any, customer: Customer): Promise<boolean> {
     try {
       const { client, fromEmail } = await getUncachableSendGridClient();
-      const template = emailTemplates.paymentConfirmation(order, customer);
       const tourTitle = order.tour?.title?.ru || order.tour?.title?.en || 'Tour';
+      const paymentDate = new Date(order.updatedAt || order.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
       
       // Попытка сгенерировать PDF билет
       let pdfBuffer: Buffer | null = null;
+      let useInlineTicket = false;
+      
       try {
         console.log('📄 Generating PDF ticket...');
         pdfBuffer = await generateTicketPDF(order, customer);
         console.log('📄 PDF ticket generated successfully');
       } catch (pdfError) {
-        console.error('⚠️ PDF generation failed, sending email without attachment:', pdfError);
-        // Продолжаем без PDF - лучше отправить email без билета, чем не отправить вообще
+        console.error('⚠️ PDF generation failed, will embed HTML ticket in email body:', pdfError);
+        useInlineTicket = true;
+      }
+      
+      // Генерируем HTML письма с или без встроенного билета
+      let emailHTML: string;
+      
+      if (pdfBuffer) {
+        // PDF успешно сгенерирован - используем стандартный шаблон с упоминанием PDF
+        emailHTML = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+              .container { max-width: 650px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+              .company-header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 25px; text-align: center; }
+              .company-name { font-size: 32px; font-weight: bold; margin: 0; }
+              .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
+              .greeting-section { background: #fff; padding: 30px; }
+              .footer { text-align: center; padding: 25px; background: #f9fafb; color: #6b7280; font-size: 13px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="company-header">
+                <h1 class="company-name">BUNYOD-TOUR</h1>
+                <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
+              </div>
+              
+              <div class="greeting-section">
+                <p>Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
+                <p>Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>.</p>
+                <p style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                  📎 <strong>Билет тура прикреплён к письму в формате PDF</strong>
+                </p>
+                <p style="margin-top: 20px;">
+                  📞 +992 44 625 7575 | +992 93-126-1134<br>
+                  📧 info@bunyodtour.tj | 🌐 bunyodtour.tj
+                </p>
+              </div>
+              
+              <div class="footer">
+                <p><strong>С уважением, Администрация ООО «Бунёд-Тур»</strong></p>
+                <p>734042, Таджикистан, г. Душанбе, ул. Айни 104</p>
+                <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">© ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+      } else {
+        // PDF не сгенерирован - встраиваем HTML билет прямо в письмо
+        const inlineTicket = generateInlineTicketHTML(order, customer);
+        
+        emailHTML = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.8; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+              .container { max-width: 700px; margin: 0 auto; }
+              .company-header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 25px; text-align: center; border-radius: 12px 12px 0 0; }
+              .company-name { font-size: 32px; font-weight: bold; margin: 0; }
+              .company-subtitle { font-size: 14px; margin: 8px 0 0 0; opacity: 0.95; }
+              .greeting-section { background: #fff; padding: 30px; }
+              .footer { text-align: center; padding: 25px; background: #f9fafb; color: #6b7280; font-size: 13px; border-radius: 0 0 12px 12px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="company-header">
+                <h1 class="company-name">BUNYOD-TOUR</h1>
+                <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
+              </div>
+              
+              <div class="greeting-section">
+                <p>Уважаемый(ая) <strong>${customer.fullName}</strong>,</p>
+                <p>Администрация ООО «Бунёд-Тур» подтверждает вашу заявку (договор) <strong>№${order.orderNumber}</strong>, от <strong>${paymentDate}</strong>, на тур в рамках программы <strong>«${tourTitle}»</strong>.</p>
+                <p>Подробности вашего тура представлены ниже:</p>
+              </div>
+              
+              <!-- Встроенный билет -->
+              ${inlineTicket}
+              
+              <div class="footer">
+                <p><strong>С уважением, Администрация ООО «Бунёд-Тур»</strong></p>
+                <p>734042, Таджикистан, г. Душанбе, ул. Айни 104</p>
+                <p style="margin-top: 10px; font-size: 12px; line-height: 1.6; color: #9ca3af;">
+                  <strong>Важная информация:</strong><br>
+                  • Пожалуйста, сохраните это письмо и предъявите его гиду в день тура<br>
+                  • Прибудьте на место встречи за 15 минут до начала тура
+                </p>
+                <p style="margin-top: 15px; font-size: 12px; color: #9ca3af;">© ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `;
+        console.log('📧 Using inline HTML ticket in email body');
       }
       
       const emailData: any = {
         to: customer.email,
         from: fromEmail,
-        subject: template.subject,
-        html: template.html
+        subject: `Подтверждение оплаты №${order.orderNumber} - ${tourTitle}`,
+        html: emailHTML
       };
       
       // Добавляем PDF только если он успешно сгенерирован
@@ -668,14 +904,12 @@ export const emailService = {
           }
         ];
         console.log('📎 PDF attached to email');
-      } else {
-        console.log('📧 Sending email without PDF attachment (fallback mode)');
       }
       
       await client.send(emailData);
       
-      const attachmentStatus = pdfBuffer ? 'with PDF ticket' : 'without PDF (fallback)';
-      console.log(`✅ Payment confirmation email ${attachmentStatus} sent to ${customer.email} via SendGrid`);
+      const ticketStatus = pdfBuffer ? 'with PDF attachment' : 'with inline HTML ticket';
+      console.log(`✅ Payment confirmation email ${ticketStatus} sent to ${customer.email} via SendGrid`);
       return true;
     } catch (error) {
       console.error('❌ Error sending payment confirmation email:', error);
