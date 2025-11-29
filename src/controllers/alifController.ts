@@ -244,6 +244,91 @@ export const alifController = {
 
         console.log('✅ Payment confirmed for order:', orderId);
 
+        // CUSTOM TOUR: Update CustomTourOrder status after successful payment
+        if (order.orderNumber.startsWith('CT-')) {
+          try {
+            if (!order.customer) {
+              console.error(`❌ Cannot process CustomTourOrder: customer is null for order ${order.orderNumber}`);
+              return res.json({ success: true });
+            }
+
+            // Defensive: Parse wishes safely
+            let customTourData;
+            try {
+              customTourData = order.wishes ? JSON.parse(order.wishes) : null;
+            } catch (parseError) {
+              console.error(`❌ Failed to parse order.wishes for ${order.orderNumber}:`, parseError);
+              return res.json({ success: true });
+            }
+
+            // Update CustomTourOrder status to 'paid'
+            const updatedCustomOrder = await prisma.customTourOrder.updateMany({
+              where: { orderNumber: order.orderNumber },
+              data: { status: 'paid' }
+            });
+
+            if (updatedCustomOrder.count === 0) {
+              console.warn(`⚠️ CustomTourOrder not found for ${order.orderNumber}, may need manual check`);
+            } else {
+              console.log(`✅ CustomTourOrder status updated to 'paid' for order ${order.orderNumber}`);
+            }
+
+            // Send confirmation email to tourist
+            try {
+              const touristEmail = order.customer.email;
+              if (touristEmail) {
+                const countries = customTourData?.selectedCountries || [];
+                const countriesText = countries.length > 0 ? countries.join(', ') : 'Центральная Азия';
+                
+                await emailService.sendEmail({
+                  to: touristEmail,
+                  subject: `Оплата принята - Собственный тур ${order.orderNumber}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                      <h2 style="color: #3E3E3E;">Спасибо за оплату!</h2>
+                      
+                      <p>Здравствуйте, ${order.customer.fullName}!</p>
+                      
+                      <p>Ваш платеж успешно получен.</p>
+                      
+                      <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="margin-top: 0;">Детали заказа</h3>
+                        <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                        <p><strong>Направления:</strong> ${countriesText}</p>
+                        <p><strong>Продолжительность:</strong> ${customTourData?.totalDays || 0} дней</p>
+                        <p><strong>Оплачено:</strong> ${order.totalAmount} TJS</p>
+                      </div>
+
+                      <p>Наш менеджер свяжется с вами в ближайшее время для подтверждения деталей тура.</p>
+                      
+                      <p>С уважением,<br><strong>Команда Bunyod Tour</strong></p>
+                      
+                      <p style="font-size: 12px; color: #666; margin-top: 30px;">
+                        Если у вас есть вопросы, свяжитесь с нами:<br>
+                        📧 Email: info@bunyodtour.tj<br>
+                        📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
+                        📞 +992 00-110-0087; +992 88-235-3434<br>
+                        🌐 Сайт: bunyodtour.tj
+                      </p>
+                    </div>
+                  `
+                });
+                
+                console.log(`✅ Confirmation email sent to tourist: ${touristEmail}`);
+              }
+            } catch (emailError) {
+              console.error('❌ Failed to send tourist confirmation email:', emailError);
+            }
+
+            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - tourist notified`);
+            return res.json({ success: true });
+
+          } catch (customTourError) {
+            console.error('❌ Failed to process CustomTourOrder payment:', customTourError);
+            return res.json({ success: true });
+          }
+        }
+
         // Отправить email подтверждение клиенту и уведомление администратору
         
         // GUARD: Check customer exists FIRST before any logging that accesses customer properties
