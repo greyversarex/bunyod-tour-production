@@ -95,6 +95,70 @@ export const alifController = {
         console.log(`✅ Guide hire payment validated: ${guide.pricePerDay} x ${guideHireRequest.numberOfDays} days = ${expectedPrice} TJS`);
       }
 
+      // 🔒 SECURITY: Payment revalidation для custom tour orders
+      if (orderNumber.startsWith('CT-')) {
+        try {
+          const customTourData = JSON.parse(order.wishes || '{}');
+          
+          if (customTourData.type !== 'custom_tour' || !customTourData.selectedComponents) {
+            console.error('❌ Custom tour payment validation failed: Invalid order data');
+            return res.status(400).json({
+              success: false,
+              message: 'Недействительный заказ собственного тура',
+            });
+          }
+
+          // Пересчитать цену на основе актуальных данных компонентов
+          const componentIds = customTourData.selectedComponents.map((c: any) => c.id);
+          const dbComponents = await prisma.customTourComponent.findMany({
+            where: {
+              id: { in: componentIds },
+              isActive: true
+            }
+          });
+
+          if (dbComponents.length !== customTourData.selectedComponents.length) {
+            console.error('❌ Custom tour payment validation failed: Some components unavailable');
+            return res.status(400).json({
+              success: false,
+              message: 'Некоторые компоненты тура больше недоступны',
+            });
+          }
+
+          let expectedPrice = 0;
+          for (const component of customTourData.selectedComponents) {
+            const dbComponent = dbComponents.find((c: any) => c.id === component.id);
+            if (!dbComponent) {
+              return res.status(400).json({
+                success: false,
+                message: `Компонент ${component.id} не найден`,
+              });
+            }
+            expectedPrice += dbComponent.price * (component.quantity || 1);
+          }
+
+          expectedPrice = Math.round(expectedPrice * 100) / 100;
+
+          if (Math.abs(order.totalAmount - expectedPrice) > 0.01) {
+            console.error(`❌ Custom tour payment validation failed: Expected ${expectedPrice}, got ${order.totalAmount}`);
+            return res.status(400).json({
+              success: false,
+              message: 'Цены компонентов изменились. Пожалуйста, создайте новый заказ.',
+              expectedPrice,
+              currentPrice: order.totalAmount
+            });
+          }
+
+          console.log(`✅ Custom tour payment validated: ${expectedPrice} TJS`);
+        } catch (error) {
+          console.error('❌ Custom tour payment validation error:', error);
+          return res.status(400).json({
+            success: false,
+            message: 'Ошибка валидации заказа собственного тура',
+          });
+        }
+      }
+
       const key = process.env.ALIF_MERCHANT_KEY;
       const password = process.env.ALIF_MERCHANT_PASSWORD;
       const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
