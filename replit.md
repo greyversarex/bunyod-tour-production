@@ -61,10 +61,12 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - Payment confirmations with PDF tickets (fallback: email without PDF if Puppeteer fails)
     - Admin notifications on new orders/payments (with order type: Tour/Guide Hire/Transfer/Custom Tour)
     - Guide welcome emails with login credentials (via guideController.createGuide)
-    - Travel agent approval emails with login credentials
+    - Travel agent approval emails with login credentials (includes agentId, email, temporary password)
     - Tour completion notifications to admin
     - **Guide Hire Payment Emails**: Explicit fetch of guideHireRequest with guide details; fallback email template when guide data unavailable; GuideHireRequest.paymentStatus updated to 'paid' after successful payment
-    - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks; optional chaining for all guideHireData field accesses to prevent TypeError
+    - **Transfer Payment Emails**: Customer and admin notifications with pickup/dropoff locations, date, time, number of people; fallback template when transferRequest data unavailable
+    - **Custom Tour Payment Emails**: Customer confirmation with selected countries, duration, components; admin notification with full order details (added Dec 01, 2025)
+    - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks; optional chaining for all data field accesses to prevent TypeError; fallback templates for all order types
     - Updated: Dec 01, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.

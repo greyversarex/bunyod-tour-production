@@ -416,12 +416,44 @@ export const alifController = {
                 });
                 
                 console.log(`✅ Confirmation email sent to tourist: ${touristEmail}`);
+
+                // 📧 Уведомление админу о новом оплаченном собственном туре
+                const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
+                console.log('📧 [CUSTOM TOUR] Sending admin notification to:', adminEmail);
+                await emailService.sendEmail({
+                  to: adminEmail,
+                  subject: `💰 Новый платеж: Собственный тур - ${order.totalAmount} TJS`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                      <h2 style="color: #10b981;">💰 Получен новый платеж за собственный тур!</h2>
+                      
+                      <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                        <p><strong>Клиент:</strong> ${order.customer.fullName}</p>
+                        <p><strong>Email:</strong> ${order.customer.email}</p>
+                        <p><strong>Телефон:</strong> ${order.customer.phone || 'не указан'}</p>
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;">
+                        <p><strong>Направления:</strong> ${countriesText}</p>
+                        <p><strong>Продолжительность:</strong> ${customTourData?.totalDays || 0} дней</p>
+                        <p><strong>Количество туристов:</strong> ${customTourData?.numberOfTourists || 1}</p>
+                        ${componentsHTML}
+                        <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;">
+                        <p style="font-size: 18px; color: #10b981;"><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                      </div>
+                      
+                      <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/admin-dashboard.html" style="display: inline-block; background: #3E3E3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px;">
+                        Перейти в админ панель
+                      </a>
+                    </div>
+                  `
+                });
+                console.log('✅ [CUSTOM TOUR] Admin notification sent');
               }
             } catch (emailError) {
-              console.error('❌ Failed to send tourist confirmation email:', emailError);
+              console.error('❌ Failed to send custom tour emails:', emailError);
             }
 
-            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - tourist notified`);
+            console.log(`ℹ️ Custom tour order ${order.orderNumber} paid - tourist and admin notified`);
             return res.json({ success: true });
 
           } catch (customTourError) {
@@ -532,6 +564,7 @@ export const alifController = {
                 <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
               `;
             } else if (isTransfer && order.transferRequest) {
+              console.log('📧 [TRANSFER] Building email with transfer details');
               const transfer = order.transferRequest;
               
               detailsHTML = `
@@ -541,6 +574,15 @@ export const alifController = {
                 <p><strong>Время:</strong> ${transfer.pickupTime || 'не указано'}</p>
                 <p><strong>Количество человек:</strong> ${transfer.numberOfPeople || 1}</p>
                 ${transfer.specialRequests ? `<p><strong>Пожелания:</strong> ${transfer.specialRequests}</p>` : ''}
+              `;
+            } else if (isTransfer && !order.transferRequest) {
+              // Fallback: отправляем email даже без деталей трансфера
+              console.warn('⚠️ [TRANSFER] Transfer details not available, using fallback template');
+              detailsHTML = `
+                <p><strong>Услуга:</strong> Трансфер</p>
+                <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                <p><strong>Детали заказа сохранены в системе</strong></p>
+                <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
               `;
             } else {
               detailsHTML = `
