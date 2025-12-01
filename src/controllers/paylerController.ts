@@ -425,6 +425,22 @@ export const paylerController = {
         });
       }
 
+      // 🔍 ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ EMAIL
+      console.log('🔍 [PAYLER CALLBACK] Order details:', {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        orderType: order.tour ? 'Tour' : (order.orderNumber.startsWith('GH-') ? 'Guide Hire' : (order.orderNumber.startsWith('TR-') ? 'Transfer' : (order.orderNumber.startsWith('CT-') ? 'Custom Tour' : 'Unknown'))),
+        hasTour: !!order.tour,
+        hasGuideHireRequest: !!order.guideHireRequest,
+        guideHireGuide: order.guideHireRequest?.guide ? 'exists' : 'null',
+        hasCustomer: !!order.customer,
+        customerEmail: order.customer?.email || 'NO EMAIL',
+        customerName: order.customer?.fullName || 'NO NAME',
+        totalAmount: order.totalAmount,
+        paymentStatus: order.paymentStatus,
+        paylerStatus: status
+      });
+
       // ✅ Обновить статус платежа на основе статуса из GetStatus
       // Статусы Payler: Charged (успешно), Refunded (возврат), Authorized (заблокировано), Rejected (отклонено)
       if (status === 'Charged') {
@@ -560,9 +576,50 @@ export const paylerController = {
           console.warn('⚠️ This may indicate missing data - order was marked as paid but notifications skipped');
           return res.status(200).json({ success: true });
         }
+
+        // 🔍 GUIDE HIRE: Обновить статус GuideHireRequest после успешной оплаты
+        // ВАЖНО: Явно загружаем guideHireRequest если он не был включён в запрос
+        let guideHireData = order.guideHireRequest;
+        const isGuideHireOrder = order.orderNumber.startsWith('GH-');
+        
+        if (isGuideHireOrder && order.guideHireRequestId && !guideHireData) {
+          console.log('🔍 [GUIDE HIRE] guideHireRequest not included, fetching explicitly...');
+          try {
+            guideHireData = await prisma.guideHireRequest.findUnique({
+              where: { id: order.guideHireRequestId },
+              include: { guide: true }
+            });
+            console.log('✅ [GUIDE HIRE] Explicitly fetched guideHireRequest:', guideHireData ? 'found' : 'not found');
+          } catch (fetchError) {
+            console.error('❌ [GUIDE HIRE] Failed to fetch guideHireRequest:', fetchError);
+            guideHireData = null;
+          }
+        }
+
+        // Если это GH- заказ, но guideHireData всё ещё null - логируем, но продолжаем отправку email
+        if (isGuideHireOrder && !guideHireData) {
+          console.warn('⚠️ [GUIDE HIRE] guideHireData is null for order:', order.orderNumber);
+          console.warn('⚠️ [GUIDE HIRE] Email will be sent with minimal details');
+        }
+
+        if (order.guideHireRequestId) {
+          console.log('🎯 [GUIDE HIRE] Updating GuideHireRequest paymentStatus to paid');
+          try {
+            await prisma.guideHireRequest.update({
+              where: { id: order.guideHireRequestId },
+              data: { 
+                paymentStatus: 'paid',
+                status: 'confirmed' 
+              }
+            });
+            console.log('✅ [GUIDE HIRE] GuideHireRequest updated successfully');
+          } catch (updateError) {
+            console.error('❌ [GUIDE HIRE] Failed to update GuideHireRequest:', updateError);
+          }
+        }
         
         console.log('📧 Starting email notification process for order:', order.orderNumber);
-        console.log('📧 Order type:', order.tour ? 'Tour' : (order.orderNumber.startsWith('GH-') ? 'Guide Hire' : (order.orderNumber.startsWith('TR-') ? 'Transfer' : 'Other')));
+        console.log('📧 Order type:', order.tour ? 'Tour' : (isGuideHireOrder ? 'Guide Hire' : (order.orderNumber.startsWith('TR-') ? 'Transfer' : 'Other')));
         console.log('📧 Customer:', { email: order.customer.email, name: order.customer.fullName });
         
         try {
@@ -576,13 +633,12 @@ export const paylerController = {
             console.log('✅ Tour payment emails sent successfully');
           } else {
             // Оплата гида/трансфера - детальное уведомление
-            const isGuideHire = order.orderNumber.startsWith('GH-');
             const isTransfer = order.orderNumber.startsWith('TR-');
             const isCustomTour = order.orderNumber.startsWith('CT-');
             
-            console.log('📧 Non-tour payment detected:', { isGuideHire, isTransfer, isCustomTour, orderNumber: order.orderNumber });
+            console.log('📧 Non-tour payment detected:', { isGuideHire: isGuideHireOrder, isTransfer, isCustomTour, orderNumber: order.orderNumber });
             
-            const orderTypeText = isGuideHire ? 'Найм гида' 
+            const orderTypeText = isGuideHireOrder ? 'Найм гида' 
               : isTransfer ? 'Трансфер'
               : isCustomTour ? 'Собственный тур'
               : 'Услуга';
@@ -592,16 +648,27 @@ export const paylerController = {
             // Формируем детали заказа
             let detailsHTML = '';
             
-            if (isGuideHire && order.guideHireRequest?.guide) {
-              const guide = order.guideHireRequest.guide;
+            // Используем guideHireData (явно загруженный) вместо order.guideHireRequest
+            if (isGuideHireOrder && guideHireData?.guide) {
+              console.log('📧 [GUIDE HIRE] Building email with guide details');
+              const guide = guideHireData.guide;
               const guideName = typeof guide.name === 'object' && guide.name !== null ? (guide.name as any).ru || (guide.name as any).en || 'Не указано' : String(guide.name || 'Не указано');
               
               detailsHTML = `
                 <p><strong>Гид:</strong> ${guideName}</p>
                 <p><strong>Языки:</strong> ${guide.languages || 'не указаны'}</p>
-                <p><strong>Выбранные даты:</strong> ${order.guideHireRequest.selectedDates || 'не указаны'}</p>
-                <p><strong>Количество дней:</strong> ${order.guideHireRequest.numberOfDays}</p>
-                <p><strong>Цена за день:</strong> ${guide.pricePerDay} TJS</p>
+                <p><strong>Выбранные даты:</strong> ${guideHireData?.selectedDates || 'не указаны'}</p>
+                <p><strong>Количество дней:</strong> ${guideHireData?.numberOfDays || 'не указано'}</p>
+                <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'не указана'} TJS</p>
+              `;
+            } else if (isGuideHireOrder && !guideHireData?.guide) {
+              // Fallback: отправляем email даже без деталей гида
+              console.warn('⚠️ [GUIDE HIRE] Guide details not available, using fallback template');
+              detailsHTML = `
+                <p><strong>Услуга:</strong> Найм гида</p>
+                <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                <p><strong>Детали заказа сохранены в системе</strong></p>
+                <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
               `;
             } else if (isTransfer && order.transferRequest) {
               const transfer = order.transferRequest;
