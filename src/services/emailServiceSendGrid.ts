@@ -354,7 +354,7 @@ export async function sendBookingConfirmation(order: any, customer: Customer, to
           
           <div class="contact-section">
             <p><strong>Контакты для связи:</strong></p>
-            <p>📞 +992 123 456 789 | ✉️ booking@bunyodtour.tj</p>
+            <p>📞 +992 44 625 7575 | ✉️ info@bunyodtour.tj</p>
           </div>
           
           <div class="footer">

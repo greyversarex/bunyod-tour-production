@@ -923,7 +923,7 @@ export const emailService = {
   async sendAdminNotification(order: any, customer: Customer, tour: any): Promise<boolean> {
     try {
       const { client, fromEmail } = await getUncachableSendGridClient();
-      const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
+      const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
       const template = emailTemplates.adminNotification(order, customer, tour);
       
       await client.send({

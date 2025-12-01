@@ -260,7 +260,7 @@ export const createGuide = async (req: Request, res: Response) => {
 
       // Отправить уведомление админу
       await emailService.sendEmail({
-        to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+        to: process.env.ADMIN_EMAIL || 'info@bunyodtour.tj',
         subject: `🎉 Новый гид добавлен: ${guideNameRu}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

@@ -1010,7 +1010,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
     // Если email зависнет - это не повлияет на пользователя
     setImmediate(async () => {
       try {
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.tj';
+        const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
         await sendEmail({
           to: adminEmail,
           subject: `Новый платный найм тургида - ${guide.name}`,

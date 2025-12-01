@@ -554,7 +554,7 @@ export const createDirectCustomTourOrder = async (req: Request, res: Response): 
     // Send admin notification email AFTER response (background)
     setImmediate(async () => {
       try {
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyod-tour.tj';
+        const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
         const countriesNames = dbComponents
           .map(c => parseJsonField(c.country?.nameRu) || c.country?.nameRu)
           .filter((v, i, a) => a.indexOf(v) === i)

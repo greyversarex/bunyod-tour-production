@@ -552,7 +552,7 @@ export const paylerController = {
                 console.log(`✅ Confirmation email sent to tourist: ${touristEmail}`);
 
                 // 📧 Уведомление админу о новом оплаченном собственном туре
-                const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
+                const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
                 console.log('📧 [CUSTOM TOUR] Sending admin notification to:', adminEmail);
                 await emailService.sendEmail({
                   to: adminEmail,
@@ -774,7 +774,7 @@ export const paylerController = {
             console.log('📧 Customer email sent successfully');
             
             // Email админу
-            const adminEmail = process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj';
+            const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
             console.log('📧 Sending admin notification to:', adminEmail);
             await emailService.sendEmail({
               to: adminEmail,

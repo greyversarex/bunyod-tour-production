@@ -1082,7 +1082,7 @@ export const createTourGuideProfile = async (req: Request, res: Response): Promi
 
       // Отправить уведомление админу
       await emailService.sendEmail({
-        to: process.env.ADMIN_EMAIL || 'admin@bunyodtour.tj',
+        to: process.env.ADMIN_EMAIL || 'info@bunyodtour.tj',
         subject: `🎉 Новый гид добавлен: ${guideName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
