@@ -63,8 +63,9 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - Guide welcome emails with login credentials (via guideController.createGuide)
     - Travel agent approval emails with login credentials
     - Tour completion notifications to admin
-    - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks
-    - Updated: Nov 27, 2025
+    - **Guide Hire Payment Emails**: Explicit fetch of guideHireRequest with guide details; fallback email template when guide data unavailable; GuideHireRequest.paymentStatus updated to 'paid' after successful payment
+    - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks; optional chaining for all guideHireData field accesses to prevent TypeError
+    - Updated: Dec 01, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.
 
