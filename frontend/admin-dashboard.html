@@ -703,7 +703,7 @@
                                     <tr>
                                         <th data-translate="table.order_number">№ Заказа</th>
                                         <th data-translate="table.client">Клиент</th>
-                                        <th data-translate="table.tour">Тур</th>
+                                        <th data-translate="table.direction">Направление</th>
                                         <th data-translate="table.date">Дата</th>
                                         <th data-translate="table.amount">Сумма</th>
                                         <th data-translate="table.status">Статус</th>
@@ -816,7 +816,7 @@
                                         <th data-translate="table.order_number">№ Заказа</th>
                                         <th>Дата заказа</th>
                                         <th data-translate="table.client">Клиент</th>
-                                        <th data-translate="table.tour">Тур</th>
+                                        <th data-translate="table.direction">Направление</th>
                                         <th>Дата тура</th>
                                         <th>Гид</th>
                                         <th>Статус тура</th>
@@ -1390,7 +1390,7 @@
                                         <th>ID</th>
                                         <th data-translate="table.date">Дата</th>
                                         <th>Имя туриста</th>
-                                        <th data-translate="table.tour">Тур</th>
+                                        <th data-translate="table.direction">Направление</th>
                                         <th>Рейтинг</th>
                                         <th>Отзыв</th>
                                         <th>Фотографии</th>
@@ -4522,7 +4522,7 @@
                                 <tr>
                                     <td class="font-medium">${order.orderNumber || 'N/A'}</td>
                                     <td>${order.customer?.fullName || 'Неизвестно'}</td>
-                                    <td>${getTourName(order.tour)}</td>
+                                    <td>${getOrderDirection(order)}</td>
                                     <td>${formatDate(order.createdAt)}</td>
                                     <td class="font-semibold">${symbol}${order.totalAmount}</td>
                                     <td><span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Оплачено</span></td>
@@ -4588,7 +4588,7 @@
                         <tr>
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
-                            <td>${getTourName(order.tour)}</td>
+                            <td>${getOrderDirection(order)}</td>
                             <td>${formatDate(order.createdAt)}</td>
                             <td class="font-semibold">${symbol}${order.totalAmount}</td>
                             <td>${getStatusBadge(order.status)}</td>
@@ -9355,7 +9355,7 @@
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
                             <td>${formatDate(order.createdAt)}</td>
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
-                            <td>${getTourName(order.tour)}</td>
+                            <td>${getOrderDirection(order)}</td>
                             <td>${order.tourDate || '-'}</td>
                             <td class="text-sm">${guideName}</td>
                             <td class="font-medium ${tourStatusColor}">${tourStatusText}</td>
@@ -10299,6 +10299,42 @@
             } catch {
                 return tour.title || 'Без названия';
             }
+        }
+        
+        // Функция для определения направления/типа заказа
+        function getOrderDirection(order) {
+            if (!order) return 'Неизвестно';
+            
+            const orderNumber = order.orderNumber || '';
+            
+            // Определяем тип по префиксу номера заказа
+            if (orderNumber.startsWith('GH-')) {
+                const guideName = order.guideHireRequest?.guide?.name;
+                if (guideName) {
+                    const name = typeof guideName === 'object' ? (guideName.ru || guideName.en) : guideName;
+                    return 'Тургид: ' + name;
+                }
+                return 'Найм тургида';
+            }
+            
+            if (orderNumber.startsWith('TR-')) {
+                const transfer = order.transferRequest;
+                if (transfer) {
+                    return 'Трансфер: ' + (transfer.pickupLocation || '') + ' → ' + (transfer.dropoffLocation || '');
+                }
+                return 'Трансфер';
+            }
+            
+            if (orderNumber.startsWith('CT-')) {
+                return 'Собственный тур';
+            }
+            
+            // Обычный тур
+            if (order.tour) {
+                return getTourName(order.tour);
+            }
+            
+            return 'Неизвестно';
         }
         
         function getHotelName(hotel) {

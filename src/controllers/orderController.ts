@@ -331,7 +331,7 @@ export const getOrderById = async (req: Request, res: Response) => {
     // Process multilingual fields correctly
     const formattedOrder = {
       ...order,
-      tourists: JSON.parse(order.tourists),
+      tourists: order.tourists ? JSON.parse(order.tourists) : [],
       tour: order.tour ? {
         ...order.tour,
         title: parseMultilingualField(order.tour.title, language),
@@ -394,6 +394,24 @@ export const getAllOrders = async (req: Request, res: Response) => {
             name: true,
           },
         },
+        // Добавлено для правильного отображения направления в админ панели
+        guideHireRequest: {
+          include: {
+            guide: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        transferRequest: {
+          select: {
+            id: true,
+            pickupLocation: true,
+            dropoffLocation: true,
+          },
+        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -406,7 +424,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
 
     const formattedOrders = orders.map(order => ({
       ...order,
-      tourists: JSON.parse(order.tourists),
+      tourists: order.tourists ? JSON.parse(order.tourists) : [],
       tour: order.tour ? {
         ...order.tour,
         title: parseMultilingualField(order.tour.title, language),
