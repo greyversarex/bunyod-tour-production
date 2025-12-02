@@ -102,13 +102,24 @@ app.get('/payment-selection.html', (req, res) => {
 });
 
 // Payment success/fail pages - explicit routes BEFORE static middleware
+// Support both with and without .html extension
 app.get('/payment-success.html', (req, res) => {
   console.log('✅ Serving payment-success.html with params:', req.query);
   res.sendFile(path.join(__dirname, 'frontend', 'payment-success.html'));
 });
 
+app.get('/payment-success', (req, res) => {
+  console.log('✅ Serving payment-success (no .html) with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'payment-success.html'));
+});
+
 app.get('/payment-fail.html', (req, res) => {
   console.log('❌ Serving payment-fail.html with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'payment-fail.html'));
+});
+
+app.get('/payment-fail', (req, res) => {
+  console.log('❌ Serving payment-fail (no .html) with params:', req.query);
   res.sendFile(path.join(__dirname, 'frontend', 'payment-fail.html'));
 });
 
