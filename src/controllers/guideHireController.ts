@@ -886,17 +886,14 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
     const totalPrice = guide.pricePerDay * numberOfDays;
     const currency = guide.currency || 'TJS'; // ВСЕГДА используем валюту тургида
 
-    // Создать или найти клиента
+    // Создать или найти клиента СТРОГО ПО EMAIL (не по телефону!)
+    // Это гарантирует что письмо уйдёт на указанный в форме email
     let customer = await prisma.customer.findFirst({
-      where: {
-        OR: [
-          { email: touristEmail },
-          ...(touristPhone ? [{ phone: touristPhone }] : [])
-        ]
-      }
+      where: { email: touristEmail }
     });
 
     if (!customer) {
+      // Клиента с таким email нет - создаём нового
       customer = await prisma.customer.create({
         data: {
           fullName: touristName,
@@ -904,6 +901,17 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
           phone: touristPhone || ''
         }
       });
+    } else {
+      // Клиент найден - обновляем имя и телефон если изменились
+      if (customer.fullName !== touristName || customer.phone !== (touristPhone || '')) {
+        customer = await prisma.customer.update({
+          where: { id: customer.id },
+          data: {
+            fullName: touristName,
+            phone: touristPhone || customer.phone
+          }
+        });
+      }
     }
 
     // АТОМАРНАЯ ТРАНЗАКЦИЯ с ГАРАНТИРОВАННОЙ ROW-LEVEL БЛОКИРОВКОЙ
