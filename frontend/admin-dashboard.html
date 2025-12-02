@@ -461,7 +461,7 @@
                     <img src="/Logo-Ru_1754635713718.png" alt="Bunyod-Tour Logo" class="w-10 h-10 mr-3 rounded-full">
                     <h2 class="text-white text-xl font-bold">Bunyod-Tour</h2>
                 </div>
-                <p class="text-white/60 text-sm mt-1" data-translate="admin.control_panel">Панель управления</p>
+                
             </div>
             
             <nav class="p-4">
@@ -819,7 +819,7 @@
                                         <th data-translate="table.direction">Направление</th>
                                         <th>Дата тура</th>
                                         <th>Гид</th>
-                                        <th>Статус тура</th>
+                                        
                                         <th>Кол-во человек</th>
                                         <th data-translate="table.amount">Сумма</th>
                                         <th>Способ оплаты</th>
@@ -4524,11 +4524,14 @@
                                     <td>${order.customer?.fullName || 'Неизвестно'}</td>
                                     <td>${getOrderDirection(order)}</td>
                                     <td>${formatDate(order.createdAt)}</td>
-                                    <td class="font-semibold">${symbol}${order.totalAmount}</td>
+                                    <td class="font-semibold">${order.totalAmount} ${symbol}</td>
                                     <td><span class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Оплачено</span></td>
                                     <td>
-                                        <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
+                                        <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть">
                                             <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button onclick="deleteOrder(${order.id})" class="text-red-600 hover:text-red-800 ml-2" title="Удалить">
+                                            <i class="fas fa-times"></i>
                                         </button>
                                     </td>
                                 </tr>
@@ -4590,11 +4593,14 @@
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
                             <td>${getOrderDirection(order)}</td>
                             <td>${formatDate(order.createdAt)}</td>
-                            <td class="font-semibold">${symbol}${order.totalAmount}</td>
+                            <td class="font-semibold">${order.totalAmount} ${symbol}</td>
                             <td>${getStatusBadge(order.status)}</td>
                             <td>
-                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800">
+                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть">
                                     <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="deleteOrder(${order.id})" class="text-red-600 hover:text-red-800 ml-2" title="Удалить">
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </td>
                         </tr>
@@ -9358,15 +9364,18 @@
                             <td>${getOrderDirection(order)}</td>
                             <td>${order.tourDate || '-'}</td>
                             <td class="text-sm">${guideName}</td>
-                            <td class="font-medium ${tourStatusColor}">${tourStatusText}</td>
+                            
                             <td>${tourists.length} чел.</td>
                             <td class="font-semibold">${order.totalAmount} ${currencySymbol}</td>
                             <td>${getPaymentMethodBadge(order.paymentMethod)}</td>
                             <td>${getPaymentBadge(order.paymentStatus)}</td>
                             <td>${getStatusBadge(order.status)}</td>
                             <td>
-                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть детали">
+                                <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть">
                                     <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="deleteOrder(${order.id})" class="text-red-600 hover:text-red-800 ml-2" title="Удалить">
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </td>
                         </tr>
@@ -9505,6 +9514,35 @@
                 });
         }
         
+        
+        // Функция удаления заказа
+        async function deleteOrder(orderId) {
+            if (!confirm('Вы уверены, что хотите удалить этот заказ? Это действие нельзя отменить.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/orders/${orderId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Заказ успешно удалён', 'success');
+                    // Обновить таблицы
+                    loadDashboardStats();
+                    loadBookings();
+                } else {
+                    showNotification(data.message || 'Ошибка при удалении заказа', 'error');
+                }
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                showNotification('Ошибка при удалении заказа', 'error');
+            }
+        }
+
         function closeBookingModal() {
             document.getElementById('bookingModal').classList.remove('active');
             currentBookingId = null;

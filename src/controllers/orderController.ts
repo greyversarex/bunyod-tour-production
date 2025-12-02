@@ -563,3 +563,46 @@ export const cancelOrder = async (req: Request, res: Response) => {
     });
   }
 };
+// Функция удаления заказа
+export const deleteOrder = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const orderId = parseInt(id);
+
+    if (isNaN(orderId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid order ID',
+      });
+    }
+
+    // Проверяем существование заказа
+    const existingOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    // Удаляем заказ
+    await prisma.order.delete({
+      where: { id: orderId },
+    });
+
+    return res.json({
+      success: true,
+      message: 'Order deleted successfully',
+    });
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete order',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

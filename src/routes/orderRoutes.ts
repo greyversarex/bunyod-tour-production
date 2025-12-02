@@ -14,5 +14,6 @@ router.get('/:id', orderController.getOrderById);
 router.put('/:id/status', orderLimiter, orderController.updateOrderStatusById);
 router.put('/:orderNumber/status', orderLimiter, orderController.updateOrderStatus);
 router.put('/:orderNumber/cancel', orderLimiter, orderController.cancelOrder);
+router.delete('/:id', orderController.deleteOrder);
 
 export default router;
