@@ -174,8 +174,8 @@ export const alifController = {
       const orderId = order.id.toString();
       const amount = order.totalAmount;
       const callbackUrl = `${baseUrl}/api/payments/alif/callback`;
-      // Редирект на страницу успешной оплаты с номером заказа
-      const returnUrl = `${frontendUrl}/payment-success?orderNumber=${orderNumber}`;
+      // Редирект на главную страницу после оплаты (без дополнительных модалов)
+      const returnUrl = `${frontendUrl}/`;
       
       // Определяем тип заказа для корректного описания
       const isGuideHire = orderNumber.startsWith('GH-');
