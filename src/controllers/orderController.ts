@@ -135,6 +135,12 @@ export const createOrder = async (req: Request, res: Response) => {
         },
         hotel: true,
         guide: true,
+        guideHireRequest: {
+          include: {
+            guide: true,
+          },
+        },
+        transferRequest: true,
       },
     });
 

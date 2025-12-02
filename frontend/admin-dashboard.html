@@ -817,14 +817,12 @@
                                         <th>Дата заказа</th>
                                         <th data-translate="table.client">Клиент</th>
                                         <th data-translate="table.direction">Направление</th>
-                                        <th>Дата тура</th>
-                                        <th>Гид</th>
-                                        
-                                        <th>Кол-во человек</th>
+                                        <th>Дата</th>
+                                        <!-- th Кол-во человек removed -->
                                         <th data-translate="table.amount">Сумма</th>
                                         <th>Способ оплаты</th>
                                         <th>Статус оплаты</th>
-                                        <th data-translate="table.status">Статус заказа</th>
+                                        <!-- th Статус заказа removed -->
                                         <th data-translate="table.actions">Действия</th>
                                     </tr>
                                 </thead>
@@ -1141,7 +1139,7 @@
                                     <th>ID заявки</th>
                                     <th>Турагент</th>
                                     <th>Тур</th>
-                                    <th>Дата тура</th>
+                                    <th>Дата</th>
                                     <th>Туристов</th>
                                     <th>Цена</th>
                                     <th>Статус</th>
@@ -4594,7 +4592,7 @@
                             <td>${getOrderDirection(order)}</td>
                             <td>${formatDate(order.createdAt)}</td>
                             <td class="font-semibold">${order.totalAmount} ${symbol}</td>
-                            <td>${getStatusBadge(order.status)}</td>
+                            
                             <td>
                                 <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть">
                                     <i class="fas fa-eye"></i>
@@ -9363,13 +9361,13 @@
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
                             <td>${getOrderDirection(order)}</td>
                             <td>${order.tourDate || '-'}</td>
-                            <td class="text-sm">${guideName}</td>
                             
-                            <td>${tourists.length} чел.</td>
+                            
+                            
                             <td class="font-semibold">${order.totalAmount} ${currencySymbol}</td>
                             <td>${getPaymentMethodBadge(order.paymentMethod)}</td>
                             <td>${getPaymentBadge(order.paymentStatus)}</td>
-                            <td>${getStatusBadge(order.status)}</td>
+                            
                             <td>
                                 <button onclick="viewBooking(${order.id})" class="text-blue-600 hover:text-blue-800" title="Просмотреть">
                                     <i class="fas fa-eye"></i>
@@ -9414,104 +9412,254 @@
                         'CNY': '¥'
                     }[currency] || 'с';
                     
-                    document.getElementById('bookingDetails').innerHTML = `
-                        <div class="space-y-4">
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <p class="text-sm text-gray-600">Номер заказа</p>
-                                    <p class="font-semibold">${order.orderNumber}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Дата заказа</p>
-                                    <p class="font-semibold">${formatDate(order.createdAt)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Клиент</p>
-                                    <p class="font-semibold">${order.customer?.fullName}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Email</p>
-                                    <p class="font-semibold">${order.customer?.email}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Телефон</p>
-                                    <p class="font-semibold">${order.customer?.phone || 'Не указан'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Тур</p>
-                                    <p class="font-semibold">${getTourName(order.tour)}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Дата тура</p>
-                                    <p class="font-semibold">${order.tourDate}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Отель</p>
-                                    <p class="font-semibold">${order.hotel ? getHotelName(order.hotel) : 'Не выбран'}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-gray-600">Гид</p>
-                                    <p class="font-semibold">${order.guide ? getGuideName(order.guide) : 'Не выбран'}</p>
-                                </div>
-                            </div>
-                            
-                            <!-- Информация об оплате -->
-                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                <h4 class="font-semibold text-blue-900 mb-3 flex items-center">
-                                    <i class="fas fa-credit-card mr-2"></i>
-                                    Информация об оплате
-                                </h4>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Способ оплаты</p>
-                                        <p class="font-semibold">${getPaymentMethodBadge(order.paymentMethod)}</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Статус оплаты</p>
-                                        <p class="font-semibold">${getPaymentBadge(order.paymentStatus)}</p>
-                                    </div>
-                                    ${order.paymentIntentId ? `
-                                    <div class="col-span-2">
-                                        <p class="text-sm text-gray-600">ID транзакции</p>
-                                        <p class="font-mono text-xs bg-white px-2 py-1 rounded border">${order.paymentIntentId}</p>
-                                    </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            
+                    // Определяем тип заказа по номеру
+                    const orderType = getOrderType(order.orderNumber);
+                    
+                    // Формируем контент в зависимости от типа заказа
+                    document.getElementById('bookingDetails').innerHTML = renderOrderDetails(order, orderType, tourists, currencySymbol);
+                });
+        }
+        
+        // Определить тип заказа по номеру
+        function getOrderType(orderNumber) {
+            if (!orderNumber) return 'tour';
+            if (orderNumber.startsWith('GH-')) return 'guide_hire';
+            if (orderNumber.startsWith('TR-')) return 'transfer';
+            if (orderNumber.startsWith('CT-')) return 'custom_tour';
+            return 'tour';
+        }
+        
+        // Рендер деталей заказа в зависимости от типа
+        function renderOrderDetails(order, orderType, tourists, currencySymbol) {
+            // Общие поля для всех типов
+            let html = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Номер заказа</p>
+                            <p class="font-semibold">${order.orderNumber}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Дата заказа</p>
+                            <p class="font-semibold">${formatDate(order.createdAt)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Клиент</p>
+                            <p class="font-semibold">${order.customer?.fullName || 'Неизвестно'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-semibold">${order.customer?.email || 'Не указан'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Телефон</p>
+                            <p class="font-semibold">${order.customer?.phone || 'Не указан'}</p>
+                        </div>
+                    </div>
+            `;
+            
+            // Специфичные поля в зависимости от типа заказа
+            if (orderType === 'guide_hire') {
+                const gh = order.guideHireRequest;
+                html += `
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-purple-900 mb-3 flex items-center">
+                            <i class="fas fa-user-tie mr-2"></i>
+                            Найм гида
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <p class="text-sm text-gray-600 mb-2">Список туристов</p>
-                                <div class="bg-gray-50 p-3 rounded">
-                                    ${tourists.map((t, i) => `
-                                        <div class="mb-2">
-                                            ${i + 1}. ${t.fullName} (${t.birthDate})
-                                        </div>
-                                    `).join('')}
-                                </div>
+                                <p class="text-sm text-gray-600">Гид</p>
+                                <p class="font-semibold">${gh?.guide?.name?.ru || gh?.guide?.name?.en || 'Не указан'}</p>
                             </div>
-                            
-                            ${order.wishes ? `
-                                <div>
-                                    <p class="text-sm text-gray-600 mb-2">Пожелания клиента</p>
-                                    <div class="bg-gray-50 p-3 rounded">
-                                        ${order.wishes}
-                                    </div>
-                                </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Дата начала</p>
+                                <p class="font-semibold">${gh?.startDate || order.tourDate || '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Дата окончания</p>
+                                <p class="font-semibold">${gh?.endDate || '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Язык</p>
+                                <p class="font-semibold">${gh?.preferredLanguage || 'Не указан'}</p>
+                            </div>
+                            ${gh?.notes ? `
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600">Примечания</p>
+                                <p class="font-semibold">${gh.notes}</p>
+                            </div>
                             ` : ''}
-                            
-                            <div class="flex justify-between items-center pt-4 border-t">
-                                <div>
-                                    <p class="text-sm text-gray-600">Общая сумма</p>
-                                    <p class="text-2xl font-bold text-green-600">${order.totalAmount} ${currencySymbol}</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm text-gray-600">Статус</p>
-                                    <p>${getStatusBadge(order.status)}</p>
-                                </div>
+                        </div>
+                    </div>
+                `;
+            } else if (orderType === 'transfer') {
+                const tr = order.transferRequest;
+                html += `
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-orange-900 mb-3 flex items-center">
+                            <i class="fas fa-shuttle-van mr-2"></i>
+                            Трансфер
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-sm text-gray-600">Откуда</p>
+                                <p class="font-semibold">${tr?.pickupLocation || 'Не указано'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Куда</p>
+                                <p class="font-semibold">${tr?.dropoffLocation || 'Не указано'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Дата</p>
+                                <p class="font-semibold">${tr?.pickupDate || order.tourDate || '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Время</p>
+                                <p class="font-semibold">${tr?.pickupTime || 'Не указано'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Кол-во пассажиров</p>
+                                <p class="font-semibold">${tr?.numberOfPeople || tourists.length || 1} чел.</p>
+                            </div>
+                            ${tr?.notes ? `
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600">Примечания</p>
+                                <p class="font-semibold">${tr.notes}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            } else if (orderType === 'custom_tour') {
+                html += `
+                    <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-teal-900 mb-3 flex items-center">
+                            <i class="fas fa-suitcase-rolling mr-2"></i>
+                            Собственный тур
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-sm text-gray-600">Дата начала</p>
+                                <p class="font-semibold">${order.tourDate || '-'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Кол-во туристов</p>
+                                <p class="font-semibold">${tourists.length || 1} чел.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Список туристов для собственного тура
+                if (tourists.length > 0) {
+                    html += `
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">Туристы</p>
+                            <div class="bg-gray-50 p-3 rounded">
+                                ${tourists.map((t, i) => `
+                                    <div class="mb-2">
+                                        ${i + 1}. ${t.fullName} (${t.birthDate || 'дата не указана'})
+                                    </div>
+                                `).join('')}
                             </div>
                         </div>
                     `;
-                });
+                }
+            } else {
+                // Обычный тур
+                html += `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Тур</p>
+                            <p class="font-semibold">${getTourName(order.tour)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Дата</p>
+                            <p class="font-semibold">${order.tourDate || '-'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Отель</p>
+                            <p class="font-semibold">${order.hotel ? getHotelName(order.hotel) : 'Не выбран'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Гид</p>
+                            <p class="font-semibold">${order.guide ? getGuideName(order.guide) : 'Не выбран'}</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Список туристов для обычного тура
+                if (tourists.length > 0) {
+                    html += `
+                        <div>
+                            <p class="text-sm text-gray-600 mb-2">Туристы</p>
+                            <div class="bg-gray-50 p-3 rounded">
+                                ${tourists.map((t, i) => `
+                                    <div class="mb-2">
+                                        ${i + 1}. ${t.fullName} (${t.birthDate})
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Информация об оплате (общая для всех)
+            html += `
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-blue-900 mb-3 flex items-center">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Информация об оплате
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <p class="text-sm text-gray-600">Способ оплаты</p>
+                            <p class="font-semibold">${getPaymentMethodBadge(order.paymentMethod)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Статус оплаты</p>
+                            <p class="font-semibold">${getPaymentBadge(order.paymentStatus)}</p>
+                        </div>
+                        ${order.paymentIntentId ? `
+                        <div class="col-span-2">
+                            <p class="text-sm text-gray-600">ID транзакции</p>
+                            <p class="font-mono text-xs bg-white px-2 py-1 rounded border">${order.paymentIntentId}</p>
+                        </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Пожелания (если есть)
+            if (order.wishes) {
+                html += `
+                    <div>
+                        <p class="text-sm text-gray-600 mb-2">Пожелания клиента</p>
+                        <div class="bg-gray-50 p-3 rounded">
+                            ${order.wishes}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Итого
+            html += `
+                <div class="flex justify-between items-center pt-4 border-t">
+                    <div>
+                        <p class="text-sm text-gray-600">Общая сумма</p>
+                        <p class="text-2xl font-bold text-green-600">${order.totalAmount} ${currencySymbol}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-600">Статус</p>
+                        <p>${getStatusBadge(order.status)}</p>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            return html;
         }
         
         
