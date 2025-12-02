@@ -174,8 +174,19 @@ export const alifController = {
       const orderId = order.id.toString();
       const amount = order.totalAmount;
       const callbackUrl = `${baseUrl}/api/payments/alif/callback`;
-      const returnUrl = frontendUrl;
-      const info = `Оплата тура №${orderId}`;
+      // Редирект на страницу успешной оплаты с номером заказа
+      const returnUrl = `${frontendUrl}/payment-success?orderNumber=${orderNumber}`;
+      
+      // Определяем тип заказа для корректного описания
+      const isGuideHire = orderNumber.startsWith('GH-');
+      const isTransfer = orderNumber.startsWith('TR-');
+      const isCustomTour = orderNumber.startsWith('CT-');
+      const orderTypeText = isGuideHire ? 'Найм гида' 
+        : isTransfer ? 'Трансфер'
+        : isCustomTour ? 'Собственный тур'
+        : 'Тур';
+      const info = `${orderTypeText} №${orderId}`;
+      
       const email = order.customer.email;
       const phone = order.customer.phone || '';
       const gate = 'vsa';

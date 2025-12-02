@@ -79,8 +79,8 @@
                             <span id="orderNumber" class="font-medium">...</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-600" data-translate="payment.tour">Тур:</span>
-                            <span id="tourName" class="font-medium">...</span>
+                            <span class="text-gray-600" id="serviceTypeLabel">Услуга:</span>
+                            <span id="serviceName" class="font-medium">...</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-600" data-translate="payment.amount">Сумма:</span>
@@ -180,8 +180,31 @@
 
         function displayOrderDetails(order) {
             if (order) {
-                document.getElementById('orderNumber').textContent = order.orderNumber || '№' + order.id;
-                document.getElementById('tourName').textContent = order.tour?.title?.ru || order.tour?.title || 'Тур';
+                const orderNum = order.orderNumber || '№' + order.id;
+                document.getElementById('orderNumber').textContent = orderNum;
+                
+                // Определяем тип заказа по номеру
+                let serviceType = 'Услуга';
+                let serviceName = 'Тур';
+                
+                if (orderNum.startsWith('GH-')) {
+                    serviceType = 'Гид';
+                    serviceName = order.guideHireRequest?.guide?.name?.ru || order.guideHireRequest?.guide?.name || 'Найм гида';
+                } else if (orderNum.startsWith('TR-')) {
+                    serviceType = 'Трансфер';
+                    const pickup = order.transferRequest?.pickupLocation || '';
+                    const dropoff = order.transferRequest?.dropoffLocation || '';
+                    serviceName = pickup && dropoff ? `${pickup} → ${dropoff}` : 'Трансфер';
+                } else if (orderNum.startsWith('CT-')) {
+                    serviceType = 'Собственный тур';
+                    serviceName = 'Индивидуальный тур';
+                } else {
+                    serviceType = 'Тур';
+                    serviceName = order.tour?.title?.ru || order.tour?.title || 'Тур по Таджикистану';
+                }
+                
+                document.getElementById('serviceTypeLabel').textContent = serviceType + ':';
+                document.getElementById('serviceName').textContent = serviceName;
                 document.getElementById('totalAmount').textContent = `${Math.round(order.totalAmount)} TJS`;
                 
                 // Format payment method
@@ -197,8 +220,30 @@
         }
 
         function displayDefaultSuccess() {
-            document.getElementById('orderNumber').textContent = 'Успешно оплачен';
-            document.getElementById('tourName').textContent = 'Тур по Таджикистану';
+            // Определяем тип заказа из URL если есть
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order') || urlParams.get('orderNumber') || '';
+            
+            let serviceType = 'Услуга';
+            let serviceName = 'Услуга оплачена';
+            
+            if (orderNumber.startsWith('GH-')) {
+                serviceType = 'Гид';
+                serviceName = 'Найм гида';
+            } else if (orderNumber.startsWith('TR-')) {
+                serviceType = 'Трансфер';
+                serviceName = 'Трансфер';
+            } else if (orderNumber.startsWith('CT-')) {
+                serviceType = 'Собственный тур';
+                serviceName = 'Индивидуальный тур';
+            } else {
+                serviceType = 'Тур';
+                serviceName = 'Тур по Таджикистану';
+            }
+            
+            document.getElementById('orderNumber').textContent = orderNumber || 'Успешно оплачен';
+            document.getElementById('serviceTypeLabel').textContent = serviceType + ':';
+            document.getElementById('serviceName').textContent = serviceName;
             document.getElementById('totalAmount').textContent = '...';
             document.getElementById('paymentMethod').textContent = '...';
         }
@@ -224,12 +269,12 @@
             sessionStorage.removeItem('completedOrder');
             
             // Redirect to home
-            window.location.href = '/frontend/index.html';
+            window.location.href = '/';
         }
 
         function viewMyOrders() {
             // Redirect to orders page (if exists) or admin dashboard
-            window.location.href = '/frontend/admin-dashboard.html#orders';
+            window.location.href = '/admin-dashboard.html#orders';
         }
 
         // Auto-clear sessionStorage after 5 minutes to prevent clutter
