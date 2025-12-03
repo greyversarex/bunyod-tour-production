@@ -9520,7 +9520,7 @@
         
         // Рендер деталей заказа в зависимости от типа
         function renderOrderDetails(order, orderType, tourists, currencySymbol) {
-            // Общие поля для всех типов
+            // === ОБЩАЯ ШАПКА ДЛЯ ВСЕХ ЗАКАЗОВ ===
             let html = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -9532,40 +9532,73 @@
                             <p class="text-sm text-gray-600">Дата заказа</p>
                             <p class="font-semibold">${formatDate(order.createdAt)}</p>
                         </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Клиент</p>
-                            <p class="font-semibold">${order.customer?.fullName || 'Неизвестно'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Email</p>
-                            <p class="font-semibold">${order.customer?.email || 'Не указан'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Телефон</p>
-                            <p class="font-semibold">${order.customer?.phone || 'Не указан'}</p>
+                    </div>
+                    
+                    <!-- Информация о клиенте -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <i class="fas fa-user mr-2"></i>
+                            Клиент
+                        </h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <p class="text-sm text-gray-600">ФИО</p>
+                                <p class="font-semibold">${order.customer?.fullName || 'Неизвестно'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Email</p>
+                                <p class="font-semibold">${order.customer?.email || 'Не указан'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Телефон</p>
+                                <p class="font-semibold">${order.customer?.phone || 'Не указан'}</p>
+                            </div>
                         </div>
                     </div>
             `;
             
-            // Специфичные поля в зависимости от типа заказа
+            // === НАЙМ ГИДА ===
             if (orderType === 'guide_hire') {
                 const gh = order.guideHireRequest;
                 const guide = gh?.guide;
+                
+                // Извлекаем данные гида
                 const guideName = guide?.name || 'Не указан';
                 const guidePhoto = guide?.photo || null;
-                const guideCountry = guide?.country || guide?.guideCountry?.name?.ru || null;
-                const guideCity = guide?.city || guide?.guideCity?.name?.ru || null;
+                const guidePhone = guide?.phone || guide?.user?.phone || null;
+                const guideEmail = guide?.email || guide?.user?.email || null;
+                const guideCountry = guide?.country || (guide?.guideCountry?.name?.ru) || (guide?.guideCountry?.name) || null;
+                const guideCity = guide?.city || (guide?.guideCity?.name?.ru) || (guide?.guideCity?.name) || null;
                 const guideLocation = [guideCountry, guideCity].filter(Boolean).join(', ') || 'Не указано';
-                const guideLanguages = Array.isArray(guide?.languages) ? guide.languages.join(', ') : (guide?.languages || 'Не указаны');
                 
-                // Форматируем забронированные даты
+                // Языки гида
+                let guideLanguages = 'Не указаны';
+                if (guide?.languages) {
+                    if (Array.isArray(guide.languages)) {
+                        guideLanguages = guide.languages.join(', ');
+                    } else if (typeof guide.languages === 'string') {
+                        try {
+                            const parsed = JSON.parse(guide.languages);
+                            guideLanguages = Array.isArray(parsed) ? parsed.join(', ') : guide.languages;
+                        } catch(e) {
+                            guideLanguages = guide.languages;
+                        }
+                    }
+                }
+                
+                // Забронированные даты
                 let selectedDatesStr = '-';
+                let datesCount = 0;
                 if (gh?.selectedDates) {
-                    const dates = Array.isArray(gh.selectedDates) ? gh.selectedDates : [];
-                    if (dates.length > 0) {
+                    let dates = gh.selectedDates;
+                    if (typeof dates === 'string') {
+                        try { dates = JSON.parse(dates); } catch(e) { dates = []; }
+                    }
+                    if (Array.isArray(dates) && dates.length > 0) {
+                        datesCount = dates.length;
                         selectedDatesStr = dates.map(d => {
                             try {
-                                return new Date(d).toLocaleDateString('ru-RU');
+                                return new Date(d).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
                             } catch(e) { return d; }
                         }).join(', ');
                     }
@@ -9578,51 +9611,71 @@
                             Найм гида
                         </h4>
                         
-                        <!-- Информация о гиде с фото -->
-                        <div class="flex items-start gap-4 mb-4 p-3 bg-white rounded-lg">
+                        <!-- Карточка гида с фото -->
+                        <div class="flex items-start gap-4 mb-4 p-4 bg-white rounded-lg border border-purple-100">
                             ${guidePhoto ? `
-                                <img src="${guidePhoto}" alt="Фото гида" class="w-16 h-16 rounded-full object-cover border-2 border-purple-200">
+                                <img src="${guidePhoto}" alt="Фото гида" class="w-20 h-20 rounded-full object-cover border-3 border-purple-300 shadow-md">
                             ` : `
-                                <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-                                    <i class="fas fa-user text-purple-400 text-2xl"></i>
+                                <div class="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center border-3 border-purple-200">
+                                    <i class="fas fa-user text-purple-400 text-3xl"></i>
                                 </div>
                             `}
-                            <div>
-                                <p class="font-bold text-lg text-purple-900">${guideName}</p>
-                                <p class="text-sm text-gray-600 flex items-center gap-1">
-                                    <i class="fas fa-map-marker-alt"></i>
+                            <div class="flex-1">
+                                <p class="font-bold text-xl text-purple-900 mb-1">${guideName}</p>
+                                <p class="text-sm text-gray-600 flex items-center gap-1 mb-1">
+                                    <i class="fas fa-map-marker-alt text-purple-500"></i>
                                     ${guideLocation}
                                 </p>
-                                <p class="text-sm text-gray-600 flex items-center gap-1">
-                                    <i class="fas fa-language"></i>
+                                <p class="text-sm text-gray-600 flex items-center gap-1 mb-1">
+                                    <i class="fas fa-language text-purple-500"></i>
                                     ${guideLanguages}
                                 </p>
+                                ${guidePhone ? `
+                                <p class="text-sm text-gray-600 flex items-center gap-1">
+                                    <i class="fas fa-phone text-purple-500"></i>
+                                    ${guidePhone}
+                                </p>
+                                ` : ''}
+                                ${guideEmail ? `
+                                <p class="text-sm text-gray-600 flex items-center gap-1">
+                                    <i class="fas fa-envelope text-purple-500"></i>
+                                    ${guideEmail}
+                                </p>
+                                ` : ''}
                             </div>
                         </div>
                         
+                        <!-- Детали бронирования -->
                         <div class="grid grid-cols-2 gap-3">
-                            <div class="col-span-2">
-                                <p class="text-sm text-gray-600">Забронированные даты</p>
+                            <div class="col-span-2 bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Забронированные даты</p>
                                 <p class="font-semibold text-purple-800">${selectedDatesStr}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Количество дней</p>
-                                <p class="font-semibold">${gh?.numberOfDays || '-'} дней</p>
+                                <p class="font-semibold">${gh?.numberOfDays || datesCount || '-'}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600">Стоимость</p>
-                                <p class="font-semibold text-green-600">${gh?.totalPrice || order.totalAmount || '-'} ${gh?.currency || order.currency || 'TJS'}</p>
+                                <p class="text-sm text-gray-600">Цена за день</p>
+                                <p class="font-semibold">${guide?.pricePerDay || '-'} ${gh?.currency || order.currency || 'TJS'}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600">Общая стоимость</p>
+                                <p class="font-bold text-xl text-green-600">${gh?.totalPrice || order.totalAmount || '-'} ${gh?.currency || order.currency || 'TJS'}</p>
                             </div>
                             ${gh?.comments ? `
-                            <div class="col-span-2">
-                                <p class="text-sm text-gray-600">Комментарий клиента</p>
-                                <p class="font-semibold bg-white p-2 rounded">${gh.comments}</p>
+                            <div class="col-span-2 bg-yellow-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Комментарий клиента</p>
+                                <p class="font-semibold">${gh.comments}</p>
                             </div>
                             ` : ''}
                         </div>
                     </div>
                 `;
-            } else if (orderType === 'transfer') {
+            }
+            
+            // === ТРАНСФЕР ===
+            else if (orderType === 'transfer') {
                 const tr = order.transferRequest;
                 const driver = tr?.driver || tr?.assignedDriver;
                 
@@ -9634,144 +9687,251 @@
                         </h4>
                         
                         <!-- Маршрут -->
-                        <div class="bg-white rounded-lg p-3 mb-4">
-                            <div class="flex items-center gap-3">
+                        <div class="bg-white rounded-lg p-4 mb-4 border border-orange-100">
+                            <p class="text-xs text-gray-500 mb-2 uppercase font-medium">Маршрут</p>
+                            <div class="flex items-center gap-4">
                                 <div class="flex-1">
                                     <p class="text-xs text-gray-500">Откуда</p>
-                                    <p class="font-semibold text-orange-800">${tr?.pickupLocation || 'Не указано'}</p>
+                                    <p class="font-bold text-orange-800">${tr?.pickupLocation || 'Не указано'}</p>
                                 </div>
-                                <div class="text-orange-400">
-                                    <i class="fas fa-arrow-right"></i>
+                                <div class="text-orange-400 text-2xl">
+                                    <i class="fas fa-long-arrow-alt-right"></i>
                                 </div>
                                 <div class="flex-1 text-right">
                                     <p class="text-xs text-gray-500">Куда</p>
-                                    <p class="font-semibold text-orange-800">${tr?.dropoffLocation || 'Не указано'}</p>
+                                    <p class="font-bold text-orange-800">${tr?.dropoffLocation || 'Не указано'}</p>
                                 </div>
                             </div>
                         </div>
                         
+                        <!-- Дата и время -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Дата</p>
+                                <p class="font-semibold">${tr?.pickupDate || order.tourDate || '-'}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Время подачи</p>
+                                <p class="font-semibold">${tr?.pickupTime || 'Не указано'}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Пассажиров</p>
+                                <p class="font-semibold">${tr?.numberOfPeople || tourists.length || 1} чел.</p>
+                            </div>
+                            ${tr?.vehicleType ? `
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Тип транспорта</p>
+                                <p class="font-semibold">${tr.vehicleType}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                        
                         <!-- Водитель (если назначен) -->
                         ${driver ? `
-                        <div class="bg-white rounded-lg p-3 mb-4">
-                            <p class="text-xs text-gray-500 mb-2">Назначенный водитель</p>
-                            <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                                    <i class="fas fa-id-card-alt text-orange-500 text-xl"></i>
+                        <div class="bg-white rounded-lg p-4 mb-4 border border-orange-100">
+                            <p class="text-xs text-gray-500 mb-2 uppercase font-medium">Назначенный водитель</p>
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <i class="fas fa-id-card-alt text-orange-500 text-2xl"></i>
                                 </div>
-                                <div>
-                                    <p class="font-bold text-orange-900">${driver.name || 'Не указан'}</p>
-                                    <p class="text-sm text-gray-600">${driver.phone || ''}</p>
+                                <div class="flex-1">
+                                    <p class="font-bold text-lg text-orange-900">${driver.name || 'Не указан'}</p>
+                                    ${driver.phone ? `<p class="text-sm text-gray-600"><i class="fas fa-phone mr-1"></i>${driver.phone}</p>` : ''}
                                     ${driver.vehicleBrand || driver.vehicleInfo ? `
                                     <p class="text-sm text-gray-500">
                                         <i class="fas fa-car mr-1"></i>
                                         ${driver.vehicleBrand || ''} ${driver.vehicleInfo || ''}
-                                        ${driver.licensePlate ? ` (${driver.licensePlate})` : ''}
+                                        ${driver.licensePlate ? ` <span class="bg-gray-200 px-2 py-0.5 rounded text-xs">${driver.licensePlate}</span>` : ''}
                                     </p>
                                     ` : ''}
                                 </div>
                             </div>
                         </div>
-                        ` : ''}
+                        ` : `
+                        <div class="bg-yellow-50 rounded-lg p-3 mb-4 text-center">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+                            <span class="text-yellow-700">Водитель ещё не назначен</span>
+                        </div>
+                        `}
                         
+                        <!-- Стоимость -->
                         <div class="grid grid-cols-2 gap-3">
                             <div>
-                                <p class="text-sm text-gray-600">Дата</p>
-                                <p class="font-semibold">${tr?.pickupDate || order.tourDate || '-'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Время</p>
-                                <p class="font-semibold">${tr?.pickupTime || 'Не указано'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Кол-во пассажиров</p>
-                                <p class="font-semibold">${tr?.numberOfPeople || tourists.length || 1} чел.</p>
-                            </div>
-                            <div>
                                 <p class="text-sm text-gray-600">Стоимость</p>
-                                <p class="font-semibold text-green-600">${tr?.finalPrice || tr?.estimatedPrice || order.totalAmount || '-'} ${order.currency || 'TJS'}</p>
+                                <p class="font-bold text-xl text-green-600">${tr?.finalPrice || tr?.estimatedPrice || order.totalAmount || '-'} ${order.currency || 'TJS'}</p>
                             </div>
-                            ${tr?.vehicleType ? `
                             <div>
-                                <p class="text-sm text-gray-600">Тип транспорта</p>
-                                <p class="font-semibold">${tr.vehicleType}</p>
+                                <p class="text-sm text-gray-600">Статус трансфера</p>
+                                <p class="font-semibold">${tr?.status || 'pending'}</p>
                             </div>
-                            ` : ''}
                             ${tr?.specialRequests ? `
-                            <div class="col-span-2">
-                                <p class="text-sm text-gray-600">Особые пожелания</p>
-                                <p class="font-semibold bg-white p-2 rounded">${tr.specialRequests}</p>
+                            <div class="col-span-2 bg-yellow-50 p-3 rounded-lg">
+                                <p class="text-sm text-gray-600 mb-1">Особые пожелания</p>
+                                <p class="font-semibold">${tr.specialRequests}</p>
                             </div>
                             ` : ''}
                         </div>
                     </div>
                 `;
-            } else if (orderType === 'custom_tour') {
+            }
+            
+            // === СОБСТВЕННЫЙ ТУР ===
+            else if (orderType === 'custom_tour') {
+                const ct = order.customTourOrder;
+                
+                // Выбранные страны
+                let countriesStr = '-';
+                if (ct?.selectedCountries) {
+                    let countries = ct.selectedCountries;
+                    if (typeof countries === 'string') {
+                        try { countries = JSON.parse(countries); } catch(e) { countries = []; }
+                    }
+                    if (Array.isArray(countries) && countries.length > 0) {
+                        countriesStr = countries.join(', ');
+                    }
+                }
+                
+                // Компоненты тура
+                let componentsHtml = '';
+                if (ct?.components) {
+                    let components = ct.components;
+                    if (typeof components === 'string') {
+                        try { components = JSON.parse(components); } catch(e) { components = []; }
+                    }
+                    if (Array.isArray(components) && components.length > 0) {
+                        componentsHtml = components.map(c => `
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                                <span>${c.name || c.componentName || c}</span>
+                                ${c.price ? `<span class="font-semibold">${c.price} ${c.currency || 'TJS'}</span>` : ''}
+                            </div>
+                        `).join('');
+                    }
+                }
+                
                 html += `
                     <div class="bg-teal-50 border border-teal-200 rounded-lg p-4">
                         <h4 class="font-semibold text-teal-900 mb-3 flex items-center">
                             <i class="fas fa-suitcase-rolling mr-2"></i>
                             Собственный тур
                         </h4>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
+                        
+                        <!-- Основные детали -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white p-3 rounded-lg">
                                 <p class="text-sm text-gray-600">Дата начала</p>
-                                <p class="font-semibold">${order.tourDate || '-'}</p>
+                                <p class="font-semibold">${ct?.startDate || order.tourDate || '-'}</p>
                             </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Кол-во туристов</p>
-                                <p class="font-semibold">${tourists.length || 1} чел.</p>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Продолжительность</p>
+                                <p class="font-semibold">${ct?.duration || ct?.numberOfDays || '-'} дней</p>
+                            </div>
+                            <div class="col-span-2 bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Страны</p>
+                                <p class="font-semibold text-teal-800">${countriesStr}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Туристов</p>
+                                <p class="font-semibold">${ct?.numberOfPeople || tourists.length || 1} чел.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Общая стоимость</p>
+                                <p class="font-bold text-xl text-green-600">${ct?.totalPrice || order.totalAmount || '-'} ${order.currency || 'TJS'}</p>
                             </div>
                         </div>
+                        
+                        <!-- Компоненты тура -->
+                        ${componentsHtml ? `
+                        <div class="bg-white p-3 rounded-lg mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Выбранные услуги</p>
+                            <div class="divide-y divide-gray-100">
+                                ${componentsHtml}
+                            </div>
+                        </div>
+                        ` : ''}
+                        
+                        ${ct?.specialRequests || ct?.comments ? `
+                        <div class="bg-yellow-50 p-3 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-1">Особые пожелания</p>
+                            <p class="font-semibold">${ct.specialRequests || ct.comments}</p>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
                 
-                // Список туристов для собственного тура
+                // Туристы
                 if (tourists.length > 0) {
                     html += `
-                        <div>
-                            <p class="text-sm text-gray-600 mb-2">Туристы</p>
-                            <div class="bg-gray-50 p-3 rounded">
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-users mr-2"></i>
+                                Туристы (${tourists.length})
+                            </h4>
+                            <div class="space-y-2">
                                 ${tourists.map((t, i) => `
-                                    <div class="mb-2">
-                                        ${i + 1}. ${t.fullName} (${t.birthDate || 'дата не указана'})
+                                    <div class="flex items-center gap-3 p-2 bg-white rounded">
+                                        <span class="w-6 h-6 bg-teal-100 text-teal-800 rounded-full flex items-center justify-center text-sm font-medium">${i + 1}</span>
+                                        <span class="font-medium">${t.fullName}</span>
+                                        ${t.birthDate ? `<span class="text-gray-500 text-sm">(${t.birthDate})</span>` : ''}
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                     `;
                 }
-            } else {
-                // Обычный тур
+            }
+            
+            // === ОБЫЧНЫЙ ТУР ===
+            else {
                 html += `
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-sm text-gray-600">Тур</p>
-                            <p class="font-semibold">${getTourName(order.tour)}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Дата</p>
-                            <p class="font-semibold">${order.tourDate || '-'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Отель</p>
-                            <p class="font-semibold">${order.hotel ? getHotelName(order.hotel) : 'Не выбран'}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Гид</p>
-                            <p class="font-semibold">${order.guide ? getGuideName(order.guide) : 'Не выбран'}</p>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-green-900 mb-3 flex items-center">
+                            <i class="fas fa-map-marked-alt mr-2"></i>
+                            Тур
+                        </h4>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="col-span-2 bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Название тура</p>
+                                <p class="font-bold text-lg text-green-800">${getTourName(order.tour)}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Дата тура</p>
+                                <p class="font-semibold">${order.tourDate || '-'}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Туристов</p>
+                                <p class="font-semibold">${tourists.length || 1} чел.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Отель</p>
+                                <p class="font-semibold">${order.hotel ? getHotelName(order.hotel) : 'Не выбран'}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg">
+                                <p class="text-sm text-gray-600">Гид</p>
+                                <p class="font-semibold">${order.guide ? getGuideName(order.guide) : 'Не выбран'}</p>
+                            </div>
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600">Общая стоимость</p>
+                                <p class="font-bold text-xl text-green-600">${order.totalAmount || '-'} ${currencySymbol}</p>
+                            </div>
                         </div>
                     </div>
                 `;
                 
-                // Список туристов для обычного тура
+                // Туристы
                 if (tourists.length > 0) {
                     html += `
-                        <div>
-                            <p class="text-sm text-gray-600 mb-2">Туристы</p>
-                            <div class="bg-gray-50 p-3 rounded">
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                                <i class="fas fa-users mr-2"></i>
+                                Туристы (${tourists.length})
+                            </h4>
+                            <div class="space-y-2">
                                 ${tourists.map((t, i) => `
-                                    <div class="mb-2">
-                                        ${i + 1}. ${t.fullName} (${t.birthDate})
+                                    <div class="flex items-center gap-3 p-2 bg-white rounded">
+                                        <span class="w-6 h-6 bg-green-100 text-green-800 rounded-full flex items-center justify-center text-sm font-medium">${i + 1}</span>
+                                        <span class="font-medium">${t.fullName}</span>
+                                        ${t.birthDate ? `<span class="text-gray-500 text-sm">(${t.birthDate})</span>` : ''}
                                     </div>
                                 `).join('')}
                             </div>
