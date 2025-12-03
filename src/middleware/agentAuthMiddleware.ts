@@ -16,6 +16,7 @@ export const agentAuthMiddleware = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log('🔐 Agent auth failed: No authorization header');
       return res.status(401).json({
         success: false,
         message: 'Не авторизован'
@@ -67,6 +68,7 @@ export const agentAuthMiddleware = async (
 
       return next();
     } catch (jwtError) {
+      console.log('🔐 Agent auth failed: Invalid token', jwtError instanceof Error ? jwtError.message : 'Unknown error');
       return res.status(401).json({
         success: false,
         message: 'Невалидный токен'

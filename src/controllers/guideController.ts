@@ -841,46 +841,109 @@ export const updateGuide = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Удалить гида полностью или деактивировать (админ)
+ * ?permanent=true - полное удаление гида, заявок на найм, отзывов, связей с турами
+ * Без параметра - деактивация + удаление доступа к кабинету
+ */
 export const deleteGuide = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { permanent } = req.query; // ?permanent=true для полного удаления
+    const guideId = parseInt(id);
+
+    // Получаем гида со всеми связями для отчёта
+    const guide = await prisma.guide.findUnique({
+      where: { id: guideId },
+      include: {
+        guideHireRequests: true,
+        guideReviews: true,
+        tourGuides: true,
+        orders: true
+      }
+    });
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Гид не найден'
+      });
+    }
+
+    const guideName = typeof guide.name === 'string' 
+      ? safeJsonParse(guide.name)?.ru || guide.name 
+      : (guide.name as any)?.ru || 'Неизвестный';
 
     if (permanent === 'true') {
-      // ✅ Полное удаление гида из БД (cascade delete сработает автоматически)
-      await prisma.guide.delete({
-        where: { id: parseInt(id) },
+      console.log(`🗑️ Начало полного удаления гида: ${guideName} (ID: ${guideId})`);
+      console.log(`   - Логин кабинета: ${guide.login || 'нет'}`);
+      console.log(`   - Заявок на найм: ${guide.guideHireRequests?.length || 0}`);
+      console.log(`   - Отзывов: ${guide.guideReviews?.length || 0}`);
+      console.log(`   - Связей с турами: ${guide.tourGuides?.length || 0}`);
+      console.log(`   - Заказов: ${guide.orders?.length || 0}`);
+
+      // Используем транзакцию для атомарного удаления
+      await prisma.$transaction(async (tx) => {
+        // 1. Удаляем связи с турами
+        if (guide.tourGuides && guide.tourGuides.length > 0) {
+          await tx.tourGuide.deleteMany({ where: { guideId } });
+          console.log(`   ✅ Удалено ${guide.tourGuides.length} связей с турами`);
+        }
+
+        // 2. Обнуляем guideId в заказах (чтобы не потерять историю заказов)
+        if (guide.orders && guide.orders.length > 0) {
+          await tx.order.updateMany({
+            where: { guideId },
+            data: { guideId: null }
+          });
+          console.log(`   ✅ Отвязано ${guide.orders.length} заказов`);
+        }
+
+        // 3. Удаляем гида (guideHireRequests и guideReviews удалятся каскадно)
+        await tx.guide.delete({ where: { id: guideId } });
+        console.log(`   ✅ Гид удалён (заявки и отзывы удалены каскадно)`);
       });
 
-      console.log(`🗑️ Гид ${id} полностью удален из БД (включая кабинет)`);
+      console.log(`🗑️ Гид ${guideName} полностью удалён из системы`);
       
       return res.json({
         success: true,
-        message: 'Guide permanently deleted',
+        message: `Гид "${guideName}" и все связанные данные успешно удалены`,
+        deletedData: {
+          guideName,
+          login: guide.login,
+          hireRequestsCount: guide.guideHireRequests?.length || 0,
+          reviewsCount: guide.guideReviews?.length || 0,
+          tourLinksCount: guide.tourGuides?.length || 0
+        }
       });
     } else {
-      // ✅ Деактивация + сброс доступа к кабинету (удалить login/password)
+      // Деактивация + сброс доступа к кабинету (удалить login/password)
       await prisma.guide.update({
-        where: { id: parseInt(id) },
+        where: { id: guideId },
         data: { 
           isActive: false,
-          login: null,      // ✅ Удалить логин - не может войти в кабинет
-          password: null    // ✅ Удалить пароль - не может войти в кабинет
+          login: null,      // Удалить логин - не может войти в кабинет
+          password: null    // Удалить пароль - не может войти в кабинет
         },
       });
 
-      console.log(`⛔ Гид ${id} деактивирован, доступ к кабинету закрыт`);
+      console.log(`⛔ Гид ${guideName} (ID: ${guideId}) деактивирован, доступ к кабинету закрыт`);
 
       return res.json({
         success: true,
-        message: 'Guide deactivated and cabinet access removed',
+        message: `Гид "${guideName}" деактивирован, доступ к кабинету закрыт`,
+        deactivated: {
+          guideName,
+          previousLogin: guide.login
+        }
       });
     }
   } catch (error) {
     console.error('Error deleting guide:', error);
     return res.status(500).json({
       success: false,
-      message: 'Failed to delete guide',
+      message: 'Ошибка при удалении гида',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

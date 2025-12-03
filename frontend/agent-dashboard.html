@@ -378,8 +378,37 @@
         let agentInfo = null;
         let agentToken = null;
 
+        // Верификация токена через API
+        async function verifyToken() {
+            try {
+                const response = await fetch('/api/travel-agents/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${agentToken}`,
+                    },
+                });
+                
+                if (response.status === 401) {
+                    console.log('Token verification failed - token invalid or expired');
+                    return false;
+                }
+                
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.message === 'Ваш аккаунт заблокирован') {
+                        alert('Ваш аккаунт заблокирован. Обратитесь к администратору.');
+                        return false;
+                    }
+                }
+                
+                return response.ok;
+            } catch (error) {
+                console.error('Token verification error:', error);
+                return false;
+            }
+        }
+
         // Check authentication on page load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             agentToken = localStorage.getItem('agentToken');
             const agentInfoStr = localStorage.getItem('agentInfo');
 
@@ -390,6 +419,14 @@
 
             try {
                 agentInfo = JSON.parse(agentInfoStr);
+                
+                // Проверяем токен через API
+                const isValid = await verifyToken();
+                if (!isValid) {
+                    logout();
+                    return;
+                }
+                
                 displayAgentInfo();
                 loadBookings();
 
@@ -445,12 +482,18 @@
             }
         }
 
-        function switchTab(tabName) {
+        function switchTab(tabName, eventTarget = null) {
             // Update tabs
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
 
-            event.target.classList.add('active');
+            // Активируем нужную вкладку по имени
+            const targetTab = document.querySelector(`.tab[onclick*="${tabName}"]`);
+            if (targetTab) {
+                targetTab.classList.add('active');
+            } else if (eventTarget) {
+                eventTarget.classList.add('active');
+            }
             document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
@@ -600,8 +643,24 @@
 
                 const data = await response.json();
 
+                // Проверка на ошибку авторизации - выкинуть на логин
+                if (response.status === 401) {
+                    console.log('Token expired or invalid, redirecting to login');
+                    logout();
+                    return;
+                }
+
+                // Проверка на требование смены пароля
+                if (response.status === 403 && data.requirePasswordChange) {
+                    console.log('Password change required');
+                    document.getElementById('passwordChangeAlert').style.display = 'block';
+                    switchTab('password');
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #ff9800;">Необходимо сменить пароль</td></tr>';
+                    return;
+                }
+
                 if (response.ok && data.success) {
-                    if (data.bookings.length === 0) {
+                    if (!data.bookings || data.bookings.length === 0) {
                         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #999;">Заявок пока нет</td></tr>';
                         return;
                     }

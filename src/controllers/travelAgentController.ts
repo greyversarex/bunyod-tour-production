@@ -806,15 +806,21 @@ export const changePassword = async (req: Request, res: Response) => {
 };
 
 /**
- * Удалить турагента (админ)
+ * Удалить турагента полностью (админ)
+ * Удаляет: турагента, все его бронирования, связанную заявку на партнерство
  */
 export const deleteAgent = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const agentId = parseInt(id);
 
-    // Проверяем существование турагента
+    // Проверяем существование турагента со всеми связями
     const agent = await prisma.travelAgent.findUnique({
-      where: { id: parseInt(id) }
+      where: { id: agentId },
+      include: {
+        bookings: true,
+        application: true
+      }
     });
 
     if (!agent) {
@@ -824,20 +830,54 @@ export const deleteAgent = async (req: Request, res: Response) => {
       });
     }
 
-    // Удаляем турагента (связанные заявки на туры будут удалены автоматически по каскаду)
-    await prisma.travelAgent.delete({
-      where: { id: parseInt(id) }
+    console.log(`🗑️ Начало полного удаления турагента: ${agent.fullName} (${agent.email})`);
+    console.log(`   - ID: ${agent.id}`);
+    console.log(`   - AgentId: ${agent.agentId}`);
+    console.log(`   - Бронирований: ${agent.bookings?.length || 0}`);
+    console.log(`   - Связанная заявка: ${agent.applicationId ? 'Да' : 'Нет'}`);
+
+    // Используем транзакцию для атомарного удаления
+    await prisma.$transaction(async (tx) => {
+      // 1. Удаляем все бронирования турагента (на всякий случай, хотя cascade должен работать)
+      if (agent.bookings && agent.bookings.length > 0) {
+        await tx.agentTourBooking.deleteMany({
+          where: { agentId }
+        });
+        console.log(`   ✅ Удалено ${agent.bookings.length} бронирований`);
+      }
+
+      // 2. Удаляем самого турагента
+      await tx.travelAgent.delete({
+        where: { id: agentId }
+      });
+      console.log(`   ✅ Турагент удалён`);
+
+      // 3. Удаляем связанную заявку на партнерство (опционально, по каскаду уже SetNull)
+      if (agent.applicationId) {
+        await tx.travelAgentApplication.delete({
+          where: { id: agent.applicationId }
+        });
+        console.log(`   ✅ Заявка на партнерство удалена`);
+      }
     });
+
+    console.log(`🗑️ Турагент ${agent.fullName} полностью удалён из системы`);
 
     return res.json({
       success: true,
-      message: 'Турагент успешно удален'
+      message: `Турагент ${agent.fullName} и все связанные данные успешно удалены`,
+      deletedData: {
+        agentId: agent.agentId,
+        bookingsCount: agent.bookings?.length || 0,
+        applicationDeleted: !!agent.applicationId
+      }
     });
   } catch (error) {
     console.error('Error deleting agent:', error);
     return res.status(500).json({
       success: false,
-      message: 'Ошибка при удалении турагента'
+      message: 'Ошибка при удалении турагента',
+      error: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 };

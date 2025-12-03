@@ -11829,26 +11829,49 @@
             });
         }
         
-        function deleteGuide(id) {
-            if (confirm('Вы уверены, что хотите удалить этого гида?')) {
-                fetch(`${getApiUrl()}/guides/${id}`, {
-                    method: 'DELETE',
-                    headers: getAuthHeaders()
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Гид успешно удален');
-                        loadGuides();
-                    } else {
-                        alert('Ошибка при удалении гида: ' + (data.message || 'Неизвестная ошибка'));
-                    }
-                })
-                .catch(err => {
-                    console.error('Error deleting guide:', err);
-                    alert('Ошибка при удалении гида');
-                });
-            }
+        function deleteGuide(id, guideName = '') {
+            // Показываем модальное окно с выбором действия
+            const choice = confirm(
+                'Выберите действие для гида' + (guideName ? ' "' + guideName + '"' : '') + ':
+
+' +
+                'OK = ПОЛНОЕ УДАЛЕНИЕ (гид, заявки на найм, отзывы, кабинет)
+' +
+                'Отмена = Деактивация (закрыть доступ к кабинету, сохранить данные)'
+            );
+            
+            const permanentDelete = choice;
+            const confirmMsg = permanentDelete 
+                ? 'ВНИМАНИЕ! Гид будет полностью удалён из системы вместе со всеми данными!
+
+Продолжить?'
+                : 'Гид будет деактивирован и потеряет доступ к кабинету.
+
+Продолжить?';
+            
+            if (!confirm(confirmMsg)) return;
+            
+            const url = permanentDelete 
+                ? `${getApiUrl()}/guides/${id}?permanent=true`
+                : `${getApiUrl()}/guides/${id}`;
+            
+            fetch(url, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message || 'Операция успешно выполнена', 'success');
+                    loadGuides();
+                } else {
+                    showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            })
+            .catch(err => {
+                console.error('Error deleting guide:', err);
+                showNotification('Ошибка сети', 'error');
+            });
         }
         
         function toggleGuideStatus(guideId, newStatus) {
@@ -19284,8 +19307,15 @@ Email: ${agent.email}
             }
         }
         
-        async function deleteAgent(agentId) {
-            if (!confirm('Вы уверены, что хотите удалить этого турагента?\n\nЭто действие необратимо!')) {
+        async function deleteAgent(agentId, agentName = '') {
+            const confirmMsg = 'ПОЛНОЕ УДАЛЕНИЕ ТУРАГЕНТА' + (agentName ? ' "' + agentName + '"' : '') + '\n\n' +
+                'Будет удалено:\n' +
+                '• Аккаунт турагента (логин, пароль)\n' +
+                '• Все бронирования этого агента\n' +
+                '• Заявка на партнёрство (если есть)\n\n' +
+                'Это действие НЕОБРАТИМО!\n\nПродолжить?';
+            
+            if (!confirm(confirmMsg)) {
                 return;
             }
             
@@ -19299,7 +19329,11 @@ Email: ${agent.email}
                 const data = await res.json();
                 
                 if (data.success) {
-                    showNotification('Турагент успешно удален', 'success');
+                    let msg = data.message || 'Турагент успешно удалён';
+                    if (data.deletedData) {
+                        msg += `\nУдалено бронирований: ${data.deletedData.bookingsCount || 0}`;
+                    }
+                    showNotification(msg, 'success');
                     loadTravelAgents();
                 } else {
                     showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
