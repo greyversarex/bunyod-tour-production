@@ -19498,7 +19498,9 @@ Email: ${agent.email}
                 const data = await res.json();
                 
                 if (data.success) {
-                    renderGuideHireRequests(data.data || []);
+                    // API возвращает {data: {requests: [], pagination: {}}}
+                    const requests = data.data?.requests || data.data || [];
+                    renderGuideHireRequests(requests);
                 } else {
                     document.getElementById('guideHireRequestsList').innerHTML = 
                         '<tr><td colspan="8" class="text-center text-red-600 py-4">Ошибка загрузки заявок</td></tr>';
