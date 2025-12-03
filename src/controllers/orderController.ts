@@ -453,11 +453,12 @@ export const getOrderById = async (req: Request, res: Response) => {
 
 export const getAllOrders = async (req: Request, res: Response) => {
   try {
-    const { status, paymentStatus, page = 1, limit = 20 } = req.query;
+    const { status, paymentStatus, paymentOption, page = 1, limit = 20 } = req.query;
 
     const where: any = {};
     if (status) where.status = status;
     if (paymentStatus) where.paymentStatus = paymentStatus;
+    if (paymentOption) where.paymentOption = paymentOption;
 
     const orders = await prisma.order.findMany({
       where,

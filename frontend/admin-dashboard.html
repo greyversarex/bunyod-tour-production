@@ -817,9 +817,11 @@
                 <!-- Bookings Section -->
                 <section id="bookingsSection" style="display: none;">
                     <div class="mb-6">
-                        <div class="flex gap-2 mb-4">
+                        <div class="flex flex-wrap gap-2 mb-4">
                             <button class="tab-button active" data-status="all" data-translate="tab.all_orders">Все заказы</button>
                             <button class="tab-button" data-status="paid" data-translate="status.paid">Оплаченные</button>
+                            <button class="tab-button" data-status="deposit_10">Депозит 10%</button>
+                            <button class="tab-button" data-status="deposit_30">Депозит 30%</button>
                         </div>
                     </div>
                     
@@ -9405,6 +9407,12 @@
             if (status === 'paid') {
                 // Для 'Оплаченные' фильтруем по paymentStatus
                 url += '?paymentStatus=paid';
+            } else if (status === 'deposit_10') {
+                // Для 'Депозит 10%' фильтруем по paymentOption = deposit
+                url += '?paymentOption=deposit';
+            } else if (status === 'deposit_30') {
+                // Для 'Депозит 30%' фильтруем по paymentOption = deposit_30
+                url += '?paymentOption=deposit_30';
             } else if (status !== 'all') {
                 url += `?status=${status}`;
             }
