@@ -481,10 +481,23 @@
                     <i class="fas fa-hotel"></i>
                     <span data-translate="admin.hotels">Отели</span>
                 </a>
-                <a href="#" class="nav-item" data-section="guides">
-                    <i class="fas fa-user-tie"></i>
-                    <span data-translate="admin.guides">Гиды</span>
-                </a>
+                <div class="nav-group">
+                    <a href="#" class="nav-item nav-item-parent" data-section="guides">
+                        <i class="fas fa-user-tie"></i>
+                        <span data-translate="admin.guides">Гиды</span>
+                        <i class="fas fa-chevron-down ml-auto text-xs transition-transform duration-200" id="guides-chevron"></i>
+                    </a>
+                    <div class="nav-submenu" id="guides-submenu" style="display: none;">
+                        <a href="#" class="nav-item nav-subitem" data-section="guides">
+                            <i class="fas fa-users"></i>
+                            <span>Список гидов</span>
+                        </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="guide-hire-requests">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Заявки на найм</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="#" class="nav-item" data-section="vehicles">
                     <i class="fas fa-car"></i>
                     <span data-translate="admin.vehicles">Транспорт</span>
@@ -544,14 +557,6 @@
                             <i class="fas fa-clipboard-list"></i>
                             <span>Заявки на туры</span>
                         </a>
-                        <a href="#" class="nav-item nav-subitem" data-section="guide-hire-requests">
-                            <i class="fas fa-user-tie"></i>
-                            <span>Заявки на найм гидов</span>
-                        </a>
-                        <a href="#" class="nav-item nav-subitem" data-section="transfer-requests-list">
-                            <i class="fas fa-shuttle-van"></i>
-                            <span>Заявки на трансферы</span>
-                        </a>
                     </div>
                 </div>
                 <a href="#" class="nav-item" data-section="drivers">
@@ -571,10 +576,23 @@
                     <span data-translate="admin.banner_management">Управление баннером</span>
                 </a>
                 <!-- trips section removed -->
-                <a href="#" class="nav-item" data-section="transfers">
-                    <i class="fas fa-shuttle-van"></i>
-                    <span data-translate="admin.transfers">Трансферы</span>
-                </a>
+                <div class="nav-group">
+                    <a href="#" class="nav-item nav-item-parent" data-section="transfers">
+                        <i class="fas fa-shuttle-van"></i>
+                        <span data-translate="admin.transfers">Трансферы</span>
+                        <i class="fas fa-chevron-down ml-auto text-xs transition-transform duration-200" id="transfers-chevron"></i>
+                    </a>
+                    <div class="nav-submenu" id="transfers-submenu" style="display: none;">
+                        <a href="#" class="nav-item nav-subitem" data-section="transfers">
+                            <i class="fas fa-list"></i>
+                            <span>Управление трансферами</span>
+                        </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="transfer-requests-list">
+                            <i class="fas fa-clipboard-list"></i>
+                            <span>Заявки на трансферы</span>
+                        </a>
+                    </div>
+                </div>
                 <a href="#" class="nav-item" data-section="custom-tour-orders">
                     <i class="fas fa-suitcase-rolling"></i>
                     <span data-translate="admin.custom_tour_orders">Заказы собственных туров</span>
@@ -14943,6 +14961,26 @@
                 travelAgentsParent.classList.remove('expanded');
             }
             
+            // Initialize guides submenu as closed
+            const guidesSubmenu = document.getElementById('guides-submenu');
+            if (guidesSubmenu) {
+                guidesSubmenu.style.display = 'none';
+            }
+            const guidesParent = document.querySelector('.nav-item-parent[data-section="guides"]');
+            if (guidesParent) {
+                guidesParent.classList.remove('expanded');
+            }
+            
+            // Initialize transfers submenu as closed
+            const transfersSubmenu = document.getElementById('transfers-submenu');
+            if (transfersSubmenu) {
+                transfersSubmenu.style.display = 'none';
+            }
+            const transfersParent = document.querySelector('.nav-item-parent[data-section="transfers"]');
+            if (transfersParent) {
+                transfersParent.classList.remove('expanded');
+            }
+            
             // Add click handlers for all navigation items (including submenu items)
             const navItems = document.querySelectorAll('.nav-item[data-section], .nav-subitem[data-section]');
             navItems.forEach(item => {
@@ -14962,6 +15000,24 @@
                     // Handle travel agents parent item - toggle submenu only
                     if (section === 'travel-agents' && this.classList.contains('nav-item-parent')) {
                         const submenu = document.getElementById('travel-agents-submenu');
+                        const isExpanded = submenu.style.display === 'block';
+                        submenu.style.display = isExpanded ? 'none' : 'block';
+                        this.classList.toggle('expanded');
+                        return; // Don't switch section, just toggle submenu
+                    }
+                    
+                    // Handle guides parent item - toggle submenu only
+                    if (section === 'guides' && this.classList.contains('nav-item-parent')) {
+                        const submenu = document.getElementById('guides-submenu');
+                        const isExpanded = submenu.style.display === 'block';
+                        submenu.style.display = isExpanded ? 'none' : 'block';
+                        this.classList.toggle('expanded');
+                        return; // Don't switch section, just toggle submenu
+                    }
+                    
+                    // Handle transfers parent item - toggle submenu only
+                    if (section === 'transfers' && this.classList.contains('nav-item-parent')) {
+                        const submenu = document.getElementById('transfers-submenu');
                         const isExpanded = submenu.style.display === 'block';
                         submenu.style.display = isExpanded ? 'none' : 'block';
                         this.classList.toggle('expanded');
@@ -15443,8 +15499,14 @@
                 case 'agent-tour-bookings':
                     loadAgentBookings();
                     break;
+                case 'guides':
+                    loadGuides();
+                    break;
                 case 'guide-hire-requests':
                     loadGuideHireRequests();
+                    break;
+                case 'transfers':
+                    loadTransfers();
                     break;
                 case 'transfer-requests-list':
                     loadTransferRequests();
@@ -19641,9 +19703,11 @@ Email: ${agent.email}
                         statusText = request.status || '—';
                 }
                 
+                // Статус оплаты - берём из order если есть
                 let paymentClass = '';
                 let paymentText = '';
-                switch (request.paymentStatus) {
+                const paymentStatus = request.order?.paymentStatus || request.paymentStatus;
+                switch (paymentStatus) {
                     case 'paid':
                         paymentClass = 'bg-green-100 text-green-800';
                         paymentText = 'Оплачено';
@@ -19655,25 +19719,30 @@ Email: ${agent.email}
                         break;
                     default:
                         paymentClass = 'bg-gray-100 text-gray-800';
-                        paymentText = request.paymentStatus || '—';
+                        paymentText = paymentStatus || '—';
                 }
                 
+                // Используем правильные поля: fullName, phone, email
                 const route = `${request.pickupLocation || '—'} → ${request.dropoffLocation || '—'}`;
-                const clientName = request.contactName || request.passengerName || '—';
-                const clientPhone = request.contactPhone || '';
+                const clientName = request.fullName || '—';
+                const clientPhone = request.phone || '';
                 const pickupDate = request.pickupDate ? new Date(request.pickupDate).toLocaleDateString('ru-RU') : '—';
                 const pickupTime = request.pickupTime || '';
                 const driverName = request.assignedDriver ? (request.assignedDriver.name || '—') : 'Не назначен';
-                const price = request.estimatedPrice ? `${parseFloat(request.estimatedPrice).toFixed(2)} TJS` : '—';
+                const price = request.order?.totalPrice || request.estimatedPrice;
+                const priceStr = price ? `${parseFloat(price).toFixed(2)} TJS` : '—';
+                
+                // Унифицированный номер заказа: используем orderNumber если есть, иначе TR-id
+                const orderNumber = request.order?.orderNumber || request.orderNumber || `TR-${request.id}`;
                 
                 return `
                     <tr>
-                        <td>TR-${request.id}</td>
+                        <td>${orderNumber}</td>
                         <td><small>${route}</small></td>
                         <td>${clientName}<br><small class="text-gray-500">${clientPhone}</small></td>
                         <td>${pickupDate}<br><small class="text-gray-500">${pickupTime}</small></td>
                         <td>${driverName}</td>
-                        <td>${price}</td>
+                        <td>${priceStr}</td>
                         <td><span class="px-2 py-1 text-xs rounded-full ${paymentClass}">${paymentText}</span></td>
                         <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
                         <td>
@@ -19700,7 +19769,12 @@ Email: ${agent.email}
                 if (data.success && data.data) {
                     const r = data.data;
                     const pickupDate = r.pickupDate ? new Date(r.pickupDate).toLocaleDateString('ru-RU') : '—';
-                    alert(`Заявка TR-${r.id}\n\nМаршрут: ${r.pickupLocation} → ${r.dropoffLocation}\nКлиент: ${r.contactName || r.passengerName}\nТелефон: ${r.contactPhone || '—'}\nEmail: ${r.contactEmail || '—'}\nДата: ${pickupDate}\nВремя: ${r.pickupTime || '—'}\nПассажиров: ${r.passengerCount || '—'}\nВодитель: ${r.assignedDriver?.name || 'Не назначен'}\nЦена: ${r.estimatedPrice || '—'} TJS\nСтатус: ${r.status}\nОплата: ${r.paymentStatus}\nПримечания: ${r.specialRequests || '—'}`);
+                    const orderNumber = r.order?.orderNumber || r.orderNumber || `TR-${r.id}`;
+                    const price = r.order?.totalPrice || r.estimatedPrice || '—';
+                    const paymentStatus = r.order?.paymentStatus || r.paymentStatus || '—';
+                    const paymentMethod = r.order?.paymentMethod || '—';
+                    
+                    alert(`Заявка ${orderNumber}\n\n📍 Маршрут: ${r.pickupLocation || '—'} → ${r.dropoffLocation || '—'}\n\n👤 Клиент: ${r.fullName || '—'}\n📞 Телефон: ${r.phone || '—'}\n✉️ Email: ${r.email || '—'}\n\n📅 Дата: ${pickupDate}\n🕐 Время: ${r.pickupTime || '—'}\n👥 Пассажиров: ${r.numberOfPeople || '—'}\n🚗 Тип транспорта: ${r.vehicleType || '—'}\n\n🚘 Водитель: ${r.assignedDriver?.name || 'Не назначен'}\n💰 Цена: ${price} TJS\n💳 Способ оплаты: ${paymentMethod}\n\n📊 Статус: ${r.status}\n💵 Оплата: ${paymentStatus}\n\n📝 Примечания: ${r.specialRequests || '—'}\n📋 Заметки админа: ${r.adminNotes || '—'}`);
                 } else {
                     showNotification('Ошибка загрузки данных', 'error');
                 }

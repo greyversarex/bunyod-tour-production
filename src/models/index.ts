@@ -1161,7 +1161,8 @@ export class TransferRequestModel {
             contact: true,
             description: true
           }
-        }
+        },
+        order: true
       },
       orderBy: {
         createdAt: 'desc'
@@ -1184,7 +1185,8 @@ export class TransferRequestModel {
             contact: true,
             description: true
           }
-        }
+        },
+        order: true
       }
     });
   }
