@@ -492,10 +492,6 @@
                             <i class="fas fa-users"></i>
                             <span>Список гидов</span>
                         </a>
-                        <a href="#" class="nav-item nav-subitem" data-section="guide-hire-requests">
-                            <i class="fas fa-clipboard-list"></i>
-                            <span>Заявки на найм</span>
-                        </a>
                     </div>
                 </div>
                 <a href="#" class="nav-item" data-section="vehicles">
@@ -586,10 +582,6 @@
                         <a href="#" class="nav-item nav-subitem" data-section="transfers">
                             <i class="fas fa-list"></i>
                             <span>Управление трансферами</span>
-                        </a>
-                        <a href="#" class="nav-item nav-subitem" data-section="transfer-requests-list">
-                            <i class="fas fa-clipboard-list"></i>
-                            <span>Заявки на трансферы</span>
                         </a>
                     </div>
                 </div>
@@ -1169,91 +1161,8 @@
                 </section>
 
                 <!-- Guide Hire Requests Section -->
-                <section id="guide-hire-requestsSection" style="display: none;">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-semibold mb-4">Заявки на найм гидов</h2>
-                        
-                        <div class="flex gap-4 mb-4">
-                            <select id="guideHireStatusFilter" onchange="filterGuideHireRequests()" class="form-input" style="max-width: 200px;">
-                                <option value="">Все заявки</option>
-                                <option value="pending">Ожидающие</option>
-                                <option value="approved">Одобренные</option>
-                                <option value="completed">Завершенные</option>
-                                <option value="cancelled">Отмененные</option>
-                            </select>
-                            <select id="guideHirePaymentFilter" onchange="filterGuideHireRequests()" class="form-input" style="max-width: 200px;">
-                                <option value="">Все оплаты</option>
-                                <option value="paid">Оплачено</option>
-                                <option value="unpaid">Не оплачено</option>
-                                <option value="refunded">Возврат</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="data-table">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Гид</th>
-                                    <th>Клиент</th>
-                                    <th>Даты</th>
-                                    <th>Сумма</th>
-                                    <th>Оплата</th>
-                                    <th>Статус</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody id="guideHireRequestsList">
-                                <!-- Guide hire requests will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
 
                 <!-- Transfer Requests Section -->
-                <section id="transfer-requests-listSection" style="display: none;">
-                    <div class="mb-6">
-                        <h2 class="text-xl font-semibold mb-4">Заявки на трансферы</h2>
-                        
-                        <div class="flex gap-4 mb-4">
-                            <select id="transferRequestStatusFilter" onchange="filterTransferRequests()" class="form-input" style="max-width: 200px;">
-                                <option value="">Все заявки</option>
-                                <option value="pending">Ожидающие</option>
-                                <option value="approved">Одобренные</option>
-                                <option value="confirmed">Подтвержденные</option>
-                                <option value="completed">Завершенные</option>
-                                <option value="cancelled">Отмененные</option>
-                            </select>
-                            <select id="transferPaymentFilter" onchange="filterTransferRequests()" class="form-input" style="max-width: 200px;">
-                                <option value="">Все оплаты</option>
-                                <option value="paid">Оплачено</option>
-                                <option value="pending">Ожидает оплаты</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="data-table">
-                        <table class="w-full">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Маршрут</th>
-                                    <th>Клиент</th>
-                                    <th>Дата</th>
-                                    <th>Водитель</th>
-                                    <th>Сумма</th>
-                                    <th>Оплата</th>
-                                    <th>Статус</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transferRequestsList">
-                                <!-- Transfer requests will be loaded here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
 
                 <!-- Drivers Section -->
                 <section id="driversSection" style="display: none;">
@@ -15585,7 +15494,7 @@
         // Show section function
         function showSection(sectionName) {
             // Hide all sections first (including custom tour sections)
-            const sections = ['dashboardSection', 'toursSection', 'tourMonitoringSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'guide-hire-requestsSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'transfer-requests-listSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection', 'vehiclesSection', 'travel-agents-listSection', 'travel-agent-applicationsSection', 'agent-tour-bookingsSection'];
+            const sections = ['dashboardSection', 'toursSection', 'tourMonitoringSection', 'categoriesSection', 'priceCalculatorSection', 'bannerManagementSection', 'bookingsSection', 'eventsSection', 'hotelsSection', 'guidesSection', 'tourAgentsSection', 'driversSection', 'tripsSection', 'transfersSection', 'custom-tour-ordersSection', 'countriesSection', 'citiesSection', 'cityCardPhotosSection', 'customersSection', 'reviewsSection', 'newsSection', 'paymentsSection', 'exchangeRatesSection', 'cmsSection', 'translationSection', 'settingsSection', 'vehiclesSection', 'travel-agents-listSection', 'travel-agent-applicationsSection', 'agent-tour-bookingsSection'];
             sections.forEach(sectionId => {
                 const element = document.getElementById(sectionId);
                 if (element) element.style.display = 'none';
@@ -15762,14 +15671,8 @@
                 case 'guides':
                     loadGuides();
                     break;
-                case 'guide-hire-requests':
-                    loadGuideHireRequests();
-                    break;
                 case 'transfers':
                     loadTransfers();
-                    break;
-                case 'transfer-requests-list':
-                    loadTransferRequests();
                     break;
                 case 'settings':
                     // Load settings if needed
