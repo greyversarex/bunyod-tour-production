@@ -613,7 +613,7 @@ export const updateGuideHireRequestStatus = async (req: Request, res: Response) 
                   
                   <p style="margin-top: 20px; font-size: 14px; color: #666;">
                     Если у вас есть вопросы, свяжитесь с нами:<br>
-                    📧 Email: info@bunyodtour.tj<br>
+                    📧 Email: booking@bunyodtour.tj<br>
                     📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
                     📞 +992 00-110-0087; +992 88-235-3434<br>
                     🌐 Сайт: bunyodtour.tj
@@ -1018,7 +1018,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
     // Если email зависнет - это не повлияет на пользователя
     setImmediate(async () => {
       try {
-        const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
+        const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
         await sendEmail({
           to: adminEmail,
           subject: `Новый платный найм тургида - ${guide.name}`,

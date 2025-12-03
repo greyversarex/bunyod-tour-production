@@ -554,10 +554,6 @@
                     <i class="fas fa-calendar-check"></i>
                     <span data-translate="admin.bookings">Заказы</span>
                 </a>
-                <a href="#" class="nav-item" data-section="events">
-                    <i class="fas fa-bell"></i>
-                    <span>События</span>
-                </a>
                 <a href="#" class="nav-item" data-section="categories">
                     <i class="fas fa-tags"></i>
                     <span data-translate="admin.categories">Категории</span>
@@ -566,10 +562,7 @@
                     <i class="fas fa-images"></i>
                     <span data-translate="admin.banner_management">Управление баннером</span>
                 </a>
-                <a href="#" class="nav-item" data-section="trips">
-                    <i class="fas fa-route"></i>
-                    <span data-translate="admin.trips">Поездки</span>
-                </a>
+                <!-- trips section removed -->
                 <a href="#" class="nav-item" data-section="transfers">
                     <i class="fas fa-shuttle-van"></i>
                     <span data-translate="admin.transfers">Трансферы</span>
@@ -16656,7 +16649,7 @@
         
         async function loadTransfers() {
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests`, {
                     headers: getAuthHeaders()
                 });
                 
@@ -16721,7 +16714,7 @@
             if (finalPrice === null) return; // User cancelled
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${transferId}/approve`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${transferId}/approve`, {
                     method: 'POST',
                     headers: {
                         ...getAuthHeaders(),
@@ -16754,7 +16747,7 @@
             }
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${transferId}/reject`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${transferId}/reject`, {
                     method: 'POST',
                     headers: {
                         ...getAuthHeaders(),
@@ -16785,7 +16778,7 @@
             if (!confirm('Удалить заявку на трансфер?')) return;
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${transferId}`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${transferId}`, {
                     method: 'DELETE',
                     headers: getAuthHeaders()
                 });
@@ -16914,7 +16907,7 @@
         
         async function loadTransferRequests() {
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests`);
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -17014,7 +17007,7 @@
             }
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${requestId}/approve`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${requestId}/approve`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -17041,7 +17034,7 @@
             if (reason === null) return; // User cancelled
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${requestId}/reject`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${requestId}/reject`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -17068,7 +17061,7 @@
         // View transfer request details
         async function viewTransferRequestDetails(requestId) {
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${requestId}`);
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${requestId}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -17148,7 +17141,7 @@
             }
             
             try {
-                const response = await fetch(`${getApiUrl()}/transfer-requests/${requestId}`, {
+                const response = await fetch(`${getApiUrl()}/transfers/transfer-requests/${requestId}`, {
                     method: 'DELETE'
                 });
                 

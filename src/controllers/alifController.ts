@@ -417,7 +417,7 @@ export const alifController = {
                       
                       <p style="font-size: 12px; color: #666; margin-top: 30px;">
                         Если у вас есть вопросы, свяжитесь с нами:<br>
-                        📧 Email: info@bunyodtour.tj<br>
+                        📧 Email: booking@bunyodtour.tj<br>
                         📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
                         📞 +992 00-110-0087; +992 88-235-3434<br>
                         🌐 Сайт: bunyodtour.tj
@@ -429,7 +429,7 @@ export const alifController = {
                 console.log(`✅ Confirmation email sent to tourist: ${touristEmail}`);
 
                 // 📧 Уведомление админу о новом оплаченном собственном туре
-                const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
+                const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
                 console.log('📧 [CUSTOM TOUR] Sending admin notification to:', adminEmail);
                 await emailService.sendEmail({
                   to: adminEmail,
@@ -636,7 +636,7 @@ export const alifController = {
                     <p style="margin: 5px 0;">📍 Душанбе, Таджикистан</p>
                     <p style="margin: 5px 0;">📞 +992 44 625 7575; +992 93-126-1134</p>
                     <p style="margin: 5px 0;">📞 +992 00-110-0087; +992 88-235-3434</p>
-                    <p style="margin: 5px 0;">✉️ info@bunyodtour.tj</p>
+                    <p style="margin: 5px 0;">✉️ booking@bunyodtour.tj</p>
                     <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj" style="color: #10b981;">bunyodtour.tj</a></p>
                     <p style="margin-top: 20px; font-size: 12px; color: #9ca3af;">Туристическая платформа Центральной Азии</p>
                   </div>
@@ -647,7 +647,7 @@ export const alifController = {
             console.log('📧 Customer email sent successfully');
 
             // Email админу
-            const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
+            const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
             console.log('📧 Sending admin notification to:', adminEmail);
             await emailService.sendEmail({
               to: adminEmail,

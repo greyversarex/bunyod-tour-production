@@ -155,7 +155,7 @@ export const sendCustomerConfirmation = async (bookingData: {
         </div>
         
         <p style="color: #374151; line-height: 1.6;">
-          If you have any questions or need to modify your request, please don't hesitate to contact us at ${process.env.SMTP_FROM || 'info@bunyodtour.tj'}.
+          If you have any questions or need to modify your request, please don't hesitate to contact us at ${process.env.SMTP_FROM || 'booking@bunyodtour.tj'}.
         </p>
         
         <p style="color: #374151; line-height: 1.6; margin-top: 30px;">

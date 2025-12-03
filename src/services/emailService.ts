@@ -187,7 +187,7 @@ function generateInlineTicketHTML(order: any, customer: Customer): string {
         </p>
         <p style="margin: 0; font-size: 13px; color: #6b7280;">
           📞 +992 44 625 7575 | +992 93-126-1134<br>
-          📧 info@bunyodtour.tj | 🌐 bunyodtour.tj
+          📧 booking@bunyodtour.tj | 🌐 bunyodtour.tj
         </p>
       </div>
     </div>
@@ -485,7 +485,7 @@ const emailTemplates = {
             
             <div class="footer">
               <p><strong>Контакты для связи:</strong></p>
-              <p>📞 +992 93 126 1134 | ✉️ info@bunyodtour.tj</p>
+              <p>📞 +992 93 126 1134 | ✉️ booking@bunyodtour.tj</p>
               <p>© 2025 Bunyod-Tour. Все права защищены.</p>
             </div>
           </div>
@@ -525,7 +525,7 @@ const emailTemplates = {
             <p>Ваше бронирование №${order.orderNumber} было отменено.</p>
             <p style="margin-top: 20px; font-size: 14px; color: #666;">
               Если у вас есть вопросы, свяжитесь с нами:<br>
-              📧 Email: info@bunyodtour.tj<br>
+              📧 Email: booking@bunyodtour.tj<br>
               📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
               📞 +992 00-110-0087; +992 88-235-3434<br>
               🌐 Сайт: bunyodtour.tj
@@ -589,7 +589,7 @@ const emailTemplates = {
               <div style="text-align: left; max-width: 500px; margin: 0 auto; font-size: 14px; line-height: 1.8;">
                 <p style="margin: 5px 0;">☎️ +992 44 625 7575; +992 93-126-1134</p>
                 <p style="margin: 5px 0;">☎️ +992 00-110-0087; +992 88-235-3434</p>
-                <p style="margin: 5px 0;">💌 info@bunyodtour.tj</p>
+                <p style="margin: 5px 0;">💌 booking@bunyodtour.tj</p>
                 <p style="margin: 5px 0;">🌐 <a href="https://bunyodtour.tj" style="color: #667eea; text-decoration: none;">bunyodtour.tj</a></p>
               </div>
             </div>
@@ -821,7 +821,7 @@ export const emailService = {
                 </p>
                 <p style="margin-top: 20px;">
                   📞 +992 44 625 7575 | +992 93-126-1134<br>
-                  📧 info@bunyodtour.tj | 🌐 bunyodtour.tj
+                  📧 booking@bunyodtour.tj | 🌐 bunyodtour.tj
                 </p>
               </div>
               
@@ -923,7 +923,7 @@ export const emailService = {
   async sendAdminNotification(order: any, customer: Customer, tour: any): Promise<boolean> {
     try {
       const { client, fromEmail } = await getUncachableSendGridClient();
-      const adminEmail = process.env.ADMIN_EMAIL || 'info@bunyodtour.tj';
+      const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
       const template = emailTemplates.adminNotification(order, customer, tour);
       
       await client.send({

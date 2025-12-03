@@ -328,7 +328,7 @@ export const approveApplication = async (req: Request, res: Response) => {
               
               <p style="margin-top: 30px; color: #666; font-size: 14px;">
                 Если у вас есть вопросы, свяжитесь с нами:<br>
-                📧 Email: info@bunyodtour.tj<br>
+                📧 Email: booking@bunyodtour.tj<br>
                 📞 Телефоны: +992 44 625 7575; +992 93-126-1134<br>
                 📞 +992 00-110-0087; +992 88-235-3434<br>
                 🌐 Сайт: bunyodtour.tj

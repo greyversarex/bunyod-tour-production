@@ -12,7 +12,7 @@ export async function seedCMSData() {
       await prisma.admin.create({
         data: {
           username: 'admin',
-          email: 'info@bunyodtour.tj',
+          email: 'booking@bunyodtour.tj',
           password: hashedPassword,
           fullName: 'Главный администратор',
           role: 'admin'
