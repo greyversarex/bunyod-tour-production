@@ -544,6 +544,14 @@
                             <i class="fas fa-clipboard-list"></i>
                             <span>Заявки на туры</span>
                         </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="guide-hire-requests">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Заявки на найм гидов</span>
+                        </a>
+                        <a href="#" class="nav-item nav-subitem" data-section="transfer-requests-list">
+                            <i class="fas fa-shuttle-van"></i>
+                            <span>Заявки на трансферы</span>
+                        </a>
                     </div>
                 </div>
                 <a href="#" class="nav-item" data-section="drivers">
@@ -1141,6 +1149,93 @@
                             </thead>
                             <tbody id="agentBookingsList">
                                 <!-- Agent bookings will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Guide Hire Requests Section -->
+                <section id="guide-hire-requestsSection" style="display: none;">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Заявки на найм гидов</h2>
+                        
+                        <div class="flex gap-4 mb-4">
+                            <select id="guideHireStatusFilter" onchange="filterGuideHireRequests()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все заявки</option>
+                                <option value="pending">Ожидающие</option>
+                                <option value="approved">Одобренные</option>
+                                <option value="completed">Завершенные</option>
+                                <option value="cancelled">Отмененные</option>
+                            </select>
+                            <select id="guideHirePaymentFilter" onchange="filterGuideHireRequests()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все оплаты</option>
+                                <option value="paid">Оплачено</option>
+                                <option value="unpaid">Не оплачено</option>
+                                <option value="refunded">Возврат</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="data-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Гид</th>
+                                    <th>Клиент</th>
+                                    <th>Даты</th>
+                                    <th>Сумма</th>
+                                    <th>Оплата</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="guideHireRequestsList">
+                                <!-- Guide hire requests will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Transfer Requests Section -->
+                <section id="transfer-requests-listSection" style="display: none;">
+                    <div class="mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Заявки на трансферы</h2>
+                        
+                        <div class="flex gap-4 mb-4">
+                            <select id="transferRequestStatusFilter" onchange="filterTransferRequests()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все заявки</option>
+                                <option value="pending">Ожидающие</option>
+                                <option value="approved">Одобренные</option>
+                                <option value="confirmed">Подтвержденные</option>
+                                <option value="completed">Завершенные</option>
+                                <option value="cancelled">Отмененные</option>
+                            </select>
+                            <select id="transferPaymentFilter" onchange="filterTransferRequests()" class="form-input" style="max-width: 200px;">
+                                <option value="">Все оплаты</option>
+                                <option value="paid">Оплачено</option>
+                                <option value="pending">Ожидает оплаты</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="data-table">
+                        <table class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Маршрут</th>
+                                    <th>Клиент</th>
+                                    <th>Дата</th>
+                                    <th>Водитель</th>
+                                    <th>Сумма</th>
+                                    <th>Оплата</th>
+                                    <th>Статус</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transferRequestsList">
+                                <!-- Transfer requests will be loaded here -->
                             </tbody>
                         </table>
                     </div>
@@ -15348,6 +15443,12 @@
                 case 'agent-tour-bookings':
                     loadAgentBookings();
                     break;
+                case 'guide-hire-requests':
+                    loadGuideHireRequests();
+                    break;
+                case 'transfer-requests-list':
+                    loadTransferRequests();
+                    break;
                 case 'settings':
                     // Load settings if needed
                     break;
@@ -19308,6 +19409,300 @@ Email: ${agent.email}
                     loadAgentBookings();
                 } else {
                     showNotification('Ошибка: ' + (data.message || 'Неизвестная ошибка'), 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+
+        // ============== ЗАЯВКИ НА НАЙМ ГИДОВ ==============
+        
+        async function loadGuideHireRequests() {
+            const statusFilter = document.getElementById('guideHireStatusFilter')?.value || '';
+            const paymentFilter = document.getElementById('guideHirePaymentFilter')?.value || '';
+            const apiUrl = getApiUrl();
+            
+            try {
+                let url = `${apiUrl}/guide-hire/hire-requests`;
+                const params = [];
+                if (statusFilter) params.push(`status=${statusFilter}`);
+                if (paymentFilter) params.push(`paymentStatus=${paymentFilter}`);
+                if (params.length > 0) url += '?' + params.join('&');
+                    
+                const res = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderGuideHireRequests(data.data || []);
+                } else {
+                    document.getElementById('guideHireRequestsList').innerHTML = 
+                        '<tr><td colspan="8" class="text-center text-red-600 py-4">Ошибка загрузки заявок</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading guide hire requests:', err);
+                document.getElementById('guideHireRequestsList').innerHTML = 
+                    '<tr><td colspan="8" class="text-center text-red-600 py-4">Ошибка сети</td></tr>';
+            }
+        }
+        
+        function renderGuideHireRequests(requests) {
+            const tbody = document.getElementById('guideHireRequestsList');
+            
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500 py-8">Нет заявок на найм гидов</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(request => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (request.status) {
+                    case 'pending':
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        statusText = 'Ожидает';
+                        break;
+                    case 'approved':
+                        statusClass = 'bg-blue-100 text-blue-800';
+                        statusText = 'Одобрено';
+                        break;
+                    case 'completed':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = 'Завершено';
+                        break;
+                    case 'cancelled':
+                    case 'rejected':
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = request.status === 'cancelled' ? 'Отменено' : 'Отклонено';
+                        break;
+                    default:
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        statusText = request.status || '—';
+                }
+                
+                let paymentClass = '';
+                let paymentText = '';
+                switch (request.paymentStatus) {
+                    case 'paid':
+                        paymentClass = 'bg-green-100 text-green-800';
+                        paymentText = 'Оплачено';
+                        break;
+                    case 'unpaid':
+                        paymentClass = 'bg-yellow-100 text-yellow-800';
+                        paymentText = 'Не оплачено';
+                        break;
+                    case 'refunded':
+                        paymentClass = 'bg-red-100 text-red-800';
+                        paymentText = 'Возврат';
+                        break;
+                    default:
+                        paymentClass = 'bg-gray-100 text-gray-800';
+                        paymentText = request.paymentStatus || '—';
+                }
+                
+                // Парсим даты
+                let datesStr = '—';
+                try {
+                    const dates = typeof request.selectedDates === 'string' 
+                        ? JSON.parse(request.selectedDates) 
+                        : request.selectedDates;
+                    if (Array.isArray(dates) && dates.length > 0) {
+                        const formattedDates = dates.map(d => new Date(d).toLocaleDateString('ru-RU'));
+                        datesStr = formattedDates.length > 2 
+                            ? `${formattedDates[0]} — ${formattedDates[formattedDates.length-1]}`
+                            : formattedDates.join(', ');
+                    }
+                } catch (e) {}
+                
+                const guideName = request.guide ? (request.guide.name?.ru || request.guide.name?.en || request.guide.name || '—') : '—';
+                const clientName = request.touristName || '—';
+                const totalPrice = request.totalPrice ? `${parseFloat(request.totalPrice).toFixed(2)} TJS` : '—';
+                
+                return `
+                    <tr>
+                        <td>GH-${request.id}</td>
+                        <td>${guideName}</td>
+                        <td>${clientName}<br><small class="text-gray-500">${request.touristEmail || ''}</small></td>
+                        <td>${datesStr}</td>
+                        <td>${totalPrice}</td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${paymentClass}">${paymentText}</span></td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button onclick="viewGuideHireDetails(${request.id})" class="btn-sm bg-gray-600 hover:bg-gray-700 text-white" title="Подробнее">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function filterGuideHireRequests() {
+            loadGuideHireRequests();
+        }
+        
+        async function viewGuideHireDetails(requestId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/guide-hire/hire-requests/${requestId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const r = data.data;
+                    let datesStr = '—';
+                    try {
+                        const dates = typeof r.selectedDates === 'string' ? JSON.parse(r.selectedDates) : r.selectedDates;
+                        if (Array.isArray(dates)) {
+                            datesStr = dates.map(d => new Date(d).toLocaleDateString('ru-RU')).join(', ');
+                        }
+                    } catch(e) {}
+                    
+                    alert(`Заявка GH-${r.id}\n\nГид: ${r.guide?.name?.ru || r.guide?.name || '—'}\nКлиент: ${r.touristName}\nEmail: ${r.touristEmail}\nТелефон: ${r.touristPhone || '—'}\nДаты: ${datesStr}\nЦена за день: ${r.pricePerDay} TJS\nИтого: ${r.totalPrice} TJS\nСтатус: ${r.status}\nОплата: ${r.paymentStatus}\nПримечания: ${r.notes || '—'}`);
+                } else {
+                    showNotification('Ошибка загрузки данных', 'error');
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                showNotification('Ошибка сети', 'error');
+            }
+        }
+
+        // ============== ЗАЯВКИ НА ТРАНСФЕРЫ ==============
+        
+        async function loadTransferRequests() {
+            const statusFilter = document.getElementById('transferRequestStatusFilter')?.value || '';
+            const paymentFilter = document.getElementById('transferPaymentFilter')?.value || '';
+            const apiUrl = getApiUrl();
+            
+            try {
+                let url = `${apiUrl}/transfers/transfer-requests`;
+                const params = [];
+                if (statusFilter) params.push(`status=${statusFilter}`);
+                if (paymentFilter) params.push(`paymentStatus=${paymentFilter}`);
+                if (params.length > 0) url += '?' + params.join('&');
+                    
+                const res = await fetch(url, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    renderTransferRequests(data.data || []);
+                } else {
+                    document.getElementById('transferRequestsList').innerHTML = 
+                        '<tr><td colspan="9" class="text-center text-red-600 py-4">Ошибка загрузки заявок</td></tr>';
+                }
+            } catch (err) {
+                console.error('Error loading transfer requests:', err);
+                document.getElementById('transferRequestsList').innerHTML = 
+                    '<tr><td colspan="9" class="text-center text-red-600 py-4">Ошибка сети</td></tr>';
+            }
+        }
+        
+        function renderTransferRequests(requests) {
+            const tbody = document.getElementById('transferRequestsList');
+            
+            if (!requests || requests.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-gray-500 py-8">Нет заявок на трансферы</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = requests.map(request => {
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (request.status) {
+                    case 'pending':
+                        statusClass = 'bg-yellow-100 text-yellow-800';
+                        statusText = 'Ожидает';
+                        break;
+                    case 'approved':
+                        statusClass = 'bg-blue-100 text-blue-800';
+                        statusText = 'Одобрено';
+                        break;
+                    case 'confirmed':
+                        statusClass = 'bg-indigo-100 text-indigo-800';
+                        statusText = 'Подтверждено';
+                        break;
+                    case 'completed':
+                        statusClass = 'bg-green-100 text-green-800';
+                        statusText = 'Завершено';
+                        break;
+                    case 'cancelled':
+                        statusClass = 'bg-red-100 text-red-800';
+                        statusText = 'Отменено';
+                        break;
+                    default:
+                        statusClass = 'bg-gray-100 text-gray-800';
+                        statusText = request.status || '—';
+                }
+                
+                let paymentClass = '';
+                let paymentText = '';
+                switch (request.paymentStatus) {
+                    case 'paid':
+                        paymentClass = 'bg-green-100 text-green-800';
+                        paymentText = 'Оплачено';
+                        break;
+                    case 'pending':
+                    case 'unpaid':
+                        paymentClass = 'bg-yellow-100 text-yellow-800';
+                        paymentText = 'Ожидает';
+                        break;
+                    default:
+                        paymentClass = 'bg-gray-100 text-gray-800';
+                        paymentText = request.paymentStatus || '—';
+                }
+                
+                const route = `${request.pickupLocation || '—'} → ${request.dropoffLocation || '—'}`;
+                const clientName = request.contactName || request.passengerName || '—';
+                const clientPhone = request.contactPhone || '';
+                const pickupDate = request.pickupDate ? new Date(request.pickupDate).toLocaleDateString('ru-RU') : '—';
+                const pickupTime = request.pickupTime || '';
+                const driverName = request.assignedDriver ? (request.assignedDriver.name || '—') : 'Не назначен';
+                const price = request.estimatedPrice ? `${parseFloat(request.estimatedPrice).toFixed(2)} TJS` : '—';
+                
+                return `
+                    <tr>
+                        <td>TR-${request.id}</td>
+                        <td><small>${route}</small></td>
+                        <td>${clientName}<br><small class="text-gray-500">${clientPhone}</small></td>
+                        <td>${pickupDate}<br><small class="text-gray-500">${pickupTime}</small></td>
+                        <td>${driverName}</td>
+                        <td>${price}</td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${paymentClass}">${paymentText}</span></td>
+                        <td><span class="px-2 py-1 text-xs rounded-full ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button onclick="viewTransferDetails(${request.id})" class="btn-sm bg-gray-600 hover:bg-gray-700 text-white" title="Подробнее">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        function filterTransferRequests() {
+            loadTransferRequests();
+        }
+        
+        async function viewTransferDetails(requestId) {
+            const apiUrl = getApiUrl();
+            try {
+                const res = await fetch(`${apiUrl}/transfers/transfer-requests/${requestId}`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await res.json();
+                if (data.success && data.data) {
+                    const r = data.data;
+                    const pickupDate = r.pickupDate ? new Date(r.pickupDate).toLocaleDateString('ru-RU') : '—';
+                    alert(`Заявка TR-${r.id}\n\nМаршрут: ${r.pickupLocation} → ${r.dropoffLocation}\nКлиент: ${r.contactName || r.passengerName}\nТелефон: ${r.contactPhone || '—'}\nEmail: ${r.contactEmail || '—'}\nДата: ${pickupDate}\nВремя: ${r.pickupTime || '—'}\nПассажиров: ${r.passengerCount || '—'}\nВодитель: ${r.assignedDriver?.name || 'Не назначен'}\nЦена: ${r.estimatedPrice || '—'} TJS\nСтатус: ${r.status}\nОплата: ${r.paymentStatus}\nПримечания: ${r.specialRequests || '—'}`);
+                } else {
+                    showNotification('Ошибка загрузки данных', 'error');
                 }
             } catch (err) {
                 console.error('Error:', err);
