@@ -323,7 +323,31 @@ export const getOrderById = async (req: Request, res: Response) => {
           },
         },
         hotel: true,
-        guide: true,
+        guide: {
+          include: {
+            guideCountry: true,
+            guideCity: true,
+          },
+        },
+        // Найм гида - полные данные с гидом, страной и городом
+        guideHireRequest: {
+          include: {
+            guide: {
+              include: {
+                guideCountry: true,
+                guideCity: true,
+              },
+            },
+          },
+        },
+        // Трансфер - полные данные с водителем
+        transferRequest: {
+          include: {
+            assignedDriver: true,
+          },
+        },
+        // Собственный тур
+        customTourOrder: true,
       },
     });
 
@@ -334,24 +358,82 @@ export const getOrderById = async (req: Request, res: Response) => {
       });
     }
 
+    // Cast to any for flexible property access
+    const orderData = order as any;
+
     // Process multilingual fields correctly
     const formattedOrder = {
-      ...order,
-      tourists: order.tourists ? JSON.parse(order.tourists) : [],
-      tour: order.tour ? {
-        ...order.tour,
-        title: parseMultilingualField(order.tour.title, language),
-        description: parseMultilingualField(order.tour.description, language),
+      ...orderData,
+      tourists: orderData.tourists ? JSON.parse(orderData.tourists) : [],
+      tour: orderData.tour ? {
+        ...orderData.tour,
+        title: parseMultilingualField(orderData.tour.title, language),
+        description: parseMultilingualField(orderData.tour.description, language),
       } : null,
-      hotel: order.hotel ? {
-        ...order.hotel,
-        name: parseMultilingualField(order.hotel.name, language),
-        description: order.hotel.description ? parseMultilingualField(order.hotel.description, language) : null,
+      hotel: orderData.hotel ? {
+        ...orderData.hotel,
+        name: parseMultilingualField(orderData.hotel.name, language),
+        description: orderData.hotel.description ? parseMultilingualField(orderData.hotel.description, language) : null,
       } : null,
-      guide: order.guide ? {
-        ...order.guide,
-        name: parseMultilingualField(order.guide.name, language),
-        description: order.guide.description ? parseMultilingualField(order.guide.description, language) : null,
+      guide: orderData.guide ? {
+        ...orderData.guide,
+        name: parseMultilingualField(orderData.guide.name, language),
+        description: orderData.guide.description ? parseMultilingualField(orderData.guide.description, language) : null,
+        country: orderData.guide.guideCountry?.name ? parseMultilingualField(orderData.guide.guideCountry.name, language) : null,
+        city: orderData.guide.guideCity?.name ? parseMultilingualField(orderData.guide.guideCity.name, language) : null,
+      } : null,
+      // Найм гида - форматируем данные гида
+      guideHireRequest: orderData.guideHireRequest ? {
+        ...orderData.guideHireRequest,
+        selectedDates: orderData.guideHireRequest.selectedDates 
+          ? (typeof orderData.guideHireRequest.selectedDates === 'string' 
+              ? JSON.parse(orderData.guideHireRequest.selectedDates) 
+              : orderData.guideHireRequest.selectedDates)
+          : [],
+        guide: orderData.guideHireRequest.guide ? {
+          ...orderData.guideHireRequest.guide,
+          name: parseMultilingualField(orderData.guideHireRequest.guide.name, language),
+          description: orderData.guideHireRequest.guide.description 
+            ? parseMultilingualField(orderData.guideHireRequest.guide.description, language) 
+            : null,
+          country: orderData.guideHireRequest.guide.guideCountry?.name 
+            ? parseMultilingualField(orderData.guideHireRequest.guide.guideCountry.name, language) 
+            : null,
+          city: orderData.guideHireRequest.guide.guideCity?.name 
+            ? parseMultilingualField(orderData.guideHireRequest.guide.guideCity.name, language) 
+            : null,
+          languages: orderData.guideHireRequest.guide.languages 
+            ? (typeof orderData.guideHireRequest.guide.languages === 'string' 
+                ? JSON.parse(orderData.guideHireRequest.guide.languages) 
+                : orderData.guideHireRequest.guide.languages)
+            : [],
+        } : null,
+      } : null,
+      // Трансфер - форматируем данные водителя
+      transferRequest: orderData.transferRequest ? {
+        ...orderData.transferRequest,
+        driver: orderData.transferRequest.assignedDriver ? {
+          id: orderData.transferRequest.assignedDriver.id,
+          name: orderData.transferRequest.assignedDriver.name,
+          phone: orderData.transferRequest.assignedDriver.phone,
+          vehicleBrand: orderData.transferRequest.assignedDriver.vehicleBrand,
+          vehicleInfo: orderData.transferRequest.assignedDriver.vehicleInfo,
+          licensePlate: orderData.transferRequest.assignedDriver.licensePlate,
+        } : null,
+      } : null,
+      // Собственный тур
+      customTourOrder: orderData.customTourOrder ? {
+        ...orderData.customTourOrder,
+        selectedCountries: orderData.customTourOrder.selectedCountries 
+          ? (typeof orderData.customTourOrder.selectedCountries === 'string' 
+              ? JSON.parse(orderData.customTourOrder.selectedCountries) 
+              : orderData.customTourOrder.selectedCountries)
+          : [],
+        components: orderData.customTourOrder.components 
+          ? (typeof orderData.customTourOrder.components === 'string' 
+              ? JSON.parse(orderData.customTourOrder.components) 
+              : orderData.customTourOrder.components)
+          : [],
       } : null,
     };
 

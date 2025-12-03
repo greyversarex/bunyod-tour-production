@@ -819,11 +819,7 @@
                     <div class="mb-6">
                         <div class="flex gap-2 mb-4">
                             <button class="tab-button active" data-status="all" data-translate="tab.all_orders">Все заказы</button>
-                            <button class="tab-button" data-status="pending" data-translate="status.pending">Ожидающие</button>
-                            <button class="tab-button" data-status="confirmed" data-translate="status.confirmed">Подтвержденные</button>
                             <button class="tab-button" data-status="paid" data-translate="status.paid">Оплаченные</button>
-                            <button class="tab-button" data-status="completed" data-translate="status.completed">Завершенные</button>
-                            <button class="tab-button" data-status="cancelled" data-translate="status.cancelled">Отмененные</button>
                         </div>
                     </div>
                     
@@ -833,10 +829,8 @@
                                 <thead>
                                     <tr>
                                         <th data-translate="table.order_number">№ Заказа</th>
-                                        <th>Дата заказа</th>
                                         <th data-translate="table.client">Клиент</th>
                                         <th data-translate="table.direction">Направление</th>
-                                        <th>Дата</th>
                                         <!-- th Кол-во человек removed -->
                                         <th data-translate="table.amount">Сумма</th>
                                         <th>Способ оплаты</th>
@@ -3726,19 +3720,7 @@
                 <!-- Booking details will be loaded here -->
             </div>
             
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="closeBookingModal()" class="btn btn-secondary">
-                    Закрыть
-                </button>
-                <button onclick="confirmBooking()" class="btn btn-success">
-                    <i class="fas fa-check"></i>
-                    Подтвердить
-                </button>
-                <button onclick="cancelBooking()" class="btn btn-danger">
-                    <i class="fas fa-times"></i>
-                    Отменить
-                </button>
-            </div>
+            <!-- Кнопки управления убраны по запросу -->
         </div>
     </div>
 
@@ -9412,7 +9394,10 @@
         // Bookings functions
         function loadBookings(status = 'all') {
             let url = `${getApiUrl()}/orders`;
-            if (status !== 'all') {
+            if (status === 'paid') {
+                // Для 'Оплаченные' фильтруем по paymentStatus
+                url += '?paymentStatus=paid';
+            } else if (status !== 'all') {
                 url += `?status=${status}`;
             }
             
@@ -9424,7 +9409,7 @@
                     const tbody = document.getElementById('bookingsTable');
                     const orders = data.data || data.orders || [];
                     if (orders.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-gray-500">Нет заказов</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">Нет заказов</td></tr>';
                         return;
                     }
                     
@@ -9463,10 +9448,8 @@
                         return `
                         <tr>
                             <td class="font-medium">${order.orderNumber || 'N/A'}</td>
-                            <td>${formatDate(order.createdAt)}</td>
                             <td>${order.customer?.fullName || 'Неизвестно'}</td>
                             <td>${getOrderDirection(order)}</td>
-                            <td>${order.tourDate || '-'}</td>
                             
                             
                             
@@ -9490,7 +9473,7 @@
                     console.error('Error loading bookings:', err);
                     const tbody = document.getElementById('bookingsTable');
                     if (tbody) {
-                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-red-500 py-4">Ошибка загрузки данных</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-red-500 py-4">Ошибка загрузки данных</td></tr>';
                     }
                 });
         }
@@ -9567,33 +9550,73 @@
             // Специфичные поля в зависимости от типа заказа
             if (orderType === 'guide_hire') {
                 const gh = order.guideHireRequest;
+                const guide = gh?.guide;
+                const guideName = guide?.name || 'Не указан';
+                const guidePhoto = guide?.photo || null;
+                const guideCountry = guide?.country || guide?.guideCountry?.name?.ru || null;
+                const guideCity = guide?.city || guide?.guideCity?.name?.ru || null;
+                const guideLocation = [guideCountry, guideCity].filter(Boolean).join(', ') || 'Не указано';
+                const guideLanguages = Array.isArray(guide?.languages) ? guide.languages.join(', ') : (guide?.languages || 'Не указаны');
+                
+                // Форматируем забронированные даты
+                let selectedDatesStr = '-';
+                if (gh?.selectedDates) {
+                    const dates = Array.isArray(gh.selectedDates) ? gh.selectedDates : [];
+                    if (dates.length > 0) {
+                        selectedDatesStr = dates.map(d => {
+                            try {
+                                return new Date(d).toLocaleDateString('ru-RU');
+                            } catch(e) { return d; }
+                        }).join(', ');
+                    }
+                }
+                
                 html += `
                     <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
                         <h4 class="font-semibold text-purple-900 mb-3 flex items-center">
                             <i class="fas fa-user-tie mr-2"></i>
                             Найм гида
                         </h4>
+                        
+                        <!-- Информация о гиде с фото -->
+                        <div class="flex items-start gap-4 mb-4 p-3 bg-white rounded-lg">
+                            ${guidePhoto ? `
+                                <img src="${guidePhoto}" alt="Фото гида" class="w-16 h-16 rounded-full object-cover border-2 border-purple-200">
+                            ` : `
+                                <div class="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
+                                    <i class="fas fa-user text-purple-400 text-2xl"></i>
+                                </div>
+                            `}
+                            <div>
+                                <p class="font-bold text-lg text-purple-900">${guideName}</p>
+                                <p class="text-sm text-gray-600 flex items-center gap-1">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    ${guideLocation}
+                                </p>
+                                <p class="text-sm text-gray-600 flex items-center gap-1">
+                                    <i class="fas fa-language"></i>
+                                    ${guideLanguages}
+                                </p>
+                            </div>
+                        </div>
+                        
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <p class="text-sm text-gray-600">Гид</p>
-                                <p class="font-semibold">${gh?.guide?.name?.ru || gh?.guide?.name?.en || 'Не указан'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Дата начала</p>
-                                <p class="font-semibold">${gh?.startDate || order.tourDate || '-'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Дата окончания</p>
-                                <p class="font-semibold">${gh?.endDate || '-'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Язык</p>
-                                <p class="font-semibold">${gh?.preferredLanguage || 'Не указан'}</p>
-                            </div>
-                            ${gh?.notes ? `
                             <div class="col-span-2">
-                                <p class="text-sm text-gray-600">Примечания</p>
-                                <p class="font-semibold">${gh.notes}</p>
+                                <p class="text-sm text-gray-600">Забронированные даты</p>
+                                <p class="font-semibold text-purple-800">${selectedDatesStr}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Количество дней</p>
+                                <p class="font-semibold">${gh?.numberOfDays || '-'} дней</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Стоимость</p>
+                                <p class="font-semibold text-green-600">${gh?.totalPrice || order.totalAmount || '-'} ${gh?.currency || order.currency || 'TJS'}</p>
+                            </div>
+                            ${gh?.comments ? `
+                            <div class="col-span-2">
+                                <p class="text-sm text-gray-600">Комментарий клиента</p>
+                                <p class="font-semibold bg-white p-2 rounded">${gh.comments}</p>
                             </div>
                             ` : ''}
                         </div>
@@ -9601,21 +9624,56 @@
                 `;
             } else if (orderType === 'transfer') {
                 const tr = order.transferRequest;
+                const driver = tr?.driver || tr?.assignedDriver;
+                
                 html += `
                     <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
                         <h4 class="font-semibold text-orange-900 mb-3 flex items-center">
                             <i class="fas fa-shuttle-van mr-2"></i>
                             Трансфер
                         </h4>
+                        
+                        <!-- Маршрут -->
+                        <div class="bg-white rounded-lg p-3 mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1">
+                                    <p class="text-xs text-gray-500">Откуда</p>
+                                    <p class="font-semibold text-orange-800">${tr?.pickupLocation || 'Не указано'}</p>
+                                </div>
+                                <div class="text-orange-400">
+                                    <i class="fas fa-arrow-right"></i>
+                                </div>
+                                <div class="flex-1 text-right">
+                                    <p class="text-xs text-gray-500">Куда</p>
+                                    <p class="font-semibold text-orange-800">${tr?.dropoffLocation || 'Не указано'}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Водитель (если назначен) -->
+                        ${driver ? `
+                        <div class="bg-white rounded-lg p-3 mb-4">
+                            <p class="text-xs text-gray-500 mb-2">Назначенный водитель</p>
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <i class="fas fa-id-card-alt text-orange-500 text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-orange-900">${driver.name || 'Не указан'}</p>
+                                    <p class="text-sm text-gray-600">${driver.phone || ''}</p>
+                                    ${driver.vehicleBrand || driver.vehicleInfo ? `
+                                    <p class="text-sm text-gray-500">
+                                        <i class="fas fa-car mr-1"></i>
+                                        ${driver.vehicleBrand || ''} ${driver.vehicleInfo || ''}
+                                        ${driver.licensePlate ? ` (${driver.licensePlate})` : ''}
+                                    </p>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        ` : ''}
+                        
                         <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <p class="text-sm text-gray-600">Откуда</p>
-                                <p class="font-semibold">${tr?.pickupLocation || 'Не указано'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Куда</p>
-                                <p class="font-semibold">${tr?.dropoffLocation || 'Не указано'}</p>
-                            </div>
                             <div>
                                 <p class="text-sm text-gray-600">Дата</p>
                                 <p class="font-semibold">${tr?.pickupDate || order.tourDate || '-'}</p>
@@ -9628,10 +9686,20 @@
                                 <p class="text-sm text-gray-600">Кол-во пассажиров</p>
                                 <p class="font-semibold">${tr?.numberOfPeople || tourists.length || 1} чел.</p>
                             </div>
-                            ${tr?.notes ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Стоимость</p>
+                                <p class="font-semibold text-green-600">${tr?.finalPrice || tr?.estimatedPrice || order.totalAmount || '-'} ${order.currency || 'TJS'}</p>
+                            </div>
+                            ${tr?.vehicleType ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Тип транспорта</p>
+                                <p class="font-semibold">${tr.vehicleType}</p>
+                            </div>
+                            ` : ''}
+                            ${tr?.specialRequests ? `
                             <div class="col-span-2">
-                                <p class="text-sm text-gray-600">Примечания</p>
-                                <p class="font-semibold">${tr.notes}</p>
+                                <p class="text-sm text-gray-600">Особые пожелания</p>
+                                <p class="font-semibold bg-white p-2 rounded">${tr.specialRequests}</p>
                             </div>
                             ` : ''}
                         </div>
@@ -10518,7 +10586,7 @@
                     console.error('Error loading bookings:', err);
                     const tbody = document.getElementById('bookingsTable');
                     if (tbody) {
-                        tbody.innerHTML = '<tr><td colspan="13" class="text-center text-red-500">Ошибка загрузки заказов</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-red-500">Ошибка загрузки заказов</td></tr>';
                     }
                 });
         }
