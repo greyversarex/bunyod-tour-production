@@ -70,6 +70,12 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - Updated: Dec 01, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.
+-   **Order Details Modal Windows**: Type-specific modals for each order type in admin panel:
+    - **Guide Hire**: Guide card with photo, name, country/city, languages, phone/email; booked dates array; days count; price per day; total price; customer comments
+    - **Transfer**: Route visualization (pickup → dropoff); date/time; passengers count; vehicle type; assigned driver with photo, phone, vehicle info; total price; special requests
+    - **Custom Tour**: Start date; duration; selected countries list; tourists count; components with prices; total price; special requests; tourists list
+    - **Regular Tour**: Tour name; date; tourists count; hotel; guide; total price; tourists list
+    - All modals include client info block and payment info block. Updated: Dec 03, 2025.
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, and dedicated models for B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
