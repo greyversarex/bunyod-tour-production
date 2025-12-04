@@ -253,6 +253,7 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
     <body>
       <div class="container">
         <div class="company-header">
+          <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 70px; height: 70px; border-radius: 50%; margin-bottom: 15px;" onerror="this.style.display='none'">
           <div class="company-name">BUNYOD-TOUR</div>
           <div class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</div>
         </div>
@@ -430,6 +431,7 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="company-header">
+            <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
@@ -514,6 +516,7 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="company-header">
+            <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
@@ -568,6 +571,7 @@ const emailTemplates = {
       <body>
         <div class="container">
           <div class="company-header">
+            <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
             <h1 class="company-name">BUNYOD-TOUR</h1>
             <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
           </div>
@@ -809,7 +813,8 @@ export const emailService = {
           <body>
             <div class="container">
               <div class="company-header">
-                <h1 class="company-name">BUNYOD-TOUR</h1>
+                <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
+            <h1 class="company-name">BUNYOD-TOUR</h1>
                 <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
               </div>
               
@@ -855,7 +860,8 @@ export const emailService = {
           <body>
             <div class="container">
               <div class="company-header">
-                <h1 class="company-name">BUNYOD-TOUR</h1>
+                <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto;" onerror="this.style.display='none'">
+            <h1 class="company-name">BUNYOD-TOUR</h1>
                 <p class="company-subtitle">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
               </div>
               

@@ -9737,6 +9737,54 @@
                     </div>
                 `;
                 
+                // Что включено в тур
+                if (order.tour?.includes) {
+                    let includes = order.tour.includes;
+                    if (typeof includes === 'string') {
+                        try { 
+                            includes = JSON.parse(includes); 
+                        } catch(e) { 
+                            // Если не JSON, используем как одиночный элемент
+                            includes = includes.trim() ? [includes.trim()] : []; 
+                        }
+                    }
+                    // Обработка мультиязычных объектов {ru: [...], en: [...]}
+                    if (includes && !Array.isArray(includes) && typeof includes === 'object') {
+                        // Извлекаем массив на русском или английском
+                        const langData = includes.ru || includes.en;
+                        if (Array.isArray(langData)) {
+                            includes = langData;
+                        } else if (typeof langData === 'string') {
+                            includes = langData.trim() ? [langData.trim()] : [];
+                        } else {
+                            includes = [];
+                        }
+                    }
+                    if (Array.isArray(includes) && includes.length > 0) {
+                        html += `
+                            <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+                                <h4 class="font-semibold text-emerald-900 mb-3 flex items-center">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    Что включено
+                                </h4>
+                                <div class="grid grid-cols-1 gap-2">
+                                    ${includes.map(item => {
+                                        const itemText = typeof item === 'object' 
+                                            ? (item.ru || item.en || item.name || JSON.stringify(item)) 
+                                            : item;
+                                        return \`
+                                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg">
+                                                <i class="fas fa-check text-emerald-500"></i>
+                                                <span class="text-gray-700">\${itemText}</span>
+                                            </div>
+                                        \`;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
                 // Туристы
                 if (tourists.length > 0) {
                     html += `
