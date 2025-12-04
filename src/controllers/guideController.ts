@@ -992,5 +992,140 @@ export const linkGuideToTour = async (req: Request, res: Response) => {
     });
   }
 };
+
+// 📧 Отправка учётных данных гиду на email (генерация нового пароля)
+export const resendGuideCredentials = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const guideId = parseInt(id);
+
+    if (isNaN(guideId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Неверный ID гида'
+      });
+    }
+
+    // Получаем гида
+    const guide = await prisma.guide.findUnique({
+      where: { id: guideId }
+    });
+
+    if (!guide) {
+      return res.status(404).json({
+        success: false,
+        message: 'Гид не найден'
+      });
+    }
+
+    // Проверяем наличие email
+    const guideEmail = (guide as any).email || (guide.contact as any)?.email;
+    if (!guideEmail) {
+      return res.status(400).json({
+        success: false,
+        message: 'У гида не указан email'
+      });
+    }
+
+    // Проверяем наличие логина
+    if (!guide.login) {
+      return res.status(400).json({
+        success: false,
+        message: 'У гида не указан логин'
+      });
+    }
+
+    // Генерируем криптографически безопасный временный пароль
+    const crypto = require('crypto');
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const passwordBytes = crypto.randomBytes(12);
+    let newPassword = '';
+    for (let i = 0; i < 12; i++) {
+      newPassword += charset[passwordBytes[i] % charset.length];
+    }
+    
+    // Хешируем пароль
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Обновляем пароль в БД
+    await prisma.guide.update({
+      where: { id: guideId },
+      data: { password: hashedPassword }
+    });
+
+    // Получаем имя гида
+    const guideName = typeof guide.name === 'object' && guide.name !== null 
+      ? ((guide.name as any).ru || (guide.name as any).en || 'Гид')
+      : (guide.name || 'Гид');
+
+    // Отправляем email с учётными данными
+    await emailService.sendEmail({
+      to: guideEmail,
+      subject: `🔑 Ваши учётные данные для входа в кабинет гида - Bunyod-Tour`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="text-align: center; padding: 20px;">
+            <img src="https://bunyodtour.tj/Logo-Ru_1754635713718.png" 
+                 alt="Bunyod-Tour" 
+                 style="height: 60px; width: auto; border-radius: 50%;"
+                 onerror="this.style.display='none'">
+          </div>
+          
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center;">
+            <h1>🔑 Данные для входа в кабинет гида</h1>
+          </div>
+          
+          <div style="padding: 30px; background: #f8f9fa;">
+            <p style="font-size: 16px;">Здравствуйте, <strong>${guideName}</strong>!</p>
+            <p>Администратор отправил вам данные для входа в личный кабинет гида.</p>
+            
+            <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #856404;">📋 Ваши данные для входа:</h3>
+              <p style="margin: 10px 0;"><strong>Логин:</strong> <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${guide.login}</code></p>
+              <p style="margin: 10px 0;"><strong>Пароль:</strong> <code style="background: #f8f9fa; padding: 4px 8px; border-radius: 4px;">${newPassword}</code></p>
+            </div>
+            
+            <div style="background: #d4edda; border: 1px solid #28a745; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p style="margin: 0; color: #155724;">
+                <strong>⚠️ Важно:</strong> После первого входа рекомендуем сменить пароль в настройках личного кабинета.
+              </p>
+            </div>
+
+            <a href="https://bunyodtour.tj/tour-guide-login.html" 
+               style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0;">
+              🚀 Войти в кабинет гида
+            </a>
+            
+            <p style="color: #6c757d; font-size: 14px; margin-top: 30px;">
+              Если вы не запрашивали эти данные, пожалуйста, проигнорируйте это письмо.
+            </p>
+          </div>
+          
+          <div style="background: #343a40; color: white; padding: 20px; text-align: center;">
+            <p style="margin: 0;">С уважением, команда Bunyod-Tour</p>
+            <p style="margin: 5px 0; font-size: 14px;">🌍 bunyodtour.tj</p>
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`📧 Учётные данные отправлены гиду ${guideName} (ID: ${guideId}) на ${guideEmail}`);
+
+    return res.json({
+      success: true,
+      message: `Учётные данные успешно отправлены на ${guideEmail}`
+    });
+
+  } catch (error) {
+    console.error('Ошибка при отправке учётных данных гиду:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Ошибка при отправке email',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
 // Создаём alias для совместимости
 export const createTourGuideProfile = createGuide;

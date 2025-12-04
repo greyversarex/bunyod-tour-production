@@ -10511,10 +10511,13 @@
                                                 class="px-2 py-1 rounded text-xs font-medium ${guide.isActive ? 'bg-red-100 text-red-700 hover:bg-red-200' : 'bg-green-100 text-green-700 hover:bg-green-200'}">
                                             ${guide.isActive ? 'Деактивировать' : 'Активировать'}
                                         </button>
-                                        <button onclick="openGuideModal(${guide.id})" class="text-blue-600 hover:text-blue-800">
+                                        <button onclick="openGuideModal(${guide.id})" class="text-blue-600 hover:text-blue-800" title="Редактировать">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button onclick="deleteGuide(${guide.id})" class="text-red-600 hover:text-red-800">
+                                        <button onclick="resendGuideCredentials(${guide.id})" class="text-green-600 hover:text-green-800" title="Отправить логин/пароль на email">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                        <button onclick="deleteGuide(${guide.id})" class="text-red-600 hover:text-red-800" title="Удалить">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
@@ -11924,6 +11927,31 @@
             });
         }
         
+        // Отправить учётные данные гиду на email
+        async function resendGuideCredentials(guideId) {
+            if (!confirm('Отправить гиду новый логин и пароль на email?\\n\\nВНИМАНИЕ: Будет сгенерирован новый пароль!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/guides/${guideId}/resend-credentials`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                } else {
+                    alert('❌ Ошибка: ' + (data.message || 'Не удалось отправить email'));
+                }
+            } catch (error) {
+                console.error('Error resending credentials:', error);
+                alert('❌ Ошибка при отправке email');
+            }
+        }
+
         function deleteGuide(id, guideName = '') {
             // Показываем модальное окно с выбором действия
             const choice = confirm(

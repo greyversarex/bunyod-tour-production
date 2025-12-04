@@ -17,5 +17,6 @@ router.put('/:id', upload.fields([
 ]), guideController.updateGuide);
 router.delete('/:id', guideController.deleteGuide);
 router.post('/link', guideController.linkGuideToTour);
+router.post('/:id/resend-credentials', guideController.resendGuideCredentials);
 
 export default router;
