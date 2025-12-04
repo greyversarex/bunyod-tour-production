@@ -6,7 +6,8 @@ import {
   getGuideHireRequests,
   updateGuideHireRequestStatus,
   getAvailableGuides,
-  createDirectGuideHireOrder
+  createDirectGuideHireOrder,
+  getMyHires
 } from '../controllers/guideHireController';
 import { adminAuthMiddleware } from '../controllers/adminController';
 import { authenticateTourGuide } from '../middleware/tourGuideAuth';
@@ -22,6 +23,7 @@ router.post('/orders', orderLimiter, createDirectGuideHireOrder); // НОВЫЙ:
 
 // Endpoints для тургидов (требуют авторизации тургида)
 router.put('/:guideId/availability', authenticateTourGuide, updateGuideAvailability);
+router.get('/my-hires', authenticateTourGuide, getMyHires); // Наймы гида для его кабинета
 
 // Административные endpoints (требуют авторизации администратора)
 router.get('/hire-requests', adminAuthMiddleware, getGuideHireRequests);

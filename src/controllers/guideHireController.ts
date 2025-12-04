@@ -438,6 +438,67 @@ export const getGuideHireRequests = async (req: Request, res: Response) => {
   }
 };
 
+// Получить наймы гида для его личного кабинета
+export const getMyHires = async (req: Request, res: Response) => {
+  try {
+    const guideId = (req as any).guideId;
+    
+    if (!guideId) {
+      res.status(401).json({
+        success: false,
+        message: 'Не авторизован'
+      });
+      return;
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+    const status = req.query.status as string;
+
+    const whereClause: any = { guideId: parseInt(guideId) };
+    if (status && status !== 'all') {
+      whereClause.status = status;
+    }
+
+    const [hires, total, totalAll] = await Promise.all([
+      prisma.guideHireRequest.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit
+      }),
+      prisma.guideHireRequest.count({ where: whereClause }),
+      prisma.guideHireRequest.count({ where: { guideId: parseInt(guideId) } }) // Общий счётчик для бейджа
+    ]);
+
+    const formattedHires = hires.map((hire: any) => ({
+      ...hire,
+      selectedDates: parseJsonField(hire.selectedDates)
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        hires: formattedHires,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalAll, // Общий счётчик для бейджа вкладки
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Error getting guide hires:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении наймов'
+    });
+  }
+};
+
 // Обновить статус заявки на найм (для админ панели)
 export const updateGuideHireRequestStatus = async (req: Request, res: Response) => {
   try {
