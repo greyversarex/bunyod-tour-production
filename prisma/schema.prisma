@@ -383,6 +383,7 @@ model Order {
   paymentMethod       String?           @map("payment_method")
   paymentIntentId     String?           @map("payment_intent_id")
   receiptData         String?           @map("receipt_data")
+  language            String            @default("ru") @map("language")
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
   customer            Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
