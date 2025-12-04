@@ -4,6 +4,50 @@ import { emailService } from '../services/emailService';
 import crypto from 'crypto';
 import axios from 'axios';
 
+/**
+ * 🚀 Асинхронная отправка email без блокировки callback
+ * Позволяет быстро вернуть 200 Payler, пока email отправляются в фоне
+ */
+function sendEmailAsync(emailFn: () => Promise<void>, description: string): void {
+  setImmediate(async () => {
+    try {
+      await emailFn();
+      console.log(`✅ [ASYNC EMAIL] ${description} - sent successfully`);
+    } catch (error) {
+      console.error(`❌ [ASYNC EMAIL] ${description} - failed:`, error);
+    }
+  });
+}
+
+/**
+ * 🔄 Retry wrapper для API запросов с экспоненциальной задержкой
+ */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  options: { maxAttempts?: number; delayMs?: number; description?: string } = {}
+): Promise<T> {
+  const { maxAttempts = 3, delayMs = 1000, description = 'API call' } = options;
+  
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const isLastAttempt = attempt === maxAttempts;
+      
+      if (isLastAttempt) {
+        console.error(`❌ [RETRY] ${description} failed after ${maxAttempts} attempts`);
+        throw error;
+      }
+      
+      const delay = delayMs * Math.pow(2, attempt - 1); // Exponential backoff
+      console.warn(`⚠️ [RETRY] ${description} attempt ${attempt}/${maxAttempts} failed, retrying in ${delay}ms...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+  
+  throw new Error('Unreachable');
+}
+
 export const paylerController = {
   /**
    * Создать платеж через Payler StartSession API
@@ -367,23 +411,36 @@ export const paylerController = {
         });
       }
 
-      // Проверка IP источника для безопасности
+      // 🛡️ SECURITY: Проверка IP источника
       // Payler отправляет callback с IP: 178.20.235.180
-      const paylerIp = '178.20.235.180';
+      const PAYLER_ALLOWED_IPS = ['178.20.235.180'];
       const forwardedFor = req.headers['x-forwarded-for'] as string;
       const sourceIp = forwardedFor ? forwardedFor.split(',')[0].trim() : clientIp;
+      const isLocalhost = sourceIp?.includes('127.0.0.1') || sourceIp?.includes('::1') || sourceIp?.includes('::ffff:127.0.0.1');
+      const isProduction = process.env.NODE_ENV === 'production';
       
-      if (sourceIp && sourceIp !== paylerIp && !sourceIp.includes('127.0.0.1') && !sourceIp.includes('::1')) {
-        console.warn('⚠️ Callback from unexpected IP:', sourceIp, '(expected:', paylerIp + ')');
-        // Не блокируем запрос, только логируем для мониторинга
+      // В production блокируем неизвестные IP, в dev только логируем
+      if (sourceIp && !PAYLER_ALLOWED_IPS.includes(sourceIp) && !isLocalhost) {
+        if (isProduction) {
+          console.error(`🚫 [SECURITY] Callback BLOCKED from unauthorized IP: ${sourceIp}`);
+          return res.status(403).json({
+            success: false,
+            message: 'Forbidden'
+          });
+        } else {
+          console.warn(`⚠️ [SECURITY] Callback from unexpected IP: ${sourceIp} (allowed in dev mode)`);
+        }
       }
 
-      // Получить актуальный статус платежа через GetStatus API
+      // 🔄 Получить актуальный статус платежа через GetStatus API с retry
       let statusData;
       try {
-        statusData = await paylerController.getStatus(order_id);
+        statusData = await withRetry(
+          () => paylerController.getStatus(order_id),
+          { maxAttempts: 3, delayMs: 500, description: `GetStatus for order ${order_id}` }
+        );
       } catch (statusError) {
-        console.error('❌ Failed to get payment status:', statusError);
+        console.error('❌ Failed to get payment status after retries:', statusError);
         // Возвращаем 200, чтобы Payler не повторял callback
         return res.status(200).json({
           success: false,
@@ -440,6 +497,33 @@ export const paylerController = {
         paymentStatus: order.paymentStatus,
         paylerStatus: status
       });
+
+      // 🛡️ IDEMPOTENCY: Проверка на повторную обработку
+      // Если статус заказа УЖЕ соответствует конечному состоянию - пропускаем (защита от дублей)
+      // Важно: проверяем что переход УЖЕ произошёл, а не находится в процессе
+      // processing → paid/failed/refunded = нужно обработать (первый раз)
+      // paid → paid (Charged снова) = пропустить (дубль)
+      // partially_refunded → refunded = нужно обработать (финальный возврат)
+      const isAlreadyProcessed = 
+        (status === 'Charged' && order.paymentStatus === 'paid') ||
+        (status === 'Refunded' && order.paymentStatus === 'refunded') || // НЕ включаем partially_refunded!
+        (status === 'Rejected' && order.paymentStatus === 'failed');
+      
+      if (isAlreadyProcessed) {
+        console.log(`ℹ️ [IDEMPOTENCY] Order ${order_id} already has final status: ${order.paymentStatus}. Skipping duplicate callback for Payler status: ${status}`);
+        return res.status(200).json({ 
+          success: true, 
+          message: 'Already processed',
+          idempotent: true 
+        });
+      }
+      
+      // Дополнительная проверка: если заказ уже в реальном конечном состоянии, но Payler статус другой - логируем
+      // partially_refunded НЕ является конечным - ещё можно сделать полный возврат
+      const isInFinalState = ['paid', 'refunded', 'failed'].includes(order.paymentStatus);
+      if (isInFinalState && status !== 'Charged' && order.paymentStatus !== 'paid') {
+        console.warn(`⚠️ [IDEMPOTENCY] Order ${order_id} is in final state ${order.paymentStatus}, but Payler reports ${status}. Processing anyway.`);
+      }
 
       // ✅ Обновить статус платежа на основе статуса из GetStatus
       // Статусы Payler: Charged (успешно), Refunded (возврат), Authorized (заблокировано), Rejected (отклонено)
@@ -925,12 +1009,13 @@ export const paylerController = {
    * Возврат средств клиенту (Refund)
    * POST /api/payments/payler/refund
    * Используется для полного или частичного возврата средств
+   * С аудитом и защитой от повторных возвратов
    */
   async refund(req: Request, res: Response) {
     try {
-      const { orderId, amount } = req.body;
+      const { orderId, amount, reason, adminId } = req.body;
 
-      console.log('💰 Payler refund request:', { orderId, amount });
+      console.log('💰 Payler refund request:', { orderId, amount, reason, adminId });
 
       if (!orderId) {
         return res.status(400).json({
@@ -950,9 +1035,14 @@ export const paylerController = {
         });
       }
 
-      // Получить информацию о заказе
+      // Получить информацию о заказе с историей возвратов
       const order = await prisma.order.findUnique({
         where: { id: Number(orderId) },
+        include: {
+          refundLogs: {
+            where: { status: 'success' }
+          }
+        }
       });
 
       if (!order) {
@@ -962,17 +1052,23 @@ export const paylerController = {
         });
       }
 
-      // Проверить, что заказ оплачен
-      if (order.paymentStatus !== 'paid') {
+      // Проверить, что заказ оплачен или частично возвращён
+      if (order.paymentStatus !== 'paid' && order.paymentStatus !== 'partially_refunded') {
         return res.status(400).json({
           success: false,
           message: 'Order is not paid, cannot refund'
         });
       }
 
+      // 📊 Рассчитать уже возвращённую сумму
+      const alreadyRefundedDirams = order.refundLogs.reduce((sum, log) => sum + log.amountDirams, 0);
+      const alreadyRefundedTJS = alreadyRefundedDirams / 100;
+      
       // Сумма возврата (в дирамах, минимальная единица TJS)
-      // Если amount не указан, возвращаем полную сумму
-      const refundAmount = amount ? Math.round(amount * 100) : Math.round(order.totalAmount * 100);
+      // Если amount не указан, возвращаем оставшуюся сумму
+      const remainingAmount = order.totalAmount - alreadyRefundedTJS;
+      const refundAmountTJS = amount ? Math.min(amount, remainingAmount) : remainingAmount;
+      const refundAmount = Math.round(refundAmountTJS * 100);
 
       // Валидация суммы возврата
       if (refundAmount <= 0) {
@@ -983,14 +1079,32 @@ export const paylerController = {
       }
 
       const paidAmount = Math.round(order.totalAmount * 100);
-      if (refundAmount > paidAmount) {
+      const maxRefundable = paidAmount - alreadyRefundedDirams;
+      
+      if (refundAmount > maxRefundable) {
         return res.status(400).json({
           success: false,
-          message: `Refund amount (${refundAmount / 100} TJS) cannot exceed paid amount (${paidAmount / 100} TJS)`
+          message: `Cannot refund ${refundAmount / 100} TJS. Already refunded: ${alreadyRefundedTJS} TJS. Max refundable: ${maxRefundable / 100} TJS`
         });
       }
 
-      console.log(`🔄 Refunding ${refundAmount} дирамов (${refundAmount / 100} TJS) for order ${orderId}`);
+      console.log(`🔄 Refunding ${refundAmount} dirams (${refundAmount / 100} TJS) for order ${orderId}`);
+      console.log(`📊 Already refunded: ${alreadyRefundedTJS} TJS. Remaining after this: ${(order.totalAmount - alreadyRefundedTJS - refundAmount / 100).toFixed(2)} TJS`);
+
+      // 📝 Создать запись аудита ПЕРЕД запросом к Payler
+      const refundLog = await prisma.paymentRefundLog.create({
+        data: {
+          orderId: Number(orderId),
+          orderNumber: order.orderNumber,
+          amount: refundAmount / 100,
+          amountDirams: refundAmount,
+          reason: reason || null,
+          status: 'pending',
+          processedBy: adminId ? Number(adminId) : null
+        }
+      });
+
+      console.log(`📝 Refund log created: ID ${refundLog.id}`);
 
       // Подготовить данные для Refund API
       const fields = {
@@ -1011,8 +1125,20 @@ export const paylerController = {
 
       console.log('📥 Payler refund response status:', response.status);
 
+      // Обработка ошибки от Payler
       if (response.status < 200 || response.status >= 300) {
         console.error('❌ Payler refund failed:', response.status, response.data);
+        
+        // Обновить лог с ошибкой
+        await prisma.paymentRefundLog.update({
+          where: { id: refundLog.id },
+          data: {
+            status: 'failed',
+            paylerResponse: JSON.stringify(response.data),
+            completedAt: new Date()
+          }
+        });
+        
         return res.status(500).json({
           success: false,
           message: 'Failed to process refund',
@@ -1026,6 +1152,17 @@ export const paylerController = {
         responseData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
       } catch (parseError) {
         console.error('❌ Failed to parse Refund response:', response.data);
+        
+        // Обновить лог с ошибкой парсинга
+        await prisma.paymentRefundLog.update({
+          where: { id: refundLog.id },
+          data: {
+            status: 'failed',
+            paylerResponse: String(response.data),
+            completedAt: new Date()
+          }
+        });
+        
         return res.status(500).json({
           success: false,
           message: 'Invalid refund response format',
@@ -1034,11 +1171,26 @@ export const paylerController = {
 
       console.log('✅ Payler refund successful:', responseData);
 
+      // ✅ Обновить лог как успешный
+      await prisma.paymentRefundLog.update({
+        where: { id: refundLog.id },
+        data: {
+          status: 'success',
+          paylerResponse: JSON.stringify(responseData),
+          completedAt: new Date()
+        }
+      });
+
+      // Рассчитать новый статус платежа
+      const totalRefundedAfter = alreadyRefundedDirams + refundAmount;
+      const isFullyRefunded = totalRefundedAfter >= paidAmount;
+      const newPaymentStatus = isFullyRefunded ? 'refunded' : 'partially_refunded';
+
       // Обновить статус заказа
       await prisma.order.update({
         where: { id: Number(orderId) },
         data: {
-          paymentStatus: 'refunded',
+          paymentStatus: newPaymentStatus,
         },
       });
 

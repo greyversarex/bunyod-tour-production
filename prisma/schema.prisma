@@ -392,6 +392,7 @@ model Order {
   transferRequest     TransferRequest?  @relation(fields: [transferRequestId], references: [id])
   guideHireRequest    GuideHireRequest? @relation(fields: [guideHireRequestId], references: [id])
   customTourOrder     CustomTourOrder?
+  refundLogs          PaymentRefundLog[]
 
   @@map("orders")
 }
@@ -1024,4 +1025,24 @@ model Vehicle {
   vehicleCity     City?    @relation(fields: [cityId], references: [id])
 
   @@map("vehicles")
+}
+
+// 💰 Аудит лог возвратов платежей (Payler Refund)
+model PaymentRefundLog {
+  id              Int      @id @default(autoincrement())
+  orderId         Int      @map("order_id")
+  orderNumber     String   @map("order_number")
+  amount          Float    // Сумма возврата в TJS
+  amountDirams    Int      @map("amount_dirams") // Сумма в дирамах (отправленная в Payler)
+  reason          String?  // Причина возврата
+  status          String   @default("pending") // pending, success, failed
+  paylerResponse  String?  @map("payler_response") // JSON ответ от Payler
+  processedBy     Int?     @map("processed_by") // ID админа, инициировавшего возврат
+  createdAt       DateTime @default(now()) @map("created_at")
+  completedAt     DateTime? @map("completed_at")
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([orderNumber])
+  @@map("payment_refund_logs")
 }
