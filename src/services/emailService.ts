@@ -506,9 +506,10 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
               <div class="section">
                 <div class="section-title">Включено:</div>
                 <div class="services-list">
-                  ${services.map((service: any) => `
-                    <div class="service-item">${service.name}</div>
-                  `).join('')}
+                  ${services.map((service: any) => {
+                    const serviceName = typeof service === 'string' ? service : (service.name?.ru || service.name?.en || service.name || 'Услуга');
+                    return `<div class="service-item">${serviceName}</div>`;
+                  }).join('')}
                   ${hotelName !== 'Не выбран' ? '<div class="service-item">Проживание в отеле</div>' : ''}
                 </div>
               </div>
@@ -529,7 +530,7 @@ async function generateTicketPDF(order: any, customer: Customer): Promise<Buffer
               
               <div class="section">
                 <div class="section-title">Место сбора:</div>
-                <div class="section-value">${order.tour?.pickupInfo || 'Рудаки парк'}</div>
+                <div class="section-value">${typeof order.tour?.pickupInfo === 'object' ? (order.tour.pickupInfo?.ru || order.tour.pickupInfo?.en || 'Рудаки парк') : (order.tour?.pickupInfo || 'Рудаки парк')}</div>
               </div>
               
               <div class="section">
