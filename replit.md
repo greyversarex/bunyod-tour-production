@@ -57,7 +57,8 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
 -   **File Upload System**: Persistent storage outside application directory, symlinked for access; restricted to image files only.
 -   **Email Notification System**: Uses SendGrid API for transactional emails (Timeweb blocks SMTP ports):
     - **REQUIRED on Production**: Set `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL` in .env
-    - Booking confirmations to customers
+    - **Multilingual Support** (Dec 04, 2025): Email templates support Russian (ru) and English (en) based on customer's selected language; `Order.language` field stores customer preference; frontend passes `localStorage.getItem('selectedLanguage') || 'ru'` during order creation; `emailTranslations` object contains all translated strings; `getEmailTranslation(key, lang)` helper retrieves correct text
+    - Booking confirmations to customers (language-aware)
     - Payment confirmations with PDF tickets (fallback: email without PDF if Puppeteer fails)
     - Admin notifications on new orders/payments (with order type: Tour/Guide Hire/Transfer/Custom Tour)
     - Guide welcome emails with login credentials (via guideController.createGuide)
@@ -67,7 +68,7 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - **Transfer Payment Emails**: Customer and admin notifications with pickup/dropoff locations, date, time, number of people; fallback template when transferRequest data unavailable
     - **Custom Tour Payment Emails**: Customer confirmation with selected countries, duration, components; admin notification with full order details (added Dec 01, 2025)
     - **Robust error handling**: Guards check customer existence before any property access; detailed logging in payment callbacks; optional chaining for all data field accesses to prevent TypeError; fallback templates for all order types
-    - Updated: Dec 01, 2025
+    - Updated: Dec 04, 2025
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
 -   **Promotions/Discounts System**: Tour-level discounts via `isPromotion` (Boolean) and `discountPercent` (Float) fields. Admin toggle in tour modal, automatic price calculation (originalPrice = price / (1 - discount/100)), badge display (-X%) on tour cards, crossed-out original price with red sale price. Aktsii page filters by `isPromotion = true`. Updated: Nov 25, 2025.
 -   **Order Details Modal Windows**: Type-specific modals for each order type in admin panel:

@@ -1048,13 +1048,15 @@
                 console.log('🔄 Создаем заказ из бронирования...');
                 console.log('💳 Payment option:', selectedPaymentOption || 'full (default)');
                 
+                const currentLanguage = localStorage.getItem('selectedLanguage') || 'ru';
                 const createOrderResponse = await fetch(`/api/booking/${bookingId}/create-order`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        paymentOption: selectedPaymentOption || 'full'
+                        paymentOption: selectedPaymentOption || 'full',
+                        language: currentLanguage
                     })
                 });
 

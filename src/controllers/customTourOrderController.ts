@@ -355,8 +355,11 @@ export const createDirectCustomTourOrder = async (req: Request, res: Response): 
       tourists,
       selectedComponents,
       customerNotes,
-      totalDays
+      totalDays,
+      language
     } = req.body;
+    
+    const customerLanguage = language || 'ru';
 
     // Strict validation
     if (!fullName || typeof fullName !== 'string' || !phone || typeof phone !== 'string') {
@@ -506,7 +509,8 @@ export const createDirectCustomTourOrder = async (req: Request, res: Response): 
           wishes: JSON.stringify(customTourData), // Store as JSON
           totalAmount: calculatedTotalPrice,
           status: 'pending',
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          language: customerLanguage
         }
       });
 

@@ -834,13 +834,15 @@ ${getTranslation('guide.hire')}
                 
                 // Создать прямой заказ на найм (без одобрения админа)
                 // БЕЗОПАСНОСТЬ: currency вычисляется только на сервере из guide.currency
+                const currentLanguage = localStorage.getItem('selectedLanguage') || 'ru';
                 const formData = {
                     guideId: selectedGuideId,
                     touristName: document.getElementById('touristName').value.trim(),
                     touristEmail: document.getElementById('touristEmail').value.trim(),
                     touristPhone: document.getElementById('touristPhone').value.trim(),
                     selectedDates: selectedHireDates,
-                    comments: document.getElementById('hireComments').value.trim()
+                    comments: document.getElementById('hireComments').value.trim(),
+                    language: currentLanguage
                 };
                 
                 console.log('🛒 Creating direct guide hire order...');

@@ -635,6 +635,7 @@
                     return;
                 }
                 
+                const currentLanguage = localStorage.getItem('selectedLanguage') || 'ru';
                 const formData = {
                     fullName: document.getElementById('fullName').value.trim(),
                     email: document.getElementById('email').value.trim() || null,
@@ -645,7 +646,8 @@
                     selectedComponents,
                     customerNotes: document.getElementById('customerNotes').value.trim() || null,
                     totalPrice: parseFloat(document.getElementById('totalPrice').textContent),
-                    totalDays: tourDuration
+                    totalDays: tourDuration,
+                    language: currentLanguage
                 };
                 
                 // DIRECT PAYMENT: Create payable order and redirect to payment

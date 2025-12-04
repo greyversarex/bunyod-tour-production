@@ -531,6 +531,7 @@
                             return;
                         }
                         
+                        const currentLanguage = localStorage.getItem('selectedLanguage') || 'ru';
                         const data = {
                             fullName: formData.get('fullName'),
                             email: email || undefined,
@@ -546,7 +547,8 @@
                             vehicleCapacity: formData.get('vehicleCapacity') || undefined,
                             vehicleId: selectedVehicleId || undefined,
                             specialRequests: formData.get('specialRequests') || undefined,
-                            estimatedPrice: vehiclePrice // Передаём цену автомобиля для прямой оплаты
+                            estimatedPrice: vehiclePrice, // Передаём цену автомобиля для прямой оплаты
+                            language: currentLanguage
                         };
                         
                         console.log('Отправка заявки на трансфер:', data);
