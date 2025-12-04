@@ -772,25 +772,113 @@ export const paylerController = {
             });
 
             console.log('📧 Customer email sent successfully');
+
+            // 📧 Email гиду о новом найме (только для Guide Hire)
+            // Guide использует поле contact для email или login (если это email)
+            const guideEmail = guideHireData?.guide?.contact && guideHireData.guide.contact.includes('@')
+              ? guideHireData.guide.contact
+              : (guideHireData?.guide?.login && guideHireData.guide.login.includes('@') 
+                  ? guideHireData.guide.login 
+                  : null);
+            
+            if (isGuideHireOrder && guideEmail && guideHireData) {
+              const guide = guideHireData.guide;
+              const guideName = typeof guide.name === 'object' && guide.name !== null 
+                ? (guide.name as any).ru || (guide.name as any).en || 'Гид' 
+                : String(guide.name || 'Гид');
+              
+              // Парсим даты из JSON строки
+              let selectedDatesArray: string[] = [];
+              try {
+                selectedDatesArray = guideHireData.selectedDates 
+                  ? JSON.parse(guideHireData.selectedDates as string) 
+                  : [];
+              } catch (e) {
+                selectedDatesArray = guideHireData.selectedDates 
+                  ? [String(guideHireData.selectedDates)] 
+                  : [];
+              }
+              
+              const numberOfDaysForEmail = guideHireData.numberOfDays || 1;
+              
+              console.log('📧 [GUIDE HIRE] Sending notification to guide:', guideEmail);
+              try {
+                await emailService.sendEmail({
+                  to: guideEmail,
+                  subject: `🎉 Новое бронирование! Вас выбрали гидом - ${order.orderNumber}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f8f9fa;">
+                      <div style="background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0;">🎉 Новое бронирование!</h1>
+                        <p style="margin-top: 10px; opacity: 0.9;">Турист забронировал и оплатил ваши услуги</p>
+                      </div>
+                      
+                      <div style="padding: 30px;">
+                        <p style="font-size: 16px;">Здравствуйте, <strong>${guideName}</strong>!</p>
+                        <p>Поздравляем! Турист забронировал и оплатил ваши услуги гида.</p>
+                        
+                        <div style="background: white; padding: 25px; border-radius: 8px; margin: 25px 0; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                          <h2 style="margin-top: 0; color: #1D4ED8; font-size: 20px;">📋 Детали бронирования</h2>
+                          <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                          <p><strong>Турист:</strong> ${order.customer.fullName}</p>
+                          <p><strong>Email туриста:</strong> ${order.customer.email}</p>
+                          <p><strong>Телефон туриста:</strong> ${order.customer.phone || 'Не указан'}</p>
+                          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
+                          <p><strong>Даты:</strong> ${selectedDatesArray.join(', ') || 'Уточняются'}</p>
+                          <p><strong>Количество дней:</strong> ${numberOfDaysForEmail}</p>
+                          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 15px 0;">
+                          <p style="font-size: 18px; color: #10b981;"><strong>Ваш заработок:</strong> ${order.totalAmount} TJS</p>
+                          <p style="color: #10b981; font-size: 14px;">✓ Оплачено туристом</p>
+                        </div>
+                        
+                        <div style="background: #dbeafe; padding: 15px; border-radius: 8px; border-left: 4px solid #3B82F6; margin: 25px 0;">
+                          <p style="margin: 0;"><strong>📞 Важно:</strong> Пожалуйста, свяжитесь с туристом для согласования деталей встречи.</p>
+                        </div>
+                      </div>
+                      
+                      <div style="background: #3E3E3E; color: white; padding: 30px; text-align: center;">
+                        <h3 style="margin-top: 0;">Bunyod-Tour</h3>
+                        <p style="margin: 5px 0;">📍 Душанбе, Таджикистан</p>
+                        <p style="margin: 5px 0;">📞 +992 44 625 7575</p>
+                        <p style="margin: 5px 0;">✉️ booking@bunyodtour.tj</p>
+                      </div>
+                    </div>
+                  `
+                });
+                console.log('✅ [GUIDE HIRE] Guide notification email sent successfully');
+              } catch (guideEmailError) {
+                console.error('❌ [GUIDE HIRE] Failed to send guide notification:', guideEmailError);
+                // Не прерываем процесс - это некритичная ошибка
+              }
+            }
             
             // Email админу
             const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
             console.log('📧 Sending admin notification to:', adminEmail);
+            
+            // Для Guide Hire добавляем имя гида в email админу
+            const guideNameForAdmin = (isGuideHireOrder && guideHireData?.guide) 
+              ? (typeof guideHireData.guide.name === 'object' && guideHireData.guide.name !== null 
+                  ? (guideHireData.guide.name as any).ru || (guideHireData.guide.name as any).en || 'Гид' 
+                  : String(guideHireData.guide.name || 'Гид'))
+              : null;
+            
             await emailService.sendEmail({
               to: adminEmail,
-              subject: `💰 Новый платеж: ${orderTypeText} - ${order.totalAmount} TJS`,
+              subject: `💰 Новый платеж: ${orderTypeText}${guideNameForAdmin ? ` - ${guideNameForAdmin}` : ''} - ${order.totalAmount} TJS`,
               html: `
                 <div style="font-family: Arial, sans-serif;">
                   <h2>💰 Получен новый платеж!</h2>
                   <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
                   <p><strong>Услуга:</strong> ${orderTypeText}</p>
+                  ${guideNameForAdmin ? `<p><strong>Гид:</strong> ${guideNameForAdmin}</p>` : ''}
                   <p><strong>Клиент:</strong> ${order.customer.fullName} (${order.customer.email})</p>
                   <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
                   <a href="${process.env.FRONTEND_URL || 'http://localhost:5000'}/admin-dashboard.html">Перейти в админ панель</a>
                 </div>
               `
             });
-            console.log('✅ Non-tour payment emails sent successfully to customer and admin');
+            console.log('✅ Non-tour payment emails sent successfully to customer, guide (if applicable), and admin');
           }
         } catch (emailError) {
           console.error('❌ Email sending failed for order:', order.orderNumber);

@@ -8,6 +8,9 @@ const router = Router();
 router.post('/', orderLimiter, orderController.createOrder);
 router.get('/number/:orderNumber', orderController.getOrder);
 
+// Receipt download route (public access for paid orders)
+router.get('/:orderNumber/receipt', orderController.downloadReceipt);
+
 // Admin routes с защитой от спама на критические операции
 router.get('/', orderController.getAllOrders);
 router.get('/:id', orderController.getOrderById);

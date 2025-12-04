@@ -202,6 +202,210 @@ router.post('/payler/callback', paylerController.callback);
 // Возврат средств через Payler
 router.post('/payler/refund', paylerController.refund);
 
+// ✅ Проверка и обновление статуса платежа (для страницы payment-success)
+// Используется когда турист возвращается с Payler, но callback ещё не пришёл
+router.post('/verify-payment', async (req: Request, res: Response) => {
+  try {
+    const { orderNumber } = req.body;
+    
+    if (!orderNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order number is required'
+      });
+    }
+    
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        customer: true,
+        tour: true,
+        guideHireRequest: {
+          include: { guide: true }
+        },
+        transferRequest: {
+          include: { assignedDriver: true }
+        },
+      },
+    });
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found'
+      });
+    }
+    
+    // Если уже оплачен - просто возвращаем статус
+    if (order.paymentStatus === 'paid') {
+      return res.json({
+        success: true,
+        data: {
+          orderNumber: order.orderNumber,
+          paymentStatus: 'paid',
+          status: order.status,
+          totalAmount: order.totalAmount,
+          verified: true
+        }
+      });
+    }
+    
+    // Если paymentMethod - payler и есть paymentIntentId (session_id), проверяем статус
+    if (order.paymentMethod === 'payler' && order.paymentStatus === 'processing') {
+      try {
+        console.log(`🔍 Verifying Payler payment for order ${orderNumber} (ID: ${order.id})`);
+        const statusData = await paylerController.getStatus(order.id.toString());
+        
+        if (statusData.status === 'Charged') {
+          // Платёж успешен - обновляем статус
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              paymentStatus: 'paid',
+              status: 'confirmed',
+            },
+          });
+          
+          // Обновляем связанные записи для Guide Hire
+          if (order.guideHireRequestId) {
+            await prisma.guideHireRequest.update({
+              where: { id: order.guideHireRequestId },
+              data: { 
+                paymentStatus: 'paid',
+                status: 'confirmed' 
+              }
+            });
+          }
+          
+          console.log(`✅ Payment verified and order ${orderNumber} updated to paid`);
+          
+          // Отправляем email уведомления (в фоне)
+          setImmediate(async () => {
+            try {
+              if (order.customer) {
+                const isGuideHire = order.orderNumber.startsWith('GH-');
+                const isTransfer = order.orderNumber.startsWith('TR-');
+                const orderTypeText = isGuideHire ? 'Найм гида' : isTransfer ? 'Трансфер' : 'Услуга';
+                
+                await emailService.sendEmail({
+                  to: order.customer.email,
+                  subject: `✅ Оплата подтверждена - ${orderTypeText}`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif;">
+                      <h2 style="color: #10b981;">✅ Оплата подтверждена!</h2>
+                      <p>Уважаемый(ая) ${order.customer.fullName},</p>
+                      <p>Ваш платёж успешно получен.</p>
+                      <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                      <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                      <hr>
+                      <p>С уважением, команда Bunyod-Tour</p>
+                    </div>
+                  `
+                });
+                
+                const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
+                await emailService.sendEmail({
+                  to: adminEmail,
+                  subject: `💰 Платёж подтверждён (verify): ${orderTypeText} - ${order.totalAmount} TJS`,
+                  html: `
+                    <div style="font-family: Arial, sans-serif;">
+                      <h2>💰 Платёж подтверждён через verify-payment</h2>
+                      <p><strong>Заказ:</strong> ${order.orderNumber}</p>
+                      <p><strong>Клиент:</strong> ${order.customer.fullName} (${order.customer.email})</p>
+                      <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
+                    </div>
+                  `
+                });
+              }
+            } catch (emailError) {
+              console.error('Failed to send verification emails:', emailError);
+            }
+          });
+          
+          return res.json({
+            success: true,
+            data: {
+              orderNumber: order.orderNumber,
+              paymentStatus: 'paid',
+              status: 'confirmed',
+              totalAmount: order.totalAmount,
+              verified: true,
+              justVerified: true
+            }
+          });
+        } else if (statusData.status === 'Rejected' || statusData.status === 'Refunded') {
+          // Платёж отклонён
+          await prisma.order.update({
+            where: { id: order.id },
+            data: {
+              paymentStatus: statusData.status === 'Refunded' ? 'refunded' : 'failed',
+            },
+          });
+          
+          return res.json({
+            success: true,
+            data: {
+              orderNumber: order.orderNumber,
+              paymentStatus: statusData.status === 'Refunded' ? 'refunded' : 'failed',
+              status: order.status,
+              totalAmount: order.totalAmount,
+              verified: true
+            }
+          });
+        } else {
+          // Статус ещё неизвестен (Authorized, Created и т.д.)
+          return res.json({
+            success: true,
+            data: {
+              orderNumber: order.orderNumber,
+              paymentStatus: order.paymentStatus,
+              paylerStatus: statusData.status,
+              status: order.status,
+              totalAmount: order.totalAmount,
+              verified: false,
+              message: 'Payment still processing'
+            }
+          });
+        }
+      } catch (paylerError) {
+        console.error('Error verifying Payler payment:', paylerError);
+        // Возвращаем текущий статус без обновления
+        return res.json({
+          success: true,
+          data: {
+            orderNumber: order.orderNumber,
+            paymentStatus: order.paymentStatus,
+            status: order.status,
+            totalAmount: order.totalAmount,
+            verified: false,
+            error: 'Could not verify with payment gateway'
+          }
+        });
+      }
+    }
+    
+    // Для других случаев - просто возвращаем текущий статус
+    return res.json({
+      success: true,
+      data: {
+        orderNumber: order.orderNumber,
+        paymentStatus: order.paymentStatus,
+        status: order.status,
+        totalAmount: order.totalAmount,
+        verified: order.paymentStatus === 'paid'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error verifying payment:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to verify payment',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
+
 // ✅ НОВЫЕ БЕЗОПАСНЫЕ ALIF РОУТЫ
 // Создание платежа через AlifPay контроллер
 router.post('/alif/create', alifController.createPayment);

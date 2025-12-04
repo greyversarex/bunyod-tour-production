@@ -695,3 +695,172 @@ export const deleteOrder = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const downloadReceipt = async (req: Request, res: Response) => {
+  try {
+    const { orderNumber } = req.params;
+    
+    if (!orderNumber) {
+      return res.status(400).json({
+        success: false,
+        message: 'Order number is required',
+      });
+    }
+    
+    const order = await prisma.order.findUnique({
+      where: { orderNumber },
+      include: {
+        customer: true,
+        tour: true,
+        guideHireRequest: {
+          include: { guide: true }
+        },
+        transferRequest: true,
+      },
+    });
+    
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+    
+    if (order.paymentStatus !== 'paid') {
+      return res.status(403).json({
+        success: false,
+        message: 'Receipt available only for paid orders',
+      });
+    }
+    
+    let orderType = 'Услуга';
+    let serviceName = 'Туристическая услуга';
+    let serviceDetails = '';
+    
+    if (order.orderNumber.startsWith('GH-') && order.guideHireRequest?.guide) {
+      orderType = 'Найм гида';
+      const guideName = typeof order.guideHireRequest.guide.name === 'object' 
+        ? (order.guideHireRequest.guide.name as any).ru || (order.guideHireRequest.guide.name as any).en || 'Гид'
+        : String(order.guideHireRequest.guide.name || 'Гид');
+      serviceName = guideName;
+      serviceDetails = `Количество дней: ${order.guideHireRequest.numberOfDays || 1}`;
+    } else if (order.orderNumber.startsWith('TR-') && order.transferRequest) {
+      orderType = 'Трансфер';
+      serviceName = `${order.transferRequest.pickupLocation || ''} → ${order.transferRequest.dropoffLocation || ''}`;
+      serviceDetails = `Дата: ${order.transferRequest.pickupDate || 'Не указана'}`;
+    } else if (order.orderNumber.startsWith('CT-')) {
+      orderType = 'Собственный тур';
+      serviceName = 'Индивидуальный тур';
+    } else if (order.tour) {
+      orderType = 'Тур';
+      serviceName = typeof order.tour.title === 'object' 
+        ? (order.tour.title as any).ru || (order.tour.title as any).en || 'Тур'
+        : String(order.tour.title || 'Тур');
+    }
+    
+    const paymentDate = order.updatedAt ? new Date(order.updatedAt).toLocaleDateString('ru-RU') : new Date().toLocaleDateString('ru-RU');
+    
+    const receiptHTML = `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чек - ${order.orderNumber}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+        .receipt { max-width: 400px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { text-align: center; border-bottom: 2px dashed #e5e5e5; padding-bottom: 20px; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: bold; color: #3E3E3E; }
+        .company { font-size: 12px; color: #666; margin-top: 5px; }
+        .success-badge { background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; display: inline-block; margin-top: 15px; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 8px; }
+        .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .row:last-child { border-bottom: none; }
+        .label { color: #666; }
+        .value { font-weight: 600; color: #333; text-align: right; max-width: 60%; }
+        .total { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .total .row { border-bottom: none; }
+        .total .label { font-size: 18px; font-weight: 600; }
+        .total .value { font-size: 24px; color: #10b981; }
+        .footer { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 2px dashed #e5e5e5; }
+        .footer p { font-size: 11px; color: #999; margin: 3px 0; }
+        @media print {
+            body { background: white; padding: 0; }
+            .receipt { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <div class="logo">Bunyod-Tour</div>
+            <div class="company">Туристическое агентство</div>
+            <div class="success-badge">✓ Оплачено</div>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Информация о заказе</div>
+            <div class="row">
+                <span class="label">Номер заказа</span>
+                <span class="value">${order.orderNumber}</span>
+            </div>
+            <div class="row">
+                <span class="label">Дата оплаты</span>
+                <span class="value">${paymentDate}</span>
+            </div>
+            <div class="row">
+                <span class="label">Тип услуги</span>
+                <span class="value">${orderType}</span>
+            </div>
+            <div class="row">
+                <span class="label">Услуга</span>
+                <span class="value">${serviceName}</span>
+            </div>
+            ${serviceDetails ? `<div class="row"><span class="label">Детали</span><span class="value">${serviceDetails}</span></div>` : ''}
+        </div>
+        
+        <div class="section">
+            <div class="section-title">Клиент</div>
+            <div class="row">
+                <span class="label">Имя</span>
+                <span class="value">${order.customer?.fullName || 'Не указано'}</span>
+            </div>
+            <div class="row">
+                <span class="label">Email</span>
+                <span class="value">${order.customer?.email || 'Не указано'}</span>
+            </div>
+        </div>
+        
+        <div class="total">
+            <div class="row">
+                <span class="label">Итого</span>
+                <span class="value">${order.totalAmount} TJS</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📍 Душанбе, Таджикистан</p>
+            <p>📞 +992 44 625 7575</p>
+            <p>✉️ booking@bunyodtour.tj</p>
+            <p>🌐 bunyodtour.tj</p>
+            <p style="margin-top: 10px;">Спасибо за выбор Bunyod-Tour!</p>
+        </div>
+    </div>
+</body>
+</html>`;
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="receipt-${order.orderNumber}.html"`);
+    return res.send(receiptHTML);
+    
+  } catch (error) {
+    console.error('Error generating receipt:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate receipt',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};

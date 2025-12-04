@@ -988,13 +988,18 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
         }
       });
 
+      // Правильное извлечение имени гида (может быть объект {ru, en} или строка)
+      const guideNameStr = typeof guide.name === 'object' && guide.name !== null 
+        ? ((guide.name as any).ru || (guide.name as any).en || 'Гид') 
+        : String(guide.name || 'Гид');
+      
       return {
         orderNumber: order.orderNumber,
         totalAmount: order.totalAmount,
         currency,
         orderId: order.id,
         guideHireRequestId: guideHireRequest.id,
-        guideName: guide.name,
+        guideName: guideNameStr,
         numberOfDays
       };
     });
@@ -1021,7 +1026,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
         const adminEmail = process.env.ADMIN_EMAIL || 'booking@bunyodtour.tj';
         await sendEmail({
           to: adminEmail,
-          subject: `Новый платный найм тургида - ${guide.name}`,
+          subject: `Новый платный найм тургида - ${result.guideName}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #3E3E3E;">Новый платный найм тургида</h2>
@@ -1029,7 +1034,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
               <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
                 <h3 style="margin-top: 0;">Информация о заказе</h3>
                 <p><strong>Номер заказа:</strong> ${result.orderNumber}</p>
-                <p><strong>Тургид:</strong> ${guide.name}</p>
+                <p><strong>Тургид:</strong> ${result.guideName}</p>
                 <p><strong>Количество дней:</strong> ${result.numberOfDays}</p>
                 <p><strong>Сумма:</strong> ${result.totalAmount} ${result.currency}</p>
                 <p><strong>Даты:</strong> ${selectedDates.join(', ')}</p>
