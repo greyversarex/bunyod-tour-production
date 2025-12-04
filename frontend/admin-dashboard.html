@@ -9772,12 +9772,7 @@
                                         const itemText = typeof item === 'object' 
                                             ? (item.ru || item.en || item.name || JSON.stringify(item)) 
                                             : item;
-                                        return \`
-                                            <div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg">
-                                                <i class="fas fa-check text-emerald-500"></i>
-                                                <span class="text-gray-700">\${itemText}</span>
-                                            </div>
-                                        \`;
+                                        return '<div class="flex items-center gap-2 bg-white px-3 py-2 rounded-lg"><i class="fas fa-check text-emerald-500"></i><span class="text-gray-700">' + itemText + '</span></div>';
                                     }).join('')}
                                 </div>
                             </div>
