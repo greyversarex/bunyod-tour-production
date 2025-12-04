@@ -74,8 +74,9 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - **Guide Hire**: Guide card with photo, name, country/city, languages, phone/email; booked dates array; days count; price per day; total price; customer comments
     - **Transfer**: Route visualization (pickup → dropoff); date/time; passengers count; vehicle type; assigned driver with photo, phone, vehicle info; total price; special requests
     - **Custom Tour**: Start date; duration; selected countries list; tourists count; components with prices; total price; special requests; tourists list
-    - **Regular Tour**: Tour name; date; tourists count; hotel; guide; total price; tourists list
-    - All modals include client info block and payment info block. Updated: Dec 03, 2025.
+    - **Regular Tour**: Tour name; date; tourists count; hotel; guide; total price; tourists list; **"Что включено" section** - displays tour.includes with smart parsing (JSON array, plain string, multilingual objects)
+    - All modals include client info block and payment info block. Updated: Dec 04, 2025.
+-   **Email Branding** (Dec 04, 2025): All email templates now include company logo in header (https://bunyodtour.tj/Logo-Ru_1754635713718.png); circular 60-70px styling; onerror fallback hides logo if loading fails.
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, and dedicated models for B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
