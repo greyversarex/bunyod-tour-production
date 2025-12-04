@@ -106,6 +106,9 @@ export const transferPaymentController = {
       // Сгенерировать orderNumber (формат: TR-timestamp-customerId)
       const orderNumber = `TR-${Date.now()}-${customer.id}`;
 
+      // Определяем язык клиента
+      const customerLanguage = req.body.language || req.query.lang || 'ru';
+
       // Создать заказ
       const order = await withRetry(() =>
         prisma.order.create({
@@ -122,7 +125,8 @@ export const transferPaymentController = {
             wishes: transferRequest.specialRequests || '',
             totalAmount,
             status: 'pending',
-            paymentStatus: 'unpaid'
+            paymentStatus: 'unpaid',
+            language: customerLanguage
           },
           include: {
             customer: true

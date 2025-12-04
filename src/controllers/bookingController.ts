@@ -632,6 +632,9 @@ export const bookingController = {
         console.log(`💳 Full payment: ${paymentAmount} TJS`);
       }
 
+      // Определяем язык клиента
+      const customerLanguage = req.body.language || req.query.lang || 'ru';
+
       // Создать заказ с правильной суммой
       const order = await prisma.order.create({
         data: {
@@ -645,7 +648,8 @@ export const bookingController = {
           wishes: booking.specialRequests || '',
           totalAmount: paymentAmount, // 🎯 Используем рассчитанную сумму (10% для deposit)
           status: 'pending',
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          language: customerLanguage
         },
         include: {
           customer: true,

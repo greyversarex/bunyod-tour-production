@@ -870,8 +870,9 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
       touristEmail,
       touristPhone,
       selectedDates,
-      comments
-    }: DirectGuideHireData = req.body;
+      comments,
+      language
+    } = req.body as DirectGuideHireData & { language?: string };
 
     // Валидация обязательных полей
     if (!guideId || !touristName || !touristEmail || !selectedDates || selectedDates.length === 0) {
@@ -1031,6 +1032,7 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
 
       // 5. Создаем Order для оплаты
       const orderNumber = `GH-${Date.now()}-${guide.id}`;
+      const customerLanguage = language || 'ru'; // Язык из запроса
       const order = await tx.order.create({
         data: {
           orderNumber,
@@ -1045,7 +1047,8 @@ export const createDirectGuideHireOrder = async (req: Request, res: Response) =>
           wishes: comments || '',
           totalAmount: totalPrice, // Вычислено на сервере - БЕЗОПАСНО
           status: 'pending',
-          paymentStatus: 'unpaid'
+          paymentStatus: 'unpaid',
+          language: customerLanguage
         }
       });
 

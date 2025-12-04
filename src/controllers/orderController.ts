@@ -112,6 +112,7 @@ export const createOrder = async (req: Request, res: Response) => {
 
     // Create order
     const orderNumber = generateOrderNumber();
+    const customerLanguage = req.body.language || getLanguageFromRequest(req) || 'ru';
     const order = await prisma.order.create({
       data: {
         orderNumber,
@@ -125,6 +126,7 @@ export const createOrder = async (req: Request, res: Response) => {
         totalAmount,
         status: 'pending',
         paymentStatus: 'unpaid',
+        language: customerLanguage,
       },
       include: {
         customer: true,
