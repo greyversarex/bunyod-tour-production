@@ -159,6 +159,61 @@ export const alifController = {
         }
       }
 
+      // 🔒 SECURITY: Payment revalidation для transfer orders
+      if (orderNumber.startsWith('TR-')) {
+        const transferRequest = order.transferRequest;
+        
+        if (!transferRequest) {
+          console.error(`❌ Transfer payment validation failed: TransferRequest not found for order ${orderNumber}`);
+          return res.status(404).json({
+            success: false,
+            message: 'Заявка на трансфер не найдена',
+          });
+        }
+
+        // Проверить что у трансфера установлена цена
+        const transferPrice = transferRequest.finalPrice || transferRequest.estimatedPrice;
+        if (!transferPrice || transferPrice <= 0) {
+          console.error(`❌ Transfer payment validation failed: Transfer has no price set`);
+          return res.status(400).json({
+            success: false,
+            message: 'Цена трансфера не установлена. Пожалуйста, обратитесь к администратору.',
+          });
+        }
+
+        // Сравнить с суммой в заказе (допускаем погрешность 0.01 из-за округления)
+        if (Math.abs(order.totalAmount - transferPrice) > 0.01) {
+          console.error(`❌ Transfer payment validation failed: Expected ${transferPrice}, got ${order.totalAmount}`);
+          return res.status(400).json({
+            success: false,
+            message: 'Цена трансфера изменилась. Пожалуйста, создайте новый заказ.',
+            expectedPrice: transferPrice,
+            currentPrice: order.totalAmount
+          });
+        }
+
+        // Проверить что заявка на трансфер активна
+        const validTransferStatuses = ['confirmed', 'approved', 'pending'];
+        if (!validTransferStatuses.includes(transferRequest.status)) {
+          console.error(`❌ Transfer payment validation failed: Request status is ${transferRequest.status}`);
+          return res.status(400).json({
+            success: false,
+            message: `Заявка на трансфер недействительна (статус: ${transferRequest.status})`,
+          });
+        }
+
+        console.log(`✅ Transfer payment validated: ${transferPrice} TJS for order ${orderNumber}`);
+      }
+
+      // Общая проверка суммы для всех типов заказов
+      if (order.totalAmount <= 0) {
+        console.error(`❌ Payment validation failed: Order amount is ${order.totalAmount}`);
+        return res.status(400).json({
+          success: false,
+          message: 'Сумма заказа должна быть больше 0',
+        });
+      }
+
       const key = process.env.ALIF_MERCHANT_KEY;
       const password = process.env.ALIF_MERCHANT_PASSWORD;
       const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
@@ -198,7 +253,10 @@ export const alifController = {
         .update(key + orderId + amountFormatted + callbackUrl)
         .digest('hex');
 
-      console.log(`🔄 Creating AlifPay Legacy payment: Order ${orderId}, Amount ${amount} TJS`);
+      console.log(`🔄 Creating AlifPay payment:`);
+      console.log(`   📋 Order: ${orderNumber} (${orderTypeText})`);
+      console.log(`   💰 Amount: ${amount} TJS`);
+      console.log(`   📧 Customer: ${email}`);
 
       await prisma.order.update({
         where: { id: order.id },
@@ -542,9 +600,11 @@ export const alifController = {
             
             console.log('📧 Non-tour payment detected:', { isGuideHire: isGuideHireOrder, isTransfer, isCustomTour, orderNumber: order.orderNumber });
             
+            const isTourOrder = order.orderNumber.startsWith('BT-');
             const orderTypeText = isGuideHireOrder ? 'Найм гида' 
               : isTransfer ? 'Трансфер'
               : isCustomTour ? 'Собственный тур'
+              : isTourOrder ? 'Бронирование тура'
               : 'Услуга';
             
             console.log('📧 Preparing email for:', orderTypeText);
@@ -595,7 +655,35 @@ export const alifController = {
                 <p><strong>Детали заказа сохранены в системе</strong></p>
                 <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
               `;
+            } else if (order.orderNumber.startsWith('BT-')) {
+              // BT- заказ тура без связанного тура - используем данные из заказа
+              console.warn('⚠️ [TOUR] BT- order without tour relation, using order data');
+              console.warn('⚠️ [TOUR] Order details:', { 
+                orderNumber: order.orderNumber, 
+                tourDate: order.tourDate,
+                tourists: order.tourists,
+                wishes: order.wishes 
+              });
+              
+              // Парсим туристов
+              let touristsInfo = '';
+              try {
+                const tourists = order.tourists ? JSON.parse(order.tourists) : [];
+                if (Array.isArray(tourists) && tourists.length > 0) {
+                  touristsInfo = `<p><strong>Количество туристов:</strong> ${tourists.length}</p>`;
+                }
+              } catch {}
+              
+              detailsHTML = `
+                <p><strong>Услуга:</strong> Бронирование тура</p>
+                <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'по согласованию'}</p>
+                ${touristsInfo}
+                ${order.wishes ? `<p><strong>Пожелания:</strong> ${order.wishes}</p>` : ''}
+                <p><strong>Детали тура будут отправлены отдельным письмом</strong></p>
+              `;
             } else {
+              // Другие типы заказов (неизвестный префикс)
+              console.log('📧 [OTHER] Unknown order type, using generic template');
               detailsHTML = `
                 <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'не указана'}</p>
               `;

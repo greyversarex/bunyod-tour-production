@@ -205,6 +205,61 @@ export const paylerController = {
         }
       }
 
+      // 🔒 SECURITY: Payment revalidation для transfer orders
+      if (orderNumber.startsWith('TR-')) {
+        const transferRequest = order.transferRequest;
+        
+        if (!transferRequest) {
+          console.error(`❌ Transfer payment validation failed: TransferRequest not found for order ${orderNumber}`);
+          return res.status(404).json({
+            success: false,
+            message: 'Заявка на трансфер не найдена',
+          });
+        }
+
+        // Проверить что у трансфера установлена цена
+        const transferPrice = transferRequest.finalPrice || transferRequest.estimatedPrice;
+        if (!transferPrice || transferPrice <= 0) {
+          console.error(`❌ Transfer payment validation failed: Transfer has no price set`);
+          return res.status(400).json({
+            success: false,
+            message: 'Цена трансфера не установлена. Пожалуйста, обратитесь к администратору.',
+          });
+        }
+
+        // Сравнить с суммой в заказе (допускаем погрешность 0.01 из-за округления)
+        if (Math.abs(order.totalAmount - transferPrice) > 0.01) {
+          console.error(`❌ Transfer payment validation failed: Expected ${transferPrice}, got ${order.totalAmount}`);
+          return res.status(400).json({
+            success: false,
+            message: 'Цена трансфера изменилась. Пожалуйста, создайте новый заказ.',
+            expectedPrice: transferPrice,
+            currentPrice: order.totalAmount
+          });
+        }
+
+        // Проверить что заявка на трансфер активна
+        const validTransferStatuses = ['confirmed', 'approved', 'pending'];
+        if (!validTransferStatuses.includes(transferRequest.status)) {
+          console.error(`❌ Transfer payment validation failed: Request status is ${transferRequest.status}`);
+          return res.status(400).json({
+            success: false,
+            message: `Заявка на трансфер недействительна (статус: ${transferRequest.status})`,
+          });
+        }
+
+        console.log(`✅ Transfer payment validated: ${transferPrice} TJS for order ${orderNumber}`);
+      }
+
+      // Общая проверка суммы для всех типов заказов
+      if (order.totalAmount <= 0) {
+        console.error(`❌ Payment validation failed: Order amount is ${order.totalAmount}`);
+        return res.status(400).json({
+          success: false,
+          message: 'Сумма заказа должна быть больше 0',
+        });
+      }
+
       const paylerKey = process.env.PAYLER_KEY;
       const frontendUrl = process.env.FRONTEND_URL || 'https://bunyodtour.tj';
 
@@ -227,7 +282,16 @@ export const paylerController = {
       // Email клиента (обязательный параметр)
       const customerEmail = order.customer?.email || 'noemail@bunyodtour.com';
 
-      console.log(`🔄 Creating Payler payment: Order ${orderId}, Amount ${amount} дирамов (${order.totalAmount} TJS)`);
+      // Определяем тип заказа для логирования
+      const orderType = orderNumber.startsWith('GH-') ? 'GuideHire' 
+        : orderNumber.startsWith('TR-') ? 'Transfer'
+        : orderNumber.startsWith('CT-') ? 'CustomTour'
+        : 'Tour';
+      
+      console.log(`🔄 Creating Payler payment:`);
+      console.log(`   📋 Order: ${orderNumber} (${orderType})`);
+      console.log(`   💰 Amount: ${amount} дирамов (${order.totalAmount} TJS)`);
+      console.log(`   📧 Customer: ${customerEmail}`);
 
       // Подготовить данные для StartSession API согласно документации Payler
       const fields = {
@@ -241,7 +305,12 @@ export const paylerController = {
         return_url_decline: failUrl      // URL при отказе
       };
 
-      console.log('📤 Payler request:', { ...fields, key: '***' });
+      console.log('📤 Payler StartSession request:', { 
+        ...fields, 
+        key: '***', 
+        orderType,
+        originalOrderNumber: orderNumber 
+      });
 
       // Отправить запрос к боевому Payler StartSession API (убрали sandbox)
       const response = await axios.post('https://secure.payler.com/gapi/StartSession', 
@@ -258,13 +327,28 @@ export const paylerController = {
       console.log('📥 Payler response body:', responseText);
 
       if (response.status < 200 || response.status >= 300) {
-        console.error('❌ Payler StartSession failed:', response.status, response.statusText);
-        console.error('❌ Payler error details:', responseText);
-        console.error('❌ Request was for order:', orderNumber, 'amount:', amount, 'дирамов');
+        console.error('❌ Payler StartSession HTTP error:');
+        console.error('   🔢 Status:', response.status, response.statusText);
+        console.error('   📝 Response:', responseText);
+        console.error('   📋 Order:', orderNumber, `(${orderType})`);
+        console.error('   💰 Amount:', amount, 'дирамов =', order.totalAmount, 'TJS');
+        console.error('   📧 Customer:', customerEmail);
+        
+        // Парсим ошибку для более понятного сообщения
+        let userMessage = 'Ошибка связи с платежной системой Payler';
+        try {
+          const errorData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+          if (errorData?.error?.message) {
+            userMessage = `Payler: ${errorData.error.message}`;
+          }
+        } catch {}
+        
         return res.status(500).json({
           success: false,
-          message: 'Failed to communicate with Payler API',
+          message: userMessage,
           details: responseText,
+          orderType,
+          orderNumber,
         });
       }
       
@@ -753,9 +837,11 @@ export const paylerController = {
             
             console.log('📧 Non-tour payment detected:', { isGuideHire: isGuideHireOrder, isTransfer, isCustomTour, orderNumber: order.orderNumber });
             
+            const isTourOrder = order.orderNumber.startsWith('BT-');
             const orderTypeText = isGuideHireOrder ? 'Найм гида' 
               : isTransfer ? 'Трансфер'
               : isCustomTour ? 'Собственный тур'
+              : isTourOrder ? 'Бронирование тура'
               : 'Услуга';
             
             console.log('📧 Preparing email for:', orderTypeText);
@@ -806,7 +892,35 @@ export const paylerController = {
                 <p><strong>Детали заказа сохранены в системе</strong></p>
                 <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
               `;
+            } else if (order.orderNumber.startsWith('BT-')) {
+              // BT- заказ тура без связанного тура - используем данные из заказа
+              console.warn('⚠️ [TOUR] BT- order without tour relation, using order data');
+              console.warn('⚠️ [TOUR] Order details:', { 
+                orderNumber: order.orderNumber, 
+                tourDate: order.tourDate,
+                tourists: order.tourists,
+                wishes: order.wishes 
+              });
+              
+              // Парсим туристов
+              let touristsInfo = '';
+              try {
+                const tourists = order.tourists ? JSON.parse(order.tourists) : [];
+                if (Array.isArray(tourists) && tourists.length > 0) {
+                  touristsInfo = `<p><strong>Количество туристов:</strong> ${tourists.length}</p>`;
+                }
+              } catch {}
+              
+              detailsHTML = `
+                <p><strong>Услуга:</strong> Бронирование тура</p>
+                <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'по согласованию'}</p>
+                ${touristsInfo}
+                ${order.wishes ? `<p><strong>Пожелания:</strong> ${order.wishes}</p>` : ''}
+                <p><strong>Детали тура будут отправлены отдельным письмом</strong></p>
+              `;
             } else {
+              // Другие типы заказов (неизвестный префикс)
+              console.log('📧 [OTHER] Unknown order type, using generic template');
               detailsHTML = `
                 <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'не указана'}</p>
               `;
