@@ -93,6 +93,11 @@ The Bunyod-Tour platform utilizes a modular MVC architecture with Express.js and
     - **Retry Logic**: GetStatus API calls wrapped in `withRetry()` - 3 attempts with 500ms exponential backoff for temporary failures
     - **Refund Audit Trail**: New `PaymentRefundLog` model tracks all refund attempts (amount, reason, processedBy, status, paylerTransactionId); prevents over-refunding by aggregating only successful logs; supports partial refunds with `partially_refunded` status
     - **Async Email Sending**: `sendEmailAsync()` helper wraps email calls in `setImmediate()` to prevent blocking main flow
+-   **Payment Validation Parity** (Dec 05, 2025):
+    - **Transfer Payment Validation**: Both Payler and Alif now validate transfer orders before processing: TransferRequest existence, price set (finalPrice or estimatedPrice), price matches order total (±0.01 tolerance), status in valid states (pending/approved/confirmed)
+    - **Unified Amount Check**: Both controllers verify totalAmount > 0 before processing any payment
+    - **Enhanced Logging**: Order type detection (GuideHire/Transfer/CustomTour/Tour), detailed request logging with customer email, improved error messages for users
+    - **BT- Order Email Handling**: Orders with `BT-` prefix without linked tour now receive informative "Бронирование тура" emails instead of generic "Услуга", with parsed tourist count and order details
 -   **Backend Structure**: Organized into `config`, `controllers`, `routes`, `middleware`, `models`, `services`, `utils`, and `types`.
 -   **Frontend Structure**: `public` for static assets, HTML templates, and modular JavaScript files.
 -   **Deployment**: Automated `update.sh` script for database backup, `git pull`, `npm install`, Prisma migrations, seeding, and PM2 restart. Nginx for reverse proxy, SSL, security, and rate limiting.
