@@ -1014,13 +1014,13 @@ async function loadExchangeRates() {
         }
     } catch (error) {
         console.error('❌ Error loading exchange rates:', error);
-        // Fallback курсы валют (формат: сколько валюты за 1 TJS)
+        // Fallback курсы валют (формат: сколько TJS за 1 единицу валюты)
         exchangeRates = {
             'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
-            'USD': { rate: 0.094, symbol: '$', name: 'Доллар США' },
-            'EUR': { rate: 0.086, symbol: '€', name: 'Евро' },
-            'RUB': { rate: 9.2, symbol: '₽', name: 'Российский рубль' },
-            'CNY': { rate: 0.65, symbol: '¥', name: 'Китайский юань' }
+            'USD': { rate: 10.6, symbol: '$', name: 'Доллар США' },
+            'EUR': { rate: 11.6, symbol: '€', name: 'Евро' },
+            'RUB': { rate: 0.11, symbol: '₽', name: 'Российский рубль' },
+            'CNY': { rate: 1.5, symbol: '¥', name: 'Китайский юань' }
         };
         window.exchangeRates = exchangeRates; // Экспорт fallback курсов
     }
@@ -1040,9 +1040,9 @@ function formatPrice(priceInTJS, currency) {
     }
     
     // Конвертируем из TJS в выбранную валюту и округляем до целого числа
-    // Формула: priceInTJS * rate.rate (где rate = сколько валюты за 1 TJS)
-    // Например: 100 TJS * 0.094 = 9.4 USD
-    const convertedPrice = Math.round(priceInTJS * rate.rate);
+    // Формула: priceInTJS / rate.rate (где rate = сколько TJS за 1 единицу валюты)
+    // Например: 100 TJS / 10.6 = 9.43 USD
+    const convertedPrice = Math.round(priceInTJS / rate.rate);
     return `${convertedPrice} ${rate.symbol}`;
 }
 

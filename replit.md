@@ -29,7 +29,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
 
 **Technical Implementations:**
 -   **Multilingualism**: Content is stored in PostgreSQL JSONB, with API language selection (`?lang=ru/en`) and frontend i18n.
--   **Currency System**: Supports TJS (base), USD, EUR, RUB, CNY with real-time conversion. Exchange rates are stored as "how much foreign currency per 1 TJS", and conversion uses multiplication (`convertedPrice = priceInTJS * rate.rate`). All relevant files use consistent fallback rates.
+-   **Currency System**: Supports TJS (base), USD, EUR, RUB, CNY with real-time conversion.
+    - **UNIFIED FORMAT (Dec 06, 2025)**: Exchange rates stored as "how much TJS per 1 unit of foreign currency" (e.g., USD: 10.6 means 1 USD = 10.6 TJS)
+    - **Conversion formula**: `convertedPrice = priceInTJS / rate.rate` (DIVISION)
+    - **All files unified**: home-page.js, search-page.js, tour-template.html, booking-step1/2/3.html, hot-tours.js, exchangeRateController.ts
+    - **API endpoint**: `/api/exchange-rates/map` returns rates in correct format
+    - **Fallback rates**: All files use consistent fallback values (USD: 10.6, EUR: 11.6, RUB: 0.11, CNY: 1.5)
 -   **Tour Structure**: Features 7 fixed tour blocks and 15 predefined tour categories.
 -   **Booking Process**: A 3-step flow with real-time price calculation.
 -   **Component-based Pricing**: Flexible system allowing tours to define prices based on components with profit margins.

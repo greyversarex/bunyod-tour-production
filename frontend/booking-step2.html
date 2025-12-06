@@ -375,13 +375,13 @@
                 }
             } catch (error) {
                 console.error('❌ Error loading currencies:', error);
-                // Set default rates if API fails (rate = сколько валюты за 1 TJS)
+                // Set default rates if API fails (rate = сколько TJS за 1 единицу валюты)
                 currencyState.rates = {
                     'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
-                    'USD': { rate: 0.094, symbol: '$', name: 'Доллар США' },
-                    'EUR': { rate: 0.086, symbol: '€', name: 'Евро' },
-                    'RUB': { rate: 9.2, symbol: '₽', name: 'Российский рубль' },
-                    'CNY': { rate: 0.65, symbol: '¥', name: 'Китайский юань' }
+                    'USD': { rate: 10.6, symbol: '$', name: 'Доллар США' },
+                    'EUR': { rate: 11.6, symbol: '€', name: 'Евро' },
+                    'RUB': { rate: 0.11, symbol: '₽', name: 'Российский рубль' },
+                    'CNY': { rate: 1.5, symbol: '¥', name: 'Китайский юань' }
                 };
             }
         }
@@ -396,8 +396,8 @@
             }
             
             // ✅ ВСЕГДА округляем до целого (как на странице тура и карточках)
-            // Формула: amountTJS * rate.rate (где rate = сколько валюты за 1 TJS)
-            const convertedAmount = Math.round(amountTJS * rate.rate);
+            // Формула: amountTJS / rate.rate (где rate = сколько TJS за 1 единицу валюты)
+            const convertedAmount = Math.round(amountTJS / rate.rate);
             
             // ✅ Показываем конвертированную цену + базовую валюту в скобках
             if (showEquivalent && selectedCurrency !== 'TJS') {

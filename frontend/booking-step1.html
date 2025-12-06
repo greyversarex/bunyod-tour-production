@@ -2629,9 +2629,9 @@
         // Функция конвертации цен
         function convertPrice(priceInTJS, targetCurrency) {
             if (!exchangeRates[targetCurrency]) return priceInTJS;
-            // Формула: priceInTJS * rate.rate (где rate = сколько валюты за 1 TJS)
-            // Например: 100 TJS * 0.094 = 9.4 USD
-            return Math.round(priceInTJS * exchangeRates[targetCurrency].rate);
+            // Формула: priceInTJS / rate.rate (где rate = сколько TJS за 1 единицу валюты)
+            // Например: 100 TJS / 10.6 = 9.43 USD
+            return Math.round(priceInTJS / exchangeRates[targetCurrency].rate);
         }
 
         function convertAllPrices() {

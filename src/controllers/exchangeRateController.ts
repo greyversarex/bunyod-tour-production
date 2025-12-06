@@ -98,7 +98,7 @@ export const updateExchangeRate = async (req: Request, res: Response) => {
 // Инициализировать базовые курсы валют
 export const initializeExchangeRates = async (req: Request, res: Response) => {
     try {
-        // Формат курса: сколько валюты за 1 TJS (например 0.094 USD = 1 TJS)
+        // Формат курса: сколько TJS за 1 единицу валюты (например 1 USD = 10.6 TJS)
         const defaultRates = [
             {
                 currency: 'TJS',
@@ -109,28 +109,28 @@ export const initializeExchangeRates = async (req: Request, res: Response) => {
             },
             {
                 currency: 'USD',
-                rate: 0.094,
+                rate: 10.6,
                 symbol: '$',
                 name: 'Доллар США',
                 isActive: true
             },
             {
                 currency: 'EUR',
-                rate: 0.086,
+                rate: 11.6,
                 symbol: '€',
                 name: 'Евро',
                 isActive: true
             },
             {
                 currency: 'RUB',
-                rate: 9.2,
+                rate: 0.11,
                 symbol: '₽',
                 name: 'Российский рубль',
                 isActive: true
             },
             {
                 currency: 'CNY',
-                rate: 0.65,
+                rate: 1.5,
                 symbol: '¥',
                 name: 'Китайский юань',
                 isActive: true
@@ -284,9 +284,9 @@ export const convertPrice = async (req: Request, res: Response) => {
         }
 
         const tjsAmount = parseFloat(amount as string);
-        // Формат курса: сколько валюты за 1 TJS (например 0.094 USD = 1 TJS)
-        // Для конвертации из TJS в другую валюту: tjsAmount * rate
-        const convertedAmount = tjsAmount * rate.rate;
+        // Формат курса: сколько TJS за 1 единицу валюты (например 1 USD = 10.6 TJS)
+        // Для конвертации из TJS в другую валюту: tjsAmount / rate
+        const convertedAmount = tjsAmount / rate.rate;
 
         res.json({
             success: true,

@@ -44,8 +44,8 @@ async function loadExchangeRates() {
         }
     } catch (error) {
         console.error('❌ Error loading exchange rates:', error);
-        // Fallback курсы (формат: сколько валюты за 1 TJS)
-        exchangeRates = { TJS: 1, USD: 0.094, EUR: 0.086, RUB: 9.2, CNY: 0.65 };
+        // Fallback курсы (формат: сколько TJS за 1 единицу валюты)
+        exchangeRates = { TJS: 1, USD: 10.6, EUR: 11.6, RUB: 0.11, CNY: 1.5 };
     }
 }
 
@@ -253,7 +253,7 @@ function getTourPrice(tour) {
 }
 
 // Конвертация цены
-// Формат курсов: rate = сколько валюты за 1 TJS (например USD: 0.094)
+// Формат курсов: rate = сколько TJS за 1 единицу валюты (например USD: 10.6)
 function convertPrice(amount, fromCurrency, toCurrency) {
     if (fromCurrency === toCurrency) return amount;
     
@@ -261,10 +261,10 @@ function convertPrice(amount, fromCurrency, toCurrency) {
     const toRate = exchangeRates[toCurrency] || 1;
     
     // Конвертируем в TJS, затем в целевую валюту
-    // Если fromRate = 0.094 (USD), то 1 USD / 0.094 = ~10.64 TJS
-    // Если toRate = 9.2 (RUB), то 10.64 TJS * 9.2 = ~98 RUB
-    const amountInTJS = amount / fromRate;
-    return amountInTJS * toRate;
+    // Если fromRate = 10.6 (USD), то 1 USD * 10.6 = 10.6 TJS
+    // Если toRate = 0.11 (RUB), то 10.6 TJS / 0.11 = ~96 RUB
+    const amountInTJS = amount * fromRate;
+    return amountInTJS / toRate;
 }
 
 // Форматирование цены
