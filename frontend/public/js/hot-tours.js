@@ -30,20 +30,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Загрузка курсов валют
 async function loadExchangeRates() {
     try {
-        const response = await fetch('/api/currencies');
+        // Используем тот же API что и остальные страницы
+        const response = await fetch('/api/exchange-rates/map');
         if (response.ok) {
             const result = await response.json();
             if (result.success) {
-                result.data.forEach(currency => {
-                    exchangeRates[currency.code] = currency.exchangeRate;
+                // Преобразуем в формат {currency: rate} для совместимости
+                Object.keys(result.data).forEach(currency => {
+                    exchangeRates[currency] = result.data[currency].rate;
                 });
                 console.log('💱 Exchange rates loaded:', exchangeRates);
             }
         }
     } catch (error) {
         console.error('❌ Error loading exchange rates:', error);
-        // Fallback курсы
-        exchangeRates = { TJS: 1, USD: 10.5, EUR: 12, RUB: 0.11, CNY: 1.5 };
+        // Fallback курсы (формат: сколько валюты за 1 TJS)
+        exchangeRates = { TJS: 1, USD: 0.094, EUR: 0.086, RUB: 9.2, CNY: 0.65 };
     }
 }
 
@@ -251,6 +253,7 @@ function getTourPrice(tour) {
 }
 
 // Конвертация цены
+// Формат курсов: rate = сколько валюты за 1 TJS (например USD: 0.094)
 function convertPrice(amount, fromCurrency, toCurrency) {
     if (fromCurrency === toCurrency) return amount;
     
@@ -258,8 +261,10 @@ function convertPrice(amount, fromCurrency, toCurrency) {
     const toRate = exchangeRates[toCurrency] || 1;
     
     // Конвертируем в TJS, затем в целевую валюту
-    const amountInTJS = amount * fromRate;
-    return amountInTJS / toRate;
+    // Если fromRate = 0.094 (USD), то 1 USD / 0.094 = ~10.64 TJS
+    // Если toRate = 9.2 (RUB), то 10.64 TJS * 9.2 = ~98 RUB
+    const amountInTJS = amount / fromRate;
+    return amountInTJS * toRate;
 }
 
 // Форматирование цены

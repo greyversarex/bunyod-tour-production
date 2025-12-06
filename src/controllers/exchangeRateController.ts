@@ -98,38 +98,39 @@ export const updateExchangeRate = async (req: Request, res: Response) => {
 // Инициализировать базовые курсы валют
 export const initializeExchangeRates = async (req: Request, res: Response) => {
     try {
+        // Формат курса: сколько валюты за 1 TJS (например 0.094 USD = 1 TJS)
         const defaultRates = [
             {
                 currency: 'TJS',
                 rate: 1,
-                symbol: 'tjs',
+                symbol: 'TJS',
                 name: 'Сомони',
                 isActive: true
             },
             {
                 currency: 'USD',
-                rate: 11.0,
+                rate: 0.094,
                 symbol: '$',
                 name: 'Доллар США',
                 isActive: true
             },
             {
                 currency: 'EUR',
-                rate: 12.0,
+                rate: 0.086,
                 symbol: '€',
                 name: 'Евро',
                 isActive: true
             },
             {
                 currency: 'RUB',
-                rate: 0.12,
+                rate: 9.2,
                 symbol: '₽',
                 name: 'Российский рубль',
                 isActive: true
             },
             {
                 currency: 'CNY',
-                rate: 1.5,
+                rate: 0.65,
                 symbol: '¥',
                 name: 'Китайский юань',
                 isActive: true
@@ -267,7 +268,7 @@ export const convertPrice = async (req: Request, res: Response) => {
             return;
         }
 
-        const rate = await prisma.exchangeRate.findUnique({
+        const rate = await prisma.exchangeRate.findFirst({
             where: { 
                 currency: targetCurrency as string,
                 isActive: true
@@ -283,9 +284,9 @@ export const convertPrice = async (req: Request, res: Response) => {
         }
 
         const tjsAmount = parseFloat(amount as string);
-        // Новая логика: курс показывает сколько TJS за 1 единицу валюты
-        // Для конвертации из TJS в другую валюту: tjsAmount / rate
-        const convertedAmount = tjsAmount / rate.rate;
+        // Формат курса: сколько валюты за 1 TJS (например 0.094 USD = 1 TJS)
+        // Для конвертации из TJS в другую валюту: tjsAmount * rate
+        const convertedAmount = tjsAmount * rate.rate;
 
         res.json({
             success: true,

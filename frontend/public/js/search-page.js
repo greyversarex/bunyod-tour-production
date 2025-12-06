@@ -44,8 +44,39 @@ const state = {
     openFilters: new Set(['categories', 'price'])  // Open by default
 };
 
+// ============= EXCHANGE RATES =============
+// Загрузка курсов валют из API (как на главной странице)
+async function loadExchangeRates() {
+    try {
+        console.log('💱 [SEARCH] Loading exchange rates...');
+        const response = await fetch('/api/exchange-rates/map');
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+                window.exchangeRates = result.data;
+                console.log('💱 [SEARCH] Exchange rates loaded:', window.exchangeRates);
+            } else {
+                console.error('❌ [SEARCH] Failed to load exchange rates:', result.message);
+            }
+        } else {
+            console.error('❌ [SEARCH] Exchange rates API request failed:', response.status);
+        }
+    } catch (error) {
+        console.error('❌ [SEARCH] Error loading exchange rates:', error);
+        // Fallback курсы валют (формат: сколько валюты за 1 TJS)
+        window.exchangeRates = {
+            'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
+            'USD': { rate: 0.094, symbol: '$', name: 'Доллар США' },
+            'EUR': { rate: 0.086, symbol: '€', name: 'Евро' },
+            'RUB': { rate: 9.2, symbol: '₽', name: 'Российский рубль' },
+            'CNY': { rate: 0.65, symbol: '¥', name: 'Китайский юань' }
+        };
+    }
+}
+
 // ============= PRICE FORMATTING =============
 function formatPrice(priceInTJS, currency = 'TJS') {
+    // Используем курсы из API или fallback
     const exchangeRates = window.exchangeRates || {
         'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
         'USD': { rate: 0.094, symbol: '$', name: 'Доллар США' },
@@ -67,7 +98,8 @@ function formatPrice(priceInTJS, currency = 'TJS') {
         return `${Math.round(priceInTJS)} ${rate.symbol}`;
     }
     
-    // ИСПРАВЛЕНО: Умножаем вместо деления! 1 TJS = 0.086 EUR, значит 100 TJS = 100 * 0.086 = 8.6 EUR
+    // Формула: priceInTJS * rate.rate (где rate = сколько валюты за 1 TJS)
+    // Например: 100 TJS * 0.094 = 9.4 USD
     const convertedPrice = Math.round(priceInTJS * rate.rate);
     return `${convertedPrice} ${rate.symbol}`;
 }
@@ -75,6 +107,9 @@ function formatPrice(priceInTJS, currency = 'TJS') {
 // ============= DATA LOADING =============
 async function loadAllData() {
     console.log('🔍 Initializing search page...');
+    
+    // Загружаем курсы валют ПЕРВЫМ делом, чтобы цены отображались корректно
+    await loadExchangeRates();
     
     const lang = state.currentLang;
     
