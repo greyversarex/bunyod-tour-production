@@ -211,6 +211,15 @@ class LayoutLoader {
                 element.textContent = currency;
             });
             
+            // ✅ Обновляем активный класс на опциях dropdown
+            document.querySelectorAll('[data-currency]').forEach(option => {
+                if (option.getAttribute('data-currency') === currency) {
+                    option.classList.add('active');
+                } else {
+                    option.classList.remove('active');
+                }
+            });
+            
             // Сохраняем в localStorage
             localStorage.setItem('selectedCurrency', currency);
             
@@ -308,6 +317,15 @@ class LayoutLoader {
         const selectedCurrencies = document.querySelectorAll('.selected-currency');
         selectedCurrencies.forEach(element => {
             element.textContent = savedCurrency;
+        });
+        
+        // ✅ Обновляем активный класс на опциях dropdown
+        document.querySelectorAll('[data-currency]').forEach(option => {
+            if (option.getAttribute('data-currency') === savedCurrency) {
+                option.classList.add('active');
+            } else {
+                option.classList.remove('active');
+            }
         });
         
         // Вызываем обработчик смены валюты если он существует
