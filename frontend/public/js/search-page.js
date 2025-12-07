@@ -864,31 +864,39 @@ function performSearch() {
 function searchTours() {
     let results = [...state.allTours];
     
-    // Apply text search - РАСШИРЕННЫЙ ПОИСК ПО ВСЕМ ПОЛЯМ
+    // Apply text search - РАСШИРЕННЫЙ ПОИСК ПО ВСЕМ ПОЛЯМ (ОБА ЯЗЫКА)
     if (state.filters.query) {
         const query = state.filters.query.toLowerCase();
         results = results.filter(tour => {
-            // 1. Поиск по названию и описанию
-            const title = typeof tour.title === 'object' ? (tour.title.ru || tour.title.en || '') : tour.title;
-            const desc = typeof tour.description === 'object' ? (tour.description.ru || tour.description.en || '') : tour.description;
-            if (title.toLowerCase().includes(query) || desc.toLowerCase().includes(query)) {
+            // 1. Поиск по названию и описанию (ищем по ОБОИМ языкам)
+            const titleRu = typeof tour.title === 'object' ? (tour.title.ru || '') : '';
+            const titleEn = typeof tour.title === 'object' ? (tour.title.en || '') : (tour.title || '');
+            const descRu = typeof tour.description === 'object' ? (tour.description.ru || '') : '';
+            const descEn = typeof tour.description === 'object' ? (tour.description.en || '') : (tour.description || '');
+            
+            if (titleRu.toLowerCase().includes(query) || 
+                titleEn.toLowerCase().includes(query) ||
+                descRu.toLowerCase().includes(query) || 
+                descEn.toLowerCase().includes(query)) {
                 return true;
             }
             
-            // 2. Поиск по странам
+            // 2. Поиск по странам (оба языка)
             if (tour.tourCountries && tour.tourCountries.length > 0) {
                 const countryMatch = tour.tourCountries.some(tc => {
-                    const countryName = tc.country?.nameRu || tc.country?.nameEn || '';
-                    return countryName.toLowerCase().includes(query);
+                    const nameRu = tc.country?.nameRu || '';
+                    const nameEn = tc.country?.nameEn || '';
+                    return nameRu.toLowerCase().includes(query) || nameEn.toLowerCase().includes(query);
                 });
                 if (countryMatch) return true;
             }
             
-            // 3. Поиск по городам
+            // 3. Поиск по городам (оба языка)
             if (tour.tourCities && tour.tourCities.length > 0) {
                 const cityMatch = tour.tourCities.some(tc => {
-                    const cityName = tc.city?.nameRu || tc.city?.nameEn || '';
-                    return cityName.toLowerCase().includes(query);
+                    const nameRu = tc.city?.nameRu || '';
+                    const nameEn = tc.city?.nameEn || '';
+                    return nameRu.toLowerCase().includes(query) || nameEn.toLowerCase().includes(query);
                 });
                 if (cityMatch) return true;
             }
