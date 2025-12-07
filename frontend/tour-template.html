@@ -1673,8 +1673,10 @@
             const mapContainer = document.getElementById('tour-map');
             if (!tourMap && mapContainer && typeof L !== 'undefined') {
                 tourMap = L.map('tour-map', {
-                    attributionControl: false  // Убираем attribution (надпись и флаг)
-                }).setView([activities[0].coordinates.lat, activities[0].coordinates.lng], 12);
+                    attributionControl: false,  // Убираем attribution (надпись и флаг)
+                    scrollWheelZoom: true,      // ✅ Масштабирование колесом мыши
+                    zoomControl: true           // ✅ Кнопки +/- для зума
+                }).setView([activities[0].coordinates.lat, activities[0].coordinates.lng], 8); // Более отдалённый зум
                 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 18
@@ -1737,11 +1739,11 @@
                 // Центрируем карту по всем точкам с увеличенным padding и ограничением zoom
                 tourMap.fitBounds(polyline.getBounds(), { 
                     padding: [80, 80],  // Увеличенный отступ для лучшего обзора
-                    maxZoom: 12         // Ограничение максимального приближения
+                    maxZoom: 9          // Более отдалённый зум для лучшего обзора маршрута
                 });
             } else if (coordinates.length === 1) {
                 // Если только одна точка, центрируем на ней с умеренным zoom
-                tourMap.setView(coordinates[0], 12);
+                tourMap.setView(coordinates[0], 10); // Более отдалённый зум
             }
             
             console.log(`📍 Карта обновлена для дня ${day} (${activities.length} точек)`);

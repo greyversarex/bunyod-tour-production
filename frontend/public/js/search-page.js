@@ -35,6 +35,8 @@ const state = {
         tourTypes: [],
         priceMin: 0,
         priceMax: 100000,
+        groupSizeMin: 1,
+        groupSizeMax: 100,
         languages: [],
         stars: [],
         amenities: []
@@ -43,6 +45,166 @@ const state = {
     // Accordion state
     openFilters: new Set(['categories', 'price'])  // Open by default
 };
+
+// ============= SEARCH SUGGESTIONS =============
+let searchTimeout;
+
+// Функция для обработки ввода в поисковую строку
+function handleSearchPageInput(query) {
+    clearTimeout(searchTimeout);
+    
+    // Обновляем state
+    state.filters.query = query;
+    
+    if (query.length >= 2) {
+        searchTimeout = setTimeout(() => {
+            fetchSearchSuggestions(query);
+        }, 300);
+    } else {
+        hideSearchSuggestions();
+    }
+    
+    // Применяем фильтр по query ко всем турам
+    performSearch();
+}
+
+// Функция для получения подсказок
+async function fetchSearchSuggestions(query) {
+    try {
+        const response = await fetch(`/api/tours/suggestions?query=${encodeURIComponent(query)}&lang=${state.currentLang}`);
+        const result = await response.json();
+        
+        if (result.success && result.data.length > 0) {
+            displaySearchSuggestions(result.data);
+        } else {
+            // Fallback: показываем совпадения из загруженных туров
+            showLocalSuggestions(query);
+        }
+    } catch (error) {
+        console.error('Error fetching suggestions:', error);
+        showLocalSuggestions(query);
+    }
+}
+
+// Показать подсказки из уже загруженных туров
+function showLocalSuggestions(query) {
+    const queryLower = query.toLowerCase();
+    const suggestions = [];
+    
+    // Ищем в турах
+    state.allTours.forEach(tour => {
+        const name = state.currentLang === 'en' ? (tour.nameEn || tour.name) : (tour.name || tour.nameEn);
+        if (name && name.toLowerCase().includes(queryLower)) {
+            suggestions.push({
+                text: name,
+                type: state.currentLang === 'en' ? 'tour' : 'тур',
+                id: tour.id
+            });
+        }
+    });
+    
+    // Ограничиваем до 8 подсказок
+    if (suggestions.length > 0) {
+        displaySearchSuggestions(suggestions.slice(0, 8));
+    } else {
+        hideSearchSuggestions();
+    }
+}
+
+// Функция для отображения подсказок
+function displaySearchSuggestions(suggestions) {
+    const container = document.getElementById('searchSuggestions');
+    if (!container) return;
+    
+    if (suggestions.length === 0) {
+        hideSearchSuggestions();
+        return;
+    }
+    
+    container.innerHTML = '';
+    
+    suggestions.forEach(suggestion => {
+        const suggestionDiv = document.createElement('div');
+        suggestionDiv.className = 'suggestion-item';
+        suggestionDiv.onclick = () => selectSearchSuggestion(suggestion.text, suggestion.type, suggestion.id);
+        
+        const iconSvg = document.createElement('svg');
+        iconSvg.className = 'suggestion-icon';
+        iconSvg.setAttribute('fill', 'none');
+        iconSvg.setAttribute('stroke', 'currentColor');
+        iconSvg.setAttribute('viewBox', '0 0 24 24');
+        iconSvg.innerHTML = getSearchSuggestionIcon(suggestion.type);
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'suggestion-text';
+        textSpan.textContent = suggestion.text;
+        
+        const typeSpan = document.createElement('span');
+        typeSpan.className = 'suggestion-type';
+        const typeTranslations = {
+            'тур': { ru: 'тур', en: 'tour' },
+            'tour': { ru: 'тур', en: 'tour' },
+            'отель': { ru: 'отель', en: 'hotel' },
+            'hotel': { ru: 'отель', en: 'hotel' }
+        };
+        const typeNormalized = (suggestion.type || '').toLowerCase();
+        const translatedType = typeTranslations[typeNormalized] 
+            ? typeTranslations[typeNormalized][state.currentLang] 
+            : suggestion.type;
+        typeSpan.textContent = translatedType;
+        
+        suggestionDiv.appendChild(iconSvg);
+        suggestionDiv.appendChild(textSpan);
+        suggestionDiv.appendChild(typeSpan);
+        
+        container.appendChild(suggestionDiv);
+    });
+    
+    container.classList.remove('hidden');
+}
+
+// Функция для получения иконки подсказки
+function getSearchSuggestionIcon(type) {
+    const typeNormalized = (type || '').toLowerCase();
+    
+    if (typeNormalized === 'тур' || typeNormalized === 'tour') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>';
+    }
+    
+    if (typeNormalized === 'отель' || typeNormalized === 'hotel') {
+        return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>';
+    }
+    
+    // Дефолтная иконка поиска
+    return '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>';
+}
+
+// Функция для выбора подсказки
+function selectSearchSuggestion(text, type, id) {
+    const searchInput = document.getElementById('search-query');
+    if (searchInput) {
+        searchInput.value = text;
+    }
+    state.filters.query = text;
+    hideSearchSuggestions();
+    performSearch();
+}
+
+// Функция для скрытия подсказок
+function hideSearchSuggestions() {
+    const container = document.getElementById('searchSuggestions');
+    if (container) {
+        container.classList.add('hidden');
+    }
+}
+
+// Скрывать подсказки при клике вне области
+document.addEventListener('click', (e) => {
+    const searchContainer = document.querySelector('.search-container');
+    if (searchContainer && !searchContainer.contains(e.target)) {
+        hideSearchSuggestions();
+    }
+});
 
 // ============= EXCHANGE RATES =============
 // Загрузка курсов валют из API (как на главной странице)
@@ -865,6 +1027,14 @@ function searchTours() {
         return price >= state.filters.priceMin && price <= state.filters.priceMax;
     });
     
+    // Apply group size filter
+    results = results.filter(tour => {
+        const minPeople = parseInt(tour.minPeople) || 1;
+        const maxPeople = parseInt(tour.maxPeople) || 100;
+        // Тур подходит если его диапазон пересекается с фильтром
+        return maxPeople >= state.filters.groupSizeMin && minPeople <= state.filters.groupSizeMax;
+    });
+    
     // Apply date filter
     if (state.filters.date) {
         results = results.filter(tour => {
@@ -1674,6 +1844,24 @@ function setupEventListeners() {
     if (priceMaxInput) {
         priceMaxInput.addEventListener('input', (e) => {
             state.filters.priceMax = parseFloat(e.target.value) || 100000;
+            performSearch();
+        });
+    }
+    
+    // Group size filter inputs
+    const groupSizeMinInput = document.getElementById('groupsize-min');
+    const groupSizeMaxInput = document.getElementById('groupsize-max');
+    
+    if (groupSizeMinInput) {
+        groupSizeMinInput.addEventListener('input', (e) => {
+            state.filters.groupSizeMin = parseInt(e.target.value) || 1;
+            performSearch();
+        });
+    }
+    
+    if (groupSizeMaxInput) {
+        groupSizeMaxInput.addEventListener('input', (e) => {
+            state.filters.groupSizeMax = parseInt(e.target.value) || 100;
             performSearch();
         });
     }
