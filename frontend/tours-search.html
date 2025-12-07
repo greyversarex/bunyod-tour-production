@@ -436,6 +436,30 @@
                         </div>
                     </div>
                     
+                    <!-- Численность группы -->
+                    <div class="filter-section" id="filter-section-groupsize">
+                        <div class="filter-header" onclick="toggleFilter('groupsize')">
+                            <div class="filter-title" data-translate="search.group_size">ЧИСЛЕННОСТЬ ГРУППЫ</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="groupsize-content">
+                            <div class="filter-options-wrapper">
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm text-gray-600 w-12" data-translate="search.group_min_label">Мин:</span>
+                                        <input type="number" id="groupsize-min" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600" placeholder="1" value="1" min="1">
+                                        <span class="text-sm text-gray-500" data-translate="search.people_label">чел.</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-sm text-gray-600 w-12" data-translate="search.group_max_label">Макс:</span>
+                                        <input type="number" id="groupsize-max" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600" placeholder="100" value="100">
+                                        <span class="text-sm text-gray-500" data-translate="search.people_label">чел.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Категории туров -->
                     <div class="filter-section open" id="filter-section-categories">
                         <div class="filter-header" onclick="toggleFilter('categories')">
@@ -487,22 +511,6 @@
                                 <div class="price-range-inputs">
                                     <input type="number" id="price-min" placeholder="От" data-translate-placeholder="search.price_from" value="0">
                                     <input type="number" id="price-max" placeholder="До" data-translate-placeholder="search.price_to" value="100000">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Численность группы -->
-                    <div class="filter-section" id="filter-section-groupsize">
-                        <div class="filter-header" onclick="toggleFilter('groupsize')">
-                            <div class="filter-title" data-translate="search.group_size">ЧИСЛЕННОСТЬ ГРУППЫ</div>
-                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
-                        </div>
-                        <div class="filter-content" id="groupsize-content">
-                            <div class="filter-options-wrapper">
-                                <div class="price-range-inputs">
-                                    <input type="number" id="groupsize-min" placeholder="От" data-translate-placeholder="search.group_from" value="1" min="1">
-                                    <input type="number" id="groupsize-max" placeholder="До" data-translate-placeholder="search.group_to" value="100">
                                 </div>
                             </div>
                         </div>
