@@ -1599,8 +1599,8 @@ function createTourCard(tour) {
             </div>
             <!-- Контент карточки - фиксированная высота для выравнивания -->
             <div class="p-5 flex flex-col flex-grow">
-                <!-- Мета-информация - фиксированная высота -->
-                <div class="h-16 mb-3">
+                <!-- Мета-информация - фиксированная высота (3 строки как на главной) -->
+                <div class="h-20 mb-3">
                     <!-- Локация -->
                     <div class="text-sm mb-1 flex items-center gap-1.5" style="color: #6B7280;">
                         <svg class="inline w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1608,11 +1608,15 @@ function createTourCard(tour) {
                         </svg>
                         <span class="font-medium truncate">${getDisplayLocation(tour)}</span>
                     </div>
-                    <!-- Тип тура и длительность -->
+                    <!-- Тип тура с макс. количеством людей (как на главной) -->
                     <div class="text-sm flex items-center gap-1.5" style="color: #3B82F6;">
                         ${getTourTypeIcon(normalizedTourType)}
-                        <span class="font-medium">${tourTypeText}</span>
-                        ${(tour.duration || tour.durationDays) ? `<span class="text-gray-500">• ${formatDuration(tour, currentLang)}</span>` : ''}
+                        <span class="font-medium">${tourTypeText}</span>${normalizedTourType !== 'individual' && tour.maxPeople ? `<span class="text-gray-600 ml-1">(${currentLang === 'en' ? `up to ${tour.maxPeople} people` : `до ${tour.maxPeople} чел.`})</span>` : ''}
+                    </div>
+                    <!-- Категория и продолжительность (как на главной) -->
+                    <div class="text-sm flex items-center gap-1.5" style="color: #3E3E3E;">
+                        ${getCategoryIcon(categoryText)}
+                        <span class="font-medium">${categoryText}${(tour.duration || tour.durationDays) ? `, ${formatDuration(tour, currentLang)}` : ''}</span>
                     </div>
                 </div>
                 
