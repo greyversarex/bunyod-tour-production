@@ -48,6 +48,8 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
 -   **Order Details Modal Windows**: Type-specific modals in the admin panel for Guide Hire, Transfer, Custom Tour, and Regular Tour orders, displaying relevant details, client info, and payment info.
 -   **Payler Integration Hardening**: Includes idempotency protection, IP security checks, retry logic for API calls, a `PaymentRefundLog` model for audit trails, and asynchronous email sending.
 -   **Payment Validation Parity**: Unified validation for transfer payments across Payler and Alif, ensuring transfer request existence, price consistency, and valid status. Enhanced logging and order type detection for improved user feedback on BT-prefixed orders.
+-   **Tour Map Improvements** (Dec 07, 2025): Reduced default zoom level for better overview, enabled mouse wheel scrolling for zoom control.
+-   **Search Page Enhancements** (Dec 07, 2025): Added group size filter (min/max people), added autocomplete suggestions matching homepage functionality.
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
