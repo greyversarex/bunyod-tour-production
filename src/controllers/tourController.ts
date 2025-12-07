@@ -1539,7 +1539,16 @@ export class TourController {
       }
 
       // Use TourModel to search with filters or get all tours if no filters
-      const tours = await TourModel.search(filters.length > 0 ? { AND: filters } : {});
+      let tours;
+      if (filters.length > 0) {
+        const whereClause = { AND: filters };
+        console.log('🔍 [SEARCH] Filters count:', filters.length, 'Where clause:', JSON.stringify(whereClause));
+        tours = await TourModel.search(whereClause);
+      } else {
+        console.log('🔍 [SEARCH] No filters, using findAll()');
+        tours = await TourModel.findAll();
+      }
+      console.log('🔍 [SEARCH] Found tours:', tours.length);
       
       // Parse JSON fields for response
       const parsedTours = tours.map((tour: any) => ({
@@ -1601,6 +1610,7 @@ export class TourController {
       
       // 1. Add tour suggestions
       const tours = await TourModel.findAll();
+      console.log('🔍 [SUGGESTIONS] TourModel.findAll() returned:', tours.length, 'tours');
       tours.forEach((tour: any) => {
         try {
           let title: any;
