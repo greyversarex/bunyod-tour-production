@@ -1538,16 +1538,11 @@ export class TourController {
         }
       }
 
-      // Use TourModel to search with filters or get all tours if no filters
-      let tours;
-      if (filters.length > 0) {
-        const whereClause = { AND: filters };
-        console.log('🔍 [SEARCH] Filters count:', filters.length, 'Where clause:', JSON.stringify(whereClause));
-        tours = await TourModel.search(whereClause);
-      } else {
-        console.log('🔍 [SEARCH] No filters, using findAll()');
-        tours = await TourModel.findAll();
-      }
+      // Use TourModel.search with filters (or empty object for all tours)
+      // IMPORTANT: Always use search() because it includes all relations needed for filtering
+      const whereClause = filters.length > 0 ? { AND: filters } : {};
+      console.log('🔍 [SEARCH] Filters count:', filters.length);
+      const tours = await TourModel.search(whereClause);
       console.log('🔍 [SEARCH] Found tours:', tours.length);
       
       // Parse JSON fields for response
