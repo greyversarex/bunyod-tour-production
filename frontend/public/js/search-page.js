@@ -185,6 +185,19 @@ function selectSearchSuggestion(text, type, id) {
     if (searchInput) {
         searchInput.value = text;
     }
+    
+    // Если выбран конкретный тур, перейти на его страницу
+    if ((type === 'тур' || type === 'tour') && id) {
+        window.location.href = `/tour-template.html?id=${id}`;
+        return;
+    }
+    
+    // Если выбран отель, перейти на его страницу
+    if ((type === 'отель' || type === 'hotel') && id) {
+        window.location.href = `/hotel-template.html?id=${id}`;
+        return;
+    }
+    
     state.filters.query = text;
     hideSearchSuggestions();
     performSearch();
