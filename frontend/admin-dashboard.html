@@ -920,39 +920,119 @@
                             </div>
                         </div>
 
-                        <!-- Filter Tabs -->
-                        <div class="flex gap-2 mb-4">
-                            <button class="tab-button active" onclick="filterMonitoring('all')">Все туры</button>
-                            <button class="tab-button" onclick="filterMonitoring('active')">Активные</button>
-                            <button class="tab-button" onclick="filterMonitoring('finished')">Завершённые</button>
+                        <!-- Main View Tabs -->
+                        <div class="flex gap-2 mb-4 border-b pb-2">
+                            <button class="tab-button active" id="tabTours" onclick="switchMonitoringView('tours')">
+                                <i class="fas fa-route mr-1"></i> Туры (legacy)
+                            </button>
+                            <button class="tab-button" id="tabBookings" onclick="switchMonitoringView('bookings')">
+                                <i class="fas fa-calendar-check mr-1"></i> Бронирования
+                            </button>
                         </div>
 
-                        <!-- Tours Monitoring Table -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-4 py-3 text-left">Код тура</th>
-                                        <th class="px-4 py-3 text-left">Название</th>
-                                        <th class="px-4 py-3 text-left">Гид</th>
-                                        <th class="px-4 py-3 text-left">Туристы</th>
-                                        <th class="px-4 py-3 text-left">Прогресс</th>
-                                        <th class="px-4 py-3 text-left">Статус</th>
-                                        <th class="px-4 py-3 text-left">Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="monitoringToursTable">
-                                    <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                            <i class="fas fa-spinner fa-spin mr-2"></i>
-                                            Загрузка данных...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <!-- Tours View (Legacy) -->
+                        <div id="toursMonitoringView">
+                            <!-- Filter Tabs -->
+                            <div class="flex gap-2 mb-4">
+                                <button class="tab-button active" onclick="filterMonitoring('all')">Все туры</button>
+                                <button class="tab-button" onclick="filterMonitoring('active')">Активные</button>
+                                <button class="tab-button" onclick="filterMonitoring('finished')">Завершённые</button>
+                            </div>
+
+                            <!-- Tours Monitoring Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">Код тура</th>
+                                            <th class="px-4 py-3 text-left">Название</th>
+                                            <th class="px-4 py-3 text-left">Гид</th>
+                                            <th class="px-4 py-3 text-left">Туристы</th>
+                                            <th class="px-4 py-3 text-left">Прогресс</th>
+                                            <th class="px-4 py-3 text-left">Статус</th>
+                                            <th class="px-4 py-3 text-left">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monitoringToursTable">
+                                        <tr>
+                                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                                Загрузка данных...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Bookings View (New System) -->
+                        <div id="bookingsMonitoringView" style="display: none;">
+                            <!-- Bookings Filter Tabs -->
+                            <div class="flex gap-2 mb-4">
+                                <button class="tab-button active" id="bookingFilterAll" onclick="filterBookings('all')">Все</button>
+                                <button class="tab-button" id="bookingFilterNoGuide" onclick="filterBookings('no_guide')">Без гида</button>
+                                <button class="tab-button" id="bookingFilterPending" onclick="filterBookings('pending')">Ожидают</button>
+                                <button class="tab-button" id="bookingFilterInProgress" onclick="filterBookings('in_progress')">В процессе</button>
+                                <button class="tab-button" id="bookingFilterCompleted" onclick="filterBookings('completed')">Завершённые</button>
+                            </div>
+
+                            <!-- Bookings Table -->
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left">#</th>
+                                            <th class="px-4 py-3 text-left">Тур</th>
+                                            <th class="px-4 py-3 text-left">Дата</th>
+                                            <th class="px-4 py-3 text-left">Туристы</th>
+                                            <th class="px-4 py-3 text-left">Контакт</th>
+                                            <th class="px-4 py-3 text-left">Гид</th>
+                                            <th class="px-4 py-3 text-left">Статус</th>
+                                            <th class="px-4 py-3 text-left">Действия</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="monitoringBookingsTable">
+                                        <tr>
+                                            <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                                Загрузка бронирований...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal for assigning guide to booking -->
+                    <div id="assignGuideToBookingModal" class="modal" style="display: none;">
+                        <div class="modal-content" style="max-width: 500px;">
+                            <div class="modal-header">
+                                <h3><i class="fas fa-user-plus mr-2"></i>Назначить гида</h3>
+                                <button class="close-btn" onclick="closeAssignGuideModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" id="assignBookingId">
+                                <div class="mb-4">
+                                    <p class="text-gray-600 mb-2">Бронирование: <strong id="assignBookingInfo"></strong></p>
+                                </div>
+                                <div class="form-group">
+                                    <label>Выберите гида:</label>
+                                    <select id="assignGuideSelect" class="form-control">
+                                        <option value="">-- Выберите гида --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="closeAssignGuideModal()">Отмена</button>
+                                <button class="btn btn-primary" onclick="confirmAssignGuide()">
+                                    <i class="fas fa-check mr-1"></i> Назначить
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </section>
+
 
                 <!-- Hotels Section -->
                 <section id="hotelsSection" style="display: none;">
@@ -10164,6 +10244,291 @@
 
             displayMonitoringTours(filteredTours);
         }
+
+
+        // ==================== BOOKINGS MONITORING SYSTEM ====================
+        let allMonitoringBookings = [];
+        let currentBookingFilter = 'all';
+        let availableGuides = [];
+
+        // Switch between tours and bookings views
+        function switchMonitoringView(view) {
+            const toursView = document.getElementById('toursMonitoringView');
+            const bookingsView = document.getElementById('bookingsMonitoringView');
+            const tabTours = document.getElementById('tabTours');
+            const tabBookings = document.getElementById('tabBookings');
+            
+            if (view === 'tours') {
+                toursView.style.display = 'block';
+                bookingsView.style.display = 'none';
+                tabTours.classList.add('active');
+                tabBookings.classList.remove('active');
+            } else {
+                toursView.style.display = 'none';
+                bookingsView.style.display = 'block';
+                tabTours.classList.remove('active');
+                tabBookings.classList.add('active');
+                loadMonitoringBookings();
+            }
+        }
+
+        // Load paid bookings
+        async function loadMonitoringBookings() {
+            try {
+                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/bookings/paid`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allMonitoringBookings = data.data || [];
+                    displayMonitoringBookings(allMonitoringBookings);
+                    updateBookingStats();
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                document.getElementById('monitoringBookingsTable').innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-4 py-8 text-center text-red-500">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Ошибка загрузки бронирований
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Update booking statistics
+        function updateBookingStats() {
+            const noGuide = allMonitoringBookings.filter(b => !b.assignedGuideId).length;
+            const pending = allMonitoringBookings.filter(b => b.executionStatus === 'pending').length;
+            const inProgress = allMonitoringBookings.filter(b => b.executionStatus === 'in_progress').length;
+            const completed = allMonitoringBookings.filter(b => b.executionStatus === 'completed').length;
+            
+            document.getElementById('monitoringActiveTours').textContent = allMonitoringBookings.length;
+            document.getElementById('monitoringFinishedToday').textContent = completed;
+            document.getElementById('monitoringActiveGuides').textContent = inProgress;
+            document.getElementById('monitoringTourists').textContent = allMonitoringBookings.reduce((sum, b) => sum + b.numberOfTourists, 0);
+        }
+
+        // Display bookings in table
+        function displayMonitoringBookings(bookings) {
+            const tbody = document.getElementById('monitoringBookingsTable');
+            
+            if (!bookings || bookings.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-4 py-8 text-center text-gray-500">
+                            <i class="fas fa-calendar-times mr-2"></i>
+                            Нет оплаченных бронирований
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const statusLabels = {
+                'pending': '<span class="badge bg-yellow-100 text-yellow-800">Ожидает</span>',
+                'in_progress': '<span class="badge bg-blue-100 text-blue-800">В процессе</span>',
+                'completed': '<span class="badge bg-green-100 text-green-800">Завершён</span>'
+            };
+
+            tbody.innerHTML = bookings.map(booking => {
+                const tourTitle = booking.tour?.title?.ru || booking.tour?.title?.en || booking.tour?.title || 'Без названия';
+                const guideName = booking.assignedGuide?.name || '<span class="text-red-500">Не назначен</span>';
+                const guideButton = booking.assignedGuideId 
+                    ? `<button class="btn btn-sm btn-secondary" onclick="openAssignGuideModal(${booking.id}, '${tourTitle}')">
+                         <i class="fas fa-user-edit"></i>
+                       </button>`
+                    : `<button class="btn btn-sm btn-primary" onclick="openAssignGuideModal(${booking.id}, '${tourTitle}')">
+                         <i class="fas fa-user-plus"></i> Назначить
+                       </button>`;
+
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-4 py-3 font-mono text-sm">#${booking.id}</td>
+                        <td class="px-4 py-3">
+                            <div class="font-medium">${tourTitle}</div>
+                            <div class="text-xs text-gray-500">${booking.tour?.uniqueCode || ''}</div>
+                        </td>
+                        <td class="px-4 py-3">${booking.tourDate || 'Не указана'}</td>
+                        <td class="px-4 py-3">
+                            <span class="font-semibold">${booking.numberOfTourists}</span> чел.
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="text-sm">${booking.contactName || '-'}</div>
+                            <div class="text-xs text-gray-500">${booking.contactPhone || ''}</div>
+                        </td>
+                        <td class="px-4 py-3">${guideName}</td>
+                        <td class="px-4 py-3">${statusLabels[booking.executionStatus] || statusLabels['pending']}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex gap-2">
+                                ${guideButton}
+                                <button class="btn btn-sm btn-secondary" onclick="viewBookingDetails(${booking.id})" title="Подробнее">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filter bookings
+        function filterBookings(filter) {
+            currentBookingFilter = filter;
+            
+            // Update active tab
+            ['All', 'NoGuide', 'Pending', 'InProgress', 'Completed'].forEach(f => {
+                const btn = document.getElementById('bookingFilter' + f);
+                if (btn) btn.classList.remove('active');
+            });
+            const activeBtn = document.getElementById('bookingFilter' + filter.charAt(0).toUpperCase() + filter.slice(1).replace('_', ''));
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            let filtered = [...allMonitoringBookings];
+            
+            if (filter === 'no_guide') {
+                filtered = filtered.filter(b => !b.assignedGuideId);
+            } else if (filter === 'pending') {
+                filtered = filtered.filter(b => b.executionStatus === 'pending');
+            } else if (filter === 'in_progress') {
+                filtered = filtered.filter(b => b.executionStatus === 'in_progress');
+            } else if (filter === 'completed') {
+                filtered = filtered.filter(b => b.executionStatus === 'completed');
+            }
+            
+            displayMonitoringBookings(filtered);
+        }
+
+        // Open assign guide modal
+        async function openAssignGuideModal(bookingId, tourTitle) {
+            document.getElementById('assignBookingId').value = bookingId;
+            document.getElementById('assignBookingInfo').textContent = `#${bookingId} - ${tourTitle}`;
+            
+            // Load available guides
+            try {
+                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/guides`, {
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                availableGuides = data.data || [];
+                
+                const select = document.getElementById('assignGuideSelect');
+                select.innerHTML = '<option value="">-- Выберите гида --</option>';
+                availableGuides.forEach(guide => {
+                    select.innerHTML += `<option value="${guide.id}">${guide.name} ${guide.email ? '(' + guide.email + ')' : ''}</option>`;
+                });
+            } catch (error) {
+                console.error('Error loading guides:', error);
+            }
+            
+            document.getElementById('assignGuideToBookingModal').style.display = 'flex';
+        }
+
+        // Close assign guide modal
+        function closeAssignGuideModal() {
+            document.getElementById('assignGuideToBookingModal').style.display = 'none';
+        }
+
+        // Confirm guide assignment
+        async function confirmAssignGuide() {
+            const bookingId = document.getElementById('assignBookingId').value;
+            const guideId = document.getElementById('assignGuideSelect').value;
+            
+            if (!guideId) {
+                showNotification('Выберите гида', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/bookings/assign-guide`, {
+                    method: 'POST',
+                    headers: {
+                        ...getAuthHeaders(),
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookingId, guideId })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification('Гид успешно назначен', 'success');
+                    closeAssignGuideModal();
+                    loadMonitoringBookings();
+                } else {
+                    showNotification(data.message || 'Ошибка назначения', 'error');
+                }
+            } catch (error) {
+                console.error('Error assigning guide:', error);
+                showNotification('Ошибка назначения гида', 'error');
+            }
+        }
+
+        // View booking details
+        function viewBookingDetails(bookingId) {
+            const booking = allMonitoringBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            const tourTitle = booking.tour?.title?.ru || booking.tour?.title?.en || booking.tour?.title || 'Без названия';
+            const statusLabels = {
+                'pending': 'Ожидает',
+                'in_progress': 'В процессе',
+                'completed': 'Завершён'
+            };
+            
+            let tourists = [];
+            try {
+                tourists = JSON.parse(booking.tourists);
+            } catch (e) {}
+            
+            const touristList = Array.isArray(tourists) 
+                ? tourists.map((t, i) => `<li>${i+1}. ${t.fullName || t.name || 'Турист'}</li>`).join('')
+                : `<li>${booking.numberOfTourists} туристов</li>`;
+            
+            const modalContent = `
+                <div class="p-4">
+                    <h3 class="text-lg font-bold mb-4">${tourTitle}</h3>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Бронирование #</p>
+                            <p class="font-medium">${booking.id}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Дата тура</p>
+                            <p class="font-medium">${booking.tourDate || 'Не указана'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Контактное лицо</p>
+                            <p class="font-medium">${booking.contactName || '-'}</p>
+                            <p class="text-sm">${booking.contactPhone || ''} ${booking.contactEmail || ''}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Статус выполнения</p>
+                            <p class="font-medium">${statusLabels[booking.executionStatus]}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Назначенный гид</p>
+                            <p class="font-medium">${booking.assignedGuide?.name || 'Не назначен'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Сумма</p>
+                            <p class="font-medium">${booking.totalPrice} TJS</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Туристы (${booking.numberOfTourists})</p>
+                        <ul class="list-disc list-inside">${touristList}</ul>
+                    </div>
+                    ${booking.specialRequests ? `<div class="bg-yellow-50 p-3 rounded"><p class="text-sm text-gray-600">Особые пожелания:</p><p>${booking.specialRequests}</p></div>` : ''}
+                </div>
+            `;
+            
+            showModalAlert('Детали бронирования', modalContent);
+        }
+        // ==================== END BOOKINGS MONITORING ====================
+
 
         async function viewTourMonitoringDetails(tourId) {
             try {
