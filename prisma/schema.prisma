@@ -639,29 +639,33 @@ model Slide {
 }
 
 model Booking {
-  id                  Int      @id @default(autoincrement())
-  tourId              Int      @map("tour_id")
-  hotelId             Int?     @map("hotel_id")
+  id                  Int               @id @default(autoincrement())
+  tourId              Int               @map("tour_id")
+  hotelId             Int?              @map("hotel_id")
   tourists            String
-  contactName         String?  @map("contact_name")
-  contactPhone        String?  @map("contact_phone")
-  contactEmail        String?  @map("contact_email")
-  roomSelection       String?  @map("room_selection")
-  mealSelection       String?  @map("meal_selection")
-  cityNights          String?  @map("city_nights")
-  totalPrice          Float    @map("total_price")
-  tourDate            String   @map("tour_date")
-  numberOfTourists    Int      @map("number_of_tourists")
-  specialRequests     String?  @map("special_requests")
-  status              String   @default("draft")
-  paymentMethod       String?  @map("payment_method")
-  paymentOption       String?  @default("full") @map("payment_option")
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  selectedCurrency    String   @default("TJS") @map("selected_currency")
-  totalPriceConverted Float?   @map("total_price_converted")
-  hotel               Hotel?   @relation(fields: [hotelId], references: [id])
-  tour                Tour     @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  contactName         String?           @map("contact_name")
+  contactPhone        String?           @map("contact_phone")
+  contactEmail        String?           @map("contact_email")
+  roomSelection       String?           @map("room_selection")
+  mealSelection       String?           @map("meal_selection")
+  cityNights          String?           @map("city_nights")
+  totalPrice          Float             @map("total_price")
+  tourDate            String            @map("tour_date")
+  numberOfTourists    Int               @map("number_of_tourists")
+  specialRequests     String?           @map("special_requests")
+  status              String            @default("draft")
+  paymentMethod       String?           @map("payment_method")
+  paymentOption       String?           @default("full") @map("payment_option")
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  selectedCurrency    String            @default("TJS") @map("selected_currency")
+  totalPriceConverted Float?            @map("total_price_converted")
+  assignedGuideId     Int?              @map("assigned_guide_id")
+  guideAssignedAt     DateTime?         @map("guide_assigned_at")
+  executionStatus     String            @default("pending") @map("execution_status")
+  hotel               Hotel?            @relation(fields: [hotelId], references: [id])
+  tour                Tour              @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  assignedGuide       TourGuideProfile? @relation(fields: [assignedGuideId], references: [id])
 
   @@map("bookings")
 }
@@ -728,15 +732,16 @@ model TourPricingComponent {
 }
 
 model TourGuideProfile {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   name      String
-  login     String   @unique
+  login     String    @unique
   password  String
   email     String?
   phone     String?
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
 
   @@map("tour_guide_profiles")
 }
