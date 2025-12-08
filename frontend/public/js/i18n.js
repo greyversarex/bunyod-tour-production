@@ -1964,6 +1964,7 @@ window.translations = window.translations || {
     'agent.agency_agreement_link': { ru: 'партнерского соглашения', en: 'Agency Agreement' },
     'agent.agree_and': { ru: 'и', en: 'and' },
     'agent.tour_program_link': { ru: 'программой Тур-агента', en: 'Tour Agent Program' },
+    'agent.program_title_link': { ru: 'Программа Тур-агента', en: 'Tour Agent Program' },
     'agent.program_section_title': { ru: 'Программа Тур-агента', en: 'Tour Agent Program' },
     'agent.program_section_desc': { ru: 'Ознакомьтесь с подробной информацией о партнёрской программе, условиях сотрудничества и вознаграждениях', en: 'Learn about the partnership program details, cooperation terms and rewards' },
     'agent.download_program': { ru: 'Скачать программу (PDF)', en: 'Download Program (PDF)' },
