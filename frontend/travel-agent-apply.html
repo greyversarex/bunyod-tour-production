@@ -216,8 +216,18 @@
                         <input type="checkbox" name="agree" required id="agreeCheckbox"
                             class="mt-1 w-5 h-5 text-gray-800 border-gray-300 rounded focus:ring-gray-800">
                         <label for="agreeCheckbox" class="text-sm text-gray-700">
-                            <span data-translate="agent.agree_text">
-                                Я соглашаюсь с условиями партнерского соглашения и политикой конфиденциальности
+                            <span id="agreeTextContainer">
+                                <span data-translate="agent.agree_prefix">Я соглашаюсь с условиями</span>
+                                <a href="/public/docs/agency-agreement-ru.pdf" target="_blank" 
+                                   class="text-blue-600 hover:text-blue-800 underline font-medium"
+                                   id="agencyAgreementLink"
+                                   data-translate="agent.agency_agreement_link"
+                                   onclick="event.stopPropagation();">партнерского соглашения</a>
+                                <span data-translate="agent.agree_and">и</span>
+                                <a href="/privacy-policy.html" target="_blank" 
+                                   class="text-blue-600 hover:text-blue-800 underline font-medium"
+                                   data-translate="agent.privacy_policy_link"
+                                   onclick="event.stopPropagation();">политикой конфиденциальности</a>
                             </span>
                             <span class="text-red-500">*</span>
                         </label>
@@ -371,8 +381,27 @@
                 document.addEventListener('languageChanged', function(e) {
                     const currentType = partnerTypeIndividual.checked ? 'individual' : 'legal';
                     updateFormForPartnerType(currentType);
+                    
+                    // Update agency agreement PDF link based on language
+                    updateAgreementLink(e.detail?.language || 'ru');
                 });
             }
+            
+            // Function to update agency agreement PDF link based on language
+            function updateAgreementLink(lang) {
+                const agreementLink = document.getElementById('agencyAgreementLink');
+                if (agreementLink) {
+                    if (lang === 'en') {
+                        agreementLink.href = '/public/docs/agency-agreement-en.pdf';
+                    } else {
+                        agreementLink.href = '/public/docs/agency-agreement-ru.pdf';
+                    }
+                }
+            }
+            
+            // Set initial agreement link based on current language
+            const initialLang = localStorage.getItem('preferredLanguage') || 'ru';
+            updateAgreementLink(initialLang);
             
             const applicationForm = document.getElementById('applicationForm');
             
