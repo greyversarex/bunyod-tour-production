@@ -4,6 +4,8 @@ import { loginLimiter, registrationLimiter } from '../middleware/rateLimiter';
 import {
   loginTourGuide,
   getGuideTours,
+  getGuideAssignedBookings,
+  updateBookingExecutionStatus,
   getTourDetails,
   startTour,
   finishTour,
@@ -30,6 +32,8 @@ router.post('/create-with-auth', upload.fields([
 
 // Защищённые маршруты для тургидов (требуют авторизации)
 router.get('/tours', authenticateTourGuide, getGuideTours);
+router.get('/bookings', authenticateTourGuide, getGuideAssignedBookings); // New: get assigned bookings
+router.post('/bookings/status', authenticateTourGuide, updateBookingExecutionStatus); // New: update execution status
 router.get('/tours/:id', authenticateTourGuide, getTourDetails);
 router.post('/tours/:id/start', authenticateTourGuide, startTour);
 router.post('/tours/:id/finish', authenticateTourGuide, finishTour);

@@ -261,6 +261,140 @@ export const getGuideTours = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+// Получить назначенные бронирования для гида (новая система)
+export const getGuideAssignedBookings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const guideId = (req as any).user?.id;
+
+    if (!guideId) {
+      res.status(401).json({ 
+        success: false, 
+        message: 'Не авторизован' 
+      });
+      return;
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: { 
+        assignedGuideId: guideId,
+        status: { in: ['paid', 'confirmed'] }
+      },
+      include: {
+        tour: {
+          select: {
+            id: true,
+            uniqueCode: true,
+            title: true,
+            durationDays: true,
+            images: true,
+            category: true
+          }
+        }
+      },
+      orderBy: { tourDate: 'asc' }
+    });
+
+    const bookingsWithDetails = bookings.map(booking => ({
+      id: booking.id,
+      tourId: booking.tourId,
+      tour: booking.tour,
+      tourDate: booking.tourDate,
+      numberOfTourists: booking.numberOfTourists,
+      contactName: booking.contactName,
+      contactPhone: booking.contactPhone,
+      contactEmail: booking.contactEmail,
+      tourists: booking.tourists,
+      specialRequests: booking.specialRequests,
+      executionStatus: booking.executionStatus || 'pending',
+      guideAssignedAt: booking.guideAssignedAt,
+      totalPrice: booking.totalPrice,
+      status: booking.status
+    }));
+
+    console.log(`📋 Found ${bookings.length} assigned bookings for guide ${guideId}`);
+
+    res.json({
+      success: true,
+      data: bookingsWithDetails
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting guide bookings:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Ошибка сервера' 
+    });
+  }
+};
+
+// Обновить статус выполнения бронирования гидом
+export const updateBookingExecutionStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const guideId = (req as any).user?.id;
+    const { bookingId, status } = req.body;
+
+    if (!guideId) {
+      res.status(401).json({ 
+        success: false, 
+        message: 'Не авторизован' 
+      });
+      return;
+    }
+
+    if (!bookingId || !status) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'ID бронирования и статус обязательны' 
+      });
+      return;
+    }
+
+    if (!['pending', 'in_progress', 'completed'].includes(status)) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Недопустимый статус. Возможные значения: pending, in_progress, completed' 
+      });
+      return;
+    }
+
+    // Проверить, что бронирование назначено этому гиду
+    const booking = await prisma.booking.findFirst({
+      where: { 
+        id: bookingId,
+        assignedGuideId: guideId
+      }
+    });
+
+    if (!booking) {
+      res.status(404).json({ 
+        success: false, 
+        message: 'Бронирование не найдено или не назначено вам' 
+      });
+      return;
+    }
+
+    const updatedBooking = await prisma.booking.update({
+      where: { id: bookingId },
+      data: { executionStatus: status }
+    });
+
+    console.log(`✅ Booking ${bookingId} status updated to ${status} by guide ${guideId}`);
+
+    res.json({
+      success: true,
+      message: 'Статус обновлён',
+      data: updatedBooking
+    });
+
+  } catch (error) {
+    console.error('❌ Error updating booking status:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Ошибка сервера' 
+    });
+  }
+};
+
 // Получить детали тура для тургида
 export const getTourDetails = async (req: Request, res: Response): Promise<void> => {
   try {

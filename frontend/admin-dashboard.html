@@ -10275,7 +10275,7 @@
         // Load paid bookings
         async function loadMonitoringBookings() {
             try {
-                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/bookings/paid`, {
+                const response = await fetch(`${getApiUrl()}/api/admin/history/bookings/paid`, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -10408,7 +10408,7 @@
             
             // Load available guides
             try {
-                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/guides`, {
+                const response = await fetch(`${getApiUrl()}/api/admin/history/guides`, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
@@ -10442,7 +10442,7 @@
             }
             
             try {
-                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/bookings/assign-guide`, {
+                const response = await fetch(`${getApiUrl()}/api/admin/history/bookings/assign-guide`, {
                     method: 'POST',
                     headers: {
                         ...getAuthHeaders(),

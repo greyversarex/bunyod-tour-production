@@ -50,6 +50,13 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
 -   **Payment Validation Parity**: Unified validation for transfer payments across Payler and Alif, ensuring transfer request existence, price consistency, and valid status. Enhanced logging and order type detection for improved user feedback on BT-prefixed orders.
 -   **Tour Map Improvements** (Dec 07, 2025): Reduced default zoom level for better overview, enabled mouse wheel scrolling for zoom control.
 -   **Search Page Enhancements** (Dec 07, 2025): Added group size filter (min/max people), added autocomplete suggestions matching homepage functionality.
+-   **Booking-Level Guide Assignment** (Dec 08, 2025): Migrated guide assignment from Tour (template) to Booking (instance) level to support multiple bookings of the same tour with different guides and dates.
+    - **Booking model fields**: `assignedGuideId`, `guideAssignedAt`, `executionStatus` (pending/in_progress/completed)
+    - **Admin endpoints**: `/api/admin/history/bookings/paid`, `/api/admin/history/bookings/assign-guide`, `/api/admin/history/bookings/:id/execution-status`
+    - **Guide cabinet endpoints**: `/api/guide/bookings` (get assigned bookings), `/api/guide/bookings/status` (update execution status)
+    - **Admin dashboard**: Dual-tab interface (Tours legacy / Bookings new) in Monitoring section
+    - **Guide dashboard**: Displays assigned bookings with status controls, falls back to legacy tours if no bookings
+    - **Email notifications**: Guide receives email when assigned to booking with tour details, date, tourist count
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.

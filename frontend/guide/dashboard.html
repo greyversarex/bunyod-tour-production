@@ -308,7 +308,9 @@
             }
         }
 
-        // Load tours from real API
+        // Load tours and bookings from real API
+        let allBookings = [];
+        
         async function loadTours() {
             document.getElementById('loadingState').classList.remove('hidden');
             document.getElementById('emptyState').classList.add('hidden');
@@ -316,6 +318,28 @@
 
             try {
                 const token = localStorage.getItem('tourGuideToken');
+                
+                // Load assigned bookings (new system)
+                const bookingsResponse = await fetch('/api/guide/bookings', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (bookingsResponse.ok) {
+                    const bookingsResult = await bookingsResponse.json();
+                    console.log('Bookings API response:', bookingsResult);
+                    
+                    if (bookingsResult.success && bookingsResult.data.length > 0) {
+                        allBookings = bookingsResult.data;
+                        displayBookings(allBookings);
+                        updateBookingStats(allBookings);
+                        return;
+                    }
+                }
+                
+                // Fallback to legacy tour system
                 const response = await fetch('/api/guide/tours', {
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -338,10 +362,212 @@
                 }
             } catch (error) {
                 console.error('Error loading tours:', error);
-                // Show empty state on error
                 document.getElementById('emptyState').classList.remove('hidden');
             } finally {
                 document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+        
+        // Display bookings (new system)
+        function displayBookings(bookingsList) {
+            const toursGrid = document.getElementById('toursGrid');
+            
+            if (bookingsList.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                return;
+            }
+
+            toursGrid.innerHTML = '';
+            toursGrid.classList.remove('hidden');
+
+            const statusColors = {
+                'pending': { bg: '#e5e7eb', text: '#374151', label: 'Ожидает' },
+                'in_progress': { bg: '#3B82F6', text: 'white', label: 'В процессе' },
+                'completed': { bg: '#10B981', text: 'white', label: 'Завершён' }
+            };
+
+            bookingsList.forEach(booking => {
+                let tourTitle;
+                try {
+                    tourTitle = typeof booking.tour?.title === 'string' 
+                        ? JSON.parse(booking.tour.title) 
+                        : booking.tour?.title;
+                } catch (e) {
+                    tourTitle = { ru: booking.tour?.title || 'Без названия', en: booking.tour?.title || 'Untitled' };
+                }
+                
+                const status = statusColors[booking.executionStatus] || statusColors['pending'];
+                const tourDate = booking.tourDate ? new Date(booking.tourDate).toLocaleDateString('ru-RU') : 'Не указана';
+
+                const bookingCard = `
+                    <div class="card rounded-xl p-6 cursor-pointer hover:shadow-lg" onclick="openBookingModal(${booking.id})">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-sm font-semibold text-gray-500">#${booking.id}</span>
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold" style="background:${status.bg}; color:${status.text}">
+                                ${status.label}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold text-gray-800 mb-3 line-clamp-2">${tourTitle.ru || tourTitle.en || tourTitle}</h3>
+                        
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-calendar mr-2 w-4" style="color: #6B7280;"></i>
+                                ${tourDate}
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-users mr-2 w-4" style="color: #6B7280;"></i>
+                                ${booking.numberOfTourists} туристов
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-user mr-2 w-4" style="color: #6B7280;"></i>
+                                ${booking.contactName || 'Не указано'}
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">${booking.tour?.uniqueCode || ''}</span>
+                            <i class="fas fa-arrow-right text-gray-400"></i>
+                        </div>
+                    </div>
+                `;
+                
+                toursGrid.innerHTML += bookingCard;
+            });
+        }
+        
+        // Update stats for bookings
+        function updateBookingStats(bookingsList) {
+            const pending = bookingsList.filter(b => b.executionStatus === 'pending' || !b.executionStatus).length;
+            const inProgress = bookingsList.filter(b => b.executionStatus === 'in_progress').length;
+            const completed = bookingsList.filter(b => b.executionStatus === 'completed').length;
+            const totalTourists = bookingsList.reduce((sum, b) => sum + b.numberOfTourists, 0);
+
+            document.getElementById('activeTours').textContent = pending + inProgress;
+            document.getElementById('completedTours').textContent = completed;
+            document.getElementById('totalTourists').textContent = totalTourists;
+            document.getElementById('availableDays').textContent = availableDates.length;
+        }
+        
+        // Open booking modal
+        function openBookingModal(bookingId) {
+            const booking = allBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let tourTitle;
+            try {
+                tourTitle = typeof booking.tour?.title === 'string' 
+                    ? JSON.parse(booking.tour.title) 
+                    : booking.tour?.title;
+            } catch (e) {
+                tourTitle = { ru: booking.tour?.title || 'Без названия' };
+            }
+            
+            const statusLabels = {
+                'pending': 'Ожидает начала',
+                'in_progress': 'В процессе',
+                'completed': 'Завершён'
+            };
+            
+            let tourists = [];
+            try {
+                tourists = typeof booking.tourists === 'string' ? JSON.parse(booking.tourists) : booking.tourists;
+            } catch (e) {}
+            
+            const touristList = Array.isArray(tourists) 
+                ? tourists.map((t, i) => `<li class="py-1">${i+1}. ${t.fullName || t.name || 'Турист'}</li>`).join('')
+                : `<li>${booking.numberOfTourists} туристов</li>`;
+            
+            const tourDate = booking.tourDate ? new Date(booking.tourDate).toLocaleDateString('ru-RU') : 'Не указана';
+            
+            document.getElementById('modalTourTitle').textContent = tourTitle.ru || tourTitle.en || tourTitle;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Дата проведения</p>
+                            <p class="font-semibold">${tourDate}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Количество туристов</p>
+                            <p class="font-semibold">${booking.numberOfTourists}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Контактное лицо</p>
+                            <p class="font-semibold">${booking.contactName || '-'}</p>
+                            <p class="text-sm">${booking.contactPhone || ''}</p>
+                        </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="text-sm text-gray-600">Текущий статус</p>
+                            <p class="font-semibold">${statusLabels[booking.executionStatus] || 'Ожидает'}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-2">Список туристов</h4>
+                        <ul class="bg-gray-50 p-4 rounded-lg list-disc list-inside">${touristList}</ul>
+                    </div>
+                    
+                    ${booking.specialRequests ? `
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h4 class="font-semibold mb-2">Особые пожелания</h4>
+                            <p>${booking.specialRequests}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="border-t pt-4">
+                        <h4 class="font-semibold mb-3">Управление статусом</h4>
+                        <div class="flex gap-2 flex-wrap">
+                            ${booking.executionStatus !== 'in_progress' && booking.executionStatus !== 'completed' ? `
+                                <button onclick="updateBookingStatus(${booking.id}, 'in_progress')" 
+                                    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-play mr-2"></i>Начать тур
+                                </button>
+                            ` : ''}
+                            ${booking.executionStatus === 'in_progress' ? `
+                                <button onclick="updateBookingStatus(${booking.id}, 'completed')" 
+                                    class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-check mr-2"></i>Завершить тур
+                                </button>
+                            ` : ''}
+                            ${booking.executionStatus === 'completed' ? `
+                                <span class="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                                    <i class="fas fa-check-circle mr-2"></i>Тур завершён
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tourModal').classList.remove('hidden');
+        }
+        
+        // Update booking execution status
+        async function updateBookingStatus(bookingId, status) {
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch('/api/guide/bookings/status', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookingId, status })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Статус успешно обновлён!');
+                    document.getElementById('tourModal').classList.add('hidden');
+                    loadTours(); // Reload data
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Не удалось обновить статус'));
+                }
+            } catch (error) {
+                console.error('Error updating status:', error);
+                alert('Ошибка при обновлении статуса');
             }
         }
 
