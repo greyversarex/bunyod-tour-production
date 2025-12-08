@@ -519,3 +519,127 @@ export async function sendGuideAssignmentNotification(
     throw error;
   }
 }
+
+// Send booking assignment notification to guide (with full booking details)
+export async function sendGuideBookingAssignmentNotification(
+  guideEmail: string,
+  guideName: string,
+  tourTitle: string,
+  bookingId: number,
+  tourDate: string,
+  touristCount: number,
+  touristNames: string[],
+  contactName: string,
+  contactPhone: string,
+  contactEmail: string
+) {
+  const subject = `Новое бронирование: ${tourTitle} — ${tourDate}`;
+  
+  const touristList = touristNames.length > 0 
+    ? touristNames.map((name, i) => `${i + 1}. ${name}`).join('<br>')
+    : `${touristCount} турист(ов)`;
+  
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background: #f5f5f5; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .banner { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; }
+        .banner-icon { font-size: 48px; margin-bottom: 10px; }
+        .banner-title { font-size: 22px; font-weight: bold; margin: 0; }
+        .banner-subtitle { font-size: 16px; margin-top: 8px; opacity: 0.9; }
+        .content { padding: 30px; }
+        .greeting { font-size: 16px; color: #1f2937; margin-bottom: 20px; }
+        .section-title { font-size: 14px; font-weight: 600; color: #374151; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-box { background: #f3f4f6; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e5e7eb; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #6b7280; font-size: 14px; }
+        .info-value { color: #1f2937; font-weight: 600; font-size: 14px; text-align: right; }
+        .tourists-box { background: #fef3c7; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .tourists-list { color: #92400e; font-size: 14px; line-height: 1.8; }
+        .contact-box { background: #dbeafe; border-radius: 12px; padding: 20px; margin: 15px 0; }
+        .contact-info { color: #1e40af; font-size: 14px; line-height: 1.6; }
+        .action-note { background: #ecfdf5; border-left: 4px solid #10b981; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>BUNYOD-TOUR</h1>
+          <p>Система управления турами</p>
+        </div>
+        
+        <div class="banner">
+          <div class="banner-icon">📋</div>
+          <h2 class="banner-title">Вам назначено бронирование!</h2>
+          <p class="banner-subtitle">Бронирование #${bookingId}</p>
+        </div>
+        
+        <div class="content">
+          <p class="greeting">Здравствуйте, <strong>${guideName}</strong>!</p>
+          <p>Вам назначено новое бронирование. Пожалуйста, ознакомьтесь с деталями:</p>
+          
+          <div class="section-title">📍 Информация о туре</div>
+          <div class="info-box">
+            <div class="info-row">
+              <span class="info-label">Название тура:</span>
+              <span class="info-value">${tourTitle}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Дата проведения:</span>
+              <span class="info-value">${tourDate}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Количество туристов:</span>
+              <span class="info-value">${touristCount}</span>
+            </div>
+          </div>
+          
+          <div class="section-title">👥 Туристы</div>
+          <div class="tourists-box">
+            <div class="tourists-list">${touristList}</div>
+          </div>
+          
+          <div class="section-title">📞 Контактное лицо</div>
+          <div class="contact-box">
+            <div class="contact-info">
+              <strong>${contactName || 'Не указано'}</strong><br>
+              ${contactPhone ? `📱 ${contactPhone}<br>` : ''}
+              ${contactEmail ? `✉️ ${contactEmail}` : ''}
+            </div>
+          </div>
+          
+          <div class="action-note">
+            <strong>✅ Что делать дальше?</strong><br>
+            1. Войдите в личный кабинет для просмотра полных деталей<br>
+            2. Когда начнёте тур — измените статус на "В процессе"<br>
+            3. После завершения — отметьте тур как "Завершён"
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p>При возникновении вопросов свяжитесь с администрацией:</p>
+          <p>📞 +992 44 625 7575 | ✉️ booking@bunyodtour.tj</p>
+          <p>© ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  try {
+    await sendEmailWithSendGrid(guideEmail, subject, html);
+    console.log(`✅ Booking assignment notification sent to guide ${guideName} (${guideEmail})`);
+    return { success: true };
+  } catch (error) {
+    console.error(`❌ Failed to send booking assignment notification to ${guideEmail}:`, error);
+    throw error;
+  }
+}
