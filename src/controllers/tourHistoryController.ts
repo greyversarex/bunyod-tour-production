@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import prisma from '../config/database';
+import { sendGuideAssignmentNotification } from '../services/emailServiceSendGrid';
 
 // Получить активные туры для админ панели
 export const getActiveTours = async (req: Request, res: Response): Promise<void> => {
@@ -424,12 +425,34 @@ export const assignGuideToTour = async (req: Request, res: Response): Promise<vo
       return;
     }
 
+    // Get guide data including email
+    const guide = await prisma.tourGuideProfile.findUnique({
+      where: { id: parseInt(guideId) },
+      select: {
+        id: true,
+        name: true,
+        login: true,
+        email: true
+      }
+    });
+
+    if (!guide) {
+      res.status(404).json({
+        success: false,
+        message: 'Тургид не найден'
+      });
+      return;
+    }
+
     const updateData: any = {
       assignedGuideId: guideId
     };
 
-    if (scheduledStartDate) updateData.scheduledStartDate = new Date(scheduledStartDate);
-    if (scheduledEndDate) updateData.scheduledEndDate = new Date(scheduledEndDate);
+    const parsedStartDate = scheduledStartDate ? new Date(scheduledStartDate) : undefined;
+    const parsedEndDate = scheduledEndDate ? new Date(scheduledEndDate) : undefined;
+
+    if (parsedStartDate) updateData.scheduledStartDate = parsedStartDate;
+    if (parsedEndDate) updateData.scheduledEndDate = parsedEndDate;
     if (uniqueCode) updateData.uniqueCode = uniqueCode;
 
     const tour = await prisma.tour.update({
@@ -447,6 +470,26 @@ export const assignGuideToTour = async (req: Request, res: Response): Promise<vo
     });
 
     console.log(`✅ Guide ${guideId} assigned to tour ${tourId}`);
+
+    // Send email notification to guide (async, don't wait)
+    if (guide.email) {
+      const tourTitle = typeof tour.title === 'object' && tour.title !== null
+        ? ((tour.title as any).ru || (tour.title as any).en || 'Тур')
+        : String(tour.title || 'Тур');
+      
+      sendGuideAssignmentNotification(
+        guide.email,
+        guide.name,
+        tourTitle,
+        tour.id,
+        parsedStartDate,
+        parsedEndDate
+      ).catch(err => console.error('Failed to send guide assignment email:', err));
+      
+      console.log(`📧 Sending tour assignment notification to ${guide.email}`);
+    } else {
+      console.log(`⚠️ Guide ${guide.name} has no email, skipping notification`);
+    }
 
     res.json({
       success: true,

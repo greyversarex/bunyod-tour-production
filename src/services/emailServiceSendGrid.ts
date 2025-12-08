@@ -422,3 +422,100 @@ export async function sendTestEmail(to: string) {
   
   return await sendEmailWithSendGrid(to, subject, html);
 }
+
+// Send tour assignment notification to guide
+export async function sendGuideAssignmentNotification(
+  guideEmail: string,
+  guideName: string,
+  tourTitle: string,
+  tourId: number,
+  scheduledStartDate?: Date,
+  scheduledEndDate?: Date
+) {
+  const dateRange = scheduledStartDate && scheduledEndDate 
+    ? `${scheduledStartDate.toLocaleDateString('ru-RU')} - ${scheduledEndDate.toLocaleDateString('ru-RU')}`
+    : scheduledStartDate 
+      ? scheduledStartDate.toLocaleDateString('ru-RU')
+      : 'Дата будет уточнена';
+  
+  const subject = `Вам назначен новый тур: ${tourTitle}`;
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 20px; background: #f5f5f5; margin: 0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #3E3E3E 0%, #2a2a2a 100%); color: white; padding: 30px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 14px; }
+        .banner { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center; }
+        .banner-icon { font-size: 48px; margin-bottom: 10px; }
+        .banner-title { font-size: 24px; font-weight: bold; margin: 0; }
+        .content { padding: 30px; }
+        .greeting { font-size: 16px; color: #1f2937; margin-bottom: 20px; }
+        .info-box { background: #f3f4f6; border-radius: 12px; padding: 20px; margin: 20px 0; }
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #e5e7eb; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #6b7280; font-size: 14px; }
+        .info-value { color: #1f2937; font-weight: 600; font-size: 14px; }
+        .action-note { background: #eff6ff; border-left: 4px solid #3b82f6; padding: 15px; border-radius: 8px; margin-top: 20px; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 12px; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>BUNYOD-TOUR</h1>
+          <p>Система управления турами</p>
+        </div>
+        
+        <div class="banner">
+          <div class="banner-icon">🎯</div>
+          <h2 class="banner-title">Вам назначен новый тур!</h2>
+        </div>
+        
+        <div class="content">
+          <p class="greeting">Здравствуйте, <strong>${guideName}</strong>!</p>
+          <p>Администрация Bunyod-Tour назначила вас гидом на следующий тур:</p>
+          
+          <div class="info-box">
+            <div class="info-row">
+              <span class="info-label">Название тура:</span>
+              <span class="info-value">${tourTitle}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">ID тура:</span>
+              <span class="info-value">#${tourId}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Даты проведения:</span>
+              <span class="info-value">${dateRange}</span>
+            </div>
+          </div>
+          
+          <div class="action-note">
+            <strong>📋 Что делать дальше?</strong><br>
+            Войдите в личный кабинет для просмотра деталей тура и подготовки к его проведению.
+          </div>
+        </div>
+        
+        <div class="footer">
+          <p>При возникновении вопросов свяжитесь с администрацией:</p>
+          <p>📞 +992 44 625 7575 | ✉️ booking@bunyodtour.tj</p>
+          <p>© ${new Date().getFullYear()} ООО «Бунёд-Тур». Все права защищены.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  try {
+    await sendEmailWithSendGrid(guideEmail, subject, html);
+    console.log(`✅ Tour assignment notification sent to guide ${guideName} (${guideEmail})`);
+    return { success: true };
+  } catch (error) {
+    console.error(`❌ Failed to send tour assignment notification to ${guideEmail}:`, error);
+    throw error;
+  }
+}
