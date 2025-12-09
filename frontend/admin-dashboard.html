@@ -10039,13 +10039,13 @@
         async function loadTourMonitoring() {
             try {
                 // Загружаем активные туры
-                const activeResponse = await fetch(`${getApiUrl()}/api/admin/tour-history/tours/active`, {
+                const activeResponse = await fetch(`${getApiUrl()}/admin/tour-history/tours/active`, {
                     headers: getAuthHeaders()
                 });
                 const activeData = await activeResponse.json();
                 
                 // Загружаем завершённые туры
-                const finishedResponse = await fetch(`${getApiUrl()}/api/admin/tour-history/tours/finished`, {
+                const finishedResponse = await fetch(`${getApiUrl()}/admin/tour-history/tours/finished`, {
                     headers: getAuthHeaders()
                 });
                 const finishedData = await finishedResponse.json();
@@ -10484,7 +10484,7 @@
 
         async function viewTourMonitoringDetails(tourId) {
             try {
-                const response = await fetch(`${getApiUrl()}/api/admin/tour-history/tours/${tourId}`, {
+                const response = await fetch(`${getApiUrl()}/admin/tour-history/tours/${tourId}`, {
                     headers: getAuthHeaders()
                 });
                 const data = await response.json();
