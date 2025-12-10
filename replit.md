@@ -57,6 +57,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Admin dashboard**: Dual-tab interface (Tours legacy / Bookings new) in Monitoring section
     - **Guide dashboard**: Displays assigned bookings with status controls, falls back to legacy tours if no bookings
     - **Email notifications**: Guide receives email when assigned to booking with tour details, date, tourist count
+-   **Order-Booking Integration** (Dec 10, 2025): Linked Order and Booking tables for unified tour monitoring
+    - **Booking.orderId**: Foreign key linking Booking to Order (one-to-one relationship)
+    - **Auto-creation on payment**: Booking records are automatically created when Order is paid (Payler/Alif)
+    - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` migrates existing paid Orders to Bookings
+    - **Monitoring displays**: Order number, customer info from Order.customer in monitoring table
+    - **Run after deploy**: `npx ts-node scripts/backfillBookingsFromOrders.ts` to create Bookings for existing paid Orders
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
