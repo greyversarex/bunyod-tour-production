@@ -319,17 +319,20 @@ export const createTourGuide = async (req: Request, res: Response): Promise<void
   }
 };
 
-// Получить список всех тургидов
+// Получить список всех тургидов (из таблицы Guide - основной каталог гидов)
 export const getAllTourGuides = async (req: Request, res: Response): Promise<void> => {
   try {
-    const guides = await prisma.tourGuideProfile.findMany({
+    const guides = await prisma.guide.findMany({
+      where: {
+        isActive: true
+      },
       select: {
         id: true,
         name: true,
         login: true,
-        email: true,
-        phone: true,
-        isActive: true,
+        contact: true,
+        languages: true,
+        pricePerDay: true,
         createdAt: true,
       },
       orderBy: {
@@ -337,11 +340,21 @@ export const getAllTourGuides = async (req: Request, res: Response): Promise<voi
       }
     });
 
-    console.log(`📋 Found ${guides.length} tour guides`);
+    // Преобразуем данные для совместимости с фронтендом
+    const formattedGuides = guides.map(guide => ({
+      id: guide.id,
+      name: typeof guide.name === 'object' ? (guide.name as any).ru || (guide.name as any).en || 'Гид' : guide.name,
+      login: guide.login || '',
+      phone: guide.contact || '',
+      isActive: true,
+      createdAt: guide.createdAt
+    }));
+
+    console.log(`📋 Found ${guides.length} tour guides from Guide table`);
 
     res.json({
       success: true,
-      data: guides
+      data: formattedGuides
     });
 
   } catch (error) {
@@ -542,8 +555,8 @@ export const getPaidBookings = async (req: Request, res: Response): Promise<void
           select: {
             id: true,
             name: true,
-            email: true,
-            phone: true
+            contact: true,
+            login: true
           }
         },
         order: {
@@ -595,14 +608,14 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
       return;
     }
 
-    // Получить данные гида
-    const guide = await prisma.tourGuideProfile.findUnique({
+    // Получить данные гида из основной таблицы Guide
+    const guide = await prisma.guide.findUnique({
       where: { id: parseInt(guideId) },
       select: {
         id: true,
         name: true,
-        email: true,
-        phone: true
+        contact: true,
+        login: true
       }
     });
 
@@ -613,6 +626,10 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
       });
       return;
     }
+
+    // Извлечь имя и email из данных гида
+    const guideName = typeof guide.name === 'object' ? (guide.name as any).ru || (guide.name as any).en || 'Гид' : String(guide.name);
+    const guideEmail = guide.contact || null; // contact может содержать email или телефон
 
     // Получить бронирование с туром
     const existingBooking = await prisma.booking.findUnique({
@@ -655,8 +672,8 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
           select: {
             id: true,
             name: true,
-            email: true,
-            phone: true
+            contact: true,
+            login: true
           }
         }
       }
@@ -664,8 +681,9 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
 
     console.log(`✅ Guide ${guideId} assigned to booking ${bookingId}`);
 
-    // Отправить email гиду
-    if (guide.email) {
+    // Отправить email гиду (если contact содержит email)
+    const isEmailAddress = guideEmail && guideEmail.includes('@');
+    if (isEmailAddress) {
       const tourTitle = typeof booking.tour.title === 'object' && booking.tour.title !== null
         ? ((booking.tour.title as any).ru || (booking.tour.title as any).en || 'Тур')
         : String(booking.tour.title || 'Тур');
@@ -683,8 +701,8 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
       }
 
       sendGuideBookingAssignmentNotification(
-        guide.email,
-        guide.name,
+        guideEmail!,
+        guideName,
         tourTitle,
         booking.id,
         booking.tourDate,
@@ -695,9 +713,9 @@ export const assignGuideToBooking = async (req: Request, res: Response): Promise
         booking.contactEmail || ''
       ).catch(err => console.error('Failed to send guide booking assignment email:', err));
       
-      console.log(`📧 Sending booking assignment notification to ${guide.email}`);
+      console.log(`📧 Sending booking assignment notification to ${guideEmail}`);
     } else {
-      console.log(`⚠️ Guide ${guide.name} has no email, skipping notification`);
+      console.log(`⚠️ Guide ${guideName} has no email in contact field, skipping notification`);
     }
 
     res.json({

@@ -216,6 +216,7 @@ model Guide {
   orders            Order[]
   tourGuides        TourGuide[]
   assignedTours     Tour[]             @relation("AssignedGuide")
+  assignedBookings  Booking[]          @relation("AssignedBookings")
   guideReviews      GuideReview[]
 
   @@map("guides")
@@ -668,7 +669,7 @@ model Booking {
   order               Order?            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   hotel               Hotel?            @relation(fields: [hotelId], references: [id])
   tour                Tour              @relation(fields: [tourId], references: [id], onDelete: Cascade)
-  assignedGuide       TourGuideProfile? @relation(fields: [assignedGuideId], references: [id])
+  assignedGuide       Guide?            @relation("AssignedBookings", fields: [assignedGuideId], references: [id])
 
   @@map("bookings")
 }
@@ -744,7 +745,6 @@ model TourGuideProfile {
   isActive  Boolean   @default(true)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  bookings  Booking[]
 
   @@map("tour_guide_profiles")
 }
