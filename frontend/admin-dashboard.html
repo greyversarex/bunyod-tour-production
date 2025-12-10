@@ -934,7 +934,7 @@
                             <table class="w-full">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-4 py-3 text-left">#</th>
+                                        <th class="px-4 py-3 text-left">Заказ №</th>
                                         <th class="px-4 py-3 text-left">Тур</th>
                                         <th class="px-4 py-3 text-left">Дата</th>
                                         <th class="px-4 py-3 text-left">Туристы</th>
@@ -10295,10 +10295,13 @@
                     : `<button class="btn btn-sm btn-primary" onclick="openAssignGuideModal(${booking.id}, '${tourTitle}')">
                          <i class="fas fa-user-plus"></i> Назначить
                        </button>`;
+                const orderNumber = booking.order?.orderNumber || `B-${booking.id}`;
+                const customerName = booking.order?.customer?.fullName || booking.contactName || '-';
+                const customerPhone = booking.order?.customer?.phone || booking.contactPhone || '';
 
                 return `
                     <tr class="border-b hover:bg-gray-50">
-                        <td class="px-4 py-3 font-mono text-sm">#${booking.id}</td>
+                        <td class="px-4 py-3 font-mono text-sm">${orderNumber}</td>
                         <td class="px-4 py-3">
                             <div class="font-medium">${tourTitle}</div>
                             <div class="text-xs text-gray-500">${booking.tour?.uniqueCode || ''}</div>
@@ -10308,8 +10311,8 @@
                             <span class="font-semibold">${booking.numberOfTourists}</span> чел.
                         </td>
                         <td class="px-4 py-3">
-                            <div class="text-sm">${booking.contactName || '-'}</div>
-                            <div class="text-xs text-gray-500">${booking.contactPhone || ''}</div>
+                            <div class="text-sm">${customerName}</div>
+                            <div class="text-xs text-gray-500">${customerPhone}</div>
                         </td>
                         <td class="px-4 py-3">${guideName}</td>
                         <td class="px-4 py-3">${statusLabels[booking.executionStatus] || statusLabels['pending']}</td>

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
+import { createBookingFromOrder } from '../services/paymentService';
 import crypto from 'crypto';
 
 export const alifController = {
@@ -391,6 +392,11 @@ export const alifController = {
         });
 
         console.log('✅ Payment confirmed for order:', orderId);
+
+        // Create Booking record for tour monitoring
+        if (order.tourId) {
+          await createBookingFromOrder(Number(orderId));
+        }
 
         // CUSTOM TOUR: Update CustomTourOrder status after successful payment
         if (order.orderNumber.startsWith('CT-')) {

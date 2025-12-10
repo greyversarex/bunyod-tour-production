@@ -545,6 +545,21 @@ export const getPaidBookings = async (req: Request, res: Response): Promise<void
             email: true,
             phone: true
           }
+        },
+        order: {
+          select: {
+            id: true,
+            orderNumber: true,
+            paymentStatus: true,
+            paymentMethod: true,
+            customer: {
+              select: {
+                fullName: true,
+                email: true,
+                phone: true
+              }
+            }
+          }
         }
       },
       orderBy: [

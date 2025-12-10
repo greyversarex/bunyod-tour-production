@@ -1,4 +1,5 @@
 import { Order } from '@prisma/client';
+import prisma from '../config/database';
 
 // Conditional Stripe import - only load if package is installed
 // @ts-ignore - Stripe is optional dependency
@@ -223,5 +224,65 @@ export const clickService = {
     };
   },
 };
+
+export async function createBookingFromOrder(orderId: number): Promise<boolean> {
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { customer: true, tour: true }
+    });
+
+    if (!order || !order.tourId) {
+      console.log(`[createBookingFromOrder] Order ${orderId} not found or has no tourId`);
+      return false;
+    }
+
+    const existingBooking = await prisma.booking.findUnique({
+      where: { orderId: order.id }
+    });
+
+    if (existingBooking) {
+      console.log(`[createBookingFromOrder] Booking already exists for order ${orderId}`);
+      await prisma.booking.update({
+        where: { id: existingBooking.id },
+        data: { status: 'paid' }
+      });
+      return true;
+    }
+
+    let touristsData: { name: string; birthDate: string }[] = [];
+    try {
+      touristsData = JSON.parse(order.tourists);
+    } catch (e) {
+      touristsData = [{ name: 'Tourist', birthDate: '' }];
+    }
+
+    await prisma.booking.create({
+      data: {
+        orderId: order.id,
+        tourId: order.tourId,
+        hotelId: order.hotelId,
+        tourists: order.tourists,
+        contactName: order.customer?.fullName || null,
+        contactPhone: order.customer?.phone || null,
+        contactEmail: order.customer?.email || null,
+        totalPrice: order.totalAmount,
+        tourDate: order.tourDate,
+        numberOfTourists: Array.isArray(touristsData) ? touristsData.length : 1,
+        status: 'paid',
+        paymentMethod: order.paymentMethod,
+        paymentOption: 'full',
+        executionStatus: 'pending',
+        specialRequests: order.wishes
+      }
+    });
+
+    console.log(`[createBookingFromOrder] Created Booking for order ${orderId}`);
+    return true;
+  } catch (error) {
+    console.error(`[createBookingFromOrder] Error creating booking for order ${orderId}:`, error);
+    return false;
+  }
+}
 
 export default paymentService;
