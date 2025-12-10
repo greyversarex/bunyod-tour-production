@@ -394,6 +394,7 @@ model Order {
   guideHireRequest    GuideHireRequest? @relation(fields: [guideHireRequestId], references: [id])
   customTourOrder     CustomTourOrder?
   refundLogs          PaymentRefundLog[]
+  booking             Booking?
 
   @@map("orders")
 }
@@ -640,6 +641,7 @@ model Slide {
 
 model Booking {
   id                  Int               @id @default(autoincrement())
+  orderId             Int?              @unique @map("order_id")
   tourId              Int               @map("tour_id")
   hotelId             Int?              @map("hotel_id")
   tourists            String
@@ -663,6 +665,7 @@ model Booking {
   assignedGuideId     Int?              @map("assigned_guide_id")
   guideAssignedAt     DateTime?         @map("guide_assigned_at")
   executionStatus     String            @default("pending") @map("execution_status")
+  order               Order?            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   hotel               Hotel?            @relation(fields: [hotelId], references: [id])
   tour                Tour              @relation(fields: [tourId], references: [id], onDelete: Cascade)
   assignedGuide       TourGuideProfile? @relation(fields: [assignedGuideId], references: [id])
