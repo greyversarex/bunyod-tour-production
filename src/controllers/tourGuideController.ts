@@ -186,17 +186,31 @@ export const getGuideTours = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    // Получаем туры назначенные гиду: 
+    // - активные туры (isActive: true)
+    // - ИЛИ завершённые туры (status: finished/completed) для кнопки "Собрать отзывы"
     const tours = await prisma.tour.findMany({
       where: { 
-        isActive: true,
-        OR: [
-          { assignedGuideId: guideId },
-          { 
-            tourGuides: {
-              some: {
-                guideId: guideId
+        AND: [
+          // Гид назначен на этот тур
+          {
+            OR: [
+              { assignedGuideId: guideId },
+              { 
+                tourGuides: {
+                  some: {
+                    guideId: guideId
+                  }
+                }
               }
-            }
+            ]
+          },
+          // Либо активный тур, либо завершённый (независимо от isActive)
+          {
+            OR: [
+              { isActive: true },
+              { status: { in: ['finished', 'completed'] } }
+            ]
           }
         ]
       },
@@ -410,18 +424,30 @@ export const getTourDetails = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+    // Получаем тур: активный ИЛИ завершённый (для кнопки "Собрать отзывы")
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
-        isActive: true,
-        OR: [
-          { assignedGuideId: guideId },
-          { 
-            tourGuides: {
-              some: {
-                guideId: guideId
+        AND: [
+          // Гид назначен на этот тур
+          {
+            OR: [
+              { assignedGuideId: guideId },
+              { 
+                tourGuides: {
+                  some: {
+                    guideId: guideId
+                  }
+                }
               }
-            }
+            ]
+          },
+          // Либо активный тур, либо завершённый
+          {
+            OR: [
+              { isActive: true },
+              { status: { in: ['finished', 'completed'] } }
+            ]
           }
         ]
       },
