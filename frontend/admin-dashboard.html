@@ -10725,12 +10725,12 @@
                                                 ? (typeof bg.guide.name === 'object' ? (bg.guide.name.ru || bg.guide.name.en || 'Гид') : bg.guide.name)
                                                 : 'Гид';
                                             const roleLabel = bg.role === 'main' ? '(основной)' : '(доп.)';
-                                            return \`<div class="flex items-center justify-between bg-gray-100 rounded px-3 py-2">
-                                                <span><i class="fas fa-user text-blue-500 mr-2"></i>\${gName} <span class="text-xs text-gray-500">\${roleLabel}</span></span>
-                                                <button onclick="removeGuideFromBooking(\${booking.id}, \${bg.guideId})" class="text-red-500 hover:text-red-700 text-sm" title="Удалить гида">
+                                            return `<div class="flex items-center justify-between bg-gray-100 rounded px-3 py-2">
+                                                <span><i class="fas fa-user text-blue-500 mr-2"></i>${gName} <span class="text-xs text-gray-500">${roleLabel}</span></span>
+                                                <button onclick="removeGuideFromBooking(${booking.id}, ${bg.guideId})" class="text-red-500 hover:text-red-700 text-sm" title="Удалить гида">
                                                     <i class="fas fa-times"></i>
                                                 </button>
-                                            </div>\`;
+                                            </div>`;
                                         }).join('')
                                         : '<p class="text-gray-500 italic">Гиды не назначены</p>'}
                                 </div>
