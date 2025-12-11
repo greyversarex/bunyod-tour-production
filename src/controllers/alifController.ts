@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
+import { sendBookingConfirmation } from '../services/emailServiceSendGrid';
 import { createBookingFromOrder } from '../services/paymentService';
 import crypto from 'crypto';
 
@@ -592,25 +593,72 @@ export const alifController = {
         console.log('📧 Customer:', { email: order.customer.email, name: order.customer.fullName });
         
         try {
-          if (order.tour) {
+          // Определяем тип заказа
+          const isTourOrder = order.orderNumber.startsWith('BT-');
+          const isTransfer = order.orderNumber.startsWith('TR-');
+          const isCustomTour = order.orderNumber.startsWith('CT-');
+          
+          if (order.tour || isTourOrder) {
             // Оплата тура - стандартный email с PDF билетом
-            console.log('📧 Sending tour payment confirmation email to:', order.customer.email);
-            await emailService.sendPaymentConfirmation(order, order.customer);
-            console.log('📧 Sending admin notification for tour payment');
-            await emailService.sendAdminNotification(order, order.customer, order.tour);
-            console.log('✅ Tour payment emails sent successfully');
+            console.log('📧 [TOUR] Processing tour payment email for:', order.orderNumber);
+            
+            // Если order.tour не загружен, загружаем его явно
+            let tourData = order.tour;
+            if (!tourData && isTourOrder) {
+              console.log('📧 [TOUR] Tour not loaded, fetching from booking...');
+              try {
+                // Сначала пробуем найти booking по orderId
+                const booking = await prisma.booking.findFirst({
+                  where: { orderId: order.id },
+                  include: { 
+                    tour: true,
+                    hotel: true 
+                  }
+                });
+                
+                if (booking?.tour) {
+                  tourData = booking.tour;
+                  console.log('📧 [TOUR] Tour loaded from booking:', tourData.id);
+                } else if (order.tourId) {
+                  // Fallback: загружаем тур напрямую по tourId
+                  tourData = await prisma.tour.findUnique({
+                    where: { id: order.tourId }
+                  });
+                  console.log('📧 [TOUR] Tour loaded by tourId:', tourData?.id);
+                }
+              } catch (fetchError) {
+                console.error('📧 [TOUR] Failed to fetch tour:', fetchError);
+              }
+            }
+            
+            if (tourData) {
+              // Отправляем полноценное письмо с PDF билетом
+              console.log('📧 [TOUR] Sending booking confirmation with PDF ticket to:', order.customer.email);
+              try {
+                await sendBookingConfirmation(order, order.customer, tourData);
+                console.log('✅ [TOUR] Booking confirmation with PDF sent successfully');
+              } catch (pdfError) {
+                console.error('❌ [TOUR] PDF email failed, falling back to standard email:', pdfError);
+                // Fallback на стандартный email если PDF не сработал
+                await emailService.sendPaymentConfirmation(order, order.customer);
+              }
+              
+              console.log('📧 Sending admin notification for tour payment');
+              await emailService.sendAdminNotification(order, order.customer, tourData);
+              console.log('✅ Tour payment emails sent successfully');
+            } else {
+              // Тур не найден - отправляем стандартное уведомление
+              console.warn('⚠️ [TOUR] Tour data not found for order:', order.orderNumber);
+              await emailService.sendPaymentConfirmation(order, order.customer);
+              console.log('✅ Fallback payment confirmation sent');
+            }
           } else {
             // Оплата гида/трансфера/собственного тура - детальное уведомление
-            const isTransfer = order.orderNumber.startsWith('TR-');
-            const isCustomTour = order.orderNumber.startsWith('CT-');
-            
             console.log('📧 Non-tour payment detected:', { isGuideHire: isGuideHireOrder, isTransfer, isCustomTour, orderNumber: order.orderNumber });
             
-            const isTourOrder = order.orderNumber.startsWith('BT-');
             const orderTypeText = isGuideHireOrder ? 'Найм гида' 
               : isTransfer ? 'Трансфер'
               : isCustomTour ? 'Собственный тур'
-              : isTourOrder ? 'Бронирование тура'
               : 'Услуга';
             
             console.log('📧 Preparing email for:', orderTypeText);
@@ -660,32 +708,6 @@ export const alifController = {
                 <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
                 <p><strong>Детали заказа сохранены в системе</strong></p>
                 <p>Наш менеджер свяжется с вами для подтверждения деталей.</p>
-              `;
-            } else if (order.orderNumber.startsWith('BT-')) {
-              // BT- заказ тура без связанного тура - используем данные из заказа
-              console.warn('⚠️ [TOUR] BT- order without tour relation, using order data');
-              console.warn('⚠️ [TOUR] Order details:', { 
-                orderNumber: order.orderNumber, 
-                tourDate: order.tourDate,
-                tourists: order.tourists,
-                wishes: order.wishes 
-              });
-              
-              // Парсим туристов
-              let touristsInfo = '';
-              try {
-                const tourists = order.tourists ? JSON.parse(order.tourists) : [];
-                if (Array.isArray(tourists) && tourists.length > 0) {
-                  touristsInfo = `<p><strong>Количество туристов:</strong> ${tourists.length}</p>`;
-                }
-              } catch {}
-              
-              detailsHTML = `
-                <p><strong>Услуга:</strong> Бронирование тура</p>
-                <p><strong>Дата:</strong> ${order.tourDate ? new Date(order.tourDate).toLocaleDateString('ru-RU') : 'по согласованию'}</p>
-                ${touristsInfo}
-                ${order.wishes ? `<p><strong>Пожелания:</strong> ${order.wishes}</p>` : ''}
-                <p><strong>Детали тура будут отправлены отдельным письмом</strong></p>
               `;
             } else {
               // Другие типы заказов (неизвестный префикс)
