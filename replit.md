@@ -57,6 +57,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Admin dashboard**: Dual-tab interface (Tours legacy / Bookings new) in Monitoring section
     - **Guide dashboard**: Displays assigned bookings with status controls, falls back to legacy tours if no bookings
     - **Email notifications**: Guide receives email when assigned to booking with tour details, date, tourist count
+-   **Multi-Guide Booking Support** (Dec 11, 2025): Extended booking system to support multiple guides per booking
+    - **BookingGuide junction table**: Many-to-many relationship between Booking and Guide
+    - **BookingGuide fields**: `bookingId`, `guideId`, `role` (main/additional), `assignedAt`, `isActive`
+    - **New admin endpoints**: `/api/admin/history/bookings/add-guide`, `/api/admin/history/bookings/remove-guide`, `/api/admin/history/bookings/:bookingId/guides`
+    - **Backward compatibility**: `assignedGuideId` still maintained for primary guide (single guide mode still works)
+    - **Admin dashboard UI**: Booking details modal shows all assigned guides with add/remove buttons
 -   **Order-Booking Integration** (Dec 10, 2025): Linked Order and Booking tables for unified tour monitoring
     - **Booking.orderId**: Foreign key linking Booking to Order (one-to-one relationship)
     - **Auto-creation on payment**: Booking records are automatically created when Order is paid (Payler/Alif)

@@ -410,6 +410,11 @@
                             </button>
                         ` : ''}
                     ` : ''}
+                    ${tour.status === 'finished' || tour.status === 'completed' ? `
+                        <button onclick="collectTourReviews(${tourId})" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-star mr-1"></i> <span data-translate="btn.collect_reviews">Собрать отзывы</span>
+                        </button>
+                    ` : ''}
                 `;
 
                 document.getElementById('modalActions').innerHTML = actions;

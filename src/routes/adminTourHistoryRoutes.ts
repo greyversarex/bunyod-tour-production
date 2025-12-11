@@ -10,6 +10,9 @@ import {
   deleteTourGuide,
   getPaidBookings,
   assignGuideToBooking,
+  addGuideToBooking,
+  removeGuideFromBooking,
+  getBookingGuides,
   updateBookingExecutionStatus,
   getGuideBookings,
   collectBookingReviews
@@ -34,6 +37,9 @@ router.post('/tours/assign-guide', assignGuideToTour);
 // Новая система: работа с бронированиями
 router.get('/bookings/paid', getPaidBookings);
 router.post('/bookings/assign-guide', assignGuideToBooking);
+router.post('/bookings/add-guide', addGuideToBooking);
+router.post('/bookings/remove-guide', removeGuideFromBooking);
+router.get('/bookings/:bookingId/guides', getBookingGuides);
 router.patch('/bookings/:id/execution-status', updateBookingExecutionStatus);
 router.post('/bookings/:id/collect-reviews', collectBookingReviews);
 router.get('/guides/:guideId/bookings', getGuideBookings);

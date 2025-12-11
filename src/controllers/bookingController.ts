@@ -662,11 +662,12 @@ export const bookingController = {
         }
       });
 
-      // Обновить статус бронирования и сохранить paymentOption
+      // Обновить статус бронирования, связать с Order и сохранить paymentOption
       await prisma.booking.update({
         where: { id: booking.id },
         data: {
           status: 'order_created',
+          orderId: order.id, // Связываем Booking с Order для мониторинга
           paymentOption: effectivePaymentOption
         }
       });

@@ -218,6 +218,7 @@ model Guide {
   assignedTours     Tour[]             @relation("AssignedGuide")
   assignedBookings  Booking[]          @relation("AssignedBookings")
   guideReviews      GuideReview[]
+  bookingGuides     BookingGuide[]     // Связь через промежуточную таблицу
 
   @@map("guides")
 }
@@ -670,8 +671,24 @@ model Booking {
   hotel               Hotel?            @relation(fields: [hotelId], references: [id])
   tour                Tour              @relation(fields: [tourId], references: [id], onDelete: Cascade)
   assignedGuide       Guide?            @relation("AssignedBookings", fields: [assignedGuideId], references: [id])
+  bookingGuides       BookingGuide[]    // Связь для нескольких гидов
 
   @@map("bookings")
+}
+
+// Промежуточная таблица для связи Booking-Guide (множественные гиды)
+model BookingGuide {
+  id          Int      @id @default(autoincrement())
+  bookingId   Int      @map("booking_id")
+  guideId     Int      @map("guide_id")
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+  role        String   @default("main") // main, assistant, translator
+  isActive    Boolean  @default(true)
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  guide       Guide    @relation(fields: [guideId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, guideId])
+  @@map("booking_guides")
 }
 
 model ExchangeRate {
