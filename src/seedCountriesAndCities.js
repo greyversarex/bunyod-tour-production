@@ -7,26 +7,22 @@ const countriesData = [
     name: 'Tajikistan',
     nameRu: 'Таджикистан',
     nameEn: 'Tajikistan', 
-    nameTj: 'Тоҷикистон',
     code: 'TJ',
     cities: [
       {
         name: 'Dushanbe',
         nameRu: 'Душанбе',
-        nameEn: 'Dushanbe',
-        nameTj: 'Душанбе'
+        nameEn: 'Dushanbe'
       },
       {
         name: 'Khujand',
         nameRu: 'Худжанд',
-        nameEn: 'Khujand',
-        nameTj: 'Худжанд'
+        nameEn: 'Khujand'
       },
       {
         name: 'Khorog',
         nameRu: 'Хорог',
-        nameEn: 'Khorog',
-        nameTj: 'Хоруғ'
+        nameEn: 'Khorog'
       }
     ]
   },
@@ -34,26 +30,22 @@ const countriesData = [
     name: 'Uzbekistan',
     nameRu: 'Узбекистан',
     nameEn: 'Uzbekistan',
-    nameTj: 'Ӯзбакистон',
     code: 'UZ',
     cities: [
       {
         name: 'Tashkent',
         nameRu: 'Ташкент',
-        nameEn: 'Tashkent',
-        nameTj: 'Тошканд'
+        nameEn: 'Tashkent'
       },
       {
         name: 'Samarkand',
         nameRu: 'Самарканд',
-        nameEn: 'Samarkand',
-        nameTj: 'Самарқанд'
+        nameEn: 'Samarkand'
       },
       {
         name: 'Bukhara',
         nameRu: 'Бухара',
-        nameEn: 'Bukhara',
-        nameTj: 'Бухоро'
+        nameEn: 'Bukhara'
       }
     ]
   },
@@ -61,14 +53,12 @@ const countriesData = [
     name: 'Kyrgyzstan',
     nameRu: 'Кыргызстан',
     nameEn: 'Kyrgyzstan',
-    nameTj: 'Қирғизистон',
     code: 'KG',
     cities: [
       {
         name: 'Bishkek',
         nameRu: 'Бишкек',
-        nameEn: 'Bishkek',
-        nameTj: 'Бишкек'
+        nameEn: 'Bishkek'
       }
     ]
   },
@@ -76,20 +66,17 @@ const countriesData = [
     name: 'Kazakhstan',
     nameRu: 'Казахстан',
     nameEn: 'Kazakhstan',
-    nameTj: 'Қазоқистон',
     code: 'KZ',
     cities: [
       {
         name: 'Astana',
         nameRu: 'Астана',
-        nameEn: 'Astana',
-        nameTj: 'Астана'
+        nameEn: 'Astana'
       },
       {
         name: 'Almaty',
         nameRu: 'Алматы',
-        nameEn: 'Almaty',
-        nameTj: 'Алматы'
+        nameEn: 'Almaty'
       }
     ]
   },
@@ -97,14 +84,12 @@ const countriesData = [
     name: 'Turkmenistan',
     nameRu: 'Туркменистан',
     nameEn: 'Turkmenistan',
-    nameTj: 'Туркманистон',
     code: 'TM',
     cities: [
       {
         name: 'Ashgabat',
         nameRu: 'Ашхабад',
-        nameEn: 'Ashgabat',
-        nameTj: 'Ашхобод'
+        nameEn: 'Ashgabat'
       }
     ]
   }
@@ -133,7 +118,6 @@ async function seedCountriesAndCities() {
             name: countryData.name,
             nameRu: countryData.nameRu,
             nameEn: countryData.nameEn,
-            nameTj: countryData.nameTj,
             code: countryData.code,
             isActive: true
           }
@@ -158,7 +142,6 @@ async function seedCountriesAndCities() {
               name: cityData.name,
               nameRu: cityData.nameRu,
               nameEn: cityData.nameEn,
-              nameTj: cityData.nameTj,
               countryId: country.id,
               isActive: true
             }
