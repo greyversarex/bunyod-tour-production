@@ -11,7 +11,8 @@ import {
   getPaidBookings,
   assignGuideToBooking,
   updateBookingExecutionStatus,
-  getGuideBookings
+  getGuideBookings,
+  collectBookingReviews
 } from '../controllers/tourHistoryController';
 
 const router = express.Router();
@@ -34,6 +35,7 @@ router.post('/tours/assign-guide', assignGuideToTour);
 router.get('/bookings/paid', getPaidBookings);
 router.post('/bookings/assign-guide', assignGuideToBooking);
 router.patch('/bookings/:id/execution-status', updateBookingExecutionStatus);
+router.post('/bookings/:id/collect-reviews', collectBookingReviews);
 router.get('/guides/:guideId/bookings', getGuideBookings);
 
 export default router;

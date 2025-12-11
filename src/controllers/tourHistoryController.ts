@@ -544,11 +544,8 @@ export const getPaidBookings = async (req: Request, res: Response): Promise<void
       where: whereClause,
       include: {
         tour: {
-          select: {
-            id: true,
-            title: true,
-            uniqueCode: true,
-            duration: true
+          include: {
+            tourMapPoints: true
           }
         },
         assignedGuide: {
@@ -792,6 +789,128 @@ export const updateBookingExecutionStatus = async (req: Request, res: Response):
 
   } catch (error) {
     console.error('❌ Error updating booking execution status:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера'
+    });
+  }
+};
+
+// Собрать отзывы для бронирования (отправить email туристам)
+export const collectBookingReviews = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const bookingId = parseInt(id);
+
+    if (!bookingId) {
+      res.status(400).json({
+        success: false,
+        message: 'ID бронирования обязателен'
+      });
+      return;
+    }
+
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        tour: {
+          select: {
+            id: true,
+            title: true
+          }
+        }
+      }
+    });
+
+    if (!booking) {
+      res.status(404).json({
+        success: false,
+        message: 'Бронирование не найдено'
+      });
+      return;
+    }
+
+    if (booking.executionStatus !== 'completed') {
+      res.status(400).json({
+        success: false,
+        message: 'Тур ещё не завершён'
+      });
+      return;
+    }
+
+    // Парсим туристов
+    let tourists: any[] = [];
+    try {
+      tourists = JSON.parse(booking.tourists);
+    } catch (e) {
+      tourists = [];
+    }
+
+    const touristsWithEmail = tourists.filter((t: any) => t.email);
+
+    if (touristsWithEmail.length === 0) {
+      res.status(400).json({
+        success: false,
+        message: 'Нет email адресов туристов'
+      });
+      return;
+    }
+
+    // Получить название тура
+    const tourTitle = typeof booking.tour.title === 'object'
+      ? ((booking.tour.title as any).ru || (booking.tour.title as any).en || 'Тур')
+      : String(booking.tour.title || 'Тур');
+
+    // Отправляем email каждому туристу
+    let sentCount = 0;
+    const domain = process.env.DOMAIN || 'bunyod-tour.tj';
+    
+    for (const tourist of touristsWithEmail) {
+      try {
+        // Формируем ссылку на форму отзыва
+        const reviewLink = `https://${domain}/review-form.html?tourId=${booking.tourId}&bookingId=${booking.id}&email=${encodeURIComponent(tourist.email)}`;
+        
+        // Отправка email (используем sendReviewRequestEmail если есть)
+        const sgMail = require('@sendgrid/mail');
+        if (process.env.SENDGRID_API_KEY) {
+          sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+          
+          await sgMail.send({
+            to: tourist.email,
+            from: process.env.SENDGRID_FROM_EMAIL || 'info@bunyod-tour.tj',
+            subject: `Поделитесь впечатлениями о туре "${tourTitle}"`,
+            html: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #2F2F2F;">Здравствуйте, ${tourist.fullName || tourist.name || 'дорогой турист'}!</h2>
+                <p>Благодарим вас за то, что выбрали Bunyod-Tour для вашего путешествия!</p>
+                <p>Мы надеемся, что тур <strong>"${tourTitle}"</strong> оставил у вас приятные впечатления.</p>
+                <p>Пожалуйста, поделитесь своим отзывом - это поможет нам стать лучше и поможет другим путешественникам сделать правильный выбор.</p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${reviewLink}" style="background-color: #3E3E3E; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">
+                    Оставить отзыв
+                  </a>
+                </div>
+                <p style="color: #666; font-size: 14px;">С уважением,<br>Команда Bunyod-Tour</p>
+              </div>
+            `
+          });
+          sentCount++;
+        }
+      } catch (emailError) {
+        console.error(`Failed to send review request to ${tourist.email}:`, emailError);
+      }
+    }
+
+    console.log(`✅ Sent ${sentCount} review requests for booking ${bookingId}`);
+
+    res.json({
+      success: true,
+      sentCount,
+      message: `Запросы на отзыв отправлены ${sentCount} туристам`
+    });
+
+  } catch (error) {
+    console.error('❌ Error collecting booking reviews:', error);
     res.status(500).json({
       success: false,
       message: 'Ошибка сервера'

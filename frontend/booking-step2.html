@@ -977,10 +977,14 @@
                     ` : ''}
                 </div>
                 
-                <div class="grid grid-cols-1 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label" data-translate="booking.step2.tourist_fullname">ФИО туриста *</label>
                         <input type="text" class="form-input tourist-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email туриста</label>
+                        <input type="email" class="form-input tourist-email" placeholder="email@example.com">
                     </div>
                 </div>
             `;
@@ -1006,10 +1010,14 @@
                         <h4 class="font-medium text-gray-800"><span data-translate="booking.step2.tourist">Турист</span> ${touristCount}</h4>
                     </div>
                     
-                    <div class="grid grid-cols-1 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label class="form-label" data-translate="booking.step2.tourist_fullname">ФИО туриста *</label>
                             <input type="text" class="form-input tourist-name" value="${tourist.fullName || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email туриста</label>
+                            <input type="email" class="form-input tourist-email" value="${tourist.email || ''}" placeholder="email@example.com">
                         </div>
                     </div>
                 `;
@@ -1194,9 +1202,11 @@
             
             touristCards.forEach(card => {
                 const name = card.querySelector('.tourist-name').value;
+                const email = card.querySelector('.tourist-email')?.value || '';
                 
                 tourists.push({
-                    fullName: name
+                    fullName: name,
+                    email: email
                 });
             });
             

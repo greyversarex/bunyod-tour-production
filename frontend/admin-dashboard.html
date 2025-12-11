@@ -10287,7 +10287,10 @@
 
             tbody.innerHTML = bookings.map(booking => {
                 const tourTitle = booking.tour?.title?.ru || booking.tour?.title?.en || booking.tour?.title || 'Без названия';
-                const guideName = booking.assignedGuide?.name || '<span class="text-red-500">Не назначен</span>';
+                const guideNameRaw = booking.assignedGuide?.name;
+                const guideName = guideNameRaw 
+                    ? (typeof guideNameRaw === 'object' ? (guideNameRaw.ru || guideNameRaw.en || 'Гид') : guideNameRaw)
+                    : '<span class="text-red-500">Не назначен</span>';
                 const guideButton = booking.assignedGuideId 
                     ? `<button class="btn btn-sm btn-secondary" onclick="openAssignGuideModal(${booking.id}, '${tourTitle}')">
                          <i class="fas fa-user-edit"></i>
@@ -10422,11 +10425,20 @@
         }
 
         // View booking details
+        // View booking details with full tour info
         function viewBookingDetails(bookingId) {
             const booking = allMonitoringBookings.find(b => b.id === bookingId);
             if (!booking) return;
             
-            const tourTitle = booking.tour?.title?.ru || booking.tour?.title?.en || booking.tour?.title || 'Без названия';
+            const lang = localStorage.getItem('language') || 'ru';
+            const tour = booking.tour || {};
+            const tourTitle = tour.title?.[lang] || tour.title?.ru || tour.title?.en || tour.title || 'Без названия';
+            const tourDescription = tour.description?.[lang] || tour.description?.ru || tour.description?.en || '';
+            const itinerary = lang === 'en' && tour.itineraryEn ? tour.itineraryEn : (tour.itinerary || '');
+            const includes = tour.includes || '';
+            const excluded = tour.excluded || '';
+            const tourMapPoints = tour.tourMapPoints || [];
+            
             const statusLabels = {
                 'pending': 'Ожидает',
                 'in_progress': 'В процессе',
@@ -10439,49 +10451,249 @@
             } catch (e) {}
             
             const touristList = Array.isArray(tourists) 
-                ? tourists.map((t, i) => `<li>${i+1}. ${t.fullName || t.name || 'Турист'}</li>`).join('')
+                ? tourists.map((t, i) => `<li class="py-1">${i+1}. ${t.fullName || t.name || 'Турист'}${t.email ? ` <span class="text-gray-500">(${t.email})</span>` : ''}</li>`).join('')
                 : `<li>${booking.numberOfTourists} туристов</li>`;
             
+            // Парсим программу тура
+            let itineraryHtml = '';
+            if (itinerary) {
+                try {
+                    const days = JSON.parse(itinerary);
+                    if (Array.isArray(days)) {
+                        itineraryHtml = days.map((day, i) => `
+                            <div class="border-l-4 border-blue-500 pl-3 mb-3">
+                                <p class="font-semibold text-blue-800">День ${i+1}: ${day.title || ''}</p>
+                                <p class="text-sm text-gray-600">${day.description || day.text || ''}</p>
+                            </div>
+                        `).join('');
+                    }
+                } catch (e) {
+                    itineraryHtml = `<p class="text-sm">${itinerary}</p>`;
+                }
+            }
+            
+            // Парсим что включено
+            let includesHtml = '';
+            if (includes) {
+                try {
+                    const items = JSON.parse(includes);
+                    if (Array.isArray(items)) {
+                        includesHtml = items.map(item => `<li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> ${typeof item === 'object' ? (item[lang] || item.ru || item.en || item) : item}</li>`).join('');
+                    }
+                } catch (e) {
+                    includesHtml = includes.split(',').map(s => `<li class="flex items-center gap-2"><i class="fas fa-check text-green-500"></i> ${s.trim()}</li>`).join('');
+                }
+            }
+            
+            // Парсим что не включено
+            let excludedHtml = '';
+            if (excluded) {
+                try {
+                    const items = JSON.parse(excluded);
+                    if (Array.isArray(items)) {
+                        excludedHtml = items.map(item => `<li class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i> ${typeof item === 'object' ? (item[lang] || item.ru || item.en || item) : item}</li>`).join('');
+                    }
+                } catch (e) {
+                    excludedHtml = excluded.split(',').map(s => `<li class="flex items-center gap-2"><i class="fas fa-times text-red-500"></i> ${s.trim()}</li>`).join('');
+                }
+            }
+            
+            // Карта с точками
+            let mapHtml = '';
+            if (tourMapPoints.length > 0) {
+                const mapId = 'booking-detail-map-' + bookingId;
+                mapHtml = `
+                    <div class="mt-4">
+                        <p class="font-semibold mb-2"><i class="fas fa-map-marker-alt text-red-500"></i> Маршрут тура</p>
+                        <div id="${mapId}" style="height: 250px; border-radius: 8px; overflow: hidden;"></div>
+                    </div>
+                `;
+                setTimeout(() => {
+                    initBookingDetailMap(mapId, tourMapPoints);
+                }, 300);
+            }
+            
+            // Кнопка сбора отзывов
+            const collectReviewsBtn = booking.executionStatus === 'completed' 
+                ? `<button onclick="collectReviews(${booking.id})" class="btn btn-sm bg-purple-600 text-white hover:bg-purple-700 mt-3">
+                     <i class="fas fa-star"></i> Собрать отзывы
+                   </button>`
+                : '';
+            
+            // Имя гида
+            const guideNameRaw = booking.assignedGuide?.name;
+            const guideName = guideNameRaw 
+                ? (typeof guideNameRaw === 'object' ? (guideNameRaw.ru || guideNameRaw.en || 'Гид') : guideNameRaw)
+                : 'Не назначен';
+            
             const modalContent = `
-                <div class="p-4">
-                    <h3 class="text-lg font-bold mb-4">${tourTitle}</h3>
-                    <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="p-4 max-h-[80vh] overflow-y-auto">
+                    <div class="flex items-start gap-4 mb-4">
+                        ${tour.mainImage ? `<img src="${tour.mainImage}" class="w-32 h-24 object-cover rounded-lg" alt="">` : ''}
                         <div>
-                            <p class="text-sm text-gray-600">Бронирование #</p>
-                            <p class="font-medium">${booking.id}</p>
+                            <h3 class="text-xl font-bold">${tourTitle}</h3>
+                            <p class="text-gray-600 text-sm">${tour.duration || ''}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4 bg-gray-50 p-3 rounded-lg">
+                        <div>
+                            <p class="text-sm text-gray-600">Дата проведения</p>
+                            <p class="font-medium">${booking.tourDate || 'Не указана'}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Дата тура</p>
-                            <p class="font-medium">${booking.tourDate || 'Не указана'}</p>
+                            <p class="text-sm text-gray-600">Количество туристов</p>
+                            <p class="font-medium">${booking.numberOfTourists}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Контактное лицо</p>
                             <p class="font-medium">${booking.contactName || '-'}</p>
-                            <p class="text-sm">${booking.contactPhone || ''} ${booking.contactEmail || ''}</p>
+                            <p class="text-sm">${booking.contactPhone || ''}</p>
                         </div>
                         <div>
-                            <p class="text-sm text-gray-600">Статус выполнения</p>
+                            <p class="text-sm text-gray-600">Текущий статус</p>
                             <p class="font-medium">${statusLabels[booking.executionStatus]}</p>
                         </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="font-semibold mb-2">Список туристов</p>
+                        <ul class="list-disc list-inside bg-white border rounded-lg p-3">${touristList}</ul>
+                    </div>
+                    
+                    ${booking.specialRequests ? `
+                        <div class="bg-yellow-50 p-3 rounded-lg mb-4">
+                            <p class="font-semibold text-yellow-800">Особые пожелания</p>
+                            <p>${booking.specialRequests}</p>
+                        </div>
+                    ` : ''}
+                    
+                    ${itineraryHtml ? `
+                        <div class="mb-4">
+                            <p class="font-semibold mb-2"><i class="fas fa-route text-blue-500"></i> Программа тура</p>
+                            <div class="bg-white border rounded-lg p-3">${itineraryHtml}</div>
+                        </div>
+                    ` : ''}
+                    
+                    ${includesHtml ? `
+                        <div class="mb-4">
+                            <p class="font-semibold mb-2"><i class="fas fa-check-circle text-green-500"></i> Включено в тур</p>
+                            <ul class="bg-white border rounded-lg p-3 space-y-1">${includesHtml}</ul>
+                        </div>
+                    ` : ''}
+                    
+                    ${excludedHtml ? `
+                        <div class="mb-4">
+                            <p class="font-semibold mb-2"><i class="fas fa-times-circle text-red-500"></i> Не включено</p>
+                            <ul class="bg-white border rounded-lg p-3 space-y-1">${excludedHtml}</ul>
+                        </div>
+                    ` : ''}
+                    
+                    ${mapHtml}
+                    
+                    <div class="mt-4 pt-4 border-t flex justify-between items-center">
                         <div>
                             <p class="text-sm text-gray-600">Назначенный гид</p>
-                            <p class="font-medium">${booking.assignedGuide?.name || 'Не назначен'}</p>
+                            <p class="font-medium">${guideName}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-600">Сумма</p>
-                            <p class="font-medium">${booking.totalPrice} TJS</p>
+                            <p class="font-bold text-lg">${booking.totalPrice} TJS</p>
                         </div>
                     </div>
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-2">Туристы (${booking.numberOfTourists})</p>
-                        <ul class="list-disc list-inside">${touristList}</ul>
+                    
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-600">Управление статусом</p>
+                            ${booking.executionStatus !== 'completed' ? `
+                                <button onclick="updateBookingStatus(${booking.id}, 'completed')" class="btn btn-sm bg-green-600 text-white hover:bg-green-700 mt-1">
+                                    <i class="fas fa-check"></i> Тур завершён
+                                </button>
+                            ` : '<span class="text-green-600 font-medium"><i class="fas fa-check-circle"></i> Тур завершён</span>'}
+                        </div>
+                        ${collectReviewsBtn}
                     </div>
-                    ${booking.specialRequests ? `<div class="bg-yellow-50 p-3 rounded"><p class="text-sm text-gray-600">Особые пожелания:</p><p>${booking.specialRequests}</p></div>` : ''}
                 </div>
             `;
             
-            showModalAlert('Детали бронирования', modalContent);
+            showModalAlert(tourTitle, modalContent);
         }
+        
+        // Инициализация карты для деталей бронирования
+        function initBookingDetailMap(mapId, points) {
+            const mapElement = document.getElementById(mapId);
+            if (!mapElement || typeof google === 'undefined') return;
+            
+            const bounds = new google.maps.LatLngBounds();
+            const map = new google.maps.Map(mapElement, {
+                zoom: 10,
+                mapTypeId: 'roadmap',
+                scrollwheel: true
+            });
+            
+            points.forEach((point, index) => {
+                const position = { lat: point.lat, lng: point.lng };
+                bounds.extend(position);
+                
+                new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    title: point.title || `Точка ${index + 1}`,
+                    label: {
+                        text: String(index + 1),
+                        color: 'white',
+                        fontWeight: 'bold'
+                    }
+                });
+            });
+            
+            if (points.length > 1) {
+                map.fitBounds(bounds);
+            } else if (points.length === 1) {
+                map.setCenter({ lat: points[0].lat, lng: points[0].lng });
+                map.setZoom(12);
+            }
+        }
+        
+        // Функция сбора отзывов
+        async function collectReviews(bookingId) {
+            const booking = allMonitoringBookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let tourists = [];
+            try {
+                tourists = JSON.parse(booking.tourists);
+            } catch (e) {}
+            
+            const touristsWithEmail = tourists.filter(t => t.email);
+            
+            if (touristsWithEmail.length === 0) {
+                showNotification('Нет email адресов туристов для отправки', 'warning');
+                return;
+            }
+            
+            if (!confirm(`Отправить запрос на отзыв ${touristsWithEmail.length} туристам?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/admin/history/bookings/${bookingId}/collect-reviews`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showNotification(`Запросы на отзыв отправлены ${data.sentCount || touristsWithEmail.length} туристам`, 'success');
+                } else {
+                    showNotification(data.message || 'Ошибка отправки', 'error');
+                }
+            } catch (error) {
+                console.error('Error collecting reviews:', error);
+                showNotification('Ошибка при отправке запросов', 'error');
+            }
+        }
+
         // ==================== END BOOKINGS MONITORING ====================
 
 
