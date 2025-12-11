@@ -1207,7 +1207,8 @@ export const getGuideBookings = async (req: Request, res: Response): Promise<voi
             title: true,
             uniqueCode: true,
             duration: true,
-            description: true
+            description: true,
+            itinerary: true
           }
         }
       },

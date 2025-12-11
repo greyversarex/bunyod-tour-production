@@ -534,13 +534,52 @@
                                 <span class="bg-green-100 text-green-800 px-4 py-2 rounded-lg">
                                     <i class="fas fa-check-circle mr-2"></i>Тур завершён
                                 </span>
+                                <button onclick="collectBookingReviews(${booking.id}, ${booking.tourId})" 
+                                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg ml-2">
+                                    <i class="fas fa-star mr-2"></i>Собрать отзывы
+                                </button>
                             ` : ''}
                         </div>
                     </div>
+                    
+                    ${booking.tour?.itinerary ? `
+                        <div class="border-t pt-4">
+                            <h4 class="font-semibold mb-3">Программа тура</h4>
+                            <div class="bg-gray-50 p-4 rounded-lg max-h-64 overflow-y-auto">
+                                ${renderItinerary(booking.tour.itinerary)}
+                            </div>
+                        </div>
+                    ` : ''}
                 </div>
             `;
             
             document.getElementById('tourModal').classList.remove('hidden');
+        }
+        
+        // Collect reviews for a specific booking
+        async function collectBookingReviews(bookingId, tourId) {
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch(`/api/guide/tours/${tourId}/collect-reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ bookingId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Запросы на отзывы успешно отправлены!');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Не удалось отправить запросы'));
+                }
+            } catch (error) {
+                console.error('Error collecting reviews:', error);
+                alert('Ошибка при отправке запросов на отзывы');
+            }
         }
         
         // Update booking execution status

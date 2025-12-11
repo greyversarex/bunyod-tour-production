@@ -313,15 +313,6 @@
                 const data = await response.json();
                 const tour = data.data;
                 
-                // DEBUG: Показать что пришло с сервера
-                console.log('🔍 DEBUG Tour Data:', {
-                    id: tour.id,
-                    status: tour.status,
-                    itinerary: tour.itinerary,
-                    hasItinerary: !!tour.itinerary,
-                    itineraryType: typeof tour.itinerary
-                });
-                
                 const title = typeof tour.title === 'object' 
                     ? (tour.title.ru || tour.title.en || 'Без названия')
                     : tour.title;
@@ -329,15 +320,6 @@
                 document.getElementById('modalTitle').textContent = title;
                 
                 const details = `
-                    <!-- DEBUG BLOCK - удалить после отладки -->
-                    <div class="bg-yellow-100 border border-yellow-400 p-3 rounded mb-4 text-sm">
-                        <p class="font-bold text-yellow-800">🔍 DEBUG INFO:</p>
-                        <p>status: <code class="bg-yellow-200 px-1">"${tour.status}"</code></p>
-                        <p>itinerary: <code class="bg-yellow-200 px-1">${tour.itinerary ? 'ЕСТЬ (' + tour.itinerary.length + ' символов)' : 'ПУСТО/NULL'}</code></p>
-                        <p>Условие кнопки: status === 'finished' || 'completed' = <code class="bg-yellow-200 px-1">${tour.status === 'finished' || tour.status === 'completed'}</code></p>
-                    </div>
-                    <!-- END DEBUG BLOCK -->
-                    
                     <div class="grid grid-cols-2 gap-4 mb-6">
                         <div>
                             <p class="text-gray-600 text-sm">Статус</p>
