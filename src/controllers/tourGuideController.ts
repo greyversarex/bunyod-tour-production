@@ -875,11 +875,134 @@ export const finishTour = async (req: Request, res: Response): Promise<void> => 
 export const collectReviews = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    let { selectedTourists } = req.body;
+    let { selectedTourists, bookingId } = req.body;
     const guideId = (req as any).user?.id;
     const tourId = parseInt(id);
 
-    // Находим завершённый тур, назначенный этому гиду (legacy или через bookings)
+    // Если передан bookingId - проверяем завершённость бронирования (новый флоу)
+    if (bookingId) {
+      const booking = await prisma.booking.findFirst({
+        where: {
+          id: parseInt(bookingId),
+          tourId: tourId,
+          assignedGuideId: guideId,
+          executionStatus: 'completed'
+        },
+        include: {
+          tour: true,
+          order: {
+            include: {
+              customer: true
+            }
+          }
+        }
+      });
+
+      if (!booking) {
+        res.status(404).json({ 
+          success: false, 
+          message: 'Бронирование не найдено или ещё не завершено' 
+        });
+        return;
+      }
+
+      // Собираем туристов из этого бронирования
+      if (!selectedTourists || !Array.isArray(selectedTourists) || selectedTourists.length === 0) {
+        selectedTourists = [];
+        
+        if (booking.contactEmail) {
+          selectedTourists.push({
+            name: booking.contactName || 'Уважаемый турист',
+            email: booking.contactEmail
+          });
+        }
+        if (booking.order?.customer?.email) {
+          const customer = booking.order.customer;
+          if (!selectedTourists.find((t: any) => t.email === customer.email)) {
+            selectedTourists.push({
+              name: customer.fullName || 'Уважаемый турист',
+              email: customer.email
+            });
+          }
+        }
+      }
+
+      if (selectedTourists.length === 0) {
+        res.status(400).json({ 
+          success: false, 
+          message: 'Нет туристов с email для отправки запроса на отзыв' 
+        });
+        return;
+      }
+
+      // Отправляем письма
+      let emailsSent = 0;
+      const frontendUrl = process.env.FRONTEND_URL || 'https://bunyod-tour.com';
+      const tourTitle = parseMultilingualField(booking.tour.title, 'ru');
+      
+      for (const tourist of selectedTourists) {
+        if (tourist.email) {
+          try {
+            const reviewLink = `${frontendUrl}/review.html?tourId=${tourId}&email=${encodeURIComponent(tourist.email)}`;
+            
+            const sgMail = require('@sendgrid/mail');
+            if (process.env.SENDGRID_API_KEY) {
+              sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+              
+              await sgMail.send({
+                to: tourist.email,
+                from: process.env.SENDGRID_FROM_EMAIL || 'noreply@bunyod-tour.com',
+                subject: `Поделитесь впечатлениями о туре "${tourTitle}"`,
+                html: `
+                  <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <div style="text-align: center; margin-bottom: 20px;">
+                      <img src="${frontendUrl}/images/logo.png" alt="Bunyod-Tour" style="max-height: 60px;">
+                    </div>
+                    <h2 style="color: #3E3E3E;">Здравствуйте, ${tourist.name}!</h2>
+                    <p style="color: #666; line-height: 1.6;">
+                      Благодарим вас за участие в туре <strong>"${tourTitle}"</strong>.
+                    </p>
+                    <p style="color: #666; line-height: 1.6;">
+                      Мы будем благодарны, если вы поделитесь своими впечатлениями. 
+                      Ваш отзыв поможет другим путешественникам сделать правильный выбор!
+                    </p>
+                    <div style="text-align: center; margin: 30px 0;">
+                      <a href="${reviewLink}" style="background: #3E3E3E; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                        ⭐ Оставить отзыв
+                      </a>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #999; text-align: center;">
+                      С уважением, команда Bunyod-Tour
+                    </p>
+                  </div>
+                `
+              });
+              
+              emailsSent++;
+            } else {
+              console.warn('SENDGRID_API_KEY not configured, skipping email to:', tourist.email);
+            }
+          } catch (emailError) {
+            console.warn('Failed to send review request email to:', tourist.email, emailError);
+          }
+        }
+      }
+
+      console.log(`📧 Sent ${emailsSent} review request emails for booking ${bookingId}`);
+
+      res.json({
+        success: true,
+        emailsSent,
+        totalTourists: selectedTourists.length,
+        message: emailsSent > 0 
+          ? `Отправлено ${emailsSent} писем с просьбой оставить отзыв`
+          : 'Не удалось отправить письма. Проверьте настройки email.'
+      });
+      return;
+    }
+
+    // Legacy флоу: Находим завершённый тур, назначенный этому гиду
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
