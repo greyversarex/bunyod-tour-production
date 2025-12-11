@@ -849,68 +849,133 @@ export const finishTour = async (req: Request, res: Response): Promise<void> => 
 export const collectReviews = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { selectedTourists } = req.body;
+    let { selectedTourists } = req.body;
     const guideId = (req as any).user?.id;
     const tourId = parseInt(id);
 
-    if (!selectedTourists || !Array.isArray(selectedTourists)) {
-      res.status(400).json({ 
-        success: false, 
-        message: 'Список туристов обязателен' 
-      });
-      return;
-    }
-
+    // Находим завершённый тур, назначенный этому гиду (legacy или через bookings)
     const tour = await prisma.tour.findFirst({
       where: { 
         id: tourId,
-        assignedGuideId: guideId,
-        status: 'finished'
+        status: { in: ['finished', 'completed'] },
+        OR: [
+          { assignedGuideId: guideId },
+          { 
+            bookings: {
+              some: {
+                assignedGuideId: guideId
+              }
+            }
+          }
+        ]
+      },
+      include: {
+        bookings: {
+          where: {
+            status: 'paid'
+          },
+          include: {
+            order: {
+              include: {
+                customer: true
+              }
+            }
+          }
+        }
       }
     });
 
     if (!tour) {
       res.status(404).json({ 
         success: false, 
-        message: 'Тур не найден или не завершён' 
+        message: 'Тур не найден или ещё не завершён' 
       });
       return;
     }
 
-    // Настройка nodemailer (заглушка для демонстрации)
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+    // Если туристы не переданы, автоматически собираем из бронирований
+    if (!selectedTourists || !Array.isArray(selectedTourists) || selectedTourists.length === 0) {
+      selectedTourists = [];
+      
+      for (const booking of tour.bookings) {
+        if (booking.contactEmail) {
+          selectedTourists.push({
+            name: booking.contactName || 'Уважаемый турист',
+            email: booking.contactEmail
+          });
+        }
+        // Также пробуем взять email из Order.customer
+        if (booking.order?.customer?.email) {
+          const customer = booking.order.customer;
+          if (!selectedTourists.find((t: any) => t.email === customer.email)) {
+            selectedTourists.push({
+              name: customer.fullName || 'Уважаемый турист',
+              email: customer.email
+            });
+          }
+        }
       }
-    });
+    }
+
+    if (selectedTourists.length === 0) {
+      res.status(400).json({ 
+        success: false, 
+        message: 'Нет туристов с email для отправки запроса на отзыв' 
+      });
+      return;
+    }
 
     let emailsSent = 0;
+    const frontendUrl = process.env.FRONTEND_URL || 'https://bunyod-tour.com';
 
-    // Отправить email каждому выбранному туристу
+    // Отправить email каждому туристу через SendGrid
     for (const tourist of selectedTourists) {
       if (tourist.email) {
         try {
-          const reviewLink = `${process.env.FRONTEND_URL}/review/${tourId}?tourist=${encodeURIComponent(tourist.email)}`;
+          const reviewLink = `${frontendUrl}/review.html?tourId=${tourId}&email=${encodeURIComponent(tourist.email)}`;
+          const tourTitle = parseMultilingualField(tour.title, 'ru');
           
-          await transporter.sendMail({
-            from: process.env.EMAIL_FROM,
-            to: tourist.email,
-            subject: 'Оставьте отзыв о туре',
-            html: `
-              <h2>Здравствуйте, ${tourist.name}!</h2>
-              <p>Благодарим вас за участие в туре "${parseMultilingualField(tour.title, 'ru')}".</p>
-              <p>Мы будем благодарны, если вы поделитесь своими впечатлениями:</p>
-              <a href="${reviewLink}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Оставить отзыв</a>
-            `
-          });
-          
-          emailsSent++;
+          // Используем SendGrid
+          const sgMail = require('@sendgrid/mail');
+          if (process.env.SENDGRID_API_KEY) {
+            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+            
+            await sgMail.send({
+              to: tourist.email,
+              from: process.env.SENDGRID_FROM_EMAIL || 'noreply@bunyod-tour.com',
+              subject: `Поделитесь впечатлениями о туре "${tourTitle}"`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                  <div style="text-align: center; margin-bottom: 20px;">
+                    <img src="${frontendUrl}/images/logo.png" alt="Bunyod-Tour" style="max-height: 60px;">
+                  </div>
+                  <h2 style="color: #3E3E3E;">Здравствуйте, ${tourist.name}!</h2>
+                  <p style="color: #666; line-height: 1.6;">
+                    Благодарим вас за участие в туре <strong>"${tourTitle}"</strong>.
+                  </p>
+                  <p style="color: #666; line-height: 1.6;">
+                    Мы будем благодарны, если вы поделитесь своими впечатлениями. 
+                    Ваш отзыв поможет другим путешественникам сделать правильный выбор!
+                  </p>
+                  <div style="text-align: center; margin: 30px 0;">
+                    <a href="${reviewLink}" style="background: #3E3E3E; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+                      ⭐ Оставить отзыв
+                    </a>
+                  </div>
+                  <hr style="border: none; border-top: 1px solid #e0e0e0; margin: 20px 0;">
+                  <p style="font-size: 12px; color: #999; text-align: center;">
+                    С уважением, команда Bunyod-Tour
+                  </p>
+                </div>
+              `
+            });
+            
+            emailsSent++;
+          } else {
+            console.warn('SENDGRID_API_KEY not configured, skipping email to:', tourist.email);
+          }
         } catch (emailError) {
-          console.warn('Failed to send email to:', tourist.email, emailError);
+          console.warn('Failed to send review request email to:', tourist.email, emailError);
         }
       }
     }
@@ -920,7 +985,10 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
     res.json({
       success: true,
       emailsSent,
-      message: `Отправлено ${emailsSent} писем с просьбой оставить отзыв`
+      totalTourists: selectedTourists.length,
+      message: emailsSent > 0 
+        ? `Отправлено ${emailsSent} писем с просьбой оставить отзыв`
+        : 'Не удалось отправить письма. Проверьте настройки email.'
     });
 
   } catch (error) {

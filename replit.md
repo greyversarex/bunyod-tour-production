@@ -63,6 +63,11 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` migrates existing paid Orders to Bookings
     - **Monitoring displays**: Order number, customer info from Order.customer in monitoring table
     - **Run after deploy**: `npx ts-node scripts/backfillBookingsFromOrders.ts` to create Bookings for existing paid Orders
+-   **Guide Review Collection** (Dec 11, 2025): Guides can request reviews from tourists after tour completion
+    - **Guide cabinet button**: "Собрать отзывы" button appears for finished/completed tours
+    - **API endpoint**: `POST /api/guide/tours/:id/collect-reviews` sends review request emails
+    - **Auto-fetch tourists**: If no tourists specified, automatically fetches from booking.contactEmail and Order.customer
+    - **SendGrid integration**: Uses branded email template with review link
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
