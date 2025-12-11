@@ -627,8 +627,23 @@ export const paylerController = {
         console.log('✅ Payment confirmed for order:', order_id);
 
         // Create Booking record for tour monitoring
-        if (order.tourId) {
-          await createBookingFromOrder(Number(order_id));
+        const isBTOrder = order.orderNumber.startsWith('BT-');
+        const tourIdToUse = order.tourId || order.tour?.id;
+        
+        console.log('📋 [BOOKING] Order analysis:', {
+          orderNumber: order.orderNumber,
+          isBTOrder,
+          orderTourId: order.tourId,
+          tourRelationId: order.tour?.id,
+          tourIdToUse
+        });
+        
+        if (tourIdToUse || isBTOrder) {
+          console.log('📋 [BOOKING] Creating booking for order:', order_id);
+          const bookingCreated = await createBookingFromOrder(Number(order_id));
+          console.log('📋 [BOOKING] Result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+        } else {
+          console.log('📋 [BOOKING] Skipping - not a tour order (no tourId, orderNumber:', order.orderNumber, ')');
         }
 
         // CUSTOM TOUR: Update CustomTourOrder status after successful payment

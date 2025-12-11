@@ -395,8 +395,23 @@ export const alifController = {
         console.log('✅ Payment confirmed for order:', orderId);
 
         // Create Booking record for tour monitoring
-        if (order.tourId) {
-          await createBookingFromOrder(Number(orderId));
+        const isBTOrder = order.orderNumber.startsWith('BT-');
+        const tourIdToUse = order.tourId || order.tour?.id;
+        
+        console.log('📋 [BOOKING] Order analysis:', {
+          orderNumber: order.orderNumber,
+          isBTOrder,
+          orderTourId: order.tourId,
+          tourRelationId: order.tour?.id,
+          tourIdToUse
+        });
+        
+        if (tourIdToUse || isBTOrder) {
+          console.log('📋 [BOOKING] Creating booking for order:', orderId);
+          const bookingCreated = await createBookingFromOrder(Number(orderId));
+          console.log('📋 [BOOKING] Result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+        } else {
+          console.log('📋 [BOOKING] Skipping - not a tour order (no tourId, orderNumber:', order.orderNumber, ')');
         }
 
         // CUSTOM TOUR: Update CustomTourOrder status after successful payment

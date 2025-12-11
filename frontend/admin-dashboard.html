@@ -11466,6 +11466,40 @@
             }, 3000);
         }
         
+        // Универсальное модальное окно для отображения деталей
+        function showModalAlert(title, content) {
+            // Удаляем существующую модалку если есть
+            const existing = document.getElementById('genericDetailModal');
+            if (existing) existing.remove();
+            
+            const modal = document.createElement('div');
+            modal.id = 'genericDetailModal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-hidden">
+                    <div class="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-4 flex justify-between items-center">
+                        <h2 class="text-xl font-bold">${title}</h2>
+                        <button onclick="document.getElementById('genericDetailModal').remove()" class="text-white hover:text-gray-300 text-2xl">&times;</button>
+                    </div>
+                    <div class="overflow-y-auto max-h-[calc(90vh-80px)]">
+                        ${content}
+                    </div>
+                </div>
+            `;
+            
+            // Закрытие по клику на фон
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.remove();
+            });
+            
+            document.body.appendChild(modal);
+        }
+        
+        // Альтернативное имя для совместимости
+        function showModal(title, content) {
+            showModalAlert(title, content);
+        }
+        
         function confirmBooking() {
             if (currentBookingId) {
                 fetch(`${getApiUrl()}/orders/${currentBookingId}/status`, {

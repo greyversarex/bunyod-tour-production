@@ -227,13 +227,32 @@ export const clickService = {
 
 export async function createBookingFromOrder(orderId: number): Promise<boolean> {
   try {
+    console.log(`📋 [createBookingFromOrder] Starting for order ${orderId}`);
+    
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: { customer: true, tour: true }
     });
 
-    if (!order || !order.tourId) {
-      console.log(`[createBookingFromOrder] Order ${orderId} not found or has no tourId`);
+    if (!order) {
+      console.log(`❌ [createBookingFromOrder] Order ${orderId} not found`);
+      return false;
+    }
+
+    // Попробуем получить tourId из разных источников
+    const tourId = order.tourId || order.tour?.id;
+    
+    console.log(`📋 [createBookingFromOrder] Order details:`, {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      tourIdField: order.tourId,
+      tourRelationId: order.tour?.id,
+      resolvedTourId: tourId,
+      isBTOrder: order.orderNumber.startsWith('BT-')
+    });
+    
+    if (!tourId) {
+      console.log(`⚠️ [createBookingFromOrder] Order ${orderId} has no tourId - skipping booking creation`);
       return false;
     }
 
@@ -242,7 +261,7 @@ export async function createBookingFromOrder(orderId: number): Promise<boolean> 
     });
 
     if (existingBooking) {
-      console.log(`[createBookingFromOrder] Booking already exists for order ${orderId}`);
+      console.log(`ℹ️ [createBookingFromOrder] Booking already exists for order ${orderId}, updating status to paid`);
       await prisma.booking.update({
         where: { id: existingBooking.id },
         data: { status: 'paid' }
@@ -252,17 +271,18 @@ export async function createBookingFromOrder(orderId: number): Promise<boolean> 
 
     let touristsData: { name: string; birthDate: string }[] = [];
     try {
-      touristsData = JSON.parse(order.tourists);
+      touristsData = order.tourists ? JSON.parse(order.tourists) : [];
     } catch (e) {
+      console.warn(`⚠️ [createBookingFromOrder] Failed to parse tourists JSON, using fallback`);
       touristsData = [{ name: 'Tourist', birthDate: '' }];
     }
 
-    await prisma.booking.create({
+    const booking = await prisma.booking.create({
       data: {
         orderId: order.id,
-        tourId: order.tourId,
+        tourId: tourId,
         hotelId: order.hotelId,
-        tourists: order.tourists,
+        tourists: order.tourists || '[]',
         contactName: order.customer?.fullName || null,
         contactPhone: order.customer?.phone || null,
         contactEmail: order.customer?.email || null,
@@ -277,10 +297,15 @@ export async function createBookingFromOrder(orderId: number): Promise<boolean> 
       }
     });
 
-    console.log(`[createBookingFromOrder] Created Booking for order ${orderId}`);
+    console.log(`✅ [createBookingFromOrder] Created Booking #${booking.id} for order ${orderId}`);
     return true;
   } catch (error) {
-    console.error(`[createBookingFromOrder] Error creating booking for order ${orderId}:`, error);
+    console.error(`❌ [createBookingFromOrder] Error creating booking for order ${orderId}:`, error);
+    // Логируем детали ошибки Prisma
+    if (error instanceof Error) {
+      console.error(`❌ [createBookingFromOrder] Error message:`, error.message);
+      console.error(`❌ [createBookingFromOrder] Error stack:`, error.stack);
+    }
     return false;
   }
 }

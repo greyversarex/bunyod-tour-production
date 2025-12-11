@@ -385,6 +385,11 @@
                             </ul>
                         </div>
                     ` : ''}
+                    ${tour.status === 'finished' || tour.status === 'completed' ? `
+                        <button onclick="collectTourReviews(${tourId})" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-all">
+                            <i class="fas fa-star mr-1"></i> <span data-translate="btn.collect_reviews">Собрать отзывы</span>
+                        </button>
+                    ` : ''}
                 `;
 
                 document.getElementById('modalContent').innerHTML = details;
@@ -428,6 +433,30 @@
         async function finishTour(tourId) {
             if (!confirm('Завершить тур?')) return;
             await performAction(tourId, 'finish');
+        }
+
+        async function collectTourReviews(tourId) {
+            try {
+                const token = localStorage.getItem('tourGuideToken');
+                const response = await fetch(`/api/guide/tours/${tourId}/collect-reviews`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('Запрос на сбор отзывов отправлен туристам!');
+                    closeModal();
+                } else {
+                    alert(data.message || 'Ошибка отправки запроса');
+                }
+            } catch (error) {
+                console.error('Error collecting reviews:', error);
+                alert('Ошибка при отправке запроса на отзывы');
+            }
         }
 
         async function performAction(tourId, action) {
