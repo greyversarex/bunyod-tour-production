@@ -2158,6 +2158,12 @@
             document.body.appendChild(modal);
         }
         
+        function normalizeImagePath(path) {
+            if (!path) return '/placeholder-image.jpg';
+            if (path.startsWith('http://') || path.startsWith('https://')) return path;
+            if (path.startsWith('/')) return path;
+            return '/' + path;
+        }
         
         function getTourIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
