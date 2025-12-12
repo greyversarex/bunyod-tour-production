@@ -240,7 +240,47 @@ export async function createBookingFromOrder(orderId: number): Promise<boolean> 
     }
 
     // Попробуем получить tourId из разных источников
-    const tourId = order.tourId || order.tour?.id;
+    let tourId = order.tourId || order.tour?.id;
+    
+    // Если tourId не найден, ищем в существующем бронировании по bookingId
+    if (!tourId && order.orderNumber.startsWith('BT-')) {
+      console.log(`📋 [createBookingFromOrder] tourId not found, searching in existing booking...`);
+      
+      // Попробуем найти бронирование с этим orderId или по данным заказа
+      const existingBookingWithTour = await prisma.booking.findFirst({
+        where: {
+          OR: [
+            { orderId: order.id },
+            {
+              AND: [
+                { contactEmail: order.customer?.email },
+                { tourDate: order.tourDate },
+                { totalPrice: order.totalAmount }
+              ]
+            }
+          ]
+        },
+        select: { tourId: true, id: true }
+      });
+      
+      if (existingBookingWithTour?.tourId) {
+        tourId = existingBookingWithTour.tourId;
+        console.log(`📋 [createBookingFromOrder] Found tourId ${tourId} from existing booking #${existingBookingWithTour.id}`);
+      }
+    }
+    
+    // Последняя попытка: извлечь из wishes если есть JSON с tourId
+    if (!tourId && order.wishes) {
+      try {
+        const wishesData = JSON.parse(order.wishes);
+        if (wishesData.tourId) {
+          tourId = wishesData.tourId;
+          console.log(`📋 [createBookingFromOrder] Found tourId ${tourId} from wishes JSON`);
+        }
+      } catch (e) {
+        // wishes is not JSON, ignore
+      }
+    }
     
     console.log(`📋 [createBookingFromOrder] Order details:`, {
       orderId: order.id,
@@ -252,7 +292,7 @@ export async function createBookingFromOrder(orderId: number): Promise<boolean> 
     });
     
     if (!tourId) {
-      console.log(`⚠️ [createBookingFromOrder] Order ${orderId} has no tourId - skipping booking creation`);
+      console.log(`⚠️ [createBookingFromOrder] Order ${orderId} has no tourId after all attempts - skipping booking creation`);
       return false;
     }
 
