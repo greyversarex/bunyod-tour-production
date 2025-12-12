@@ -626,7 +626,7 @@ export const paylerController = {
 
         console.log('✅ Payment confirmed for order:', order_id);
 
-        // Create Booking record for tour monitoring
+        // 🎯 КРИТИЧНО: Обновить статус Booking на 'paid' для мониторинга туров
         const isBTOrder = order.orderNumber.startsWith('BT-');
         const tourIdToUse = order.tourId || order.tour?.id;
         
@@ -638,10 +638,40 @@ export const paylerController = {
           tourIdToUse
         });
         
-        if (tourIdToUse || isBTOrder) {
-          console.log('📋 [BOOKING] Creating booking for order:', order_id);
-          const bookingCreated = await createBookingFromOrder(Number(order_id));
-          console.log('📋 [BOOKING] Result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+        if (isBTOrder || tourIdToUse) {
+          // Сначала пробуем найти существующий Booking по orderId
+          const existingBooking = await prisma.booking.findFirst({
+            where: {
+              OR: [
+                { orderId: order.id },
+                // Fallback: ищем по совпадающим данным
+                {
+                  AND: [
+                    { contactEmail: order.customer?.email },
+                    { tourDate: order.tourDate },
+                    { totalPrice: order.totalAmount }
+                  ]
+                }
+              ]
+            }
+          });
+          
+          if (existingBooking) {
+            // Booking уже существует - обновляем статус на 'paid'
+            await prisma.booking.update({
+              where: { id: existingBooking.id },
+              data: { 
+                status: 'paid',
+                orderId: order.id // Убедимся что связь установлена
+              }
+            });
+            console.log(`✅ [BOOKING] Updated existing Booking #${existingBooking.id} status to 'paid'`);
+          } else {
+            // Booking не существует - создаём новый через createBookingFromOrder
+            console.log('📋 [BOOKING] No existing booking found, creating new one...');
+            const bookingCreated = await createBookingFromOrder(Number(order_id));
+            console.log('📋 [BOOKING] Create result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+          }
         } else {
           console.log('📋 [BOOKING] Skipping - not a tour order (no tourId, orderNumber:', order.orderNumber, ')');
         }

@@ -136,6 +136,12 @@ else
   echo "✅ Prisma схема синхронизирована"
 fi
 
+# 5. Backfill: Синхронизировать статусы Booking с оплаченными Orders
+echo "📋 Синхронизация Booking статусов с оплаченными Orders..."
+npx ts-node scripts/backfillBookingsFromOrders.ts || {
+  echo "⚠️  Backfill Bookings завершился с ошибкой, но продолжаем..."
+}
+
 echo "🚀 Перезапуск приложения через PM2..."
 pm2 startOrReload ecosystem.config.js --only "$PM2_APP"
 pm2 save

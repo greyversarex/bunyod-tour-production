@@ -84,6 +84,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Booking step 2**: Email field now required for each tourist (marked with * and `required` attribute)
     - **Form validation**: Added email format validation (pattern check) before form submission
     - **Review emails**: All tourists with valid emails will receive review request emails after tour completion
+-   **Booking Status Auto-Update** (Dec 12, 2025): Fixed paid orders not appearing in Tour Monitoring
+    - **Root cause**: Payment callbacks (Payler/Alif) were not updating Booking.status to 'paid'
+    - **Fix in callbacks**: Now directly finds existing Booking (by orderId or matching data) and sets status='paid'
+    - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` updated to fix existing data
+    - **Auto-run**: Script now runs automatically in `update.sh` during deployment
+    - **Monitoring works**: Paid bookings now appear in admin "Мониторинг туров" section for guide assignment
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
