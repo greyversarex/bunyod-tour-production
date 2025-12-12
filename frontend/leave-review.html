@@ -300,9 +300,33 @@
         });
         
         // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTours();
-            loadGuides();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Получаем параметры из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedTourId = urlParams.get('tourId');
+            const preselectedGuideId = urlParams.get('guideId');
+            const preselectedName = urlParams.get('name');
+            
+            // Если передано имя - заполняем
+            if (preselectedName) {
+                document.getElementById('reviewerName').value = decodeURIComponent(preselectedName);
+            }
+            
+            await loadTours();
+            await loadGuides();
+            
+            // Если передан tourId - выбираем его
+            if (preselectedTourId) {
+                const tourSelect = document.getElementById('tourSelect');
+                tourSelect.value = preselectedTourId;
+            }
+            
+            // Если передан guideId - выбираем его
+            if (preselectedGuideId) {
+                const guideSelect = document.getElementById('guideSelect');
+                guideSelect.value = preselectedGuideId;
+            }
+            
             setupStarRating('tourRatingStars', 'tourRating');
             setupStarRating('guideRatingStars', 'guideRating');
         });
