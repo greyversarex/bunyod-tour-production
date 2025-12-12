@@ -850,13 +850,13 @@ export const paylerController = {
           const isTransfer = order.orderNumber.startsWith('TR-');
           const isCustomTour = order.orderNumber.startsWith('CT-');
           
-          if (order.tour || isTourOrder) {
+          if (order.tour || order.tourId || isTourOrder) {
             // Оплата тура - стандартный email с PDF билетом
             console.log('📧 [TOUR] Processing tour payment email for:', order.orderNumber);
             
             // Если order.tour не загружен, загружаем его явно
             let tourData = order.tour;
-            if (!tourData && isTourOrder) {
+            if (!tourData && (isTourOrder || order.tourId)) {
               console.log('📧 [TOUR] Tour not loaded, fetching from booking...');
               try {
                 // Сначала пробуем найти booking по orderId
