@@ -2096,10 +2096,7 @@
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-2">
                                     <h4 class="font-semibold text-gray-900">${reviewerName}</h4>
-                                    <div class="flex items-center">
-                                        <div class="flex text-yellow-400 mr-2">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                                        <span class="text-sm text-gray-500">${formatReviewDate(review.createdAt)}</span>
-                                    </div>
+                                    <span class="text-sm text-gray-500">${formatReviewDate(review.createdAt)}</span>
                                 </div>
                                 <p class="text-gray-700 leading-relaxed">${review.text}</p>
                                 ${photosHtml}
