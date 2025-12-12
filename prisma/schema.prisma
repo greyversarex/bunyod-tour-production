@@ -219,6 +219,7 @@ model Guide {
   assignedBookings  Booking[]          @relation("AssignedBookings")
   guideReviews      GuideReview[]
   bookingGuides     BookingGuide[]     // Связь через промежуточную таблицу
+  tourReviews       Review[]           @relation("TourReviews") // Отзывы от туристов с оценкой гида
 
   @@map("guides")
 }
@@ -419,6 +420,7 @@ model Review {
   id             Int       @id @default(autoincrement())
   customerId     Int?      @map("customer_id")
   tourId         Int       @map("tour_id")
+  guideId        Int?      @map("guide_id")
   reviewerName   String    @map("reviewer_name")
   rating         Int
   guideRating    Int?      @map("guide_rating")
@@ -431,6 +433,7 @@ model Review {
   updatedAt      DateTime  @updatedAt
   customer       Customer? @relation(fields: [customerId], references: [id], onDelete: Cascade)
   tour           Tour      @relation(fields: [tourId], references: [id], onDelete: Cascade)
+  guide          Guide?    @relation("TourReviews", fields: [guideId], references: [id], onDelete: SetNull)
 
   @@map("reviews")
 }

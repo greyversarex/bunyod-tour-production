@@ -5,7 +5,7 @@ import { parseMultilingualField, getLanguageFromRequest } from '../utils/multili
 
 export const createReview = async (req: Request, res: Response) => {
   try {
-    const { customerId, tourId, rating, guideRating, text, reviewerName, photos } = req.body;
+    const { customerId, tourId, guideId, rating, guideRating, text, reviewerName, photos } = req.body;
 
     // Validation
     if (!tourId || !rating || !text || !reviewerName) {
@@ -69,6 +69,7 @@ export const createReview = async (req: Request, res: Response) => {
       data: {
         customerId: customerId || null,
         tourId,
+        guideId: guideId || null,
         reviewerName,
         rating,
         guideRating: guideRating || null,
@@ -247,6 +248,11 @@ export const moderateReview = async (req: Request, res: Response) => {
         isModerated: true,
         isApproved,
       },
+    });
+
+    // Получаем полные данные с связями для ответа
+    const fullReview = await prisma.review.findUnique({
+      where: { id: parseInt(id) },
       include: {
         customer: true,
         tour: {
@@ -258,18 +264,95 @@ export const moderateReview = async (req: Request, res: Response) => {
       },
     });
 
+    // Обновляем средний рейтинг тура при одобрении
+    if (isApproved) {
+      const tourStats = await prisma.review.aggregate({
+        where: {
+          tourId: review.tourId,
+          isModerated: true,
+          isApproved: true,
+        },
+        _avg: {
+          rating: true,
+        },
+      });
+
+      await prisma.tour.update({
+        where: { id: review.tourId },
+        data: {
+          rating: tourStats._avg.rating || 0,
+        },
+      });
+
+      console.log(`✅ Tour ${review.tourId} rating updated to ${tourStats._avg.rating}`);
+
+      // Обновляем рейтинг гида если указан guideId и guideRating
+      if (review.guideId && review.guideRating) {
+        // Считаем средний рейтинг гида из всех одобренных отзывов (GuideReview + Review)
+        const guideReviewStats = await prisma.guideReview.aggregate({
+          where: {
+            guideId: review.guideId,
+            isModerated: true,
+            isApproved: true,
+          },
+          _avg: {
+            rating: true,
+          },
+          _count: {
+            rating: true,
+          },
+        });
+
+        const tourReviewStats = await prisma.review.aggregate({
+          where: {
+            guideId: review.guideId,
+            guideRating: { not: null },
+            isModerated: true,
+            isApproved: true,
+          },
+          _avg: {
+            guideRating: true,
+          },
+          _count: {
+            guideRating: true,
+          },
+        });
+
+        // Вычисляем общий средний рейтинг
+        const guideCount = guideReviewStats._count.rating || 0;
+        const tourCount = tourReviewStats._count.guideRating || 0;
+        const totalCount = guideCount + tourCount;
+
+        let avgRating = 0;
+        if (totalCount > 0) {
+          const guideSum = (guideReviewStats._avg.rating || 0) * guideCount;
+          const tourSum = (tourReviewStats._avg.guideRating || 0) * tourCount;
+          avgRating = (guideSum + tourSum) / totalCount;
+        }
+
+        await prisma.guide.update({
+          where: { id: review.guideId },
+          data: {
+            rating: avgRating,
+          },
+        });
+
+        console.log(`✅ Guide ${review.guideId} rating updated to ${avgRating}`);
+      }
+    }
+
     const language = getLanguageFromRequest(req);
 
     return res.json({
       success: true,
       message: `Review ${isApproved ? 'approved' : 'rejected'} successfully`,
-      data: {
-        ...review,
+      data: fullReview ? {
+        ...fullReview,
         tour: {
-          ...review.tour,
-          title: parseMultilingualField(review.tour.title, language),
+          ...fullReview.tour,
+          title: parseMultilingualField(fullReview.tour.title, language),
         },
-      },
+      } : review,
     });
   } catch (error) {
     console.error('Error moderating review:', error);
