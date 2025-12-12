@@ -2929,7 +2929,8 @@ document.addEventListener('DOMContentLoaded', loadCityPhotosFromSlides);
  */
 async function loadHomepageReviews() {
     try {
-        const response = await fetch('/api/reviews/homepage');
+        const lang = getCurrentLanguage();
+        const response = await fetch(`/api/reviews/homepage?lang=${lang}`);
         const data = await response.json();
         
         if (data.success && data.data && data.data.length > 0) {
@@ -2953,11 +2954,12 @@ async function loadHomepageReviews() {
 function displayReviews(reviews) {
     const grid = document.getElementById('reviewsGrid');
     const currentLang = getCurrentLanguage();
+    const locale = currentLang === 'en' ? 'en-US' : 'ru-RU';
     
     grid.innerHTML = reviews.map(review => {
-        const tourTitle = getMultilingualValue(review.tour, 'title');
+        const tourTitle = review.tour?.title || '';
         const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-        const date = new Date(review.createdAt).toLocaleDateString('ru-RU', {
+        const date = new Date(review.createdAt).toLocaleDateString(locale, {
             year: 'numeric',
             month: 'long',
             day: 'numeric'

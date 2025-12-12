@@ -196,6 +196,7 @@ model Guide {
   contact           String?
   experience        Int?
   rating            Float?
+  reviewsCount      Int?               @map("reviews_count")
   countryId         Int?               @map("country_id")
   cityId            Int?               @map("city_id")
   passportSeries    String?            @map("passport_series")

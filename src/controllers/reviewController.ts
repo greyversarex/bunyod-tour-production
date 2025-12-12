@@ -334,10 +334,11 @@ export const moderateReview = async (req: Request, res: Response) => {
           where: { id: review.guideId },
           data: {
             rating: avgRating,
+            reviewsCount: totalCount,
           },
         });
 
-        console.log(`✅ Guide ${review.guideId} rating updated to ${avgRating}`);
+        console.log(`✅ Guide ${review.guideId} rating updated to ${avgRating}, reviewsCount: ${totalCount}`);
       }
     }
 

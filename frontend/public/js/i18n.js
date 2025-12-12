@@ -1563,8 +1563,10 @@ window.translations = window.translations || {
     'guide.accredited': { ru: 'Аккредитовано', en: 'Accredited by' },
     'guide.valid_registry': { ru: 'действителен согласно Реестру гидов по адресу', en: 'valid according to the Register of Guides at' },
     'guide.reviews_title': { ru: 'Отзывы', en: 'Reviews' },
+    'guide.ratings_title': { ru: 'Оценки', en: 'Ratings' },
     'guide.leave_review': { ru: 'Оставить отзыв', en: 'Leave Review' },
     'guide.no_reviews': { ru: 'Пока нет отзывов', en: 'No reviews yet' },
+    'guide.no_ratings': { ru: 'Пока нет оценок', en: 'No ratings yet' },
     'guide.first_review': { ru: 'Будьте первым, кто оставит отзыв!', en: 'Be the first to leave a review!' },
     
     // === REVIEWS (HOMEPAGE) ===

@@ -137,27 +137,21 @@
                 </div>
             </div>
 
-            <!-- Reviews Section -->
+            <!-- Rating Breakdown Section -->
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800" data-translate="guide.reviews_title">Отзывы</h2>
+                    <h2 class="text-2xl font-bold text-gray-800" data-translate="guide.ratings_title">Оценки</h2>
                 </div>
 
-                <!-- Review Stats -->
-                <div id="review-stats" class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                <!-- Rating Stats -->
+                <div id="review-stats" class="grid grid-cols-1 md:grid-cols-5 gap-4">
                     <!-- Will be populated by JavaScript -->
                 </div>
 
-                <!-- Reviews List -->
-                <div id="reviews-list" class="space-y-6">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-
-                <!-- No Reviews State -->
-                <div id="no-reviews" class="hidden text-center py-12">
-                    <i class="fas fa-comments text-gray-300 text-6xl mb-4"></i>
-                    <p class="text-gray-500 text-lg" data-translate="guide.no_reviews">Пока нет отзывов</p>
-                    <p class="text-gray-400 mt-2" data-translate="guide.first_review">Будьте первым, кто оставит отзыв!</p>
+                <!-- No Ratings State -->
+                <div id="no-reviews" class="hidden text-center py-8">
+                    <i class="fas fa-star text-gray-300 text-5xl mb-4"></i>
+                    <p class="text-gray-500 text-lg" data-translate="guide.no_ratings">Пока нет оценок</p>
                 </div>
             </div>
         </div>
@@ -191,17 +185,12 @@
                 const guideResult = await guideResponse.json();
                 guideData = guideResult.data;
 
-                // Load reviews
-                const reviewsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}`);
-                const reviewsResult = await reviewsResponse.json();
-
-                // Load review stats
+                // Load rating stats only (no text reviews for guides)
                 const statsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}/stats`);
                 const statsResult = await statsResponse.json();
 
                 displayGuide(guideData);
                 displayReviewStats(statsResult.data);
-                displayReviews(reviewsResult.data);
 
                 document.getElementById('loading-state').classList.add('hidden');
                 document.getElementById('guide-profile').classList.remove('hidden');
@@ -376,15 +365,25 @@
 
         function displayReviewStats(stats) {
             const container = document.getElementById('review-stats');
+            const noReviews = document.getElementById('no-reviews');
             const distribution = stats.distribution || {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
             const total = stats.totalReviews || 0;
 
             // Update review count in header
             const lang = getCurrentLanguage();
             const reviewText = lang === 'ru' ? 
-                `${total} ${getReviewsWord(total)}` : 
-                `${total} review${total !== 1 ? 's' : ''}`;
+                `${total} ${getRatingsWord(total)}` : 
+                `${total} rating${total !== 1 ? 's' : ''}`;
             document.getElementById('guide-review-count').textContent = `(${reviewText})`;
+
+            if (total === 0) {
+                container.classList.add('hidden');
+                noReviews.classList.remove('hidden');
+                return;
+            }
+
+            container.classList.remove('hidden');
+            noReviews.classList.add('hidden');
 
             container.innerHTML = '';
             for (let i = 5; i >= 1; i--) {
@@ -403,79 +402,16 @@
             }
         }
 
-        function displayReviews(reviews) {
-            const container = document.getElementById('reviews-list');
-            const noReviews = document.getElementById('no-reviews');
-
-            if (reviews.length === 0) {
-                container.classList.add('hidden');
-                noReviews.classList.remove('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            noReviews.classList.add('hidden');
-            container.innerHTML = '';
-
-            reviews.forEach(review => {
-                const reviewCard = document.createElement('div');
-                reviewCard.className = 'border-b border-gray-200 pb-6 last:border-0';
-                
-                const photos = review.photos || [];
-                const photosHTML = photos.length > 0 ? `
-                    <div class="flex gap-2 mt-4">
-                        ${photos.map(photo => `
-                            <img src="${photo}" alt="Review photo" class="w-20 h-20 object-cover rounded-lg cursor-pointer" onclick="window.open('${photo}', '_blank')">
-                        `).join('')}
-                    </div>
-                ` : '';
-
-                reviewCard.innerHTML = `
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
-                                <i class="fas fa-user text-gray-600 text-xl"></i>
-                            </div>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-semibold text-gray-800">${review.reviewerName || 'Аноним'}</h4>
-                                <span class="text-sm text-gray-500">${formatDate(review.createdAt)}</span>
-                            </div>
-                            <div class="flex text-yellow-400 mb-2">
-                                ${Array(review.rating).fill('<i class="fas fa-star"></i>').join('')}
-                                ${Array(5 - review.rating).fill('<i class="far fa-star"></i>').join('')}
-                            </div>
-                            <p class="text-gray-700 leading-relaxed">${review.text}</p>
-                            ${photosHTML}
-                        </div>
-                    </div>
-                `;
-                
-                container.appendChild(reviewCard);
-            });
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            const lang = getCurrentLanguage();
-            return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
-        function getReviewsWord(count) {
+        function getRatingsWord(count) {
             const remainder10 = count % 10;
             const remainder100 = count % 100;
             
             if (remainder10 === 1 && remainder100 !== 11) {
-                return 'отзыв';
+                return 'оценка';
             } else if (remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 20)) {
-                return 'отзыва';
+                return 'оценки';
             } else {
-                return 'отзывов';
+                return 'оценок';
             }
         }
 
