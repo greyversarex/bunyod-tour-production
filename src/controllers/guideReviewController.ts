@@ -304,14 +304,16 @@ export const deleteGuideReview = async (req: Request, res: Response) => {
   }
 };
 
-// Получение статистики отзывов гида
+// Получение статистики отзывов гида (из обеих таблиц: GuideReview и Review.guideRating)
 export const getGuideReviewStats = async (req: Request, res: Response) => {
   try {
     const { guideId } = req.params;
+    const guideIdNum = parseInt(guideId);
 
-    const stats = await prisma.guideReview.aggregate({
+    // Получаем статистику из GuideReview (прямые отзывы гидов)
+    const guideReviewStats = await prisma.guideReview.aggregate({
       where: {
-        guideId: parseInt(guideId),
+        guideId: guideIdNum,
         isModerated: true,
         isApproved: true,
       },
@@ -323,10 +325,39 @@ export const getGuideReviewStats = async (req: Request, res: Response) => {
       },
     });
 
-    const ratingDistribution = await prisma.guideReview.groupBy({
+    // Получаем статистику из Review (оценки гидов в отзывах на туры)
+    const tourReviewStats = await prisma.review.aggregate({
+      where: {
+        guideId: guideIdNum,
+        guideRating: { not: null },
+        isModerated: true,
+        isApproved: true,
+      },
+      _avg: {
+        guideRating: true,
+      },
+      _count: {
+        guideRating: true,
+      },
+    });
+
+    // Считаем общую статистику
+    const guideCount = guideReviewStats._count.rating || 0;
+    const tourCount = tourReviewStats._count.guideRating || 0;
+    const totalReviews = guideCount + tourCount;
+
+    let averageRating = 0;
+    if (totalReviews > 0) {
+      const guideSum = (guideReviewStats._avg.rating || 0) * guideCount;
+      const tourSum = (tourReviewStats._avg.guideRating || 0) * tourCount;
+      averageRating = (guideSum + tourSum) / totalReviews;
+    }
+
+    // Распределение оценок из GuideReview
+    const guideDistribution = await prisma.guideReview.groupBy({
       by: ['rating'],
       where: {
-        guideId: parseInt(guideId),
+        guideId: guideIdNum,
         isModerated: true,
         isApproved: true,
       },
@@ -335,16 +366,36 @@ export const getGuideReviewStats = async (req: Request, res: Response) => {
       },
     });
 
+    // Распределение оценок из Review.guideRating
+    const tourDistribution = await prisma.review.groupBy({
+      by: ['guideRating'],
+      where: {
+        guideId: guideIdNum,
+        guideRating: { not: null },
+        isModerated: true,
+        isApproved: true,
+      },
+      _count: {
+        guideRating: true,
+      },
+    });
+
+    // Объединяем распределения
     const distribution: { [key: number]: number } = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-    ratingDistribution.forEach((item: any) => {
-      distribution[item.rating] = item._count.rating;
+    guideDistribution.forEach((item: any) => {
+      distribution[item.rating] = (distribution[item.rating] || 0) + item._count.rating;
+    });
+    tourDistribution.forEach((item: any) => {
+      if (item.guideRating) {
+        distribution[item.guideRating] = (distribution[item.guideRating] || 0) + item._count.guideRating;
+      }
     });
 
     return res.json({
       success: true,
       data: {
-        averageRating: stats._avg.rating || 0,
-        totalReviews: stats._count.rating,
+        averageRating: Math.round(averageRating * 10) / 10, // Округляем до 1 знака
+        totalReviews,
         distribution,
       },
     });

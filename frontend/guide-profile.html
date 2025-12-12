@@ -137,23 +137,6 @@
                 </div>
             </div>
 
-            <!-- Rating Breakdown Section -->
-            <div class="bg-white rounded-xl shadow-lg p-8">
-                <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800" data-translate="guide.ratings_title">Оценки</h2>
-                </div>
-
-                <!-- Rating Stats -->
-                <div id="review-stats" class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <!-- Will be populated by JavaScript -->
-                </div>
-
-                <!-- No Ratings State -->
-                <div id="no-reviews" class="hidden text-center py-8">
-                    <i class="fas fa-star text-gray-300 text-5xl mb-4"></i>
-                    <p class="text-gray-500 text-lg" data-translate="guide.no_ratings">Пока нет оценок</p>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -161,6 +144,7 @@
 
     <script>
         let guideData = null;
+        let guideStats = null; // Сохраняем статистику для использования при переключении языка
         const API_BASE = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
 
         // Get guide ID from URL
@@ -185,12 +169,12 @@
                 const guideResult = await guideResponse.json();
                 guideData = guideResult.data;
 
-                // Load rating stats only (no text reviews for guides)
+                // Загружаем актуальную статистику из обеих таблиц отзывов
                 const statsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}/stats`);
                 const statsResult = await statsResponse.json();
+                guideStats = statsResult.data; // Сохраняем для повторного использования
 
-                displayGuide(guideData);
-                displayReviewStats(statsResult.data);
+                displayGuide(guideData, guideStats);
 
                 document.getElementById('loading-state').classList.add('hidden');
                 document.getElementById('guide-profile').classList.remove('hidden');
@@ -200,7 +184,7 @@
             }
         }
 
-        function displayGuide(guide) {
+        function displayGuide(guide, stats = null) {
             const lang = getCurrentLanguage();
 
             // Photo
@@ -227,10 +211,18 @@
             const guideName = getMultilingualText(guide.name, lang) || (lang === 'ru' ? 'Не указано' : 'Not specified');
             document.getElementById('guide-name').textContent = guideName;
 
-            // Rating
-            const rating = guide.rating || 0;
+            // Rating - используем актуальные данные из статистики или из модели гида
+            const rating = stats?.averageRating ?? guide.rating ?? 0;
+            const totalReviews = stats?.totalReviews ?? guide.reviewsCount ?? 0;
+            
             document.getElementById('guide-rating').textContent = rating.toFixed(1);
             displayStars(rating, 'guide-stars');
+            
+            // Количество оценок
+            const ratingText = lang === 'ru' 
+                ? `(${totalReviews} ${getRatingsWord(totalReviews)})`
+                : `(${totalReviews} rating${totalReviews !== 1 ? 's' : ''})`;
+            document.getElementById('guide-review-count').textContent = ratingText;
 
             // Experience
             const experienceText = guide.experience ? 
@@ -363,45 +355,6 @@
             }
         }
 
-        function displayReviewStats(stats) {
-            const container = document.getElementById('review-stats');
-            const noReviews = document.getElementById('no-reviews');
-            const distribution = stats.distribution || {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-            const total = stats.totalReviews || 0;
-
-            // Update review count in header
-            const lang = getCurrentLanguage();
-            const reviewText = lang === 'ru' ? 
-                `${total} ${getRatingsWord(total)}` : 
-                `${total} rating${total !== 1 ? 's' : ''}`;
-            document.getElementById('guide-review-count').textContent = `(${reviewText})`;
-
-            if (total === 0) {
-                container.classList.add('hidden');
-                noReviews.classList.remove('hidden');
-                return;
-            }
-
-            container.classList.remove('hidden');
-            noReviews.classList.add('hidden');
-
-            container.innerHTML = '';
-            for (let i = 5; i >= 1; i--) {
-                const count = distribution[i] || 0;
-                const percentage = total > 0 ? (count / total * 100).toFixed(0) : 0;
-                
-                container.innerHTML += `
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-medium text-gray-700 w-16">${i} <i class="fas fa-star text-yellow-400 text-xs"></i></span>
-                        <div class="flex-1 bg-gray-200 rounded-full h-2">
-                            <div class="bg-yellow-400 h-2 rounded-full" style="width: ${percentage}%"></div>
-                        </div>
-                        <span class="text-sm text-gray-500 w-12 text-right">${count}</span>
-                    </div>
-                `;
-            }
-        }
-
         function getRatingsWord(count) {
             const remainder10 = count % 10;
             const remainder100 = count % 100;
@@ -423,8 +376,8 @@
         // Initialize i18n - update UI without reloading data
         window.addEventListener('languageChanged', (e) => {
             if (guideData) {
-                // Just update the display with existing data
-                displayGuide(guideData);
+                // Обновляем отображение с сохранённой статистикой
+                displayGuide(guideData, guideStats);
             }
         });
 
