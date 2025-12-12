@@ -74,6 +74,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **API endpoint**: `POST /api/guide/tours/:id/collect-reviews` sends review request emails
     - **Auto-fetch tourists**: If no tourists specified, automatically fetches from booking.contactEmail and Order.customer
     - **SendGrid integration**: Uses branded email template with review link
+-   **Review System Fixes** (Dec 12, 2025): Fixed tour page reviews and guide rating calculation
+    - **Tour page reviews**: Fixed to use numeric `tourData.id` instead of URL slug for API calls
+    - **Guide rating aggregation**: `getGuideReviewStats` now combines ratings from GuideReview AND Review.guideRating tables with weighted average
+    - **Guide profile simplification**: Removed "Ratings" breakdown section, shows only star rating with count
+    - **Tour rating stars removed**: Removed tour star rating display from tour page and leave-review form (per user request)
+    - **Review visibility flow**: Admin approves → showOnHomepage=true for homepage; isModerated+isApproved for tour page display
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.

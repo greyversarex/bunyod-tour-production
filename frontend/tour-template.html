@@ -76,11 +76,6 @@
             </h1>
             
             <div class="flex items-center space-x-4">
-                <div class="flex items-center">
-                    <div class="flex text-yellow-400 text-lg" id="tour-rating"><!-- Рейтинг загружается из API --></div>
-                    <span class="ml-2 text-sm text-gray-600" id="tour-reviews"><!-- Отзывы загружаются из API --></span>
-                </div>
-                <span class="text-gray-400">|</span>
                 <span class="text-sm text-gray-600" id="tour-location"><!-- Локация загружается из API --></span>
             </div>
         </div>
@@ -1409,11 +1404,7 @@
                 }
             }
             
-            // Update rating
-            const ratingElement = document.getElementById('tour-rating');
-            if (ratingElement) {
-                ratingElement.innerHTML = '★'.repeat(Math.floor(tourData.rating || 4.8)) + ((tourData.rating || 4.8) % 1 ? '☆' : '');
-            }
+            // Рейтинг тура убран по запросу пользователя
             
             // ✅ ОБНОВЛЯЕМ BREADCRUMB с правильными данными
             updateBreadcrumb();
@@ -2017,16 +2008,18 @@
                 reviewsLoading.classList.remove('hidden');
                 reviewsContainer.innerHTML = '';
                 
-                // Получаем ID тура из глобальных данных или URL
-                const tourId = tourData?.id || getTourIdFromUrl();
+                // ВАЖНО: Используем ЧИСЛОВОЙ ID тура из tourData (не slug из URL)
+                const tourId = tourData?.id;
                 
-                if (!tourId) {
+                console.log('📝 Loading reviews for tourId:', tourId, 'tourData:', tourData?.id);
+                
+                if (!tourId || typeof tourId !== 'number') {
+                    console.warn('⚠️ No valid numeric tourId available for reviews');
                     reviewsLoading.classList.add('hidden');
                     reviewsContainer.innerHTML = '';
                     reviewsCount.textContent = '(0)';
                     return;
                 }
-                
                 
                 const apiUrl = `/api/reviews/tours/${tourId}`;
                 

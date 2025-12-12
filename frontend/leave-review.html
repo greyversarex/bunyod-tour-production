@@ -70,20 +70,8 @@
                         <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">Если хотите оценить гида, который вас сопровождал</p>
                     </div>
                     
-                    <!-- Рейтинг тура -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">
-                            <span data-translate="reviews.tour_rating">Рейтинг тура</span> *
-                        </label>
-                        <div class="flex gap-2" id="tourRatingStars">
-                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
-                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
-                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
-                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
-                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
-                        </div>
-                        <input type="hidden" id="tourRating" required>
-                    </div>
+                    <!-- Скрытое поле для рейтинга тура (всегда 5 по умолчанию, убраны звёзды) -->
+                    <input type="hidden" id="tourRating" value="5">
                     
                     <!-- Рейтинг гида (опционально) -->
                     <div>
@@ -327,7 +315,7 @@
                 guideSelect.value = preselectedGuideId;
             }
             
-            setupStarRating('tourRatingStars', 'tourRating');
+            // Настраиваем только звёзды гида (рейтинг тура убран)
             setupStarRating('guideRatingStars', 'guideRating');
         });
     </script>
