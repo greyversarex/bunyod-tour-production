@@ -6,6 +6,16 @@ import puppeteer from 'puppeteer';
 let connectionSettings: any;
 
 async function getCredentials() {
+  // Fallback для VPS: используем SENDGRID_API_KEY из переменных окружения
+  if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_FROM_EMAIL) {
+    console.log('📧 Using SENDGRID_API_KEY from environment variables');
+    return {
+      apiKey: process.env.SENDGRID_API_KEY,
+      email: process.env.SENDGRID_FROM_EMAIL
+    };
+  }
+
+  // Replit интеграция
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -14,7 +24,7 @@ async function getCredentials() {
     : null;
 
   if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+    throw new Error('SendGrid не настроен: установите SENDGRID_API_KEY и SENDGRID_FROM_EMAIL в переменных окружения');
   }
 
   connectionSettings = await fetch(
