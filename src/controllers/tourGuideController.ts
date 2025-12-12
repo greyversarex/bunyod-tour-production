@@ -910,12 +910,37 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
       if (!selectedTourists || !Array.isArray(selectedTourists) || selectedTourists.length === 0) {
         selectedTourists = [];
         
-        if (booking.contactEmail) {
+        // 1. Парсим туристов из JSON поля booking.tourists
+        if (booking.tourists) {
+          try {
+            const touristsData = typeof booking.tourists === 'string' 
+              ? JSON.parse(booking.tourists) 
+              : booking.tourists;
+            
+            if (Array.isArray(touristsData)) {
+              for (const t of touristsData) {
+                if (t.email && !selectedTourists.find((st: any) => st.email === t.email)) {
+                  selectedTourists.push({
+                    name: t.fullName || t.name || 'Уважаемый турист',
+                    email: t.email
+                  });
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Error parsing booking.tourists:', e);
+          }
+        }
+        
+        // 2. Добавляем контактный email если его ещё нет
+        if (booking.contactEmail && !selectedTourists.find((t: any) => t.email === booking.contactEmail)) {
           selectedTourists.push({
             name: booking.contactName || 'Уважаемый турист',
             email: booking.contactEmail
           });
         }
+        
+        // 3. Добавляем email из Order.customer если есть
         if (booking.order?.customer?.email) {
           const customer = booking.order.customer;
           if (!selectedTourists.find((t: any) => t.email === customer.email)) {

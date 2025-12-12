@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оставить отзыв - Bunyod-Tour</title>
+    <script src="/public/js/i18n.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e5e7eb 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .star-rating {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        .star-rating .star {
+            font-size: 2.5rem;
+            color: #d1d5db;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .star-rating .star:hover,
+        .star-rating .star.active {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div class="card rounded-2xl shadow-xl p-8 max-w-lg w-full">
+        <div class="text-center mb-8">
+            <img src="/images/logo.png" alt="Bunyod-Tour" class="h-16 mx-auto mb-4" onerror="this.style.display='none'">
+            <h1 class="text-2xl font-bold text-gray-800">Оставить отзыв</h1>
+            <p class="text-gray-600 mt-2" id="tourName">Загрузка...</p>
+        </div>
+
+        <div id="loadingState" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
+            <p class="text-gray-600 mt-4">Загрузка информации о туре...</p>
+        </div>
+
+        <div id="errorState" class="hidden text-center py-8">
+            <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+            <p class="text-red-600 mt-4" id="errorMessage">Произошла ошибка</p>
+        </div>
+
+        <form id="reviewForm" class="hidden space-y-6">
+            <div class="text-center">
+                <p class="text-gray-700 font-medium mb-4">Оцените тур</p>
+                <div class="star-rating" id="starRating">
+                    <span class="star" data-value="1"><i class="fas fa-star"></i></span>
+                    <span class="star" data-value="2"><i class="fas fa-star"></i></span>
+                    <span class="star" data-value="3"><i class="fas fa-star"></i></span>
+                    <span class="star" data-value="4"><i class="fas fa-star"></i></span>
+                    <span class="star" data-value="5"><i class="fas fa-star"></i></span>
+                </div>
+                <input type="hidden" id="rating" name="rating" value="0">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Ваше имя</label>
+                <input type="text" id="authorName" name="authorName" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                    placeholder="Как вас зовут?" required>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Ваш отзыв</label>
+                <textarea id="comment" name="comment" rows="4" 
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent resize-none"
+                    placeholder="Расскажите о вашем опыте..." required></textarea>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                class="w-full py-3 px-6 text-white font-semibold rounded-lg transition-all"
+                style="background-color: #3E3E3E;"
+                onmouseover="this.style.backgroundColor='#2F2F2F'"
+                onmouseout="this.style.backgroundColor='#3E3E3E'">
+                <i class="fas fa-paper-plane mr-2"></i>
+                Отправить отзыв
+            </button>
+        </form>
+
+        <div id="successState" class="hidden text-center py-8">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-4xl text-green-600"></i>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Спасибо за отзыв!</h2>
+            <p class="text-gray-600">Ваш отзыв будет опубликован после модерации.</p>
+            <a href="/" class="inline-block mt-6 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                <i class="fas fa-home mr-2"></i>На главную
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let tourId = null;
+        let userEmail = null;
+        let currentRating = 0;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            tourId = urlParams.get('tourId');
+            userEmail = urlParams.get('email');
+
+            if (!tourId) {
+                showError('Некорректная ссылка на отзыв');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tours/${tourId}`);
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    const tour = result.data;
+                    let title = tour.title;
+                    if (typeof title === 'object') {
+                        title = title.ru || title.en || 'Тур';
+                    }
+                    document.getElementById('tourName').textContent = title;
+                    document.getElementById('loadingState').classList.add('hidden');
+                    document.getElementById('reviewForm').classList.remove('hidden');
+                } else {
+                    showError('Тур не найден');
+                }
+            } catch (error) {
+                console.error('Error loading tour:', error);
+                showError('Ошибка загрузки данных тура');
+            }
+
+            // Star rating
+            const stars = document.querySelectorAll('.star-rating .star');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.dataset.value);
+                    document.getElementById('rating').value = currentRating;
+                    updateStars();
+                });
+                star.addEventListener('mouseover', () => {
+                    highlightStars(parseInt(star.dataset.value));
+                });
+                star.addEventListener('mouseout', () => {
+                    updateStars();
+                });
+            });
+        });
+
+        function highlightStars(count) {
+            const stars = document.querySelectorAll('.star-rating .star');
+            stars.forEach((star, index) => {
+                if (index < count) {
+                    star.classList.add('active');
+                } else {
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function updateStars() {
+            highlightStars(currentRating);
+        }
+
+        function showError(message) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (currentRating === 0) {
+                alert('Пожалуйста, поставьте оценку');
+                return;
+            }
+
+            const authorName = document.getElementById('authorName').value.trim();
+            const comment = document.getElementById('comment').value.trim();
+
+            if (!authorName || !comment) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Отправка...';
+
+            try {
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        tourId: parseInt(tourId),
+                        rating: currentRating,
+                        authorName: authorName,
+                        comment: comment,
+                        authorEmail: userEmail
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    document.getElementById('reviewForm').classList.add('hidden');
+                    document.getElementById('successState').classList.remove('hidden');
+                } else {
+                    alert('Ошибка: ' + (result.message || 'Не удалось отправить отзыв'));
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Отправить отзыв';
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Ошибка при отправке отзыва');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Отправить отзыв';
+            }
+        });
+    </script>
+</body>
+</html>
