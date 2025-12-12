@@ -80,6 +80,10 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Guide profile simplification**: Removed "Ratings" breakdown section, shows only star rating with count
     - **Tour rating stars removed**: Removed tour star rating display from tour page and leave-review form (per user request)
     - **Review visibility flow**: Admin approves → showOnHomepage=true for homepage; isModerated+isApproved for tour page display
+-   **Tourist Email Required** (Dec 12, 2025): Made tourist email mandatory for review collection
+    - **Booking step 2**: Email field now required for each tourist (marked with * and `required` attribute)
+    - **Form validation**: Added email format validation (pattern check) before form submission
+    - **Review emails**: All tourists with valid emails will receive review request emails after tour completion
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.

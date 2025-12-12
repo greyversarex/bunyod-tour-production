@@ -983,8 +983,8 @@
                         <input type="text" class="form-input tourist-name" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Email туриста</label>
-                        <input type="email" class="form-input tourist-email" placeholder="email@example.com">
+                        <label class="form-label">Email туриста *</label>
+                        <input type="email" class="form-input tourist-email" placeholder="email@example.com" required>
                     </div>
                 </div>
             `;
@@ -1016,8 +1016,8 @@
                             <input type="text" class="form-input tourist-name" value="${tourist.fullName || ''}" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Email туриста</label>
-                            <input type="email" class="form-input tourist-email" value="${tourist.email || ''}" placeholder="email@example.com">
+                            <label class="form-label">Email туриста *</label>
+                            <input type="email" class="form-input tourist-email" value="${tourist.email || ''}" placeholder="email@example.com" required>
                         </div>
                     </div>
                 `;
@@ -1160,9 +1160,12 @@
                 return false;
             }
             
-            // Check tourists
-            const touristNames = document.querySelectorAll('.tourist-name');
-            for (const nameInput of touristNames) {
+            // Check tourists names and emails
+            const touristCards = document.querySelectorAll('.tourist-card');
+            for (const card of touristCards) {
+                const nameInput = card.querySelector('.tourist-name');
+                const emailInput = card.querySelector('.tourist-email');
+                
                 if (!nameInput.value.trim()) {
                     const lang = window.currentLanguage || 'ru';
                     const message = lang === 'en' 
@@ -1170,6 +1173,28 @@
                         : 'Пожалуйста, заполните ФИО всех туристов';
                     showCenterModal(message, 'warning');
                     nameInput.focus();
+                    return false;
+                }
+                
+                if (!emailInput || !emailInput.value.trim()) {
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? 'Please fill in email addresses for all tourists'
+                        : 'Пожалуйста, заполните email для всех туристов';
+                    showCenterModal(message, 'warning');
+                    if (emailInput) emailInput.focus();
+                    return false;
+                }
+                
+                // Validate email format
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(emailInput.value.trim())) {
+                    const lang = window.currentLanguage || 'ru';
+                    const message = lang === 'en' 
+                        ? 'Please enter a valid email address for all tourists'
+                        : 'Пожалуйста, введите корректный email для всех туристов';
+                    showCenterModal(message, 'warning');
+                    emailInput.focus();
                     return false;
                 }
             }
