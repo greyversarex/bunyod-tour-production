@@ -301,7 +301,8 @@ export const getGuideAssignedBookings = async (req: Request, res: Response): Pro
             title: true,
             durationDays: true,
             images: true,
-            category: true
+            category: true,
+            itinerary: true
           }
         }
       },
