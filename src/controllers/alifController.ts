@@ -412,12 +412,12 @@ export const alifController = {
             where: {
               OR: [
                 { orderId: order.id },
-                // Fallback: ищем по совпадающим данным
+                // Fallback: ищем по email + дате (без сравнения цены - она может быть депозитом)
                 {
                   AND: [
                     { contactEmail: order.customer?.email },
                     { tourDate: order.tourDate },
-                    { totalPrice: order.totalAmount }
+                    { tourId: order.tourId || undefined }
                   ]
                 }
               ]

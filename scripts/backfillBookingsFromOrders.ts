@@ -61,12 +61,12 @@ async function backfillBookingsFromPaidOrders() {
   
   for (const order of paidBTOrdersWithoutBooking) {
     try {
-      // Попробуем найти Booking по email + дате + сумме
+      // Попробуем найти Booking по email + дате + tourId (без сравнения цены - депозит != полная цена)
       const matchingBooking = await prisma.booking.findFirst({
         where: {
           contactEmail: order.customer?.email,
           tourDate: order.tourDate,
-          totalPrice: order.totalAmount,
+          tourId: order.tourId || undefined,
           orderId: null
         }
       });
