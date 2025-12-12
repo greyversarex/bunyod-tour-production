@@ -910,6 +910,9 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
       if (!selectedTourists || !Array.isArray(selectedTourists) || selectedTourists.length === 0) {
         selectedTourists = [];
         
+        console.log('📧 Collecting tourists for booking:', bookingId);
+        console.log('📧 booking.tourists raw:', booking.tourists);
+        
         // 1. Парсим туристов из JSON поля booking.tourists
         if (booking.tourists) {
           try {
@@ -917,19 +920,27 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
               ? JSON.parse(booking.tourists) 
               : booking.tourists;
             
+            console.log('📧 Parsed tourists data:', touristsData);
+            
             if (Array.isArray(touristsData)) {
               for (const t of touristsData) {
+                console.log('📧 Checking tourist:', t.fullName || t.name, 'email:', t.email);
                 if (t.email && !selectedTourists.find((st: any) => st.email === t.email)) {
                   selectedTourists.push({
                     name: t.fullName || t.name || 'Уважаемый турист',
                     email: t.email
                   });
+                  console.log('📧 Added tourist:', t.fullName || t.name);
+                } else if (!t.email) {
+                  console.log('📧 Tourist has no email, skipping:', t.fullName || t.name);
                 }
               }
             }
           } catch (e) {
             console.warn('Error parsing booking.tourists:', e);
           }
+        } else {
+          console.log('📧 booking.tourists is empty/null');
         }
         
         // 2. Добавляем контактный email если его ещё нет
@@ -951,6 +962,9 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
           }
         }
       }
+
+      console.log('📧 Final selectedTourists list:', selectedTourists);
+      console.log('📧 Total tourists with email:', selectedTourists.length);
 
       if (selectedTourists.length === 0) {
         res.status(400).json({ 
