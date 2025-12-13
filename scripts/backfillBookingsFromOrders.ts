@@ -61,15 +61,41 @@ async function backfillBookingsFromPaidOrders() {
   
   for (const order of paidBTOrdersWithoutBooking) {
     try {
-      // Попробуем найти Booking по email + дате + tourId (без сравнения цены - депозит != полная цена)
-      const matchingBooking = await prisma.booking.findFirst({
-        where: {
-          contactEmail: order.customer?.email,
-          tourDate: order.tourDate,
-          tourId: order.tourId || undefined,
-          orderId: null
+      // Попробуем найти Booking по email + дате (tourId может быть null в Order)
+      // Сначала пробуем точное совпадение с tourId
+      let matchingBooking = null;
+      
+      if (order.tourId) {
+        matchingBooking = await prisma.booking.findFirst({
+          where: {
+            contactEmail: order.customer?.email,
+            tourDate: order.tourDate,
+            tourId: order.tourId,
+            orderId: null
+          }
+        });
+      }
+      
+      // Если не нашли с tourId, ищем просто по email + дате
+      if (!matchingBooking) {
+        matchingBooking = await prisma.booking.findFirst({
+          where: {
+            contactEmail: order.customer?.email,
+            tourDate: order.tourDate,
+            orderId: null
+          },
+          include: { tour: true }
+        });
+        
+        // Если нашли и у него есть tourId, обновляем Order.tourId
+        if (matchingBooking && matchingBooking.tourId && !order.tourId) {
+          await prisma.order.update({
+            where: { id: order.id },
+            data: { tourId: matchingBooking.tourId }
+          });
+          console.log(`   📋 Обновлён Order ${order.orderNumber}: tourId = ${matchingBooking.tourId}`);
         }
-      });
+      }
       
       if (matchingBooking) {
         // Связываем и обновляем статус
