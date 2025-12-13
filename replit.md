@@ -4,6 +4,21 @@
 
 Bunyod-Tour is a comprehensive tour booking platform designed for Central Asia (Tajikistan, Uzbekistan, Kazakhstan, Turkmenistan, Kyrgyzstan). Its primary purpose is to simplify the booking of tours, hotels, and guides, offering secure multi-payment options, multilingual support (Russian/English), a robust administrative panel, a user review system, and flexible component-based pricing. The platform aims to become the leading, most reliable, and user-friendly solution for the region's tourism sector, benefiting both travelers and service providers.
 
+## Deployment Workflow (ВАЖНО!)
+
+**Рабочий процесс развертывания:**
+1. **Replit** - среда разработки, где улучшается и обновляется код
+2. **GitHub** - репозиторий для хранения кода (обновляется из Replit)
+3. **Timeweb** - продакшн сервер, где работает боевой сайт
+4. **update.sh** - скрипт на сервере Timeweb для обновления из GitHub
+
+**Процесс обновления:**
+1. Разрабатываем/исправляем код в Replit
+2. Коммитим и пушим изменения в GitHub
+3. На сервере Timeweb запускаем `./update.sh` для получения обновлений
+
+**Важно:** Сайт полноценно работает в продакшене на Timeweb. Replit используется только для разработки!
+
 ## User Preferences
 
 -   **Язык общения**: Простой, повседневный русский язык
