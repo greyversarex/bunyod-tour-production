@@ -141,8 +141,14 @@
                             <span data-translate="reviews.photos">Фотографии</span>
                             <span class="text-gray-500 text-sm" data-translate="form.photos_optional">(необязательно, до 5 фото)</span>
                         </label>
-                        <input type="file" id="reviewPhotos" accept="image/*" multiple
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg">
+                        <div class="flex items-center gap-3">
+                            <input type="file" id="reviewPhotos" accept="image/*" multiple class="hidden">
+                            <button type="button" id="customFileBtn" 
+                                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg border border-gray-300 transition-colors">
+                                <span data-translate="form.choose_files">Выбрать файлы</span>
+                            </button>
+                            <span id="fileSelectedText" class="text-gray-500" data-translate="form.no_file_selected">Файл не выбран</span>
+                        </div>
                         <p class="text-sm text-gray-500 mt-1" data-translate="form.photos_limit">Максимум 5 фото, до 5 МБ каждое</p>
                     </div>
                     
@@ -423,6 +429,34 @@
             // Настраиваем звёзды тура и гида
             setupStarRating('tourRatingStars', 'tourRating');
             setupStarRating('guideRatingStars', 'guideRating');
+            
+            // Кастомная кнопка выбора файлов
+            const customFileBtn = document.getElementById('customFileBtn');
+            const fileInput = document.getElementById('reviewPhotos');
+            const fileSelectedText = document.getElementById('fileSelectedText');
+            
+            customFileBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', () => {
+                const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                const filesCount = fileInput.files.length;
+                
+                if (filesCount === 0) {
+                    const noFileText = (window.translations && window.translations['form.no_file_selected']) 
+                        ? (window.translations['form.no_file_selected'][lang] || 'Файл не выбран') 
+                        : 'Файл не выбран';
+                    fileSelectedText.textContent = noFileText;
+                } else if (filesCount === 1) {
+                    fileSelectedText.textContent = fileInput.files[0].name;
+                } else {
+                    const filesSelectedText = (window.translations && window.translations['form.files_selected']) 
+                        ? (window.translations['form.files_selected'][lang] || '{count} файлов выбрано') 
+                        : '{count} файлов выбрано';
+                    fileSelectedText.textContent = filesSelectedText.replace('{count}', filesCount);
+                }
+            });
         });
     </script>
 </body>
