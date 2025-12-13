@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { emailService } from '../services/emailService';
+import { sendBookingConfirmation } from '../services/emailServiceSendGrid';
+import { createBookingFromOrder } from '../services/paymentService';
 import { paylerController } from '../controllers/paylerController';
 import { alifController } from '../controllers/alifController';
 
@@ -279,26 +281,112 @@ router.post('/verify-payment', async (req: Request, res: Response) => {
           
           console.log(`✅ Payment verified and order ${orderNumber} updated to paid`);
           
-          // Отправляем email уведомления (в фоне)
+          // Отправляем email уведомления (в фоне) - ПОЛНОЦЕННЫЕ как в callback
           setImmediate(async () => {
             try {
-              if (order.customer) {
-                const isGuideHire = order.orderNumber.startsWith('GH-');
-                const isTransfer = order.orderNumber.startsWith('TR-');
-                const orderTypeText = isGuideHire ? 'Найм гида' : isTransfer ? 'Трансфер' : 'Услуга';
+              if (!order.customer) return;
+              
+              const isTourOrder = order.orderNumber.startsWith('BT-');
+              const isGuideHire = order.orderNumber.startsWith('GH-');
+              const isTransfer = order.orderNumber.startsWith('TR-');
+              const orderTypeText = isTourOrder ? 'Тур' : isGuideHire ? 'Найм гида' : isTransfer ? 'Трансфер' : 'Услуга';
+              
+              console.log('📧 [VERIFY-PAYMENT] Starting email process for:', order.orderNumber, 'Type:', orderTypeText);
+              
+              // 🎯 ТУР: Отправляем полноценный PDF билет (как в callback)
+              if (isTourOrder || order.tour || order.tourId) {
+                console.log('📧 [VERIFY-PAYMENT] Tour order detected, sending PDF ticket...');
+                
+                // Создаём booking если его нет
+                const existingBooking = await prisma.booking.findFirst({
+                  where: { orderId: order.id },
+                  include: { tour: true, hotel: true }
+                });
+                
+                let tourData = order.tour;
+                
+                if (!tourData && existingBooking?.tour) {
+                  tourData = existingBooking.tour;
+                }
+                
+                if (!tourData && order.tourId) {
+                  tourData = await prisma.tour.findUnique({ where: { id: order.tourId } });
+                }
+                
+                if (!existingBooking) {
+                  console.log('📧 [VERIFY-PAYMENT] Creating booking from order...');
+                  await createBookingFromOrder(order.id);
+                } else {
+                  // Обновляем статус booking на paid
+                  await prisma.booking.update({
+                    where: { id: existingBooking.id },
+                    data: { status: 'paid' }
+                  });
+                }
+                
+                if (tourData) {
+                  try {
+                    await sendBookingConfirmation(order, order.customer, tourData);
+                    console.log('✅ [VERIFY-PAYMENT] PDF ticket email sent successfully');
+                  } catch (pdfError) {
+                    console.error('❌ [VERIFY-PAYMENT] PDF email failed, using fallback:', pdfError);
+                    await emailService.sendPaymentConfirmation(order, order.customer);
+                  }
+                  
+                  await emailService.sendAdminNotification(order, order.customer, tourData);
+                } else {
+                  console.warn('⚠️ [VERIFY-PAYMENT] Tour data not found, sending fallback email');
+                  await emailService.sendPaymentConfirmation(order, order.customer);
+                }
+              } else {
+                // 🎯 НЕ-ТУР: Отправляем детальный email (гид/трансфер)
+                console.log('📧 [VERIFY-PAYMENT] Non-tour order, sending detailed confirmation...');
+                
+                let detailsHTML = '';
+                
+                if (isGuideHire && order.guideHireRequest?.guide) {
+                  const guide = order.guideHireRequest.guide;
+                  const guideName = typeof guide.name === 'object' && guide.name !== null 
+                    ? (guide.name as any).ru || (guide.name as any).en || 'Не указано' 
+                    : String(guide.name || 'Не указано');
+                  
+                  detailsHTML = `
+                    <p><strong>Гид:</strong> ${guideName}</p>
+                    <p><strong>Количество дней:</strong> ${order.guideHireRequest.numberOfDays || 'не указано'}</p>
+                    <p><strong>Цена за день:</strong> ${guide.pricePerDay || 'не указана'} TJS</p>
+                  `;
+                } else if (isTransfer && order.transferRequest) {
+                  const transfer = order.transferRequest;
+                  detailsHTML = `
+                    <p><strong>Откуда:</strong> ${transfer.pickupLocation || 'не указано'}</p>
+                    <p><strong>Куда:</strong> ${transfer.dropoffLocation || 'не указано'}</p>
+                    <p><strong>Дата:</strong> ${transfer.pickupDate || 'не указана'}</p>
+                  `;
+                }
                 
                 await emailService.sendEmail({
                   to: order.customer.email,
                   subject: `✅ Оплата подтверждена - ${orderTypeText}`,
                   html: `
-                    <div style="font-family: Arial, sans-serif;">
-                      <h2 style="color: #10b981;">✅ Оплата подтверждена!</h2>
-                      <p>Уважаемый(ая) ${order.customer.fullName},</p>
-                      <p>Ваш платёж успешно получен.</p>
-                      <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
-                      <p><strong>Сумма:</strong> ${order.totalAmount} TJS</p>
-                      <hr>
-                      <p>С уважением, команда Bunyod-Tour</p>
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                      <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; text-align: center;">
+                        <h1 style="margin: 0;">✅ Оплата подтверждена!</h1>
+                      </div>
+                      <div style="padding: 30px;">
+                        <p>Уважаемый(ая) <strong>${order.customer.fullName}</strong>,</p>
+                        <p>Благодарим за оплату! Ваш заказ успешно обработан.</p>
+                        <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                          <p><strong>Номер заказа:</strong> ${order.orderNumber}</p>
+                          <p><strong>Услуга:</strong> ${orderTypeText}</p>
+                          ${detailsHTML}
+                          <hr style="border: none; border-top: 1px solid #ddd; margin: 15px 0;">
+                          <p style="font-size: 18px; color: #10b981;"><strong>Оплачено:</strong> ${order.totalAmount} TJS</p>
+                        </div>
+                      </div>
+                      <div style="background: #3E3E3E; color: white; padding: 20px; text-align: center;">
+                        <p style="margin: 5px 0;">📞 +992 44 625 7575 | +992 93-126-1134</p>
+                        <p style="margin: 5px 0;">✉️ booking@bunyodtour.tj</p>
+                      </div>
                     </div>
                   `
                 });
@@ -317,8 +405,10 @@ router.post('/verify-payment', async (req: Request, res: Response) => {
                   `
                 });
               }
+              
+              console.log('✅ [VERIFY-PAYMENT] All emails sent for:', order.orderNumber);
             } catch (emailError) {
-              console.error('Failed to send verification emails:', emailError);
+              console.error('❌ [VERIFY-PAYMENT] Failed to send emails:', emailError);
             }
           });
           
