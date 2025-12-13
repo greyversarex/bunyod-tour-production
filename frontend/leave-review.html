@@ -176,7 +176,7 @@
                     
                     select.innerHTML = '<option value="">Гид не указан</option>';
                     data.data.forEach(guide => {
-                        const name = guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`;
+                        const name = typeof guide.name === 'object' ? (guide.name[localStorage.getItem('language') || 'ru'] || guide.name.ru || guide.name.en || 'Гид') : (guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`);
                         
                         const option = document.createElement('option');
                         option.value = guide.id;

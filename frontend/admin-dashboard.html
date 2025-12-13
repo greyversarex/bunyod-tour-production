@@ -10438,7 +10438,7 @@
                 const select = document.getElementById('assignGuideSelect');
                 select.innerHTML = '<option value="">-- Выберите гида --</option>';
                 availableGuides.forEach(guide => {
-                    select.innerHTML += `<option value="${guide.id}">${guide.name} ${guide.email ? '(' + guide.email + ')' : ''}</option>`;
+                    const guideName = typeof guide.name === "object" ? (guide.name.ru || guide.name.en || "Гид") : guide.name; select.innerHTML += `<option value="${guide.id}">${guideName} ${guide.phone ? '(' + guide.email + ')' : ''}</option>`;
                 });
             } catch (error) {
                 console.error('Error loading guides:', error);
@@ -10503,7 +10503,7 @@
                 const select = document.getElementById('addGuideSelect');
                 select.innerHTML = '<option value="">-- Выберите гида --</option>';
                 availableGuides.forEach(guide => {
-                    select.innerHTML += `<option value="${guide.id}">${guide.name} ${guide.email ? '(' + guide.email + ')' : ''}</option>`;
+                    const guideName = typeof guide.name === "object" ? (guide.name.ru || guide.name.en || "Гид") : guide.name; select.innerHTML += `<option value="${guide.id}">${guideName} ${guide.phone ? '(' + guide.email + ')' : ''}</option>`;
                 });
             } catch (error) {
                 console.error('Error loading guides:', error);
@@ -11224,7 +11224,7 @@
                 return `
                     <div class="flex gap-1">
                         ${photos.slice(0, 3).map(photo => `
-                            <img data-image-placeholder="review-photo" alt="Фото отзыва" 
+                            <img src="${photo}" alt="Фото отзыва" 
                                  class="w-8 h-8 object-cover rounded cursor-pointer" 
                                  onclick="showPhotoModal('${photo}')"
                                  title="Нажмите для увеличения">
