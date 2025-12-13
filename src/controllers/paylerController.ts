@@ -546,6 +546,7 @@ export const paylerController = {
           tour: true,
           hotel: true,
           guide: true,
+          booking: true, // 🎯 КРИТИЧНО: включаем связанный Booking для обновления статуса
           transferRequest: {
             include: {
               assignedDriver: true
@@ -639,41 +640,48 @@ export const paylerController = {
         });
         
         if (isBTOrder || tourIdToUse) {
-          // Сначала пробуем найти существующий Booking по orderId
-          const existingBooking = await prisma.booking.findFirst({
-            where: {
-              OR: [
-                { orderId: order.id },
-                // Fallback: ищем по email + дате (без сравнения цены - она может быть депозитом)
-                {
-                  AND: [
-                    { contactEmail: order.customer?.email },
-                    { tourDate: order.tourDate },
-                    { tourId: order.tourId || undefined }
-                  ]
-                }
-              ]
-            }
-          });
-          
-          if (existingBooking) {
-            // Booking уже существует - обновляем статус на 'paid'
+          // 🎯 ПРИОРИТЕТ 1: Используем booking из связи order.booking (самый надёжный способ)
+          if (order.booking) {
             await prisma.booking.update({
-              where: { id: existingBooking.id },
-              data: { 
-                status: 'paid',
-                orderId: order.id // Убедимся что связь установлена
+              where: { id: order.booking.id },
+              data: { status: 'paid' }
+            });
+            console.log(`✅ [BOOKING] Updated order.booking #${order.booking.id} status to 'paid'`);
+          } else {
+            // ПРИОРИТЕТ 2: Ищем booking по orderId или email+дате
+            const existingBooking = await prisma.booking.findFirst({
+              where: {
+                OR: [
+                  { orderId: order.id },
+                  {
+                    AND: [
+                      { contactEmail: order.customer?.email },
+                      { tourDate: order.tourDate },
+                      { tourId: order.tourId || undefined }
+                    ]
+                  }
+                ]
               }
             });
-            console.log(`✅ [BOOKING] Updated existing Booking #${existingBooking.id} status to 'paid'`);
-          } else {
-            // Booking не существует - создаём новый через createBookingFromOrder
-            console.log('📋 [BOOKING] No existing booking found, creating new one...');
-            const bookingCreated = await createBookingFromOrder(Number(order_id));
-            console.log('📋 [BOOKING] Create result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+            
+            if (existingBooking) {
+              await prisma.booking.update({
+                where: { id: existingBooking.id },
+                data: { 
+                  status: 'paid',
+                  orderId: order.id
+                }
+              });
+              console.log(`✅ [BOOKING] Updated found Booking #${existingBooking.id} status to 'paid'`);
+            } else {
+              // ПРИОРИТЕТ 3: Создаём новый booking
+              console.log('📋 [BOOKING] No booking found, creating new one...');
+              const bookingCreated = await createBookingFromOrder(Number(order_id));
+              console.log('📋 [BOOKING] Create result:', bookingCreated ? 'SUCCESS' : 'FAILED/SKIPPED');
+            }
           }
         } else {
-          console.log('📋 [BOOKING] Skipping - not a tour order (no tourId, orderNumber:', order.orderNumber, ')');
+          console.log('📋 [BOOKING] Skipping - not a tour order (orderNumber:', order.orderNumber, ')');
         }
 
         // CUSTOM TOUR: Update CustomTourOrder status after successful payment
