@@ -47,7 +47,7 @@
                     </div>
                     
                     <!-- Выбор тура -->
-                    <div>
+                    <div id="tourSelectContainer">
                         <label class="block text-gray-700 font-medium mb-2">
                             <span data-translate="form.select_tour">Выберите тур</span> *
                         </label>
@@ -56,9 +56,19 @@
                             <option value="">Загрузка туров...</option>
                         </select>
                     </div>
+                    <!-- Заблокированный тур (показывается если tourId передан через URL) -->
+                    <div id="tourLockedContainer" class="hidden">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.tour">Тур</span>
+                        </label>
+                        <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                            <span id="tourLockedName">Загрузка...</span>
+                        </div>
+                        <input type="hidden" id="tourLockedId" value="">
+                    </div>
                     
                     <!-- Выбор гида (опционально) -->
-                    <div>
+                    <div id="guideSelectContainer">
                         <label class="block text-gray-700 font-medium mb-2">
                             <span data-translate="form.select_guide">Выберите гида</span>
                             <span class="text-gray-500 text-sm">(необязательно)</span>
@@ -68,6 +78,16 @@
                             <option value="">Гид не указан</option>
                         </select>
                         <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">Если хотите оценить гида, который вас сопровождал</p>
+                    </div>
+                    <!-- Заблокированный гид (показывается если guideId передан через URL) -->
+                    <div id="guideLockedContainer" class="hidden">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.guide">Гид</span>
+                        </label>
+                        <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                            <span id="guideLockedName">Загрузка...</span>
+                        </div>
+                        <input type="hidden" id="guideLockedId" value="">
                     </div>
                     
                     <!-- Рейтинг тура -->
@@ -266,10 +286,15 @@
                 }
                 
                 // Отправляем отзыв
-                const guideSelectVal = document.getElementById('guideSelect').value;
+                // Используем заблокированные значения если они есть, иначе из select
+                const tourLockedId = document.getElementById('tourLockedId').value;
+                const guideLockedId = document.getElementById('guideLockedId').value;
+                const tourSelectVal = tourLockedId || document.getElementById('tourSelect').value;
+                const guideSelectVal = guideLockedId || document.getElementById('guideSelect').value;
+                
                 const reviewData = {
                     reviewerName: document.getElementById('reviewerName').value,
-                    tourId: parseInt(document.getElementById('tourSelect').value),
+                    tourId: parseInt(tourSelectVal),
                     guideId: guideSelectVal ? parseInt(guideSelectVal) : null,
                     rating: parseInt(document.getElementById('tourRating').value),
                     guideRating: document.getElementById('guideRating').value 
@@ -322,19 +347,61 @@
                 document.getElementById('reviewerName').value = decodeURIComponent(preselectedName);
             }
             
-            await loadTours();
-            await loadGuides();
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
             
-            // Если передан tourId - выбираем его
+            // Если передан tourId - сразу блокируем выбор, потом загружаем название
             if (preselectedTourId) {
-                const tourSelect = document.getElementById('tourSelect');
-                tourSelect.value = preselectedTourId;
+                // Сначала сразу блокируем и устанавливаем ID (до fetch)
+                document.getElementById('tourSelectContainer').classList.add('hidden');
+                document.getElementById('tourSelect').removeAttribute('required'); // Убираем required чтобы форма прошла валидацию
+                document.getElementById('tourLockedContainer').classList.remove('hidden');
+                document.getElementById('tourLockedName').textContent = `Тур #${preselectedTourId}`;
+                document.getElementById('tourLockedId').value = preselectedTourId;
+                
+                // Затем асинхронно загружаем название
+                fetch(`/api/tours/${preselectedTourId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const tour = data.data;
+                            const title = typeof tour.title === 'object' 
+                                ? (tour.title[currentLang] || tour.title.ru || tour.title.en)
+                                : tour.title;
+                            if (title) {
+                                document.getElementById('tourLockedName').textContent = title;
+                            }
+                        }
+                    })
+                    .catch(e => console.error('Error loading tour name:', e));
+            } else {
+                await loadTours();
             }
             
-            // Если передан guideId - выбираем его
+            // Если передан guideId - сразу блокируем выбор, потом загружаем имя
             if (preselectedGuideId) {
-                const guideSelect = document.getElementById('guideSelect');
-                guideSelect.value = preselectedGuideId;
+                // Сначала сразу блокируем и устанавливаем ID (до fetch)
+                document.getElementById('guideSelectContainer').classList.add('hidden');
+                document.getElementById('guideLockedContainer').classList.remove('hidden');
+                document.getElementById('guideLockedName').textContent = `Гид #${preselectedGuideId}`;
+                document.getElementById('guideLockedId').value = preselectedGuideId;
+                
+                // Затем асинхронно загружаем имя
+                fetch(`/api/guides/${preselectedGuideId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const guide = data.data;
+                            const name = typeof guide.name === 'object' 
+                                ? (guide.name[currentLang] || guide.name.ru || guide.name.en || 'Гид')
+                                : (guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`);
+                            if (name && name.trim()) {
+                                document.getElementById('guideLockedName').textContent = name.trim();
+                            }
+                        }
+                    })
+                    .catch(e => console.error('Error loading guide name:', e));
+            } else {
+                await loadGuides();
             }
             
             // Настраиваем звёзды тура и гида

@@ -996,7 +996,7 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                     <div style="text-align: center; margin-bottom: 20px;">
-                      <img src="${frontendUrl}/images/logo.png" alt="Bunyod-Tour" style="max-height: 60px;">
+                      <img src="${frontendUrl}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="max-height: 60px;">
                     </div>
                     <h2 style="color: #3E3E3E;">Здравствуйте, ${tourist.name}!</h2>
                     <p style="color: #666; line-height: 1.6;">
@@ -1136,7 +1136,7 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
               html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
                   <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${frontendUrl}/images/logo.png" alt="Bunyod-Tour" style="max-height: 60px;">
+                    <img src="${frontendUrl}/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" style="max-height: 60px;">
                   </div>
                   <h2 style="color: #3E3E3E;">Здравствуйте, ${tourist.name}!</h2>
                   <p style="color: #666; line-height: 1.6;">
