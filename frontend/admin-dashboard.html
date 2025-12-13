@@ -874,7 +874,12 @@
                                 <i class="fas fa-chart-line mr-2 text-blue-600"></i>
                                 <span data-translate="admin.tour_monitoring">Мониторинг туров</span>
                             </h2>
-                            <button onclick="loadMonitoringBookings()" class="btn btn-secondary">
+                            <div class="flex gap-2">
+                                <button onclick="syncBookingsFromOrders()" class="btn btn-primary" title="Синхронизировать оплаченные заказы с бронированиями">
+                                    <i class="fas fa-database mr-2"></i>
+                                    Синхронизировать
+                                </button>
+                                <button onclick="loadMonitoringBookings()" class="btn btn-secondary">
                                 <i class="fas fa-sync-alt mr-2"></i>
                                 Обновить
                             </button>
@@ -10253,6 +10258,35 @@
         }
 
         // Load paid bookings
+        async function syncBookingsFromOrders() {
+            try {
+                const btn = event.target.closest("button");
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Синхронизация...';
+                
+                const response = await fetch(`${getApiUrl()}/admin/history/sync-bookings`, {
+                    method: 'POST',
+                    headers: getAuthHeaders()
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    const result = data.data;
+                    showNotification(`Синхронизация завершена: обновлено ${result.updated}, связано ${result.linked}, создано ${result.created}`, 'success');
+                    await loadMonitoringBookings();
+                } else {
+                    showNotification(data.message || 'Ошибка синхронизации', 'error');
+                }
+                
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            } catch (error) {
+                console.error('Sync error:', error);
+                showNotification('Ошибка синхронизации', 'error');
+            }
+        }
+
         async function loadMonitoringBookings() {
             try {
                 const response = await fetch(`${getApiUrl()}/admin/history/bookings/paid`, {

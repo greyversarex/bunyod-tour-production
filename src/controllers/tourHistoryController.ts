@@ -1292,3 +1292,152 @@ export const deleteTourGuide = async (req: Request, res: Response): Promise<void
     });
   }
 };
+
+// Синхронизация бронирований с оплаченными заказами
+export const syncBookings = async (req: Request, res: Response): Promise<void> => {
+  try {
+    console.log('🔄 Starting sync of Booking records from paid Orders...');
+    
+    let updated = 0;
+    let linked = 0;
+    let created = 0;
+    
+    // ЧАСТЬ 1: Обновить статус существующих бронирований на 'paid' если Order оплачен
+    const bookingsWithPaidOrders = await prisma.booking.findMany({
+      where: {
+        orderId: { not: null },
+        status: { not: 'paid' },
+        order: {
+          paymentStatus: 'paid'
+        }
+      },
+      include: {
+        order: true
+      }
+    });
+    
+    for (const booking of bookingsWithPaidOrders) {
+      try {
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: { status: 'paid' }
+        });
+        console.log(`   ✅ Обновлено: Booking #${booking.id} (Order: ${booking.order?.orderNumber})`);
+        updated++;
+      } catch (error) {
+        console.error(`   ❌ Ошибка обновления Booking #${booking.id}:`, error);
+      }
+    }
+    
+    // ЧАСТЬ 2: Найти оплаченные BT-заказы без связанного Booking и связать их
+    const paidBTOrdersWithoutBooking = await prisma.order.findMany({
+      where: {
+        paymentStatus: 'paid',
+        orderNumber: { startsWith: 'BT-' },
+        booking: null
+      },
+      include: {
+        customer: true,
+        tour: true
+      }
+    });
+    
+    for (const order of paidBTOrdersWithoutBooking) {
+      try {
+        let matchingBooking = null;
+        
+        if (order.tourId) {
+          matchingBooking = await prisma.booking.findFirst({
+            where: {
+              contactEmail: order.customer?.email,
+              tourDate: order.tourDate,
+              tourId: order.tourId,
+              orderId: null
+            }
+          });
+        }
+        
+        if (!matchingBooking) {
+          matchingBooking = await prisma.booking.findFirst({
+            where: {
+              contactEmail: order.customer?.email,
+              tourDate: order.tourDate,
+              orderId: null
+            },
+            include: { tour: true }
+          });
+          
+          if (matchingBooking && matchingBooking.tourId && !order.tourId) {
+            await prisma.order.update({
+              where: { id: order.id },
+              data: { tourId: matchingBooking.tourId }
+            });
+          }
+        }
+        
+        if (matchingBooking) {
+          await prisma.booking.update({
+            where: { id: matchingBooking.id },
+            data: { 
+              orderId: order.id,
+              status: 'paid'
+            }
+          });
+          console.log(`   ✅ Связано: Booking #${matchingBooking.id} с Order ${order.orderNumber}`);
+          linked++;
+        } else if (order.tourId) {
+          let touristsData: { name: string; birthDate: string }[] = [];
+          try {
+            touristsData = JSON.parse(order.tourists);
+          } catch (e) {
+            touristsData = [{ name: 'Tourist', birthDate: '' }];
+          }
+
+          const newBooking = await prisma.booking.create({
+            data: {
+              orderId: order.id,
+              tourId: order.tourId,
+              hotelId: order.hotelId,
+              tourists: order.tourists,
+              contactName: order.customer?.fullName || null,
+              contactPhone: order.customer?.phone || null,
+              contactEmail: order.customer?.email || null,
+              totalPrice: order.totalAmount,
+              tourDate: order.tourDate,
+              numberOfTourists: Array.isArray(touristsData) ? touristsData.length : 1,
+              status: 'paid',
+              paymentMethod: order.paymentMethod,
+              paymentOption: 'full',
+              executionStatus: 'pending',
+              specialRequests: order.wishes
+            }
+          });
+          console.log(`   ✅ Создано: Booking #${newBooking.id} для Order ${order.orderNumber}`);
+          created++;
+        }
+      } catch (error) {
+        console.error(`   ❌ Ошибка для Order ${order.orderNumber}:`, error);
+      }
+    }
+    
+    console.log(`📊 Sync completed: updated=${updated}, linked=${linked}, created=${created}`);
+
+    res.json({
+      success: true,
+      message: `Синхронизация завершена`,
+      data: {
+        updated,
+        linked,
+        created,
+        total: updated + linked + created
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error syncing bookings:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера'
+    });
+  }
+};

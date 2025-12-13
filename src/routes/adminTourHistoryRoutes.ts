@@ -15,7 +15,8 @@ import {
   getBookingGuides,
   updateBookingExecutionStatus,
   getGuideBookings,
-  collectBookingReviews
+  collectBookingReviews,
+  syncBookings
 } from '../controllers/tourHistoryController';
 
 const router = express.Router();
@@ -43,5 +44,8 @@ router.get('/bookings/:bookingId/guides', getBookingGuides);
 router.patch('/bookings/:id/execution-status', updateBookingExecutionStatus);
 router.post('/bookings/:id/collect-reviews', collectBookingReviews);
 router.get('/guides/:guideId/bookings', getGuideBookings);
+
+// Синхронизация бронирований с оплаченными заказами
+router.post('/sync-bookings', syncBookings);
 
 export default router;
