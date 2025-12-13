@@ -546,7 +546,12 @@ export const paylerController = {
           tour: true,
           hotel: true,
           guide: true,
-          booking: true, // 🎯 КРИТИЧНО: включаем связанный Booking для обновления статуса
+          booking: {
+            include: {
+              tour: true,
+              hotel: true
+            }
+          }, // 🎯 КРИТИЧНО: включаем связанный Booking с туром для email билета
           transferRequest: {
             include: {
               assignedDriver: true
@@ -892,12 +897,23 @@ export const paylerController = {
             // Оплата тура - стандартный email с PDF билетом
             console.log('📧 [TOUR] Processing tour payment email for:', order.orderNumber);
             
-            // Если order.tour не загружен, загружаем его явно
+            // Пробуем загрузить тур из разных источников:
+            // 1. order.tour (если tourId установлен на Order)
+            // 2. order.booking?.tour (если тур связан через Booking)
+            // 3. Явный запрос по tourId (fallback)
             let tourData = order.tour;
+            
+            // Пробуем из booking (уже загружен с include)
+            if (!tourData && order.booking?.tour) {
+              tourData = order.booking.tour;
+              console.log('📧 [TOUR] Tour loaded from order.booking:', tourData.id);
+            }
+            
+            // Fallback: явный запрос
             if (!tourData && (isTourOrder || order.tourId)) {
-              console.log('📧 [TOUR] Tour not loaded, fetching from booking...');
+              console.log('📧 [TOUR] Tour not in order or booking, fetching explicitly...');
               try {
-                // Сначала пробуем найти booking по orderId
+                // Пробуем найти booking по orderId
                 const booking = await prisma.booking.findFirst({
                   where: { orderId: order.id },
                   include: { 
@@ -908,7 +924,7 @@ export const paylerController = {
                 
                 if (booking?.tour) {
                   tourData = booking.tour;
-                  console.log('📧 [TOUR] Tour loaded from booking:', tourData.id);
+                  console.log('📧 [TOUR] Tour loaded from explicit booking query:', tourData.id);
                 } else if (order.tourId) {
                   // Fallback: загружаем тур напрямую по tourId
                   tourData = await prisma.tour.findUnique({

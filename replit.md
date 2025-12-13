@@ -90,6 +90,12 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` updated to fix existing data
     - **Auto-run**: Script now runs automatically in `update.sh` during deployment
     - **Monitoring works**: Paid bookings now appear in admin "Мониторинг туров" section for guide assignment
+-   **PDF Ticket Email Fix** (Dec 13, 2025): Fixed tour payment confirmation emails not including PDF ticket
+    - **Root cause**: Booking include didn't load tour relation, causing tourData to be null
+    - **Fix**: Changed `booking: true` to `booking: { include: { tour: true, hotel: true } }` in Payler/Alif callbacks
+    - **Fallback chain**: Now checks order.tour → order.booking.tour → explicit query (3 levels)
+    - **Files updated**: paylerController.ts, alifController.ts
+    - **Result**: Paid tour bookings now receive email with full PDF ticket attached
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
