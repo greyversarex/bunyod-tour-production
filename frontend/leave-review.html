@@ -43,6 +43,7 @@
                         </label>
                         <input type="text" id="reviewerName" required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                               data-translate-placeholder="form.name_placeholder"
                                placeholder="Иван Иванов">
                     </div>
                     
@@ -71,11 +72,11 @@
                     <div id="guideSelectContainer">
                         <label class="block text-gray-700 font-medium mb-2">
                             <span data-translate="form.select_guide">Выберите гида</span>
-                            <span class="text-gray-500 text-sm">(необязательно)</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.optional">(необязательно)</span>
                         </label>
                         <select id="guideSelect"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
-                            <option value="">Гид не указан</option>
+                            <option value="" data-translate="form.guide_not_specified">Гид не указан</option>
                         </select>
                         <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">Если хотите оценить гида, который вас сопровождал</p>
                     </div>
@@ -103,14 +104,14 @@
                             <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
                         </div>
                         <input type="hidden" id="tourRating" required>
-                        <p class="text-sm text-red-500 mt-1 hidden" id="tourRatingError">Пожалуйста, укажите рейтинг тура</p>
+                        <p class="text-sm text-red-500 mt-1 hidden" id="tourRatingError" data-translate="form.tour_rating_error">Пожалуйста, укажите рейтинг тура</p>
                     </div>
                     
                     <!-- Рейтинг гида (опционально) -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-2">
                             <span data-translate="reviews.guide_rating">Рейтинг гида</span>
-                            <span class="text-gray-500 text-sm">(необязательно)</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.optional">(необязательно)</span>
                         </label>
                         <div class="flex gap-2" id="guideRatingStars">
                             <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
@@ -129,6 +130,7 @@
                         </label>
                         <textarea id="reviewText" required rows="6"
                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                                  data-translate-placeholder="form.review_placeholder"
                                   placeholder="Расскажите о вашем опыте путешествия..."></textarea>
                     </div>
                     
@@ -136,11 +138,11 @@
                     <div>
                         <label class="block text-gray-700 font-medium mb-2">
                             <span data-translate="reviews.photos">Фотографии</span>
-                            <span class="text-gray-500 text-sm">(необязательно, до 5 фото)</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.photos_optional">(необязательно, до 5 фото)</span>
                         </label>
                         <input type="file" id="reviewPhotos" accept="image/*" multiple
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg">
-                        <p class="text-sm text-gray-500 mt-1">Максимум 5 фото, до 5 МБ каждое</p>
+                        <p class="text-sm text-gray-500 mt-1" data-translate="form.photos_limit">Максимум 5 фото, до 5 МБ каждое</p>
                     </div>
                     
                     <!-- Кнопка отправки -->
@@ -181,7 +183,11 @@
                     const select = document.getElementById('tourSelect');
                     const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
                     
-                    select.innerHTML = '<option value="">Выберите тур...</option>';
+                    const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                    const selectTourText = (window.translations && window.translations['form.select_tour_option']) 
+                        ? (window.translations['form.select_tour_option'][lang] || 'Выберите тур...') 
+                        : 'Выберите тур...';
+                    select.innerHTML = '<option value="">' + selectTourText + '</option>';
                     data.data.forEach(tour => {
                         const title = typeof tour.title === 'object' 
                             ? (tour.title[currentLang] || tour.title.ru || tour.title.en)
@@ -207,7 +213,11 @@
                 if (data.success && data.data) {
                     const select = document.getElementById('guideSelect');
                     
-                    select.innerHTML = '<option value="">Гид не указан</option>';
+                    const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                    const guideNotSpecText = (window.translations && window.translations['form.guide_not_specified']) 
+                        ? (window.translations['form.guide_not_specified'][lang] || 'Гид не указан') 
+                        : 'Гид не указан';
+                    select.innerHTML = '<option value="">' + guideNotSpecText + '</option>';
                     data.data.forEach(guide => {
                         const name = typeof guide.name === 'object' ? (guide.name[localStorage.getItem('language') || 'ru'] || guide.name.ru || guide.name.en || 'Гид') : (guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`);
                         
