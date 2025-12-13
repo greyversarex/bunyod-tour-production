@@ -2,22 +2,7 @@
 
 ## Overview
 
-Bunyod-Tour is a comprehensive tour booking platform designed for Central Asia (Tajikistan, Uzbekistan, Kazakhstan, Turkmenistan, Kyrgyzstan). Its primary purpose is to simplify the booking of tours, hotels, and guides, offering secure multi-payment options, multilingual support (Russian/English), a robust administrative panel, a user review system, and flexible component-based pricing. The platform aims to become the leading, most reliable, and user-friendly solution for the region's tourism sector, benefiting both travelers and service providers.
-
-## Deployment Workflow (ВАЖНО!)
-
-**Рабочий процесс развертывания:**
-1. **Replit** - среда разработки, где улучшается и обновляется код
-2. **GitHub** - репозиторий для хранения кода (обновляется из Replit)
-3. **Timeweb** - продакшн сервер, где работает боевой сайт
-4. **update.sh** - скрипт на сервере Timeweb для обновления из GitHub
-
-**Процесс обновления:**
-1. Разрабатываем/исправляем код в Replit
-2. Коммитим и пушим изменения в GitHub
-3. На сервере Timeweb запускаем `./update.sh` для получения обновлений
-
-**Важно:** Сайт полноценно работает в продакшене на Timeweb. Replit используется только для разработки!
+Bunyod-Tour is a comprehensive tour booking platform for Central Asia (Tajikistan, Uzbekistan, Kazakhstan, Turkmenistan, Kyrgyzstan). It simplifies tour, hotel, and guide bookings, offering secure multi-payment options, multilingual support (Russian/English), a robust administrative panel, user reviews, and flexible component-based pricing. The platform aims to be the region's leading, most reliable, and user-friendly solution for tourism, benefiting both travelers and service providers.
 
 ## User Preferences
 
@@ -34,103 +19,49 @@ Bunyod-Tour is a comprehensive tour booking platform designed for Central Asia (
 
 ## System Architecture
 
-The Bunyod-Tour platform uses a modular MVC architecture. The backend is built with Express.js and TypeScript, while the frontend uses Vanilla JavaScript with Tailwind CSS. PostgreSQL, managed by Prisma ORM, serves as the database.
+Bunyod-Tour uses a modular MVC architecture with an Express.js and TypeScript backend, and a Vanilla JavaScript with Tailwind CSS frontend. PostgreSQL, managed by Prisma ORM, is the database.
 
 **UI/UX Decisions:**
--   **Color Palette**: Strict gray (`#3E3E3E`, `#2F2F2F`), avoiding blue or other colors.
+-   **Color Palette**: Strict gray (`#3E3E3E`, `#2F2F2F`), avoiding blue.
 -   **Font**: Inter.
 -   **Effects**: Glassmorphism.
--   **Layout**: A unified, dynamically loaded header and footer across all pages.
+-   **Layout**: Unified, dynamically loaded header and footer across all pages.
 
 **Technical Implementations:**
--   **Multilingualism**: Content is stored in PostgreSQL JSONB, with API language selection (`?lang=ru/en`) and frontend i18n.
--   **Currency System**: Supports TJS (base), USD, EUR, RUB, CNY with real-time conversion.
-    - **UNIFIED FORMAT (Dec 06, 2025)**: Exchange rates stored as "how much TJS per 1 unit of foreign currency" (e.g., USD: 10.6 means 1 USD = 10.6 TJS)
-    - **Conversion formula**: `convertedPrice = priceInTJS / rate.rate` (DIVISION)
-    - **All files unified**: home-page.js, search-page.js, tour-template.html, booking-step1/2/3.html, hot-tours.js, exchangeRateController.ts
-    - **API endpoint**: `/api/exchange-rates/map` returns rates in correct format
-    - **Fallback rates**: All files use consistent fallback values (USD: 10.6, EUR: 11.6, RUB: 0.11, CNY: 1.5)
--   **Tour Structure**: Features 7 fixed tour blocks and 15 predefined tour categories.
+-   **Multilingualism**: Content in PostgreSQL JSONB, API language selection, frontend i18n.
+-   **Currency System**: Supports TJS (base), USD, EUR, RUB, CNY with real-time conversion. Exchange rates are stored as "how much TJS per 1 unit of foreign currency" (e.g., 1 USD = 10.6 TJS).
+-   **Tour Structure**: 7 fixed tour blocks and 15 predefined tour categories.
 -   **Booking Process**: A 3-step flow with real-time price calculation.
--   **Component-based Pricing**: Flexible system allowing tours to define prices based on components with profit margins.
+-   **Component-based Pricing**: Flexible system for tour pricing with profit margins.
 -   **Admin Panel**: Comprehensive dashboard for managing all platform entities.
 -   **Authentication**: JWT for administrators; separate dashboards for guides and drivers.
--   **Security**: Includes rate limiting, XSS protection, CORS, and environment variable validation.
--   **File Upload System**: Persistent storage outside the application directory, symlinked for access, restricted to image files.
--   **Email Notification System**: Utilizes SendGrid API for transactional emails, with multilingual support, branded templates (company logo), and robust error handling. This includes booking confirmations, payment confirmations, admin notifications, guide welcome emails, travel agent approvals, tour completion notifications, and specific emails for Guide Hire, Transfer, and Custom Tour payments.
+-   **Security**: Rate limiting, XSS protection, CORS, environment variable validation.
+-   **File Upload System**: Persistent storage outside application directory, symlinked, restricted to image files.
+-   **Email Notification System**: SendGrid API for multilingual transactional emails with branded templates.
 -   **Vehicle Management System**: Public catalog with city filtering, glassmorphism cards, and multilingual support.
--   **Promotions/Discounts System**: Tour-level discounts with `isPromotion` and `discountPercent` fields, automatic price calculation, badge display, and dedicated "Aktsii" page.
--   **Order Details Modal Windows**: Type-specific modals in the admin panel for Guide Hire, Transfer, Custom Tour, and Regular Tour orders, displaying relevant details, client info, and payment info.
--   **Payler Integration Hardening**: Includes idempotency protection, IP security checks, retry logic for API calls, a `PaymentRefundLog` model for audit trails, and asynchronous email sending.
--   **Payment Validation Parity**: Unified validation for transfer payments across Payler and Alif, ensuring transfer request existence, price consistency, and valid status. Enhanced logging and order type detection for improved user feedback on BT-prefixed orders.
--   **Tour Map Improvements** (Dec 07, 2025): Reduced default zoom level for better overview, enabled mouse wheel scrolling for zoom control.
--   **Search Page Enhancements** (Dec 07, 2025): Added group size filter (min/max people), added autocomplete suggestions matching homepage functionality.
--   **Booking-Level Guide Assignment** (Dec 08, 2025): Migrated guide assignment from Tour (template) to Booking (instance) level to support multiple bookings of the same tour with different guides and dates.
-    - **Booking model fields**: `assignedGuideId`, `guideAssignedAt`, `executionStatus` (pending/in_progress/completed)
-    - **Admin endpoints**: `/api/admin/history/bookings/paid`, `/api/admin/history/bookings/assign-guide`, `/api/admin/history/bookings/:id/execution-status`
-    - **Guide cabinet endpoints**: `/api/guide/bookings` (get assigned bookings), `/api/guide/bookings/status` (update execution status)
-    - **Admin dashboard**: Dual-tab interface (Tours legacy / Bookings new) in Monitoring section
-    - **Guide dashboard**: Displays assigned bookings with status controls, falls back to legacy tours if no bookings
-    - **Email notifications**: Guide receives email when assigned to booking with tour details, date, tourist count
--   **Multi-Guide Booking Support** (Dec 11, 2025): Extended booking system to support multiple guides per booking
-    - **BookingGuide junction table**: Many-to-many relationship between Booking and Guide
-    - **BookingGuide fields**: `bookingId`, `guideId`, `role` (main/additional), `assignedAt`, `isActive`
-    - **New admin endpoints**: `/api/admin/history/bookings/add-guide`, `/api/admin/history/bookings/remove-guide`, `/api/admin/history/bookings/:bookingId/guides`
-    - **Backward compatibility**: `assignedGuideId` still maintained for primary guide (single guide mode still works)
-    - **Admin dashboard UI**: Booking details modal shows all assigned guides with add/remove buttons
--   **Order-Booking Integration** (Dec 10, 2025): Linked Order and Booking tables for unified tour monitoring
-    - **Booking.orderId**: Foreign key linking Booking to Order (one-to-one relationship)
-    - **Auto-creation on payment**: Booking records are automatically created when Order is paid (Payler/Alif)
-    - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` migrates existing paid Orders to Bookings
-    - **Monitoring displays**: Order number, customer info from Order.customer in monitoring table
-    - **Run after deploy**: `npx ts-node scripts/backfillBookingsFromOrders.ts` to create Bookings for existing paid Orders
--   **Guide Review Collection** (Dec 11, 2025): Guides can request reviews from tourists after tour completion
-    - **Guide cabinet button**: "Собрать отзывы" button appears for finished/completed tours
-    - **API endpoint**: `POST /api/guide/tours/:id/collect-reviews` sends review request emails
-    - **Auto-fetch tourists**: If no tourists specified, automatically fetches from booking.contactEmail and Order.customer
-    - **SendGrid integration**: Uses branded email template with review link
--   **Review System Fixes** (Dec 12, 2025): Fixed tour page reviews and guide rating calculation
-    - **Tour page reviews**: Fixed to use numeric `tourData.id` instead of URL slug for API calls
-    - **Guide rating aggregation**: `getGuideReviewStats` now combines ratings from GuideReview AND Review.guideRating tables with weighted average
-    - **Guide profile simplification**: Removed "Ratings" breakdown section, shows only star rating with count
-    - **Tour rating stars removed**: Removed tour star rating display from tour page and leave-review form (per user request)
-    - **Review visibility flow**: Admin approves → showOnHomepage=true for homepage; isModerated+isApproved for tour page display
--   **Tourist Email Required** (Dec 12, 2025): Made tourist email mandatory for review collection
-    - **Booking step 2**: Email field now required for each tourist (marked with * and `required` attribute)
-    - **Form validation**: Added email format validation (pattern check) before form submission
-    - **Review emails**: All tourists with valid emails will receive review request emails after tour completion
--   **Booking Status Auto-Update** (Dec 12, 2025): Fixed paid orders not appearing in Tour Monitoring
-    - **Root cause**: Payment callbacks (Payler/Alif) were not updating Booking.status to 'paid'
-    - **Fix in callbacks**: Now directly finds existing Booking (by orderId or matching data) and sets status='paid'
-    - **Backfill script**: `scripts/backfillBookingsFromOrders.ts` updated to fix existing data
-    - **Auto-run**: Script now runs automatically in `update.sh` during deployment
-    - **Monitoring works**: Paid bookings now appear in admin "Мониторинг туров" section for guide assignment
--   **PDF Ticket Email Fix** (Dec 13, 2025): Fixed tour payment confirmation emails not including PDF ticket
-    - **Root cause**: Booking include didn't load tour relation, causing tourData to be null
-    - **Fix**: Changed `booking: true` to `booking: { include: { tour: true, hotel: true } }` in Payler/Alif callbacks
-    - **Fallback chain**: Now checks order.tour → order.booking.tour → explicit query (3 levels)
-    - **Files updated**: paylerController.ts, alifController.ts
-    - **Result**: Paid tour bookings now receive email with full PDF ticket attached
--   **Tour Monitoring Fix** (Dec 13, 2025): Fixed paid bookings not appearing in Tour Monitoring
-    - **Root cause**: Booking records not linked to Order (orderId = null) or status not updated to 'paid'
-    - **Backfill script improved**: scripts/backfillBookingsFromOrders.ts now searches by email+date without requiring tourId
-    - **Automatic for new orders**: Payment callbacks properly link and update Booking.status
-    - **One-time fix**: Run `npx ts-node scripts/backfillBookingsFromOrders.ts` on production for existing data
--   **Guide Review Link Fix** (Dec 13, 2025): Review collection emails now auto-select guide in form
-    - **Root cause**: collectReviews endpoint didn't include guideId parameter in review link URL
-    - **Fix**: Added `guideId=${guideId}` to review URL in tourGuideController.ts (both booking and legacy flows)
-    - **Result**: When tourists open review link, guide dropdown is pre-selected automatically
+-   **Promotions/Discounts System**: Tour-level discounts with automatic price calculation and dedicated display.
+-   **Order Details Modal Windows**: Type-specific modals in admin panel for various order types.
+-   **Payment Integration Hardening**: Idempotency, IP security, retry logic, refund logging, asynchronous email sending, and unified validation for transfer payments.
+-   **Tour Map Improvements**: Reduced default zoom, mouse wheel zoom control.
+-   **Search Page Enhancements**: Group size filter, autocomplete suggestions.
+-   **Booking-Level Guide Assignment**: Guide assignment migrated from Tour to Booking level, supporting multiple bookings of the same tour with different guides and dates.
+-   **Multi-Guide Booking Support**: Supports multiple guides per booking via a junction table (`BookingGuide`).
+-   **Order-Booking Integration**: Linked Order and Booking tables (one-to-one) for unified tour monitoring; Booking records auto-created on payment.
+-   **Guide Review Collection**: Guides can request reviews from tourists via email after tour completion.
+-   **Review System**: Fixed tour page reviews, enhanced guide rating calculation, and refined review visibility flow.
+-   **Tourist Email Required**: Email field made mandatory for each tourist during booking.
+-   **Booking Status Auto-Update**: Payment callbacks correctly update `Booking.status` to 'paid'.
+-   **PDF Ticket Email Fix**: Tour payment confirmation emails now include PDF tickets.
+-   **Guide Review Link Fix**: Review collection emails now auto-select the guide in the review form.
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
--   **B2B Travel Agent Partnership System**: Public application, admin approval, agent personal cabinet with token verification and auto-logout, and full agent deletion functionality via atomic transactions.
--   **Transfer Payment Integration**: Extends booking architecture for approved transfer requests, reusing payment gateways; requires `estimatedPrice` for direct payment.
--   **Guide Hire Payment Integration**: Direct payment model for guide services with atomic transactions for date reservation, server-side pricing validation, `SELECT FOR UPDATE` locking for security, and options for guide deactivation or permanent deletion. Includes a "Hires" tab in the guide cabinet for viewing requests and an admin function to resend guide credentials.
--   **Custom Tour Direct Payment Integration**: Direct payment for custom tour orders using atomic Prisma transactions for order creation, server-side price validation, defensive JSON parsing, specific order number formatting, payment gateway revalidation, idempotent webhooks, and email confirmations.
+-   **B2B Travel Agent Partnership System**: Public application, admin approval, agent personal cabinet, and full agent deletion.
+-   **Payment Integrations**: Extended booking architecture for Transfer, Guide Hire, and Custom Tour direct payments, utilizing atomic transactions, server-side price validation, and secure locking mechanisms.
 -   **Backend Structure**: Organized into `config`, `controllers`, `routes`, `middleware`, `models`, `services`, `utils`, and `types`.
 -   **Frontend Structure**: `public` directory for static assets, HTML templates, and modular JavaScript files.
--   **Deployment**: Automated `update.sh` script for database backup, `git pull`, `npm install`, Prisma migrations, seeding, and PM2 restart. Nginx is used for reverse proxy, SSL, security, and rate limiting.
--   **Monitoring**: Utilizes PM2 and Nginx logging, with a `/healthz` endpoint.
+-   **Deployment**: Automated `update.sh` script for database backup, `git pull`, `npm install`, Prisma migrations, seeding, and PM2 restart. Nginx for reverse proxy, SSL, security, and rate limiting.
+-   **Monitoring**: PM2 and Nginx logging, with a `/healthz` endpoint.
 -   **Database Migration**: Manual SQL and Prisma migrations with idempotent seeding.
 
 ## External Dependencies
