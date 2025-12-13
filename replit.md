@@ -96,6 +96,11 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Fallback chain**: Now checks order.tour → order.booking.tour → explicit query (3 levels)
     - **Files updated**: paylerController.ts, alifController.ts
     - **Result**: Paid tour bookings now receive email with full PDF ticket attached
+-   **Tour Monitoring Fix** (Dec 13, 2025): Fixed paid bookings not appearing in Tour Monitoring
+    - **Root cause**: Booking records not linked to Order (orderId = null) or status not updated to 'paid'
+    - **Backfill script improved**: scripts/backfillBookingsFromOrders.ts now searches by email+date without requiring tourId
+    - **Automatic for new orders**: Payment callbacks properly link and update Booking.status
+    - **One-time fix**: Run `npx ts-node scripts/backfillBookingsFromOrders.ts` on production for existing data
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.
