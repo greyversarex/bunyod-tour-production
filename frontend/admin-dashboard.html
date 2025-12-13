@@ -11152,9 +11152,9 @@
                                 </span>
                             </td>
                             <td class="max-w-xs">
-                                <div class="truncate" title="${review.text}">${review.text}</div>
-                                ${review.text.length > 100 ? 
-                                    `<button onclick="showFullReview('${review.text.replace(/'/g, "\\'")}')" class="text-blue-600 text-xs">показать полностью</button>` 
+                                <div class="truncate" title="${review.text || ''}">${review.text || 'Нет текста'}</div>
+                                ${(review.text || "").length > 100 ? 
+                                    `<button onclick="showFullReview('${(review.text || '').replace(/'/g, "\\'")}')" class="text-blue-600 text-xs">показать полностью</button>` 
                                     : ''
                                 }
                             </td>
