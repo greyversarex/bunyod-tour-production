@@ -77,6 +77,9 @@
             
             <div class="flex items-center space-x-4">
                 <span class="text-sm text-gray-600" id="tour-location"><!-- Локация загружается из API --></span>
+                <span class="text-sm text-yellow-500" id="tour-rating-display">
+                    <i class="fas fa-star"></i> <span id="tour-avg-rating">--</span> <span class="text-gray-500" id="tour-reviews-count"></span>
+                </span>
             </div>
         </div>
 
@@ -1427,6 +1430,13 @@
             // Load images
             loadImages();
             
+            // ⭐ Load tour rating
+            try {
+                await loadTourRating();
+            } catch (err) {
+                console.error('Failed to load tour rating:', err);
+            }
+            
             // Load reviews
             try {
                 await loadReviews();
@@ -1982,6 +1992,32 @@
                 thumbnail.addEventListener('click', () => switchMainImage(index));
                 thumbnailColumn.appendChild(thumbnail);
             });
+        }
+
+        // ⭐ Загрузка рейтинга тура
+        async function loadTourRating() {
+            const tourId = tourData?.id;
+            if (!tourId) return;
+            
+            try {
+                const response = await fetch(`/api/reviews/tours/${tourId}/stats`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const { averageRating, totalReviews } = result.data;
+                    const avgRatingEl = document.getElementById('tour-avg-rating');
+                    const reviewsCountEl = document.getElementById('tour-reviews-count');
+                    
+                    if (avgRatingEl) {
+                        avgRatingEl.textContent = totalReviews > 0 ? averageRating.toFixed(1) : '--';
+                    }
+                    if (reviewsCountEl) {
+                        reviewsCountEl.textContent = totalReviews > 0 ? `(${totalReviews})` : '';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load tour rating:', error);
+            }
         }
 
         async function loadReviews() {

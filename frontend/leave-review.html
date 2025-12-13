@@ -70,8 +70,21 @@
                         <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">Если хотите оценить гида, который вас сопровождал</p>
                     </div>
                     
-                    <!-- Скрытое поле для рейтинга тура (всегда 5 по умолчанию, убраны звёзды) -->
-                    <input type="hidden" id="tourRating" value="5">
+                    <!-- Рейтинг тура -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.tour_rating">Рейтинг тура</span> *
+                        </label>
+                        <div class="flex gap-2" id="tourRatingStars">
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="tourRating" required>
+                        <p class="text-sm text-red-500 mt-1 hidden" id="tourRatingError">Пожалуйста, укажите рейтинг тура</p>
+                    </div>
                     
                     <!-- Рейтинг гида (опционально) -->
                     <div>
@@ -218,6 +231,15 @@
             e.preventDefault();
             
             const submitBtn = document.getElementById('submitBtn');
+            
+            // Валидация рейтинга тура
+            const tourRatingValue = document.getElementById('tourRating').value;
+            if (!tourRatingValue) {
+                document.getElementById('tourRatingError').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('tourRatingError').classList.add('hidden');
+            
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Отправка...';
             
@@ -315,7 +337,8 @@
                 guideSelect.value = preselectedGuideId;
             }
             
-            // Настраиваем только звёзды гида (рейтинг тура убран)
+            // Настраиваем звёзды тура и гида
+            setupStarRating('tourRatingStars', 'tourRating');
             setupStarRating('guideRatingStars', 'guideRating');
         });
     </script>

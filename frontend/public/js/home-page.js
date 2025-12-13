@@ -785,6 +785,9 @@ function displaySearchResults(tours) {
         `;
     } else {
         toursGrid.innerHTML = tours.map(tour => createTourCard(tour)).join('');
+        
+        // ⭐ Загружаем рейтинги туров после отображения карточек
+        setTimeout(() => loadTourRatings(), 200);
     }
     
     // Показываем блок результатов и скрываем популярные туры
@@ -903,7 +906,9 @@ function createTourCard(tour) {
                 <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
                     <span data-translate="tour-location">📍 ${locationText}</span>
                     <span>⏱️ ${tour.duration}</span>
-                    <span>🎯 ${tour.theme}</span>
+                    <span class="tour-rating-placeholder" data-tour-id="${tour.id}">
+                        <i class="fas fa-star text-yellow-500"></i> --
+                    </span>
                 </div>
                 <div class="flex justify-between items-center mt-auto">
                     <span class="text-2xl font-bold tour-price" data-original-price="${tour.price}" style="color: black;">${formatPrice(tour.price, currentCurrency)}</span>
@@ -1761,6 +1766,9 @@ async function loadTourBlocks() {
             for (const block of sortedBlocks) {
                 await loadToursForBlock(block);
             }
+            
+            // ⭐ Загружаем рейтинги туров после отображения карточек
+            setTimeout(() => loadTourRatings(), 200);
         } else {
             // Fallback: показываем сообщение когда нет tour blocks
             console.log('⚠️ No tour blocks found, showing fallback message');
@@ -2340,7 +2348,11 @@ function renderTourCard(tour, blockId = null) {
                     ${titleText}
                 </h3>
                 <!-- Описание - минимальная высота 2 строки -->
-                <p class="text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed min-h-[2.5rem]" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
+                <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed min-h-[2.5rem]" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
+                <!-- Рейтинг тура -->
+                <div class="text-xs text-gray-500 mb-2 tour-rating-placeholder" data-tour-id="${tour.id}">
+                    <i class="fas fa-star text-yellow-500"></i> <span class="rating-value">--</span>
+                </div>
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-auto gap-2 sm:gap-3">
                     <div class="flex-1 flex flex-col justify-center">
@@ -2611,6 +2623,52 @@ function prevSlide() {
     const prevIndex = (currentSlideIndex - 1 + slides.length) % slides.length;
     goToSlide(prevIndex);
 }
+
+// ⭐ Загрузка рейтингов туров для карточек
+async function loadTourRatings() {
+    const placeholders = document.querySelectorAll('.tour-rating-placeholder');
+    if (placeholders.length === 0) return;
+    
+    console.log(`⭐ Loading ratings for ${placeholders.length} tour cards...`);
+    
+    // Собираем уникальные tourId
+    const tourIds = new Set();
+    placeholders.forEach(el => {
+        const tourId = el.dataset.tourId;
+        if (tourId) tourIds.add(tourId);
+    });
+    
+    // Загружаем рейтинги для каждого тура
+    for (const tourId of tourIds) {
+        try {
+            const response = await fetch(`/api/reviews/tours/${tourId}/stats`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                const { averageRating, totalReviews } = result.data;
+                
+                // Обновляем все плейсхолдеры с этим tourId
+                document.querySelectorAll(`.tour-rating-placeholder[data-tour-id="${tourId}"]`).forEach(el => {
+                    const ratingValue = el.querySelector('.rating-value');
+                    if (ratingValue) {
+                        if (totalReviews > 0) {
+                            ratingValue.textContent = `${averageRating.toFixed(1)} (${totalReviews})`;
+                        } else {
+                            ratingValue.textContent = '--';
+                        }
+                    }
+                });
+            }
+        } catch (error) {
+            console.error(`Failed to load rating for tour ${tourId}:`, error);
+        }
+    }
+    
+    console.log('⭐ Tour ratings loaded');
+}
+
+// Экспортируем функцию
+window.loadTourRatings = loadTourRatings;
 
 // Загружаем туры и слайды при загрузке страницы
 document.addEventListener('DOMContentLoaded', async function() {
