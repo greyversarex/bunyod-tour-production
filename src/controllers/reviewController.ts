@@ -8,10 +8,10 @@ export const createReview = async (req: Request, res: Response) => {
     const { customerId, tourId, guideId, rating, guideRating, text, reviewerName, photos } = req.body;
 
     // Validation
-    if (!tourId || !rating || !text || !reviewerName) {
+    if (!tourId || !rating || !reviewerName) {
       return res.status(400).json({
         success: false,
-        message: 'Tour ID, reviewer name, rating, and text are required',
+        message: 'Tour ID, reviewer name, and rating are required',
       });
     }
 
@@ -73,7 +73,7 @@ export const createReview = async (req: Request, res: Response) => {
         reviewerName,
         rating,
         guideRating: guideRating || null,
-        text,
+        text: text || null,
         photos: photos ? JSON.stringify(photos) : null,
       },
       include: {

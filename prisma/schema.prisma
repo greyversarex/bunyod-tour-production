@@ -425,7 +425,7 @@ model Review {
   reviewerName   String    @map("reviewer_name")
   rating         Int
   guideRating    Int?      @map("guide_rating")
-  text           String
+  text           String?
   photos         String?
   isModerated    Boolean   @default(false) @map("is_moderated")
   isApproved     Boolean   @default(false) @map("is_approved")

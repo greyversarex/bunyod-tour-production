@@ -142,6 +142,17 @@ app.get('/simple-admin-panel.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'frontend', 'simple-admin-panel.html'));
 });
 
+// Leave Review page - explicit route for query params support
+app.get('/leave-review.html', (req, res) => {
+  console.log('⭐ Serving leave-review.html with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'leave-review.html'));
+});
+
+app.get('/leave-review', (req, res) => {
+  console.log('⭐ Serving leave-review (no .html) with params:', req.query);
+  res.sendFile(path.join(__dirname, 'frontend', 'leave-review.html'));
+});
+
 // 🔌 BACKEND API ROUTES: Условная загрузка для dev/prod
 try {
   // Парсеры JSON/urlencoded для обычных API запросов (НЕ для file uploads)
