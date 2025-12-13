@@ -116,6 +116,10 @@ The Bunyod-Tour platform uses a modular MVC architecture. The backend is built w
     - **Backfill script improved**: scripts/backfillBookingsFromOrders.ts now searches by email+date without requiring tourId
     - **Automatic for new orders**: Payment callbacks properly link and update Booking.status
     - **One-time fix**: Run `npx ts-node scripts/backfillBookingsFromOrders.ts` on production for existing data
+-   **Guide Review Link Fix** (Dec 13, 2025): Review collection emails now auto-select guide in form
+    - **Root cause**: collectReviews endpoint didn't include guideId parameter in review link URL
+    - **Fix**: Added `guideId=${guideId}` to review URL in tourGuideController.ts (both booking and legacy flows)
+    - **Result**: When tourists open review link, guide dropdown is pre-selected automatically
 
 **System Design Choices:**
 -   **Database Models**: Key entities include Tours, Hotels, Guides, Drivers, Bookings, Orders, ExchangeRates, B2B Travel Agents, Transfer Requests, and Guide Hire Requests.

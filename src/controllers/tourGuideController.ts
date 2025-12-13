@@ -983,7 +983,7 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
       for (const tourist of selectedTourists) {
         if (tourist.email) {
           try {
-            const reviewLink = `${frontendUrl}/leave-review.html?tourId=${tourId}&name=${encodeURIComponent(tourist.name)}`;
+            const reviewLink = `${frontendUrl}/leave-review.html?tourId=${tourId}&guideId=${guideId}&name=${encodeURIComponent(tourist.name)}`;
             
             const sgMail = require('@sendgrid/mail');
             if (process.env.SENDGRID_API_KEY) {
@@ -1121,7 +1121,7 @@ export const collectReviews = async (req: Request, res: Response): Promise<void>
     for (const tourist of selectedTourists) {
       if (tourist.email) {
         try {
-          const reviewLink = `${frontendUrl}/leave-review.html?tourId=${tourId}&name=${encodeURIComponent(tourist.name)}`;
+          const reviewLink = `${frontendUrl}/leave-review.html?tourId=${tourId}&guideId=${guideId}&name=${encodeURIComponent(tourist.name)}`;
           const tourTitle = parseMultilingualField(tour.title, 'ru');
           
           // Используем SendGrid
