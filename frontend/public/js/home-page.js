@@ -907,7 +907,7 @@ function createTourCard(tour) {
                     <span data-translate="tour-location">📍 ${locationText}</span>
                     <span>⏱️ ${tour.duration}</span>
                     <span class="tour-rating-placeholder" data-tour-id="${tour.id}">
-                        <i class="fas fa-star text-yellow-500"></i> --
+                        <i class="fas fa-star text-yellow-500"></i> <span class="rating-value">--</span>
                     </span>
                 </div>
                 <div class="flex justify-between items-center mt-auto">
