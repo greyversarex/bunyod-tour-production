@@ -907,7 +907,7 @@ function createTourCard(tour) {
                     <span data-translate="tour-location">📍 ${locationText}</span>
                     <span>⏱️ ${tour.duration}</span>
                     <span class="tour-rating-placeholder" data-tour-id="${tour.id}">
-                        <i class="fas fa-star text-yellow-500"></i> <span class="rating-value">--</span>
+                        <span class="rating-stars text-yellow-500">☆☆☆☆☆</span> <span class="rating-value">--</span>
                     </span>
                 </div>
                 <div class="flex justify-between items-center mt-auto">
@@ -2351,7 +2351,7 @@ function renderTourCard(tour, blockId = null) {
                 <p class="text-xs text-gray-600 mb-2 line-clamp-2 leading-relaxed min-h-[2.5rem]" data-tour-description="${JSON.stringify(descriptionData).replace(/"/g, '&quot;')}">${descriptionText}</p>
                 <!-- Рейтинг тура -->
                 <div class="text-xs text-gray-500 mb-2 tour-rating-placeholder" data-tour-id="${tour.id}">
-                    <i class="fas fa-star text-yellow-500"></i> <span class="rating-value">--</span>
+                    <span class="rating-stars text-yellow-500">☆☆☆☆☆</span> <span class="rating-value">--</span>
                 </div>
                 <!-- Цена и кнопка -->
                 <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-auto gap-2 sm:gap-3">
@@ -2650,9 +2650,15 @@ async function loadTourRatings() {
                 // Обновляем все плейсхолдеры с этим tourId
                 document.querySelectorAll(`.tour-rating-placeholder[data-tour-id="${tourId}"]`).forEach(el => {
                     const ratingValue = el.querySelector('.rating-value');
+                    const starsContainer = el.querySelector('.rating-stars');
                     if (ratingValue) {
                         if (totalReviews > 0) {
                             ratingValue.textContent = `${averageRating.toFixed(1)} (${totalReviews})`;
+                            // Update stars display - round to nearest whole number
+                            if (starsContainer) {
+                                const roundedRating = Math.round(averageRating);
+                                starsContainer.innerHTML = '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
+                            }
                         } else {
                             ratingValue.textContent = '--';
                         }
@@ -3034,7 +3040,7 @@ function displayReviews(reviews) {
                     <div class="text-yellow-500 text-lg">${stars}</div>
                 </div>
                 
-                <p class="text-gray-700 mb-4 line-clamp-4">${review.text}</p>
+                ${review.text ? `<p class="text-gray-700 mb-4 line-clamp-4">${review.text}</p>` : ''}
                 
                 ${review.photos && review.photos.length > 0 ? `
                     <div class="flex gap-2 mb-4 overflow-x-auto">

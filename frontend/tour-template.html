@@ -78,7 +78,7 @@
             <div class="flex items-center space-x-4">
                 <span class="text-sm text-gray-600" id="tour-location"><!-- Локация загружается из API --></span>
                 <span class="text-sm text-yellow-500" id="tour-rating-display">
-                    <i class="fas fa-star"></i> <span id="tour-avg-rating">--</span> <span class="text-gray-500" id="tour-reviews-count"></span>
+                    <span id="tour-rating-stars">☆☆☆☆☆</span> <span id="tour-avg-rating">--</span> <span class="text-gray-500" id="tour-reviews-count"></span>
                 </span>
             </div>
         </div>
@@ -2007,12 +2007,17 @@
                     const { averageRating, totalReviews } = result.data;
                     const avgRatingEl = document.getElementById('tour-avg-rating');
                     const reviewsCountEl = document.getElementById('tour-reviews-count');
+                    const starsEl = document.getElementById('tour-rating-stars');
                     
                     if (avgRatingEl) {
                         avgRatingEl.textContent = totalReviews > 0 ? averageRating.toFixed(1) : '--';
                     }
                     if (reviewsCountEl) {
                         reviewsCountEl.textContent = totalReviews > 0 ? `(${totalReviews})` : '';
+                    }
+                    if (starsEl && totalReviews > 0) {
+                        const roundedRating = Math.round(averageRating);
+                        starsEl.textContent = '★'.repeat(roundedRating) + '☆'.repeat(5 - roundedRating);
                     }
                 }
             } catch (error) {
@@ -2124,6 +2129,14 @@
                         }
                     }
                     
+                    // Generate star rating display
+                    const reviewRating = review.rating || 0;
+                    const reviewStars = '★'.repeat(reviewRating) + '☆'.repeat(5 - reviewRating);
+                    
+                    // Review text - handle null/undefined
+                    const reviewText = review.text || '';
+                    const textHtml = reviewText ? `<p class="text-gray-700 leading-relaxed">${reviewText}</p>` : '';
+                    
                     reviewDiv.innerHTML = `
                         <div class="flex items-start space-x-4">
                             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">
@@ -2131,10 +2144,13 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center justify-between mb-2">
-                                    <h4 class="font-semibold text-gray-900">${reviewerName}</h4>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-semibold text-gray-900">${reviewerName}</h4>
+                                        <span class="text-yellow-500 text-sm">${reviewStars}</span>
+                                    </div>
                                     <span class="text-sm text-gray-500">${formatReviewDate(review.createdAt)}</span>
                                 </div>
-                                <p class="text-gray-700 leading-relaxed">${review.text}</p>
+                                ${textHtml}
                                 ${photosHtml}
                             </div>
                         </div>
