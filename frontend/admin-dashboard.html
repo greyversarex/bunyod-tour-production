@@ -10438,7 +10438,7 @@
                 const select = document.getElementById('assignGuideSelect');
                 select.innerHTML = '<option value="">-- Выберите гида --</option>';
                 availableGuides.forEach(guide => {
-                    const guideName = typeof guide.name === "object" ? (guide.name.ru || guide.name.en || "Гид") : guide.name; select.innerHTML += `<option value="${guide.id}">${guideName} ${guide.phone ? '(' + guide.email + ')' : ''}</option>`;
+                    let guideName = "Гид"; if (typeof guide.name === "object" && guide.name !== null) { guideName = guide.name.ru || guide.name.en || "Гид"; } else if (typeof guide.name === "string") { try { const parsed = JSON.parse(guide.name); guideName = parsed.ru || parsed.en || guide.name; } catch (e) { guideName = guide.name || "Гид"; } } const contactInfo = guide.email ? " (" + guide.email + ")" : ""; select.innerHTML += `<option value="${guide.id}">${guideName}${contactInfo}</option>`;
                 });
             } catch (error) {
                 console.error('Error loading guides:', error);
@@ -10503,7 +10503,7 @@
                 const select = document.getElementById('addGuideSelect');
                 select.innerHTML = '<option value="">-- Выберите гида --</option>';
                 availableGuides.forEach(guide => {
-                    const guideName = typeof guide.name === "object" ? (guide.name.ru || guide.name.en || "Гид") : guide.name; select.innerHTML += `<option value="${guide.id}">${guideName} ${guide.phone ? '(' + guide.email + ')' : ''}</option>`;
+                    let guideName = "Гид"; if (typeof guide.name === "object" && guide.name !== null) { guideName = guide.name.ru || guide.name.en || "Гид"; } else if (typeof guide.name === "string") { try { const parsed = JSON.parse(guide.name); guideName = parsed.ru || parsed.en || guide.name; } catch (e) { guideName = guide.name || "Гид"; } } const contactInfo = guide.email ? " (" + guide.email + ")" : ""; select.innerHTML += `<option value="${guide.id}">${guideName}${contactInfo}</option>`;
                 });
             } catch (error) {
                 console.error('Error loading guides:', error);

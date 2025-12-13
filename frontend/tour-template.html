@@ -2160,15 +2160,18 @@
             const diffTime = Math.abs(now - date);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
+            const lang = localStorage.getItem('selectedLanguage') || 'ru';
+            const t = (key) => (window.translations && window.translations[key]) ? (window.translations[key][lang] || window.translations[key].ru) : key;
+            
             if (diffDays === 1) {
-                return 'вчера';
+                return t('time.yesterday');
             } else if (diffDays < 7) {
-                return `${diffDays} дн. назад`;
+                return `${diffDays} ${t('time.days_ago')}`;
             } else if (diffDays < 30) {
                 const weeks = Math.floor(diffDays / 7);
-                return `${weeks} нед. назад`;
+                return `${weeks} ${t('time.weeks_ago')}`;
             } else {
-                return date.toLocaleDateString('ru-RU');
+                return date.toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU');
             }
         }
         
