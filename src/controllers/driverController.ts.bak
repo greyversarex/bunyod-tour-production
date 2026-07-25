@@ -1,0 +1,1278 @@
+import { Request, Response } from 'express';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import multer from 'multer';
+import path from 'path';
+import prisma from '../config/database';
+
+// Конфигурация Multer для загрузки файлов водителей
+const storage = multer.diskStorage({
+  destination: function (req: any, file: any, cb: any) {
+    cb(null, 'uploads/drivers/');
+  },
+  filename: function (req: any, file: any, cb: any) {
+    // Генерируем уникальное имя файла
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+export const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB максимум
+  },
+  fileFilter: function (req, file, cb) {
+    // Разрешенные типы файлов для водителей
+    const allowedTypes = [
+      'image/jpeg',
+      'image/jpg', 
+      'image/png',
+      'image/webp',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(null, false);
+    }
+  }
+});
+
+// Типы транспорта по умолчанию
+const DEFAULT_VEHICLE_TYPES = [
+  'sedan',      // Легковой автомобиль
+  'suv',        // Внедорожник
+  'minibus',    // Минивэн
+  'bus',        // Автобус
+  'truck',      // Грузовик
+  'motorcycle', // Мотоцикл
+  'taxi'        // Такси
+];
+
+// Категории водительских прав
+const LICENSE_CATEGORIES = [
+  'A',  // Мотоциклы
+  'B',  // Легковые автомобили
+  'C',  // Грузовые автомобили
+  'D',  // Автобусы
+  'E',  // С прицепом
+  'BE', // B с прицепом
+  'CE', // C с прицепом
+  'DE'  // D с прицепом
+];
+
+// Безопасный парсинг JSON
+function safeJsonParse(jsonString: any, defaultValue: any = null) {
+  if (!jsonString) return defaultValue;
+  if (typeof jsonString === 'object') return jsonString;
+  
+  try {
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.warn('JSON parsing error:', error);
+    return defaultValue;
+  }
+}
+
+// Получение всех водителей для админ-панели
+export const getAllDrivers = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const includeRaw = req.query.includeRaw === 'true';
+    const drivers = await prisma.driver.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        tourDrivers: {
+          include: {
+            tour: {
+              select: { id: true, title: true }
+            }
+          }
+        }
+      }
+    });
+
+    const formattedDrivers = drivers.map((driver: any) => {
+      // Деструктурируем для исключения чувствительных полей из публичного API
+      const { password, contact, documents, login, licenseNumber, licenseCategory, tourDrivers, ...publicFields } = driver;
+      
+      const baseDriver = {
+        ...publicFields,
+        vehicleTypes: safeJsonParse(driver.vehicleTypes, []),
+        vehicleInfo: safeJsonParse(driver.vehicleInfo, []),
+        assignedTours: driver.tourDrivers.map((td: any) => td.tour)
+      };
+      
+      return includeRaw ? {
+        ...baseDriver,
+        // Чувствительные данные только для админ панели
+        contact: safeJsonParse(contact, {}),
+        documents: safeJsonParse(documents, []),
+        login: login,
+        licenseNumber: licenseNumber,
+        licenseCategory: licenseCategory
+      } : {
+        ...baseDriver
+        // Публичная версия - чувствительные поля уже исключены деструктуризацией
+      };
+    });
+
+    console.log(`📋 Found ${drivers.length} drivers`);
+
+    res.json({
+      success: true,
+      data: formattedDrivers,
+      message: 'Drivers retrieved successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting drivers:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении водителей'
+    });
+  }
+};
+
+// Получение водителя по ID
+export const getDriverById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const includeRaw = req.query.includeRaw === 'true';
+    const driverId = parseInt(id);
+
+    if (!driverId) {
+      res.status(400).json({
+        success: false,
+        message: 'ID водителя обязателен'
+      });
+      return;
+    }
+
+    const driver = await prisma.driver.findUnique({
+      where: { id: driverId },
+      include: {
+        tourDrivers: {
+          include: {
+            tour: {
+              select: { id: true, title: true, status: true, scheduledStartDate: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!driver) {
+      res.status(404).json({
+        success: false,
+        message: 'Водитель не найден'
+      });
+      return;
+    }
+
+    // Деструктурируем для исключения чувствительных полей из публичного API
+    const { password, contact, documents, login, licenseNumber, licenseCategory, tourDrivers, ...publicFields } = driver;
+    
+    const baseDriver = {
+      ...publicFields,
+      vehicleTypes: safeJsonParse(driver.vehicleTypes, []),
+      vehicleInfo: safeJsonParse(driver.vehicleInfo, []),
+      assignedTours: driver.tourDrivers.map((td: any) => td.tour)
+    };
+    
+    const formattedDriver = includeRaw ? {
+      ...baseDriver,
+      // Чувствительные данные только для админ панели
+      contact: safeJsonParse(contact, {}),
+      documents: safeJsonParse(documents, []),
+      login: login,
+      licenseNumber: licenseNumber,
+      licenseCategory: licenseCategory
+    } : {
+      ...baseDriver
+      // Публичная версия - чувствительные поля уже исключены деструктуризацией
+    };
+
+    res.json({
+      success: true,
+      data: formattedDriver,
+      message: 'Driver retrieved successfully'
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting driver:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении водителя'
+    });
+  }
+};
+
+// Создание нового водителя (для админ-панели)
+export const createDriverProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { 
+      name, 
+      description, 
+      login, 
+      password, 
+      email, 
+      phone, 
+      languages, 
+      experience, 
+      licenseNumber,
+      licenseCategory,
+      workingAreas,
+      countryId,
+      cityId,
+      isActive 
+    } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    console.log('📝 Получены данные для создания водителя:', req.body);
+    console.log('📁 Получены файлы:', files);
+
+    if (!name) {
+      res.status(400).json({
+        success: false,
+        message: 'Имя обязательно'
+      });
+      return;
+    }
+
+    // Хешируем пароль для безопасности
+    const saltRounds = 10;
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, saltRounds);
+    }
+
+    // Обрабатываем загруженные документы
+    let documentsArray: Array<{
+      filename: string;
+      originalName: string;
+      path: string;
+      size: number;
+      mimeType: string;
+    }> = [];
+    if (files && files.documents && files.documents.length > 0) {
+      documentsArray = files.documents.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        size: file.size,
+        mimeType: file.mimetype
+      }));
+      console.log('📄 Документы сохранены:', documentsArray.length);
+    }
+
+    // Создаем водителя
+    const driver = await prisma.driver.create({
+      data: {
+        name: name,
+        description: description || null,
+        languages: languages || null,
+        contact: (email || phone) ? JSON.stringify({ email, phone }) : null,
+        email: email || null,
+        phone: phone || null,
+        experience: experience ? parseInt(experience) : null,
+        login: login || null,
+        password: hashedPassword,
+        isActive: isActive === 'true' || isActive === true || isActive === undefined,
+        documents: documentsArray.length > 0 ? JSON.stringify(documentsArray) : null,
+        licenseNumber: licenseNumber || null,
+        licenseCategory: licenseCategory || null,
+        workingAreas: workingAreas || null,
+        countryId: countryId ? parseInt(countryId) : null,
+        cityId: cityId ? parseInt(cityId) : null
+      },
+      include: {
+        vehicles: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            brand: true,
+            licensePlate: true
+          }
+        }
+      }
+    });
+
+    console.log('✅ Новый водитель создан:', driver.id);
+
+    res.status(201).json({
+      success: true,
+      data: {
+        id: driver.id,
+        name: driver.name,
+        description: driver.description,
+        languages: driver.languages,
+        email: driver.email,
+        phone: driver.phone,
+        experience: driver.experience,
+        isActive: driver.isActive,
+        documents: driver.documents,
+        licenseNumber: driver.licenseNumber,
+        licenseCategory: driver.licenseCategory,
+        workingAreas: driver.workingAreas,
+        vehicles: driver.vehicles
+      },
+      message: 'Водитель успешно создан'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка создания водителя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера: ' + (error instanceof Error ? error.message : 'Unknown error')
+    });
+  }
+};
+
+// Обновление профиля водителя
+export const updateDriverProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { 
+      name, 
+      description, 
+      email, 
+      phone, 
+      languages, 
+      experience, 
+      licenseNumber,
+      licenseCategory,
+      workingAreas,
+      countryId,
+      cityId,
+      isActive 
+    } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const driverId = parseInt(id);
+
+    console.log('📝 Получены данные для обновления водителя:', req.body);
+
+    if (!driverId) {
+      res.status(400).json({
+        success: false,
+        message: 'ID водителя обязателен'
+      });
+      return;
+    }
+
+    // Найти существующего водителя
+    const existingDriver = await prisma.driver.findUnique({
+      where: { id: driverId }
+    });
+
+    if (!existingDriver) {
+      res.status(404).json({
+        success: false,
+        message: 'Водитель не найден'
+      });
+      return;
+    }
+
+    const updateData: any = {};
+
+    if (name) updateData.name = name;
+    if (description !== undefined) updateData.description = description || null;
+    if (languages !== undefined) updateData.languages = languages || null;
+    if (experience !== undefined) updateData.experience = experience ? parseInt(experience) : null;
+    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
+    if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber || null;
+    if (licenseCategory !== undefined) updateData.licenseCategory = licenseCategory || null;
+    if (workingAreas !== undefined) updateData.workingAreas = workingAreas || null;
+    if (email !== undefined) updateData.email = email || null;
+    if (phone !== undefined) updateData.phone = phone || null;
+    if (countryId !== undefined) updateData.countryId = countryId ? parseInt(countryId) : null;
+    if (cityId !== undefined) updateData.cityId = cityId ? parseInt(cityId) : null;
+
+    // Обновляем контакты (для обратной совместимости)
+    if (email !== undefined || phone !== undefined) {
+      const currentContact = existingDriver.contact ? safeJsonParse(existingDriver.contact, {}) : {};
+      updateData.contact = JSON.stringify({
+        email: email !== undefined ? email : currentContact.email,
+        phone: phone !== undefined ? phone : currentContact.phone
+      });
+    }
+
+    // Обрабатываем загруженные документы
+    if (files && files.documents && files.documents.length > 0) {
+      const documentsArray = files.documents.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        size: file.size,
+        mimeType: file.mimetype
+      }));
+      // Объединяем с существующими документами
+      const existingDocs = existingDriver.documents ? safeJsonParse(existingDriver.documents, []) : [];
+      updateData.documents = JSON.stringify([...existingDocs, ...documentsArray]);
+    }
+
+    // Обновляем водителя
+    const updatedDriver = await prisma.driver.update({
+      where: { id: driverId },
+      data: updateData,
+      include: {
+        vehicles: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            brand: true,
+            licensePlate: true
+          }
+        }
+      }
+    });
+
+    console.log('✅ Водитель обновлён:', updatedDriver.id);
+
+    res.json({
+      success: true,
+      data: updatedDriver,
+      message: 'Водитель успешно обновлён'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка обновления водителя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера: ' + (error instanceof Error ? error.message : 'Unknown error')
+    });
+  }
+};
+
+export const updateDriverProfile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { 
+      name, 
+      description, 
+      email, 
+      phone, 
+      languages, 
+      experience, 
+      licenseNumber,
+      licenseCategory,
+      vehicleTypes,
+      vehicleInfo,
+      workingAreas,
+      pricePerDay,
+      pricePerHour,
+      currency,
+      isActive 
+    } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const driverId = parseInt(id);
+
+    console.log('📝 Получены данные для обновления водителя:', req.body);
+    console.log('📁 Получены файлы:', files);
+
+    if (!driverId) {
+      res.status(400).json({
+        success: false,
+        message: 'ID водителя обязателен'
+      });
+      return;
+    }
+
+    // Найти существующего водителя
+    const existingDriver = await prisma.driver.findUnique({
+      where: { id: driverId }
+    });
+
+    if (!existingDriver) {
+      res.status(404).json({
+        success: false,
+        message: 'Водитель не найден'
+      });
+      return;
+    }
+
+    const updateData: any = {};
+
+    if (name) updateData.name = name;
+    if (description) updateData.description = description;
+    if (languages) updateData.languages = languages;
+    if (experience !== undefined) updateData.experience = parseInt(experience);
+    if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
+    if (licenseNumber) updateData.licenseNumber = licenseNumber;
+    if (licenseCategory) updateData.licenseCategory = licenseCategory;
+    if (workingAreas) updateData.workingAreas = workingAreas;
+    if (pricePerDay) updateData.pricePerDay = parseFloat(pricePerDay);
+    if (pricePerHour) updateData.pricePerHour = parseFloat(pricePerHour);
+    if (currency) updateData.currency = currency;
+
+    // Обновляем контакты
+    if (email || phone) {
+      const currentContact = existingDriver.contact ? JSON.parse(existingDriver.contact) : {};
+      updateData.contact = JSON.stringify({
+        email: email || currentContact.email,
+        phone: phone || currentContact.phone
+      });
+    }
+
+    // Парсим типы транспорта
+    if (vehicleTypes) {
+      let parsedVehicleTypes = [];
+      try {
+        // Если это уже JSON строка, парсим её
+        parsedVehicleTypes = typeof vehicleTypes === 'string' ? 
+          JSON.parse(vehicleTypes) : vehicleTypes;
+        
+        // Убеждаемся, что это массив
+        if (!Array.isArray(parsedVehicleTypes)) {
+          parsedVehicleTypes = [parsedVehicleTypes];
+        }
+      } catch (e) {
+        // Если JSON.parse не работает, возможно это строка с разделителями
+        try {
+          parsedVehicleTypes = vehicleTypes.split(',').map((v: string) => v.trim());
+        } catch (e2) {
+          parsedVehicleTypes = [];
+        }
+      }
+      updateData.vehicleTypes = JSON.stringify(parsedVehicleTypes);
+    }
+
+    // Парсим информацию о машинах
+    if (vehicleInfo) {
+      let parsedVehicleInfo = [];
+      try {
+        parsedVehicleInfo = typeof vehicleInfo === 'string' ? 
+          JSON.parse(vehicleInfo) : vehicleInfo;
+      } catch (e) {
+        parsedVehicleInfo = [];
+      }
+      updateData.vehicleInfo = JSON.stringify(parsedVehicleInfo);
+    }
+
+    // Обрабатываем загруженный аватар
+    if (files && files.avatar && files.avatar[0]) {
+      updateData.photo = files.avatar[0].path;
+      console.log('📷 Аватар обновлен:', files.avatar[0].path);
+    }
+
+    // Обрабатываем загруженные документы
+    if (files && files.documents && files.documents.length > 0) {
+      const documentsArray = files.documents.map(file => ({
+        filename: file.filename,
+        originalName: file.originalname,
+        path: file.path,
+        size: file.size,
+        mimeType: file.mimetype
+      }));
+
+      // Сохраняем новые документы, добавляя к существующим
+      let existingDocuments = [];
+      try {
+        existingDocuments = existingDriver.documents ? JSON.parse(existingDriver.documents) : [];
+      } catch (e) {
+        existingDocuments = [];
+      }
+
+      const allDocuments = [...existingDocuments, ...documentsArray];
+      updateData.documents = JSON.stringify(allDocuments);
+      console.log('📄 Документы обновлены, всего:', allDocuments.length);
+    }
+
+    const updatedDriver = await prisma.driver.update({
+      where: { id: driverId },
+      data: updateData
+    });
+
+    console.log('✅ Профиль водителя обновлен:', driverId);
+
+    res.json({
+      success: true,
+      data: {
+        id: updatedDriver.id,
+        name: updatedDriver.name,
+        description: updatedDriver.description,
+        languages: updatedDriver.languages,
+        contact: updatedDriver.contact,
+        experience: updatedDriver.experience,
+        isActive: updatedDriver.isActive,
+        photo: updatedDriver.photo,
+        documents: updatedDriver.documents,
+        licenseNumber: updatedDriver.licenseNumber,
+        licenseCategory: updatedDriver.licenseCategory,
+        vehicleTypes: updatedDriver.vehicleTypes,
+        vehicleInfo: updatedDriver.vehicleInfo
+      },
+      message: 'Профиль водителя успешно обновлен с файлами'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка обновления водителя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера: ' + (error instanceof Error ? error.message : 'Unknown error')
+    });
+  }
+};
+
+// Удаление водителя
+export const deleteDriver = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const driverId = parseInt(id);
+
+    if (!driverId) {
+      res.status(400).json({
+        success: false,
+        message: 'ID водителя обязателен'
+      });
+      return;
+    }
+
+    // Проверяем существование водителя
+    const existingDriver = await prisma.driver.findUnique({
+      where: { id: driverId }
+    });
+
+    if (!existingDriver) {
+      res.status(404).json({
+        success: false,
+        message: 'Водитель не найден'
+      });
+      return;
+    }
+
+    // Удаляем водителя
+    await prisma.driver.delete({
+      where: { id: driverId }
+    });
+
+    console.log('🗑️ Водитель удален:', driverId);
+
+    res.json({
+      success: true,
+      message: 'Водитель успешно удален'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка удаления водителя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при удалении водителя'
+    });
+  }
+};
+
+// Авторизация водителя
+export const loginDriver = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { login, password } = req.body;
+
+    if (!login || !password) {
+      res.status(400).json({
+        success: false,
+        message: 'Логин и пароль обязательны'
+      });
+      return;
+    }
+
+    // Ищем водителя по логину
+    const driver = await prisma.driver.findFirst({
+      where: { 
+        login: login,
+        isActive: true
+      }
+    });
+
+    if (!driver) {
+      res.status(401).json({
+        success: false,
+        message: 'Неверный логин или пароль'
+      });
+      return;
+    }
+
+    // Проверяем пароль
+    if (!driver.password) {
+      res.status(401).json({
+        success: false,
+        message: 'Пароль не установлен для этого водителя'
+      });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, driver.password);
+    if (!isPasswordValid) {
+      res.status(401).json({
+        success: false,
+        message: 'Неверный логин или пароль'
+      });
+      return;
+    }
+
+    // Генерируем JWT токен
+    const token = jwt.sign(
+      { driverId: driver.id, login: driver.login },
+      process.env.JWT_SECRET || 'driver-secret-key',
+      { expiresIn: '7d' }
+    );
+
+    console.log(`🔐 Водитель ${driver.name} авторизовался`);
+
+    res.json({
+      success: true,
+      data: {
+        token,
+        driver: {
+          id: driver.id,
+          name: driver.name,
+          login: driver.login,
+          photo: driver.photo
+        }
+      },
+      message: 'Авторизация успешна'
+    });
+
+  } catch (error) {
+    console.error('❌ Ошибка авторизации водителя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка сервера при авторизации'
+    });
+  }
+};
+
+// Получение информации о доступных типах транспорта и категориях прав
+export const getDriverOptions = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.json({
+      success: true,
+      data: {
+        vehicleTypes: DEFAULT_VEHICLE_TYPES,
+        licenseCategories: LICENSE_CATEGORIES
+      },
+      message: 'Driver options retrieved successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error getting driver options:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка получения опций водителя'
+    });
+  }
+};
+
+// Получение назначенных событий водителя
+export const getDriverAssignedEvents = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const driverId = (req as any).driverId; // Из middleware
+    
+    
+    if (!driverId) {
+      res.status(401).json({
+        success: false,
+        message: 'ID водителя обязателен'
+      });
+      return;
+    }
+
+    // Получаем все туры с событиями, где назначен данный водитель
+    const tours = await prisma.tour.findMany({
+      where: {
+        isActive: true,
+        itinerary: {
+          contains: `"driverId":${driverId}`
+        }
+      },
+      select: {
+        id: true,
+        title: true,
+        itinerary: true,
+        startDate: true,
+        endDate: true,
+        status: true
+      }
+    });
+
+    // Парсим события и фильтруем только те, где назначен данный водитель
+    const assignedEvents: any[] = [];
+    
+    tours.forEach((tour: any) => {
+      if (tour.itinerary) {
+        try {
+          const itinerary = JSON.parse(tour.itinerary);
+          itinerary.forEach((event: any, index: number) => {
+            if (event.driverId && parseInt(event.driverId) === driverId) {
+              assignedEvents.push({
+                id: `${tour.id}-${index}`, // Уникальный ID события
+                tourId: tour.id,
+                tourTitle: tour.title,
+                eventIndex: index,
+                time: event.time,
+                title: event.title,
+                description: event.description,
+                status: event.status || 'pending', // pending, started, completed
+                tourStatus: tour.status,
+                startDate: tour.startDate,
+                endDate: tour.endDate
+              });
+            }
+          });
+        } catch (e) {
+          console.warn('Error parsing itinerary for tour', tour.id, e);
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      data: assignedEvents,
+      message: 'Назначенные события получены успешно'
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting driver assigned events:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении назначенных событий'
+    });
+  }
+};
+
+// Запуск события водителем
+export const startDriverEvent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const driverId = (req as any).driverId;
+    const { eventId } = req.params; // Формат: tourId-eventIndex
+    
+    if (!driverId || !eventId) {
+      res.status(400).json({
+        success: false,
+        message: 'Необходимы параметры driverId и eventId'
+      });
+      return;
+    }
+
+    const [tourId, eventIndex] = eventId.split('-');
+    const tour = await prisma.tour.findUnique({
+      where: { id: parseInt(tourId) }
+    });
+
+    if (!tour || !tour.itinerary) {
+      res.status(404).json({
+        success: false,
+        message: 'Тур или программа не найдены'
+      });
+      return;
+    }
+
+    const itinerary = JSON.parse(tour.itinerary);
+    const eventIdx = parseInt(eventIndex);
+    
+    if (eventIdx >= itinerary.length || itinerary[eventIdx].driverId !== driverId) {
+      res.status(403).json({
+        success: false,
+        message: 'Событие не назначено данному водителю'
+      });
+      return;
+    }
+
+    // Обновляем статус события
+    itinerary[eventIdx].status = 'started';
+    itinerary[eventIdx].startedAt = new Date().toISOString();
+
+    await prisma.tour.update({
+      where: { id: parseInt(tourId) },
+      data: { itinerary: JSON.stringify(itinerary) }
+    });
+
+    res.json({
+      success: true,
+      message: 'Событие запущено'
+    });
+
+  } catch (error) {
+    console.error('❌ Error starting driver event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при запуске события'
+    });
+  }
+};
+
+// Завершение события водителем
+export const completeDriverEvent = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const driverId = (req as any).driverId;
+    const { eventId } = req.params;
+    
+    if (!driverId || !eventId) {
+      res.status(400).json({
+        success: false,
+        message: 'Необходимы параметры driverId и eventId'
+      });
+      return;
+    }
+
+    const [tourId, eventIndex] = eventId.split('-');
+    const tour = await prisma.tour.findUnique({
+      where: { id: parseInt(tourId) }
+    });
+
+    if (!tour || !tour.itinerary) {
+      res.status(404).json({
+        success: false,
+        message: 'Тур или программа не найдены'
+      });
+      return;
+    }
+
+    const itinerary = JSON.parse(tour.itinerary);
+    const eventIdx = parseInt(eventIndex);
+    
+    if (eventIdx >= itinerary.length || itinerary[eventIdx].driverId !== driverId) {
+      res.status(403).json({
+        success: false,
+        message: 'Событие не назначено данному водителю'
+      });
+      return;
+    }
+
+    // Обновляем статус события
+    itinerary[eventIdx].status = 'completed';
+    itinerary[eventIdx].completedAt = new Date().toISOString();
+
+    await prisma.tour.update({
+      where: { id: parseInt(tourId) },
+      data: { itinerary: JSON.stringify(itinerary) }
+    });
+
+    res.json({
+      success: true,
+      message: 'Событие завершено'
+    });
+
+  } catch (error) {
+    console.error('❌ Error completing driver event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при завершении события'
+    });
+  }
+};
+
+// ========== ПОЛУЧЕНИЕ ЗАЯВОК НА ТРАНСФЕР ДЛЯ ВОДИТЕЛЯ ==========
+// Возвращает все оплаченные заявки на трансфер, где выбрана машина, привязанная к водителю
+export const getMyTransferRequests = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: 'Токен доступа отсутствует'
+      });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'driver-secret-key') as any;
+    const driverId = decoded.driverId;
+    
+    if (!driverId) {
+      res.status(401).json({
+        success: false,
+        message: 'Не авторизован'
+      });
+      return;
+    }
+
+    console.log(`📋 [DRIVER TRANSFERS] Fetching transfer requests for driver ID: ${driverId}`);
+
+    // Получаем все машины, привязанные к этому водителю
+    const driverVehicles = await prisma.vehicle.findMany({
+      where: { driverId: driverId },
+      select: { id: true }
+    });
+
+    const vehicleIds = driverVehicles.map(v => v.id);
+    
+    if (vehicleIds.length === 0) {
+      console.log(`📋 [DRIVER TRANSFERS] No vehicles linked to driver ${driverId}`);
+      res.json({
+        success: true,
+        data: {
+          transfers: [],
+          pagination: { page: 1, limit: 20, total: 0, totalPages: 0 }
+        }
+      });
+      return;
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+
+    // Получаем все оплаченные заявки на трансфер с этими машинами
+    const [transfers, total] = await Promise.all([
+      prisma.transferRequest.findMany({
+        where: {
+          vehicleId: { in: vehicleIds },
+          paymentStatus: 'paid' // Только оплаченные
+        },
+        include: {
+          vehicle: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              licensePlate: true,
+              brand: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit
+      }),
+      prisma.transferRequest.count({
+        where: {
+          vehicleId: { in: vehicleIds },
+          paymentStatus: 'paid'
+        }
+      })
+    ]);
+
+    console.log(`📋 [DRIVER TRANSFERS] Found ${transfers.length} paid transfer requests for driver ${driverId}`);
+
+    // Форматируем название машины
+    const formattedTransfers = transfers.map((transfer: any) => ({
+      ...transfer,
+      vehicle: transfer.vehicle ? {
+        ...transfer.vehicle,
+        name: typeof transfer.vehicle.name === 'object' 
+          ? (transfer.vehicle.name.ru || transfer.vehicle.name.en || 'Машина')
+          : transfer.vehicle.name
+      } : null
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        transfers: formattedTransfers,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error getting driver transfer requests:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при получении заявок на трансфер'
+    });
+  }
+};
+
+// ========== ОТВЕТ ВОДИТЕЛЯ НА ЗАЯВКУ (ПРИНЯТЬ/ОТКЛОНИТЬ) ==========
+export const respondToTransferRequest = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        message: 'Токен доступа отсутствует'
+      });
+      return;
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'driver-secret-key') as any;
+    const driverId = decoded.driverId;
+    const { requestId } = req.params;
+    const { response, note } = req.body; // response: 'accepted' | 'rejected'
+
+    console.log(`📋 [DRIVER RESPONSE] Driver ${driverId} responding to transfer request ${requestId}: ${response}`);
+
+    if (!driverId) {
+      res.status(401).json({
+        success: false,
+        message: 'Не авторизован'
+      });
+      return;
+    }
+
+    if (!response || !['accepted', 'rejected'].includes(response)) {
+      res.status(400).json({
+        success: false,
+        message: 'Укажите ответ: accepted или rejected'
+      });
+      return;
+    }
+
+    // Получаем машины водителя
+    const driverVehicles = await prisma.vehicle.findMany({
+      where: { driverId: driverId },
+      select: { id: true }
+    });
+    const vehicleIds = driverVehicles.map(v => v.id);
+
+    // Проверяем что заявка существует и связана с машиной этого водителя
+    const transferRequest = await prisma.transferRequest.findFirst({
+      where: {
+        id: parseInt(requestId),
+        vehicleId: { in: vehicleIds }
+      },
+      include: {
+        vehicle: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            brand: true
+          }
+        }
+      }
+    });
+
+    if (!transferRequest) {
+      res.status(404).json({
+        success: false,
+        message: 'Заявка не найдена или не принадлежит вашей машине'
+      });
+      return;
+    }
+
+    // Проверяем что водитель еще не ответил
+    if (transferRequest.driverResponse !== 'pending') {
+      res.status(400).json({
+        success: false,
+        message: `Вы уже ответили на эту заявку: ${transferRequest.driverResponse === 'accepted' ? 'принято' : 'отклонено'}`
+      });
+      return;
+    }
+
+    // Обновляем заявку с ответом водителя
+    const updatedRequest = await prisma.transferRequest.update({
+      where: { id: parseInt(requestId) },
+      data: {
+        driverResponse: response,
+        driverResponseNote: note || null,
+        driverRespondedAt: new Date()
+      }
+    });
+
+    console.log(`✅ Driver ${driverId} responded to transfer request ${requestId}: ${response}`);
+
+    // Получаем данные водителя для email
+    const driver = await prisma.driver.findUnique({
+      where: { id: driverId },
+      select: { name: true }
+    });
+
+    const driverName = driver?.name || 'Водитель';
+
+    // Отправляем email туристу о решении водителя (в фоне)
+    if (transferRequest.email) {
+      setImmediate(async () => {
+        try {
+          const sgMail = require('@sendgrid/mail');
+          const apiKey = process.env.SENDGRID_API_KEY;
+          const fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@bunyod-tour.tj';
+
+          if (!apiKey) {
+            console.log('⚠️ SendGrid API key not configured, skipping email');
+            return;
+          }
+
+          sgMail.setApiKey(apiKey);
+
+          const vehicleName = typeof transferRequest.vehicle?.name === 'object'
+            ? ((transferRequest.vehicle.name as any).ru || (transferRequest.vehicle.name as any).en || 'Транспорт')
+            : (transferRequest.vehicle?.name || 'Транспорт');
+
+          if (response === 'accepted') {
+            await sgMail.send({
+              to: transferRequest.email,
+              from: { email: fromEmail, name: 'Bunyod-Tour' },
+              subject: `Водитель принял вашу заявку на трансфер | Bunyod-Tour`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #10b981;">🎉 Отличные новости!</h2>
+                  <p>Уважаемый(ая) <strong>${transferRequest.fullName}</strong>,</p>
+                  <p>Водитель <strong>${driverName}</strong> принял вашу заявку на трансфер!</p>
+                  
+                  <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981;">
+                    <h3 style="margin-top: 0; color: #059669;">Детали трансфера</h3>
+                    <p><strong>Дата:</strong> ${transferRequest.pickupDate}</p>
+                    <p><strong>Время:</strong> ${transferRequest.pickupTime}</p>
+                    <p><strong>Откуда:</strong> ${transferRequest.pickupLocation}</p>
+                    <p><strong>Куда:</strong> ${transferRequest.dropoffLocation}</p>
+                    <p><strong>Транспорт:</strong> ${vehicleName}</p>
+                    ${note ? `<p><strong>Сообщение от водителя:</strong> ${note}</p>` : ''}
+                  </div>
+
+                  <p>Водитель свяжется с вами ближе к дате поездки.</p>
+                  <p>Спасибо за использование Bunyod-Tour!</p>
+                </div>
+              `
+            });
+          } else {
+            await sgMail.send({
+              to: transferRequest.email,
+              from: { email: fromEmail, name: 'Bunyod-Tour' },
+              subject: `Ответ на заявку на трансфер | Bunyod-Tour`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h2 style="color: #6b7280;">Ответ на вашу заявку</h2>
+                  <p>Уважаемый(ая) <strong>${transferRequest.fullName}</strong>,</p>
+                  <p>К сожалению, водитель <strong>${driverName}</strong> не может принять вашу заявку на указанную дату.</p>
+                  
+                  <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p><strong>Дата:</strong> ${transferRequest.pickupDate}</p>
+                    <p><strong>Маршрут:</strong> ${transferRequest.pickupLocation} → ${transferRequest.dropoffLocation}</p>
+                    ${note ? `<p><strong>Причина:</strong> ${note}</p>` : ''}
+                  </div>
+
+                  <p>Наша администрация свяжется с вами для подбора альтернативного варианта.</p>
+                  <p>Спасибо за использование Bunyod-Tour!</p>
+                </div>
+              `
+            });
+          }
+          console.log(`✅ Tourist notification email sent for transfer request ${requestId}`);
+        } catch (emailError) {
+          console.error('❌ Failed to send tourist notification email:', emailError);
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: response === 'accepted' ? 'Заявка принята' : 'Заявка отклонена',
+      data: {
+        id: updatedRequest.id,
+        driverResponse: updatedRequest.driverResponse,
+        driverRespondedAt: updatedRequest.driverRespondedAt
+      }
+    });
+
+  } catch (error) {
+    console.error('Error responding to transfer request:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при обработке ответа'
+    });
+  }
+};
+
+export { DEFAULT_VEHICLE_TYPES, LICENSE_CATEGORIES };

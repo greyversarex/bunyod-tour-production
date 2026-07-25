@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="payment.fail_page_title">Payment Error - Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .error-animation {
+            animation: errorShake 0.5s ease-in-out;
+        }
+        
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900" data-translate="common.company_name">Bunyod-Tour</h1>
+                </div>
+                <button onclick="goHome()" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-home mr-2"></i><span data-translate="payment.to_home">Home</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Error Content -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full">
+            <!-- Error Card -->
+            <div class="bg-white rounded-2xl shadow-2xl p-8 text-center card-shadow">
+                <!-- Error Icon -->
+                <div class="error-animation mb-6">
+                    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-times text-3xl text-red-500"></i>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <h2 class="text-2xl font-bold text-gray-900 mb-4" data-translate="payment.fail_title">Payment Error</h2>
+                
+                <p class="text-gray-600 mb-6" data-translate="payment.fail_message">Unfortunately, the payment was not completed. Please try again or choose another payment method.</p>
+
+                <!-- Order Details -->
+                <div id="orderDetails" class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.order_number">Order number:</span>
+                            <span id="orderNumber" class="font-medium">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.status">Status:</span>
+                            <span class="font-medium text-red-600" data-translate="payment.payment_failed">Payment Failed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Possible Reasons -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-left">
+                    <h3 class="font-semibold text-gray-900 mb-2" data-translate="payment.possible_reasons">Possible reasons:</h3>
+                    <ul class="text-sm text-gray-700 space-y-1">
+                        <li><i class="fas fa-circle text-xs mr-2 text-yellow-500"></i><span data-translate="payment.reason_1">Insufficient funds on the card</span></li>
+                        <li><i class="fas fa-circle text-xs mr-2 text-yellow-500"></i><span data-translate="payment.reason_2">Error entering card details</span></li>
+                        <li><i class="fas fa-circle text-xs mr-2 text-yellow-500"></i><span data-translate="payment.reason_3">Payment declined by the bank</span></li>
+                        <li><i class="fas fa-circle text-xs mr-2 text-yellow-500"></i><span data-translate="payment.reason_4">Transaction limit exceeded</span></li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button onclick="retryPayment()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-redo mr-2"></i><span data-translate="payment.try_again">Try Again</span>
+                    </button>
+                    
+                    <button onclick="contactSupport()" class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                        <i class="fas fa-headset mr-2"></i><span data-translate="payment.contact_support">Contact Support</span>
+                    </button>
+                    
+                    <button onclick="goHome()" class="w-full text-blue-600 hover:text-blue-800 py-2 font-medium">
+                        <i class="fas fa-home mr-2"></i><span data-translate="payment.return_home">Return to home</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Additional Info -->
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>
+                    <i class="fas fa-shield-alt mr-1 text-green-500"></i>
+                    Ваши данные защищены SSL-шифрованием
+                </p>
+                <p class="mt-2">
+                    <i class="fas fa-phone mr-1"></i>
+                    Помощь: +992 915 123 344
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        // Get order number from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('orderNumber') || urlParams.get('order');
+
+        // Get booking data from sessionStorage
+        let bookingId = null;
+        const completedOrderData = sessionStorage.getItem('completedOrder');
+        if (completedOrderData) {
+            try {
+                const orderData = JSON.parse(completedOrderData);
+                bookingId = orderData.bookingId;
+            } catch (e) {
+                console.error('Error parsing completedOrder:', e);
+            }
+        }
+
+        // Display order number if available
+        if (orderNumber) {
+            document.getElementById('orderNumber').textContent = orderNumber;
+        } else {
+            document.getElementById('orderNumber').textContent = 'Неизвестен';
+        }
+
+        function retryPayment() {
+            // Return to booking step 3 with bookingId
+            if (bookingId) {
+                window.location.href = `/frontend/booking-step3.html?bookingId=${bookingId}`;
+            } else if (orderNumber) {
+                // Fallback: если нет bookingId, пробуем с orderNumber
+                window.location.href = `/frontend/booking-step3.html?orderNumber=${orderNumber}`;
+            } else {
+                window.location.href = '/frontend/tours-search.html';
+            }
+        }
+
+        function contactSupport() {
+            // Open contact page or WhatsApp
+            window.location.href = 'tel:+992123456789';
+        }
+
+        function goHome() {
+            window.location.href = '/frontend/index.html';
+        }
+
+        // Initialize language system
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.translatePage) {
+                const savedLang = localStorage.getItem('selectedLanguage') || 'en';
+                window.currentLanguage = savedLang;
+                window.translatePage(savedLang);
+            }
+        });
+    </script>
+</body>
+</html>

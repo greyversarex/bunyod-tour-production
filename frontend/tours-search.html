@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="search.page_title">Tour Search - Bunyod-Tour</title>
+    <meta property="og:title" content="Tours Search - Bunyod-Tour">
+    <meta property="og:description" content="Search and book tours in Central Asia. Find tours to Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan and Turkmenistan with Bunyod-Tour.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bunyodtour.tj/tours-search.html">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tours Search - Bunyod-Tour">
+    <meta name="twitter:description" content="Search and book tours in Central Asia. Find tours to Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan and Turkmenistan with Bunyod-Tour.">
+    <meta name="twitter:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Flatpickr Calendar (CSS грузим асинхронно — календарь появляется только по клику, не блокирует первую отрисовку) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"></noscript>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    
+    <!-- Централизованная система интернационализации -->
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/multilingual-utils.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <script data-cfasync="false" src="/public/js/utils.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+        }
+
+        .search-hero {
+            background: #f8f9fa;
+            padding: 40px 0;
+            margin-top: -1px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .search-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .filter-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 20px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .filter-section {
+            margin-bottom: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #f9fafb;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .filter-header:hover {
+            background: #f3f4f6;
+        }
+
+        .filter-title {
+            font-weight: 600;
+            margin: 0;
+            color: #111827;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .filter-arrow {
+            transition: transform 0.3s;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .filter-section.open .filter-arrow {
+            transform: rotate(180deg);
+        }
+
+        .filter-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .filter-section.open .filter-content {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .filter-options-wrapper {
+            padding: 12px 16px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background-color 0.15s;
+        }
+        
+        .filter-option:hover {
+            background-color: #f9fafb;
+        }
+
+        .filter-option input[type="checkbox"] {
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #3E3E3E;
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .price-range-inputs {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        .price-range-inputs input {
+            flex: 1;
+            min-width: 0;
+            max-width: 110px;
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 13px;
+            box-sizing: border-box;
+        }
+
+        .results-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f3f4f6;
+            color: #374151;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active,
+        .tab-btn.active-tab {
+            background: #3E3E3E;
+            color: white;
+        }
+
+        .results-count {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .no-results i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading-spinner.active {
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .filter-sidebar {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1000;
+                border-radius: 0;
+                max-height: 100vh;
+                padding-bottom: 120px;
+            }
+            
+            .filter-sidebar.mobile-filters-open {
+                display: block;
+            }
+            
+            .mobile-filter-actions {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                padding: 16px;
+                box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+                z-index: 1001;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .mobile-filter-btn {
+                display: block !important;
+                position: static;
+                margin: 16px 0;
+                width: 100%;
+                background: #3E3E3E;
+                color: white;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border: none;
+                box-shadow: none;
+                cursor: pointer;
+                font-weight: 500;
+                transition: background 0.2s;
+            }
+            
+            .mobile-filter-btn:hover {
+                background: #2F2F2F;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .results-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px;
+            }
+            
+            .tab-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+            
+            .tab-btn {
+                flex: 1;
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            
+            .results-count {
+                text-align: center;
+                margin-top: 8px !important;
+            }
+            
+            .sort-select {
+                width: 100%;
+                padding: 10px 12px;
+            }
+        }
+
+        .mobile-filter-btn {
+            display: none;
+        }
+
+        .reset-filters-btn {
+            width: 100%;
+            padding: 10px;
+            background: #f3f4f6;
+            color: #374151;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 16px;
+        }
+
+        .reset-filters-btn:hover {
+        
+        .mobile-filter-actions {
+            display: block;
+        }
+        
+        @media (min-width: 1025px) {
+            .mobile-filter-actions {
+                position: static;
+                background: transparent;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+            background: #e5e7eb;
+        
+        .mobile-filter-actions {
+            display: block;
+        }
+        
+        @media (min-width: 1025px) {
+            .mobile-filter-actions {
+                position: static;
+                background: transparent;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+        }
+        
+        .mobile-filter-actions {
+            display: block;
+        }
+        
+        @media (min-width: 1025px) {
+            .mobile-filter-actions {
+                position: static;
+                background: transparent;
+                padding: 0;
+                box-shadow: none;
+            }
+        }
+        
+        /* Стили для подсказок поиска */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .search-suggestions.hidden {
+            display: none;
+        }
+        
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .suggestion-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            color: #6b7280;
+        }
+        
+        .suggestion-text {
+            flex: 1;
+            color: #374151;
+            font-size: 15px;
+        }
+        
+        .suggestion-type {
+            font-size: 12px;
+            color: #9ca3af;
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Динамический хедер -->
+    <div id="header-container"></div>
+
+    <!-- Поисковая строка -->
+    <div class="bg-white border-b border-gray-200 py-6">
+        <div class="search-container">
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="search-query" 
+                        placeholder="Search tours..." 
+                        data-translate-placeholder="search.search_placeholder"
+                        class="w-full px-6 py-4 pr-12 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-gray-600 transition-colors"
+                        oninput="handleSearchPageInput(this.value)"
+                        autocomplete="off"
+                    >
+                    <i class="fas fa-search absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 text-xl pointer-events-none"></i>
+                    <!-- Контейнер для подсказок -->
+                    <div id="searchSuggestions" class="search-suggestions hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="search-container py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Боковая панель фильтров -->
+            <div class="lg:col-span-1">
+                <div class="filter-sidebar">
+                    <h3 class="text-lg font-bold mb-4" data-translate="search.filters">Filters</h3>
+                    
+                    <!-- Локации (Страны с городами) -->
+                    <div class="filter-section" id="filter-section-locations">
+                        <div class="filter-header" onclick="toggleFilter('locations')">
+                            <div class="filter-title" data-translate="search.filter_locations">Locations</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="locations-content">
+                            <div class="filter-options-wrapper" id="locations-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Тип тура (перемещён после городов) -->
+                    <div class="filter-section" id="filter-section-tourtype">
+                        <div class="filter-header" onclick="toggleFilter('tourtype')">
+                            <div class="filter-title" data-translate="search.tour_type">Tour Type</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="tourtype-content">
+                            <div class="filter-options-wrapper" id="tourtype-checkboxes">
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-personal" value="Персональный" onchange="applyFilters()">
+                                    <label for="tourtype-personal" data-translate="tour.type_personal">Private</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-group-personal" value="Групповой персональный" onchange="applyFilters()">
+                                    <label for="tourtype-group-personal" data-translate="tour.type_group_personal">Group Private</label>
+                                </div>
+                                <div class="filter-option">
+                                    <input type="checkbox" id="tourtype-group-common" value="Групповой общий" onchange="applyFilters()">
+                                    <label for="tourtype-group-common" data-translate="tour.type_group_common">Group Shared</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Категории туров -->
+                    <div class="filter-section" id="filter-section-categories">
+                        <div class="filter-header" onclick="toggleFilter('categories')">
+                            <div class="filter-title" data-translate="search.categories">Categories</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="categories-content">
+                            <div class="filter-options-wrapper" id="category-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Блоки туров -->
+                    <div class="filter-section" id="filter-section-tourblocks">
+                        <div class="filter-header" onclick="toggleFilter('tourblocks')">
+                            <div class="filter-title" data-translate="search.tour_blocks">Directions</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="tourblocks-content">
+                            <div class="filter-options-wrapper" id="tourblocks-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Дата тура -->
+                    <div class="filter-section" id="filter-section-date">
+                        <div class="filter-header" onclick="toggleFilter('date')">
+                            <div class="filter-title" data-translate="search.tour_date">Tour Date</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="date-content">
+                            <div class="filter-options-wrapper">
+                                <input type="text" 
+                                       id="search-date-filter" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-gray-600" 
+                                       placeholder="DD.MM.YYYY" 
+                                       data-translate-placeholder="filter.select_date"
+                                       readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Языки тура -->
+                    <div class="filter-section" id="filter-section-languages">
+                        <div class="filter-header" onclick="toggleFilter('languages')">
+                            <div class="filter-title" data-translate="search.tour_languages">Tour Languages</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="languages-content">
+                            <div class="filter-options-wrapper" id="languages-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Звезды отелей (только для отелей) -->
+                    <div class="filter-section" style="display:none;" id="filter-section-stars">
+                        <div class="filter-header" onclick="toggleFilter('stars')">
+                            <div class="filter-title" data-translate="search.hotel_stars">Stars</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="stars-content">
+                            <div class="filter-options-wrapper" id="stars-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Удобства отелей (только для отелей) -->
+                    <div class="filter-section" style="display:none;" id="filter-section-amenities">
+                        <div class="filter-header" onclick="toggleFilter('amenities')">
+                            <div class="filter-title" data-translate="search.hotel_amenities">Amenities</div>
+                            <i class="fas fa-chevron-down filter-arrow chevron"></i>
+                        </div>
+                        <div class="filter-content" id="amenities-content">
+                            <div class="filter-options-wrapper" id="amenities-checkboxes"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="mobile-filter-actions">
+                        <button class="search-btn lg:hidden" onclick="closeAndSearch()" style="width: 100%; padding: 12px; background: #3E3E3E; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s;" data-translate="search.search_button">Find Tours</button>
+                    <button class="reset-filters-btn" onclick="location.reload()" data-translate="search.reset_filters">Reset Filters</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Результаты поиска -->
+            <div class="lg:col-span-3">
+                <!-- Кнопка мобильных фильтров (в начале на мобилке) -->
+                <button class="mobile-filter-btn lg:hidden" onclick="toggleMobileFilters()">
+                    <i class="fas fa-filter mr-2"></i>
+                    <span data-translate="search.filters">Filters</span>
+                </button>
+                
+                <!-- Заголовок результатов -->
+                <div class="results-header">
+                    <div>
+                        <p class="results-count mt-2">Найдено: 0</p>
+                    </div>
+                    
+                    <select id="sort-select" class="sort-select" onchange="handleSortChange()">
+                        <option value="relevance" data-translate="search.sort_relevance">By Relevance</option>
+                        <option value="price_asc" data-translate="search.sort_price_asc">Price: Low to High</option>
+                        <option value="price_desc" data-translate="search.sort_price_desc">Price: High to Low</option>
+                        <option value="rating" data-translate="search.sort_rating">By Rating</option>
+                    </select>
+                </div>
+                
+                <!-- Контейнер для результатов туров -->
+                <div id="tours-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                
+                <!-- Контейнер для результатов отелей -->
+                <div id="hotels-results" class="hidden grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-6"></div>
+                
+                <!-- Загрузка -->
+                <div class="loading-spinner" id="loading-spinner">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-600"></i>
+                    <p class="mt-4 text-gray-600" data-translate="search.loading">Loading tours...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Динамический футер -->
+    <div id="footer-container"></div>
+
+    <!-- Модальное окно для отображения полного списка стран и городов -->
+    <div id="locationModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeLocationModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div class="absolute top-0 right-0 pt-4 pr-4">
+                    <button type="button" onclick="closeLocationModal()" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="sm:flex sm:items-start">
+                    <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                        <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" id="modal-title" data-translate="location.details">Tour Location</h3>
+                        <div id="modalLocationsList" class="space-y-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+    function openLocationModal(countries, cities, countriesWithCities) {
+        const modal = document.getElementById('locationModal');
+        const locationsList = document.getElementById('modalLocationsList');
+        
+        if (countriesWithCities && countriesWithCities.length > 0) {
+            locationsList.innerHTML = countriesWithCities.map(country => {
+                const citiesHtml = country.cities.length > 0 
+                    ? `<ul class="ml-5 mt-1 space-y-1">${country.cities.map(city => 
+                        `<li class="flex items-center gap-1 text-sm text-gray-600"><span class="text-blue-500">•</span> ${city}</li>`
+                    ).join('')}</ul>`
+                    : '';
+                return `
+                    <div class="country-group">
+                        <div class="flex items-center gap-1 font-medium text-gray-800">
+                            <span class="text-green-500">✓</span> ${country.name}
+                        </div>
+                        ${citiesHtml}
+                    </div>
+                `;
+            }).join('');
+        } else {
+            let html = '';
+            if (countries.length > 0) {
+                html += countries.map(c => `<div class="flex items-center gap-1 font-medium text-gray-800"><span class="text-green-500">✓</span> ${c}</div>`).join('');
+            }
+            if (cities.length > 0) {
+                html += `<ul class="ml-5 mt-2 space-y-1">${cities.map(c => `<li class="flex items-center gap-1 text-sm text-gray-600"><span class="text-blue-500">•</span> ${c}</li>`).join('')}</ul>`;
+            }
+            locationsList.innerHTML = html || '<p class="text-gray-400 italic">—</p>';
+        }
+        
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLocationModal() {
+        document.getElementById('locationModal').classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeLocationModal();
+    });
+    </script>
+
+    <script data-cfasync="false" src="/public/js/search-page.js?v=6.1"></script>
+</body>
+</html>

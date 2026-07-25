@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="transfer_page_title">Transfer - Bunyod-Tour</title>
+    <meta property="og:title" content="Transfer Services - Bunyod-Tour">
+    <meta property="og:description" content="Book reliable airport and city transfer services in Tajikistan and Central Asia with Bunyod-Tour. Professional drivers, comfortable vehicles.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bunyodtour.tj/transfer.html">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Transfer Services - Bunyod-Tour">
+    <meta name="twitter:description" content="Book reliable airport and city transfer services in Tajikistan and Central Asia with Bunyod-Tour. Professional drivers, comfortable vehicles.">
+    <meta name="twitter:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Flatpickr Calendar (CSS грузим асинхронно — календарь появляется только по клику, не блокирует первую отрисовку) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"></noscript>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <!-- ВАЖНО: i18n.js загружается СИНХРОННО, чтобы window.currentLanguage был
+         выставлен ДО booking-state.js (который при init() читает window.currentLanguage). -->
+    <script data-cfasync="false" src="/public/js/i18n.js?v=1.6"></script>
+    <script data-cfasync="false" src="/public/js/booking-state.js"></script>
+    <script data-cfasync="false" src="/public/js/phone-country-selector.js?v=2.1"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js"></script>
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+
+        /* Стили для выпадающих меню */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown-submenu {
+            position: relative;
+        }
+        
+        .dropdown-subcontent {
+            display: none;
+            position: absolute;
+            background-color: #3E3E3E;
+            min-width: 300px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1002;
+            border-radius: 8px;
+            padding: 8px;
+            top: 0;
+            left: 100%;
+        }
+        
+        .dropdown-submenu:hover .dropdown-subcontent {
+            display: block;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #3E3E3E;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1001;
+            border-radius: 8px;
+            padding: 8px 0;
+            top: 100%;
+            left: 0;
+        }
+        
+        .dropdown-content a {
+            color: white !important;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+            border-radius: 4px;
+            margin: 0 4px;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Стили для карусели автомобилей */
+        #vehicleCarousel::-webkit-scrollbar {
+            height: 8px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #vehicleCarousel::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* Кнопки-стрелки навигации по карусели */
+        .vehicle-carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 5;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #3E3E3E;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        .vehicle-carousel-nav:hover { background: #fff; transform: translateY(-50%) scale(1.08); }
+        .vehicle-carousel-nav:active { transform: translateY(-50%) scale(0.95); }
+        .vehicle-carousel-nav.prev { left: -8px; }
+        .vehicle-carousel-nav.next { right: -8px; }
+        .vehicle-carousel-nav:disabled { opacity: 0.35; cursor: not-allowed; }
+        @media (max-width: 640px) {
+            .vehicle-carousel-nav { width: 36px; height: 36px; font-size: 14px; }
+            .vehicle-carousel-nav.prev { left: 2px; }
+            .vehicle-carousel-nav.next { right: 2px; }
+        }
+
+        .vehicle-carousel-card {
+            min-width: 280px;
+            max-width: 280px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            scroll-snap-align: start;
+        }
+        .vehicle-carousel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: #3E3E3E;
+        }
+        .vehicle-carousel-card.selected {
+            border-color: #3E3E3E;
+            box-shadow: 0 0 0 3px rgba(62, 62, 62, 0.2);
+        }
+        .vehicle-carousel-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        /* Слайдер изображений внутри карточки */
+        .vehicle-images-slider {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+        }
+        .vehicle-images-container {
+            display: flex;
+            transition: transform 0.3s ease;
+            height: 100%;
+        }
+        .vehicle-images-container img {
+            min-width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .vehicle-slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .vehicle-images-slider:hover .vehicle-slider-btn {
+            opacity: 1;
+        }
+        .vehicle-slider-btn.prev { left: 5px; }
+        .vehicle-slider-btn.next { right: 5px; }
+        .vehicle-slider-btn:hover {
+            background: rgba(0,0,0,0.7);
+        }
+        .vehicle-slider-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+        .vehicle-slider-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .vehicle-slider-dot.active {
+            background: white;
+        }
+        /* Flatpickr alt-input стили — совпадает с остальными полями формы */
+        .flatpickr-input.flatpickr-alt-input {
+            width: 100% !important;
+            padding: 0.75rem 1rem !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 0.5rem !important;
+            font-size: 1rem !important;
+            line-height: 1.5 !important;
+            color: #111827 !important;
+            background: #ffffff !important;
+            cursor: pointer !important;
+            outline: none !important;
+        }
+        .flatpickr-input.flatpickr-alt-input:focus {
+            border-color: transparent !important;
+            box-shadow: 0 0 0 2px #3b82f6 !important;
+        }
+        .flatpickr-input:not(.flatpickr-alt-input) {
+            display: none !important;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Динамический контейнер для header -->
+    <div id="header-container"></div>
+
+    <!-- Основной контент -->
+    <main class="bg-gray-50 py-12">
+        <div class="max-w-4xl mx-auto px-6">
+            <!-- Заголовок страницы -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-900 mb-4" data-i18n="transfer_main_title">Transfer</h1>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto" data-i18n="transfer_main_subtitle">Book a transfer anywhere you need. Fast, convenient, and reliable.</p>
+                <p id="transfer-booking-note" class="text-sm text-gray-500 max-w-3xl mx-auto mt-4 italic"></p>
+                <script data-cfasync="false">
+                (function() {
+                    var NOTES = {
+                        ru: 'Обратите внимание: перед бронированием мы рекомендуем внимательно ознакомиться с информацией о каждом транспортном средстве, включая зоны обслуживания и пункты назначения. Также обратите внимание, что в пиковый туристический сезон не все указанные транспортные средства могут быть доступны, но мы предоставим эквивалентное транспортное средство вместо выбранного вами. Если у вас возникнут какие-либо вопросы, пожалуйста, свяжитесь с нами, мы всегда рады помочь!',
+                        en: 'Please note: Before booking, we recommend carefully reviewing the information about each vehicle, including service zones and destinations. Please also note that during peak tourist season, not all listed vehicles may be available, but we will provide an equivalent vehicle for your selected vehicle. If you have any questions, please contact us, we are always happy to help!'
+                    };
+                    function updateNote() {
+                        var lang = window.currentLanguage || localStorage.getItem('selectedLanguage') || 'en';
+                        var el = document.getElementById('transfer-booking-note');
+                        if (el) el.textContent = NOTES[lang] || NOTES.en;
+                    }
+                    updateNote();
+                    document.addEventListener('languageChanged', updateNote);
+                })();
+                </script>
+            </div>
+
+            <!-- Форма заявки на трансфер -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-12">
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold text-gray-900 mb-2" data-i18n="transfer_form_title">Book Transfer</h2>
+                    <p class="text-gray-600" data-i18n="transfer_form_subtitle">Fill out the form and we will contact you shortly</p>
+                </div>
+
+                <form id="transferForm" class="space-y-6">
+                    <!-- Контактная информация -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_fullname">Full Name</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="fullName" name="fullName" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_fullname_placeholder"
+                                placeholder="Enter your full name">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_email">Email</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_email_placeholder"
+                                placeholder="your@email.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_phone">Phone</label>
+                        <div id="phoneSelector" data-phone-selector data-default-country="TJ"></div>
+                    </div>
+
+                    <!-- Выбор страны и города -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="transferCountry" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_country">Country</span> <span class="text-red-500">*</span>
+                            </label>
+                            <select id="transferCountry" name="transferCountry" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="" data-i18n="transfer_country_select">Select country</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="transferCity" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_city">Departure City</span> <span class="text-red-500">*</span>
+                            </label>
+                            <select id="transferCity" name="transferCity" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="" data-i18n="transfer_city_select">Select city</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Детали трансфера -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="pickupLocation" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_pickup">Pickup Location</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="pickupLocation" name="pickupLocation" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_pickup_placeholder"
+                                placeholder="Pickup location (address, hotel, airport)">
+                        </div>
+                        <div>
+                            <label for="dropoffLocation" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_dropoff">Drop-off Location</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="dropoffLocation" name="dropoffLocation" required 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                data-i18n-placeholder="transfer_dropoff_placeholder"
+                                placeholder="Drop-off location (address, hotel)">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="pickupDate" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_date_start">Rental Start Date</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="pickupDate" name="pickupDate" required readonly
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-white">
+                        </div>
+                        <div>
+                            <label for="dropoffDate" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_date_end">Rental End Date</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="dropoffDate" name="dropoffDate" required readonly
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Счётчик дней аренды -->
+                    <div id="rentalDaysInfo" class="hidden bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex flex-wrap items-center gap-3">
+                        <i class="fas fa-calendar-check text-blue-500 text-lg"></i>
+                        <span class="text-blue-800 font-medium" data-i18n="transfer_rental_days_label">Number of rental days:</span>
+                        <span id="rentalDaysCount" class="text-blue-900 font-bold text-lg">0</span>
+                        <span class="text-blue-700" data-i18n="transfer_days_unit">days</span>
+                        <span id="driverDailyExpenseInfo" class="hidden ml-auto inline-flex items-center gap-2 bg-blue-100 border border-blue-300 rounded-md px-3 py-1.5">
+                            <i class="fas fa-user-tie text-blue-700"></i>
+                            <span class="text-blue-900 text-sm font-medium" data-i18n="transfer_driver_daily_expenses">Driver's daily expenses:</span>
+                            <span id="driverDailyExpenseAmount" class="text-blue-900 font-bold">0 TJS</span>
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="pickupTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="transfer_time">Pickup Time</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="pickupTime" name="pickupTime" required readonly
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer bg-white"
+                                placeholder="--:--">
+                        </div>
+                        <div>
+                            <label for="numberOfPeople" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_passengers">Number of Passengers</label>
+                            <input type="number" id="numberOfPeople" name="numberOfPeople" min="1" max="8" value="1"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Фильтры выбора автомобиля -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="transfer_vehicle_filters">Vehicle Parameters</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div>
+                                <label for="vehicleType" class="block text-xs font-medium text-gray-600 mb-2" data-i18n="transfer_vehicle_type">Vehicle Type</label>
+                                <select id="vehicleType" name="vehicleType" 
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="" data-i18n="transfer_vehicle_select">Select type</option>
+                                    <option value="sedan" data-i18n="transfer_vehicle_sedan">Sedan</option>
+                                    <option value="suv" data-i18n="transfer_vehicle_suv">SUV</option>
+                                    <option value="minibus" data-i18n="transfer_vehicle_minibus">Minibus</option>
+                                    <option value="bus" data-i18n="transfer_vehicle_bus">Bus</option>
+                                    <option value="minivan" data-i18n="transfer_vehicle_minivan">Minivan</option>
+                                    <option value="luxury" data-i18n="transfer_vehicle_luxury">Luxury</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="vehicleCapacity" class="block text-xs font-medium text-gray-600 mb-2" data-i18n="transfer_vehicle_capacity">Capacity</label>
+                                <select id="vehicleCapacity" name="vehicleCapacity" 
+                                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="" data-i18n="transfer_capacity_any">Any</option>
+                                    <option value="1-4" data-i18n="transfer_capacity_1_4">1-4 passengers</option>
+                                    <option value="5-8" data-i18n="transfer_capacity_5_8">5-8 passengers</option>
+                                    <option value="9-15" data-i18n="transfer_capacity_9_15">9-15 passengers</option>
+                                    <option value="16+" data-i18n="transfer_capacity_16_plus">16+ passengers</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Сообщение о необходимости выбора даты -->
+                    <div id="selectDateMessage" class="text-center py-8 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                        <i class="fas fa-calendar-alt text-4xl mb-3 text-gray-400"></i>
+                        <p class="text-gray-500" data-i18n="transfer_select_date_first">Select a travel date to see available vehicles</p>
+                    </div>
+
+                    <!-- Карусель доступных автомобилей -->
+                    <div id="vehicleCarouselSection" class="hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-3" data-i18n="transfer_available_vehicles">Available Vehicles</label>
+                        <div class="relative">
+                            <button type="button" id="vehicleCarouselPrev" class="vehicle-carousel-nav prev hidden" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button type="button" id="vehicleCarouselNext" class="vehicle-carousel-nav next hidden" aria-label="Next">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <div id="vehicleCarousel" class="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scroll-smooth" style="scrollbar-width: thin;">
+                                <!-- Автомобили будут загружены здесь -->
+                            </div>
+                            <div id="vehicleCarouselHint" class="hidden text-center text-xs text-gray-500 mt-1">
+                                <i class="fas fa-arrows-alt-h mr-1"></i>
+                                <span data-i18n="transfer_swipe_hint">Swipe to see other vehicles</span>
+                            </div>
+                            <div id="noVehiclesMessage" class="hidden text-center py-8 text-gray-500">
+                                <i class="fas fa-car text-4xl mb-3"></i>
+                                <p data-i18n="transfer_no_vehicles">No vehicles found. Try changing search parameters.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="specialRequests" class="block text-sm font-medium text-gray-700 mb-2" data-i18n="transfer_special_requests">Special Requests</label>
+                        <textarea id="specialRequests" name="specialRequests" rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            data-i18n-placeholder="transfer_special_requests_placeholder"
+                            placeholder="Child seat, stops along the way, special requirements..."></textarea>
+                    </div>
+
+                    <!-- Кнопка отправки -->
+                    <div class="pt-4">
+                        <button type="submit" id="submitBtn"
+                            class="w-full text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" style="background: #6B7280;">
+                            <span id="submitText" data-i18n="transfer_submit_btn">Book Now</span>
+                            <span id="loadingText" class="hidden">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span data-i18n="transfer_submit_sending">Sending...</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Уведомления -->
+                <div id="notification" class="hidden mt-6 p-4 rounded-lg">
+                    <div id="notificationContent"></div>
+                </div>
+            </div>
+
+            <!-- Информация о каталоге транспорта -->
+            <div class="rounded-xl shadow-lg p-8 text-center" style="background: linear-gradient(135deg, #3E3E3E 0%, #2F2F2F 100%);">
+                <div class="mb-6">
+                    <i class="fas fa-car text-white text-5xl mb-4"></i>
+                    <h2 class="text-2xl font-bold text-white mb-3" data-i18n="transfer.catalog_info_title">Browse Our Vehicle Fleet</h2>
+                    <p class="text-white/90 max-w-2xl mx-auto text-lg" data-i18n="transfer.catalog_info_text">Want to learn more about our vehicles? Check out our complete catalog with photos, descriptions, and prices of all available vehicles.</p>
+                </div>
+                
+                <a href="/vehicles-catalog.html" 
+                   class="inline-block bg-white text-gray-900 font-semibold py-4 px-8 rounded-lg transition-all duration-200 hover:bg-gray-100 hover:scale-105 shadow-lg">
+                    <i class="fas fa-list-ul mr-2"></i>
+                    <span data-i18n="transfer.view_catalog_btn">View Vehicle Catalog</span>
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+
+    <!-- Динамический контейнер для footer -->
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        // 🆕 Курсы валют + хелперы конвертации (база — TJS)
+        window.transferExchangeRates = window.transferExchangeRates || {
+            'TJS': { rate: 1, symbol: 'TJS' },
+            'USD': { rate: 10.6, symbol: '$' },
+            'EUR': { rate: 11.6, symbol: '€' },
+            'RUB': { rate: 0.109, symbol: '₽' },
+            'CNY': { rate: 1.54, symbol: '¥' }
+        };
+        async function loadTransferExchangeRates() {
+            try {
+                const resp = await fetch('/api/exchange-rates');
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const rates = data?.data || data;
+                    if (Array.isArray(rates)) {
+                        // API возвращает массив [{currency:'USD', rate:10.6, symbol:'$'}, ...]
+                        rates.forEach(r => {
+                            if (r.currency && r.rate) {
+                                window.transferExchangeRates[r.currency] = {
+                                    rate: parseFloat(r.rate),
+                                    symbol: r.symbol || r.currency
+                                };
+                            }
+                        });
+                    } else if (rates && typeof rates === 'object') {
+                        // Map-формат {USD: {rate:10.6, symbol:'$'}, ...}
+                        Object.keys(rates).forEach(code => {
+                            if (rates[code] && rates[code].rate) {
+                                window.transferExchangeRates[code] = {
+                                    rate: parseFloat(rates[code].rate),
+                                    symbol: rates[code].symbol || code
+                                };
+                            }
+                        });
+                    }
+                    window.exchangeRates = window.transferExchangeRates;
+                }
+            } catch (e) {
+                console.warn('⚠️ Failed to load exchange rates, using fallback:', e);
+            }
+        }
+        // TJS → выбранная валюта; возвращает строку "123 USD"
+        function formatVehiclePrice(priceInTJS) {
+            const cur = localStorage.getItem('selectedCurrency') || 'TJS';
+            const rates = window.transferExchangeRates || {};
+            const r = rates[cur] || rates['TJS'] || { rate: 1, symbol: 'TJS' };
+            const amount = cur === 'TJS' ? Math.round(priceInTJS) : parseFloat((priceInTJS / r.rate).toFixed(2));
+            return `${amount} ${r.symbol}`;
+        }
+        // Перерисовать цены во всех карточках автомобилей при смене валюты
+        function refreshVehicleCardPrices() {
+            const days = parseInt(document.getElementById('rentalDaysCount')?.textContent) || 1;
+            const driverExp = Math.max(0, days - 1) * 300;
+            document.querySelectorAll('.vehicle-carousel-card').forEach(card => {
+                const priceEl = card.querySelector('[data-price-per-day]');
+                const perDayDisplay = card.querySelector('[data-per-day-display]');
+                const totalPriceEl = card.querySelector('[data-total-price]');
+                if (!priceEl) return;
+                const pricePerDayTJS = parseFloat(priceEl.dataset.pricePerDay) || 0;
+                if (perDayDisplay) perDayDisplay.textContent = formatVehiclePrice(pricePerDayTJS);
+                if (totalPriceEl) {
+                    const subtotalTJS = pricePerDayTJS * days;
+                    const totalTJS = subtotalTJS + driverExp;
+                    if (days > 1) {
+                        totalPriceEl.innerHTML = `${formatVehiclePrice(pricePerDayTJS)} × ${days} + <span class="text-blue-700">${formatVehiclePrice(driverExp)}</span> = <span class="text-green-600">${formatVehiclePrice(totalTJS)}</span>`;
+                    } else {
+                        totalPriceEl.textContent = formatVehiclePrice(pricePerDayTJS);
+                    }
+                }
+            });
+            // Бейдж суточных расходов рядом со счётчиком дней
+            const expEl = document.getElementById('driverDailyExpenseInfo');
+            const expAmountEl = document.getElementById('driverDailyExpenseAmount');
+            if (expEl && expAmountEl) {
+                if (driverExp > 0) {
+                    expAmountEl.textContent = formatVehiclePrice(driverExp);
+                    expEl.classList.remove('hidden');
+                } else {
+                    expEl.classList.add('hidden');
+                }
+            }
+        }
+        // Слушатель смены валюты из layout-loader
+        window.addEventListener('currencyChanged', () => refreshVehicleCardPrices());
+        document.addEventListener('currencyChanged', () => refreshVehicleCardPrices());
+        // Загружаем курсы при старте
+        loadTransferExchangeRates().then(() => refreshVehicleCardPrices());
+
+        // Функция для переключения языкового выпадающего меню
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('langDropdown');
+            const langDropdown = document.querySelector('.language-dropdown');
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                langDropdown.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                langDropdown.classList.add('active');
+            }
+        }
+
+        // Функция для выбора языка
+        function selectLanguage(langCode, flagClass, langName) {
+            // Обновляем выбранный язык в кнопке
+            document.querySelector('.selected-flag').className = `selected-flag ${flagClass}`;
+            document.querySelector('.selected-lang').textContent = langName;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('.lang-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-lang="${langCode}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            toggleLanguageDropdown();
+            
+            // Здесь можно добавить логику для смены языка интерфейса
+            console.log('Selected language:', langCode);
+        }
+
+        // Функция для переключения валютного выпадающего меню
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            const currencyDropdown = dropdown.parentElement;
+            
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+                currencyDropdown.classList.remove('active');
+            } else {
+                dropdown.classList.add('show');
+                currencyDropdown.classList.add('active');
+            }
+        }
+
+        // Функция для выбора валюты
+        function selectCurrency(currencyCode, currencyName) {
+            // Обновляем выбранную валюту в кнопке
+            document.querySelector('.selected-currency').textContent = currencyName;
+            
+            // Убираем активный класс со всех опций
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            
+            // Добавляем активный класс к выбранной опции
+            document.querySelector(`[data-currency="${currencyCode}"]`).classList.add('active');
+            
+            // Закрываем выпадающий список
+            toggleCurrencyDropdown();
+            
+            // Здесь можно добавить логику для смены валюты
+            console.log('Selected currency:', currencyCode);
+        }
+
+        // Закрытие выпадающих меню при клике вне их
+        document.addEventListener('click', function(event) {
+            const langDropdown = document.querySelector('.language-dropdown');
+            const langDropdownContent = document.getElementById('langDropdown');
+            const currencyDropdowns = document.querySelectorAll('.language-dropdown');
+            const currencyDropdownContent = document.getElementById('currencyDropdown');
+            
+            // Закрытие языкового селектора
+            if (!langDropdown.contains(event.target)) {
+                langDropdownContent.classList.remove('show');
+                langDropdown.classList.remove('active');
+            }
+            
+            // Закрытие валютного селектора
+            currencyDropdowns.forEach(dropdown => {
+                if (dropdown.contains(currencyDropdownContent) && !dropdown.contains(event.target)) {
+                    currencyDropdownContent.classList.remove('show');
+                    dropdown.classList.remove('active');
+                }
+            });
+        });
+
+        // Обработчик формы трансфера
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация Flatpickr с локалью по текущему языку
+            let pickupFp = null;
+            let dropoffFp = null;
+
+            function initDatePickers(lang) {
+                const locale = (lang === 'ru' && typeof flatpickr !== 'undefined' && flatpickr.l10ns && flatpickr.l10ns.ru)
+                    ? flatpickr.l10ns.ru
+                    : (typeof flatpickr !== 'undefined' ? flatpickr.l10ns.default : 'en');
+                const altFmt = lang === 'ru' ? 'd.m.Y' : 'd/m/Y';
+
+                if (typeof flatpickr === 'undefined') return;
+
+                if (pickupFp) pickupFp.destroy();
+                if (dropoffFp) dropoffFp.destroy();
+
+                const savedPickup = document.getElementById('pickupDate')._flatpickr
+                    ? document.getElementById('pickupDate')._flatpickr.selectedDates[0]
+                    : null;
+                const savedDropoff = document.getElementById('dropoffDate')._flatpickr
+                    ? document.getElementById('dropoffDate')._flatpickr.selectedDates[0]
+                    : null;
+
+                pickupFp = flatpickr('#pickupDate', {
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: altFmt,
+                    locale: locale,
+                    minDate: 'today',
+                    disableMobile: true,
+                    defaultDate: savedPickup || null,
+                    onChange: function(selectedDates, dateStr) {
+                        if (dropoffFp) {
+                            dropoffFp.set('minDate', dateStr);
+                            if (dropoffFp.selectedDates[0] && dropoffFp.selectedDates[0] < selectedDates[0]) {
+                                dropoffFp.clear();
+                            }
+                        }
+                        updateRentalDays();
+                        loadVehicles();
+                    }
+                });
+
+                dropoffFp = flatpickr('#dropoffDate', {
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: altFmt,
+                    locale: locale,
+                    minDate: 'today',
+                    disableMobile: true,
+                    defaultDate: savedDropoff || null,
+                    onChange: function() {
+                        updateRentalDays();
+                    }
+                });
+
+                // Time picker (flatpickr) — единый стиль на десктопе и мобильных
+                const pickupTimeEl = document.getElementById('pickupTime');
+                if (pickupTimeEl) {
+                    if (pickupTimeEl._flatpickr) pickupTimeEl._flatpickr.destroy();
+                    flatpickr('#pickupTime', {
+                        enableTime: true,
+                        noCalendar: true,
+                        dateFormat: 'H:i',
+                        time_24hr: true,
+                        minuteIncrement: 5,
+                        locale: locale,
+                        disableMobile: true,
+                        altInput: true,
+                        altFormat: 'H:i'
+                    });
+                }
+
+                // Применяем стили к alt-инпутам (они заменяют оригинал визуально)
+                document.querySelectorAll('.flatpickr-input.flatpickr-alt-input, input.flatpickr-alt-input').forEach(el => {
+                    el.classList.add('w-full', 'px-4', 'py-3', 'border', 'border-gray-300', 'rounded-lg',
+                        'focus:ring-2', 'focus:ring-blue-500', 'focus:border-transparent', 'cursor-pointer', 'bg-white');
+                });
+
+                console.log('📅 Flatpickr calendar initialized with locale:', lang);
+            }
+
+            // Инициализируем сразу с текущим языком
+            const currentLang = localStorage.getItem('lang') || 'en';
+            initDatePickers(currentLang);
+
+            // Обработчик отправки формы
+            const transferForm = document.getElementById('transferForm');
+            if (transferForm) {
+                transferForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const submitBtn = document.getElementById('submitBtn');
+                    const submitText = document.getElementById('submitText');
+                    const loadingText = document.getElementById('loadingText');
+                    const notification = document.getElementById('notification');
+                    const notificationContent = document.getElementById('notificationContent');
+                    
+                    // Показываем состояние загрузки
+                    submitBtn.disabled = true;
+                    submitText.classList.add('hidden');
+                    loadingText.classList.remove('hidden');
+                    notification.classList.add('hidden');
+                    
+                    try {
+                        // Собираем данные формы
+                        const formData = new FormData(this);
+                        const isEnLang = window.currentLanguage === 'en';
+
+                        // Универсальная функция показа ошибки
+                        const showValidationError = (title, message) => {
+                            notificationContent.innerHTML = `
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800">${title}</h4>
+                                        <p class="text-red-600">${message}</p>
+                                    </div>
+                                </div>
+                            `;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            notification.classList.remove('bg-green-50', 'border-green-200');
+                            // Возвращаем кнопку в исходное состояние
+                            submitBtn.disabled = false;
+                            submitText.classList.remove('hidden');
+                            loadingText.classList.add('hidden');
+                        };
+
+                        // Клиентская валидация обязательных полей с понятным сообщением
+                        const requiredFieldLabels = {
+                            fullName: isEnLang ? 'Full Name' : 'ФИО',
+                            pickupLocation: isEnLang ? 'Pickup Location' : 'Место приёма',
+                            dropoffLocation: isEnLang ? 'Drop-off Location' : 'Место высадки',
+                            pickupDate: isEnLang ? 'Pickup Date' : 'Дата начала аренды',
+                            pickupTime: isEnLang ? 'Pickup Time' : 'Время подачи'
+                        };
+                        const missingClient = [];
+                        for (const key of Object.keys(requiredFieldLabels)) {
+                            const v = formData.get(key);
+                            if (!v || (typeof v === 'string' && v.trim() === '')) {
+                                missingClient.push(requiredFieldLabels[key]);
+                            }
+                        }
+                        if (missingClient.length > 0) {
+                            const title = window.translations?.['transfer_error_validation']?.[window.currentLanguage] || (isEnLang ? 'Validation Error' : 'Ошибка валидации');
+                            const message = isEnLang
+                                ? `Please fill in the required fields: ${missingClient.join(', ')}`
+                                : `Заполните обязательные поля: ${missingClient.join(', ')}`;
+                            showValidationError(title, message);
+                            // Скроллим к первому пустому полю
+                            const firstMissingKey = Object.keys(requiredFieldLabels).find(k => {
+                                const v = formData.get(k);
+                                return !v || (typeof v === 'string' && v.trim() === '');
+                            });
+                            if (firstMissingKey) {
+                                const el = document.getElementById(firstMissingKey);
+                                if (el) {
+                                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    setTimeout(() => el.focus(), 400);
+                                }
+                            }
+                            return;
+                        }
+
+                        // Валидация контактных данных
+                        const email = formData.get('email')?.trim();
+                        // Получаем телефон через regex из кнопки (поле компонента не имеет name="phone")
+                        const _trPhoneInput = document.getElementById('phoneSelector-input');
+                        const _trPhoneButton = document.getElementById('phoneSelector-button');
+                        let phone = '';
+                        if (_trPhoneInput && _trPhoneButton) {
+                            const codeMatch = _trPhoneButton.textContent.match(/(\+\d+)/);
+                            const code = codeMatch ? codeMatch[1] : '+992';
+                            phone = `${code} ${_trPhoneInput.value.trim()}`.trim();
+                        }
+                        if (!email && !phone) {
+                            const errorTitle = window.translations?.['transfer_error_validation']?.[window.currentLanguage] || 'Ошибка валидации';
+                            const errorMessage = window.translations?.['transfer_error_contact']?.[window.currentLanguage] || 'Укажите хотя бы один способ связи: email или телефон';
+                            showValidationError(errorTitle, errorMessage);
+                            return;
+                        }
+                        
+                        // Получаем цену выбранного автомобиля для прямой оплаты
+                        const selectedVehicle = allVehicles.find(v => v.id === selectedVehicleId);
+                        const vehiclePricePerDay = selectedVehicle?.pricePerDay || 0;
+
+                        // Считаем количество дней аренды
+                        const startDate = formData.get('pickupDate');
+                        const endDate = formData.get('dropoffDate');
+                        let rentalDays = 1;
+                        if (startDate && endDate) {
+                            const diff = new Date(endDate) - new Date(startDate);
+                            // Включительный расчёт: 23→25 = 3 дня, 23→23 = 1 день
+                            const d = Math.floor(diff / (1000 * 60 * 60 * 24)) + 1;
+                            if (d >= 1) rentalDays = d;
+                        }
+
+                        // Явная проверка дат — Flatpickr скрывает original input, поэтому required не срабатывает
+                        if (!startDate) {
+                            notificationContent.innerHTML = `<div class="flex items-center"><svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg><div><h4 class="font-semibold text-red-800">${lang === 'en' ? 'Error' : 'Ошибка'}</h4><p class="text-red-600">${lang === 'en' ? 'Please select pickup date' : 'Пожалуйста, выберите дату отправления'}</p></div></div>`;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            return;
+                        }
+                        if (!endDate) {
+                            notificationContent.innerHTML = `<div class="flex items-center"><svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg><div><h4 class="font-semibold text-red-800">${lang === 'en' ? 'Error' : 'Ошибка'}</h4><p class="text-red-600">${lang === 'en' ? 'Please select return date' : 'Пожалуйста, выберите дату окончания аренды'}</p></div></div>`;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            return;
+                        }
+
+                        // 🆕 Суточные расходы водителя: +300 TJS за каждый день после первого
+                        const driverDailyExpense = Math.max(0, rentalDays - 1) * 300;
+                        const vehicleSubtotal = vehiclePricePerDay * rentalDays;
+                        const vehiclePrice = vehicleSubtotal + driverDailyExpense;
+                        
+                        if (!selectedVehicleId || vehiclePricePerDay <= 0) {
+                            const errorTitle = window.getTranslation ? window.getTranslation('error', lang) : 'Ошибка';
+                            const errorMessage = window.getTranslation ? window.getTranslation('transfer_select_vehicle', lang) : 'Пожалуйста, выберите автомобиль';
+                            notificationContent.innerHTML = `
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800">${errorTitle}</h4>
+                                        <p class="text-red-600">${errorMessage}</p>
+                                    </div>
+                                </div>
+                            `;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            return;
+                        }
+                        
+                        const currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+                        
+                        // Телефон уже получен выше через window.phoneSelectors['phoneSelector'].getFullPhoneNumber()
+                        const fullPhone = phone;
+                        
+                        const data = {
+                            fullName: formData.get('fullName'),
+                            email: email || undefined,
+                            phone: fullPhone || undefined,
+                            countryId: formData.get('transferCountry') ? parseInt(formData.get('transferCountry')) : undefined,
+                            cityId: formData.get('transferCity') ? parseInt(formData.get('transferCity')) : undefined,
+                            pickupLocation: formData.get('pickupLocation'),
+                            dropoffLocation: formData.get('dropoffLocation'),
+                            pickupTime: formData.get('pickupTime'),
+                            pickupDate: formData.get('pickupDate'),
+                            dropoffDate: formData.get('dropoffDate') || undefined,
+                            rentalDays: rentalDays,
+                            numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
+                            vehicleType: formData.get('vehicleType') || undefined,
+                            vehicleCapacity: formData.get('vehicleCapacity') || undefined,
+                            vehicleId: selectedVehicleId || undefined,
+                            specialRequests: formData.get('specialRequests') || undefined,
+                            estimatedPrice: vehiclePricePerDay, // Цена за день; итоговая = estimatedPrice × rentalDays
+                            language: currentLanguage
+                        };
+                        
+                        console.log('Отправка заявки на трансфер:', data);
+                        
+                        // Отправляем запрос
+                        const response = await fetch('/api/transfers/transfer-requests', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+                        
+                        const result = await response.json();
+                        console.log('Ответ сервера:', result);
+                        
+                        if (result.success) {
+                            try {
+                                console.log('🚀 Starting transfer data save process...');
+                                
+                                // 🚗 Используем уже определённые данные автомобиля
+                                console.log('📦 Selected vehicle:', selectedVehicle);
+                                const currency = selectedVehicle?.currency || window.selectedCurrency || 'TJS';
+                                console.log('💰 Price:', vehiclePrice, 'Currency:', currency);
+                                
+                                // Инициализируем booking state
+                                console.log('🔄 Initializing booking state manager...');
+                                bookingStateManager.init();
+                                
+                                // Используем правильные методы bookingStateManager для сохранения
+                                console.log('🆔 Setting booking ID:', result.data?.id);
+                                bookingStateManager.setBookingId(result.data?.id || null);
+                                
+                                // Устанавливаем тип бронирования как трансфер
+                                console.log('📝 Setting booking type: transfer');
+                                bookingStateManager.state.bookingType = 'transfer';
+                                
+                                // Сохраняем данные трансфера в отдельное поле
+                                console.log('🚗 Saving transfer data...');
+                                bookingStateManager.state.transfer = {
+                                    id: result.data?.id,
+                                    vehicleId: selectedVehicleId,
+                                    vehicleName: selectedVehicle ? (window.currentLanguage === 'ru' ? selectedVehicle.nameRu : selectedVehicle.nameEn) : '',
+                                    countryId: parseInt(formData.get('transferCountry')) || 0,
+                                    cityId: parseInt(formData.get('transferCity')) || 0,
+                                    pickupLocation: formData.get('pickupLocation') || '',
+                                    dropoffLocation: formData.get('dropoffLocation') || '',
+                                    pickupDate: formData.get('pickupDate') || '',
+                                    dropoffDate: formData.get('dropoffDate') || '',
+                                    rentalDays: rentalDays,
+                                    pickupTime: formData.get('pickupTime') || '',
+                                    numberOfPeople: parseInt(formData.get('numberOfPeople')) || 1,
+                                    specialRequests: formData.get('specialRequests') || ''
+                                };
+                                console.log('✅ Transfer data set:', bookingStateManager.state.transfer);
+                                
+                                // Устанавливаем контактные данные
+                                console.log('👤 Saving contact data...');
+                                bookingStateManager.setContactInfo({
+                                    name: formData.get('fullName') || '',
+                                    phone: phone || '',
+                                    email: email || ''
+                                });
+                                
+                                // Устанавливаем цены
+                                console.log('💵 Setting pricing data...');
+                                bookingStateManager.state.pricing.tourBasePrice = 0;
+                                bookingStateManager.state.pricing.transferPrice = vehiclePrice; // итого за все дни
+                                bookingStateManager.state.pricing.pricePerDay = vehiclePricePerDay;
+                                bookingStateManager.state.pricing.rentalDays = rentalDays;
+                                bookingStateManager.state.pricing.roomSurcharge = 0;
+                                bookingStateManager.state.pricing.mealSurcharge = 0;
+                                bookingStateManager.state.pricing.grandTotal = vehiclePrice;
+                                bookingStateManager.state.pricing.currency = currency;
+                                
+                                // Устанавливаем язык и валюту
+                                console.log('🌍 Setting language and currency...');
+                                bookingStateManager.setLanguage(window.currentLanguage || 'en');
+                                bookingStateManager.setSelectedCurrency(currency);
+                                
+                                // Сохраняем состояние в sessionStorage
+                                console.log('💾 Persisting to sessionStorage...');
+                                bookingStateManager.persist();
+                                console.log('✅ Transfer data saved to booking state:', bookingStateManager.state);
+                                
+                                // Небольшая задержка перед редиректом
+                                console.log('🔄 Redirecting to payment page in 100ms...');
+                                setTimeout(() => {
+                                    window.location.href = '/transfer-payment.html';
+                                }, 100);
+                            } catch (saveError) {
+                                console.error('❌ Ошибка при сохранении данных:', saveError);
+                                console.error('❌ Error stack:', saveError.stack);
+                                console.error('❌ Error message:', saveError.message);
+                                
+                                // НЕ перенаправляем если данные не сохранены
+                                alert('Ошибка при сохранении данных. Пожалуйста, попробуйте снова.');
+                            }
+                            
+                        } else {
+                            // Ошибка валидации или сервера
+                            const errorTitle = window.translations?.['transfer_error_title']?.[window.currentLanguage] || 'Ошибка';
+                            const errorDefault = window.translations?.['transfer_error_message']?.[window.currentLanguage] || 'Произошла ошибка при отправке заявки';
+                            const isEn = window.currentLanguage === 'en';
+                            // Если backend вернул missingFields — показываем читаемый список
+                            let errorText = result.error || errorDefault;
+                            if (Array.isArray(result.missingFields) && result.missingFields.length > 0) {
+                                const fieldLabels = {
+                                    fullName: isEn ? 'Full Name' : 'ФИО',
+                                    pickupLocation: isEn ? 'Pickup Location' : 'Место приёма',
+                                    dropoffLocation: isEn ? 'Drop-off Location' : 'Место высадки',
+                                    pickupTime: isEn ? 'Pickup Time' : 'Время подачи',
+                                    pickupDate: isEn ? 'Pickup Date' : 'Дата начала аренды'
+                                };
+                                const labels = result.missingFields
+                                    .map(f => fieldLabels[f] || f)
+                                    .join(', ');
+                                errorText = isEn
+                                    ? `Please fill in the required fields: ${labels}`
+                                    : `Заполните обязательные поля: ${labels}`;
+                            }
+                            notificationContent.innerHTML = `
+                                <div class="flex items-center">
+                                    <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-semibold text-red-800">${errorTitle}</h4>
+                                        <p class="text-red-600">${errorText}</p>
+                                    </div>
+                                </div>
+                            `;
+                            notification.classList.remove('hidden');
+                            notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                            notification.classList.remove('bg-green-50', 'border-green-200');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Ошибка при отправке заявки:', error);
+                        const isEnLang = (window.currentLanguage || localStorage.getItem('selectedLanguage') || 'en') === 'en';
+                        const errTitle = isEnLang ? 'Submission Error' : 'Ошибка отправки';
+                        const errBody = (error && error.message)
+                            ? (isEnLang ? `Server returned an error: ${error.message}` : `Сервер вернул ошибку: ${error.message}`)
+                            : (isEnLang ? 'Please check your internet connection and try again' : 'Проверьте подключение к интернету и попробуйте снова');
+                        notificationContent.innerHTML = `
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-red-600 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                                <div>
+                                    <h4 class="font-semibold text-red-800">${errTitle}</h4>
+                                    <p class="text-red-600">${errBody}</p>
+                                </div>
+                            </div>
+                        `;
+                        notification.classList.remove('hidden');
+                        notification.classList.add('bg-red-50', 'border', 'border-red-200');
+                        notification.classList.remove('bg-green-50', 'border-green-200');
+                    } finally {
+                        // Возвращаем кнопку в исходное состояние
+                        submitBtn.disabled = false;
+                        submitText.classList.remove('hidden');
+                        loadingText.classList.add('hidden');
+                    }
+                });
+            }
+
+            // === НОВЫЙ КОД: Загрузка стран, городов и автомобилей ===
+            let allCountries = [];
+            let allCities = [];
+            let allVehicles = [];
+            let selectedVehicleId = null;
+
+            // Загрузка стран
+            async function loadCountries() {
+                try {
+                    console.log('📍 Загрузка списка стран...');
+                    const response = await fetch('/api/countries');
+                    const data = await response.json();
+                    console.log('✅ Страны загружены:', data.data.length);
+                    if (data.success) {
+                        allCountries = data.data;
+                        populateCountrySelect();
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки стран:', error);
+                }
+            }
+
+            // Заполнение select стран
+            function populateCountrySelect() {
+                const countrySelect = document.getElementById('transferCountry');
+                console.log('📍 populateCountrySelect() вызван, элемент найден:', !!countrySelect);
+                if (!countrySelect) {
+                    console.error('❌ Элемент transferCountry не найден!');
+                    return;
+                }
+                
+                const lang = window.currentLanguage || 'en';
+                console.log('🌍 Текущий язык:', lang, 'Стран для добавления:', allCountries.length);
+                countrySelect.innerHTML = '<option value="" data-i18n="transfer_country_select">Выберите страну</option>';
+                
+                const sortedCountries = [...allCountries].sort((a, b) => {
+                    if (a.nameEn === 'Tajikistan') return -1;
+                    if (b.nameEn === 'Tajikistan') return 1;
+                    return a.nameEn.localeCompare(b.nameEn);
+                });
+                sortedCountries.forEach((country, index) => {
+                    const option = document.createElement('option');
+                    option.value = country.id;
+                    option.textContent = lang === 'ru' ? country.nameRu : country.nameEn;
+                    countrySelect.appendChild(option);
+                    console.log(`  ✓ Добавлена страна #${index + 1}:`, option.textContent, '(ID:', country.id + ')');
+                });
+                console.log('✅ Всего опций в select:', countrySelect.options.length);
+            }
+
+            // Загрузка городов
+            async function loadCities() {
+                try {
+                    console.log('🏙️ Загрузка списка городов...');
+                    const response = await fetch('/api/cities');
+                    const data = await response.json();
+                    console.log('✅ Города загружены:', data.data.length);
+                    if (data.success) {
+                        allCities = data.data;
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки городов:', error);
+                }
+            }
+
+            // Заполнение select городов (фильтруется по стране)
+            function populateCitySelect(countryId = null) {
+                const citySelect = document.getElementById('transferCity');
+                console.log('🏙️ populateCitySelect() вызван, countryId:', countryId, 'элемент найден:', !!citySelect);
+                if (!citySelect) {
+                    console.error('❌ Элемент transferCity не найден!');
+                    return;
+                }
+                
+                const lang = window.currentLanguage || 'en';
+                console.log('🌍 Текущий язык:', lang, 'Всего городов:', allCities.length);
+                citySelect.innerHTML = '<option value="" data-i18n="transfer_city_select">Выберите город</option>';
+                
+                const filteredCities = countryId 
+                    ? allCities.filter(city => city.countryId == countryId)
+                    : allCities;
+                
+                console.log('🔍 Отфильтровано городов:', filteredCities.length, 'для страны ID:', countryId || 'все');
+                
+                filteredCities.forEach((city, index) => {
+                    const option = document.createElement('option');
+                    option.value = city.id;
+                    option.textContent = lang === 'ru' ? city.nameRu : city.nameEn;
+                    citySelect.appendChild(option);
+                    console.log(`  ✓ Добавлен город #${index + 1}:`, option.textContent, '(ID:', city.id, 'CountryID:', city.countryId + ')');
+                });
+                console.log('✅ Всего опций городов в select:', citySelect.options.length);
+            }
+
+            // Загрузка автомобилей
+            async function loadVehicles() {
+                const selectDateMessage = document.getElementById('selectDateMessage');
+                const carouselSection = document.getElementById('vehicleCarouselSection');
+                const pickupDate = document.getElementById('pickupDate')?.value || '';
+                
+                // Если дата не выбрана - показываем сообщение и скрываем карусель
+                if (!pickupDate) {
+                    console.log('📅 Дата не выбрана - скрываем автомобили');
+                    selectDateMessage?.classList.remove('hidden');
+                    carouselSection?.classList.add('hidden');
+                    return;
+                }
+                
+                // Дата выбрана - скрываем сообщение
+                selectDateMessage?.classList.add('hidden');
+                
+                try {
+                    const lang = window.currentLanguage || 'en';
+                    console.log('🚗 Загрузка списка автомобилей...', `(дата: ${pickupDate})`);
+                    
+                    // Include date filter to show only vehicles with available drivers
+                    let url = `/api/vehicles?lang=${lang}&date=${pickupDate}`;
+                    
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    console.log('✅ Автомобили загружены:', data.data.length);
+                    if (data.success) {
+                        allVehicles = data.data.filter(v => v.isActive);
+                        console.log('🔧 Применение фильтров автомобилей, активных:', allVehicles.length);
+                        applyVehicleFilters();
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки автомобилей:', error);
+                }
+            }
+
+            // Применение фильтров к автомобилям
+            function applyVehicleFilters() {
+                const country = document.getElementById('transferCountry')?.value || '';
+                const city = document.getElementById('transferCity')?.value || '';
+                const type = document.getElementById('vehicleType')?.value || '';
+                const capacity = document.getElementById('vehicleCapacity')?.value || '';
+                
+                let filtered = allVehicles.filter(vehicle => {
+                    if (country && vehicle.countryId != country) return false;
+                    if (city && vehicle.cityId != city) return false;
+                    if (type && vehicle.type.toLowerCase() !== type.toLowerCase()) return false;
+                    
+                    if (capacity) {
+                        const cap = vehicle.capacity;
+                        if (capacity === '1-4' && (cap < 1 || cap > 4)) return false;
+                        if (capacity === '5-8' && (cap < 5 || cap > 8)) return false;
+                        if (capacity === '9-15' && (cap < 9 || cap > 15)) return false;
+                        if (capacity === '16+' && cap < 16) return false;
+                    }
+                    
+                    return true;
+                });
+                
+                renderVehicleCarousel(filtered);
+            }
+
+            // Отображение карусели автомобилей
+            function renderVehicleCarousel(vehicles) {
+                const carousel = document.getElementById('vehicleCarousel');
+                const carouselSection = document.getElementById('vehicleCarouselSection');
+                const noVehiclesMessage = document.getElementById('noVehiclesMessage');
+                
+                if (!carousel || !carouselSection) return;
+                
+                carousel.innerHTML = '';
+                
+                if (vehicles.length === 0) {
+                    carouselSection.classList.add('hidden');
+                    noVehiclesMessage?.classList.remove('hidden');
+                    return;
+                }
+                
+                carouselSection.classList.remove('hidden');
+                noVehiclesMessage?.classList.add('hidden');
+                
+                const lang = window.currentLanguage || 'en';
+                
+                vehicles.forEach(vehicle => {
+                    const card = createVehicleCarouselCard(vehicle, lang);
+                    carousel.appendChild(card);
+                });
+
+                // Обновляем цены с учётом выбранных дней
+                updateRentalDays();
+
+                // Настраиваем стрелки навигации
+                setupVehicleCarouselNav();
+            }
+
+            // Настройка кнопок-стрелок и подсказки для карусели машин
+            // Обработчики навешиваем только один раз; updateNavState работает с актуальным DOM при каждом ререндере
+            let vehicleCarouselNavInitialized = false;
+            function setupVehicleCarouselNav() {
+                const carousel = document.getElementById('vehicleCarousel');
+                if (!carousel) return;
+
+                const updateNavState = () => {
+                    const prevBtn = document.getElementById('vehicleCarouselPrev');
+                    const nextBtn = document.getElementById('vehicleCarouselNext');
+                    const hint = document.getElementById('vehicleCarouselHint');
+                    if (!prevBtn || !nextBtn) return;
+
+                    const isScrollable = carousel.scrollWidth - carousel.clientWidth > 4;
+                    if (!isScrollable) {
+                        prevBtn.classList.add('hidden');
+                        nextBtn.classList.add('hidden');
+                        hint?.classList.add('hidden');
+                        return;
+                    }
+                    prevBtn.classList.remove('hidden');
+                    nextBtn.classList.remove('hidden');
+                    hint?.classList.remove('hidden');
+
+                    const atStart = carousel.scrollLeft <= 4;
+                    const atEnd = carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 4;
+                    prevBtn.disabled = atStart;
+                    nextBtn.disabled = atEnd;
+                };
+
+                const scrollByCard = (direction) => {
+                    const firstCard = carousel.querySelector('.vehicle-carousel-card');
+                    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width : 280;
+                    const gap = 16;
+                    carousel.scrollBy({ left: direction * (cardWidth + gap), behavior: 'smooth' });
+                };
+
+                if (!vehicleCarouselNavInitialized) {
+                    const prevBtn = document.getElementById('vehicleCarouselPrev');
+                    const nextBtn = document.getElementById('vehicleCarouselNext');
+                    if (prevBtn) prevBtn.addEventListener('click', () => scrollByCard(-1));
+                    if (nextBtn) nextBtn.addEventListener('click', () => scrollByCard(1));
+                    carousel.addEventListener('scroll', updateNavState, { passive: true });
+                    window.addEventListener('resize', updateNavState);
+                    vehicleCarouselNavInitialized = true;
+                }
+
+                // Обновляем состояние кнопок после рендера
+                requestAnimationFrame(updateNavState);
+                setTimeout(updateNavState, 300);
+            }
+
+            // Создание карточки автомобиля для карусели
+            function createVehicleCarouselCard(vehicle, lang) {
+                const card = document.createElement('div');
+                card.className = 'vehicle-carousel-card';
+                if (selectedVehicleId === vehicle.id) {
+                    card.classList.add('selected');
+                }
+                
+                // Парсинг изображений
+                let vehicleImages = [];
+                if (vehicle.images) {
+                    try {
+                        const images = typeof vehicle.images === 'string' ? JSON.parse(vehicle.images) : vehicle.images;
+                        if (Array.isArray(images) && images.length > 0) {
+                            vehicleImages = images.map(img => {
+                                if (img.startsWith('http') || img.startsWith('/')) return img;
+                                return `/uploads/vehicles/${img}`;
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error parsing vehicle images:', e);
+                    }
+                }
+                
+                if (vehicleImages.length === 0) {
+                    vehicleImages = ['/api/placeholder/400/200'];
+                }
+                
+                const name = lang === 'ru' ? vehicle.nameRu : vehicle.nameEn;
+                const typeKey = `vehicles.type_${vehicle.type.toLowerCase()}`;
+                const typeTranslation = window.getTranslation ? window.getTranslation(typeKey, lang) : vehicle.type;
+                
+                // Создаём HTML для слайдера изображений
+                const hasMultipleImages = vehicleImages.length > 1;
+                const imagesHTML = vehicleImages.map((img, idx) => 
+                    `<img src="${img}" alt="${name}" onerror="this.src='/api/placeholder/400/200'">`
+                ).join('');
+                
+                const dotsHTML = hasMultipleImages ? `
+                    <div class="vehicle-slider-dots">
+                        ${vehicleImages.map((_, idx) => `<span class="vehicle-slider-dot ${idx === 0 ? 'active' : ''}" data-idx="${idx}"></span>`).join('')}
+                    </div>
+                ` : '';
+                
+                const buttonsHTML = hasMultipleImages ? `
+                    <button type="button" class="vehicle-slider-btn prev" onclick="event.stopPropagation(); slideVehicleImage(this, -1)">
+                        <i class="fas fa-chevron-left" style="font-size: 12px;"></i>
+                    </button>
+                    <button type="button" class="vehicle-slider-btn next" onclick="event.stopPropagation(); slideVehicleImage(this, 1)">
+                        <i class="fas fa-chevron-right" style="font-size: 12px;"></i>
+                    </button>
+                ` : '';
+                
+                const hasDescription = (vehicle.descriptionRu && vehicle.descriptionRu.trim()) || (vehicle.descriptionEn && vehicle.descriptionEn.trim());
+                const detailsBtnLabel = lang === 'ru' ? 'Детали' : 'Details';
+
+                card.innerHTML = `
+                    <div class="vehicle-images-slider" data-current="0" data-count="${vehicleImages.length}">
+                        <div class="vehicle-images-container">
+                            ${imagesHTML}
+                        </div>
+                        ${buttonsHTML}
+                        ${dotsHTML}
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-gray-900 mb-1">${name}</h4>
+                        <p class="text-sm text-gray-600 mb-2">
+                            <i class="fas fa-car mr-1"></i>${typeTranslation}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-users mr-1"></i>${vehicle.capacity} ${window.getTranslation ? window.getTranslation('vehicles.passengers', lang) : 'пассажиров'}
+                        </p>
+                        ${vehicle.pricePerDay ? `
+                            <p class="text-xs text-gray-500 mt-2">
+                                <span data-price-per-day="${vehicle.pricePerDay}" data-currency="${vehicle.currency || 'TJS'}" data-per-day-display>${formatVehiclePrice(vehicle.pricePerDay)}</span>/${window.getTranslation ? window.getTranslation('vehicles.per_day', lang) : 'день'}
+                            </p>
+                            <p class="text-sm font-bold text-gray-900 mt-1" data-total-price>
+                                ${formatVehiclePrice(vehicle.pricePerDay)}
+                            </p>
+                        ` : ''}
+                        ${hasDescription ? `
+                            <button
+                                type="button"
+                                class="vehicle-details-btn mt-3 w-full text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-lg py-2 hover:bg-gray-100 transition-colors"
+                                onclick="event.stopPropagation(); openVehicleDetailsModal(${vehicle.id})">
+                                <i class="fas fa-info-circle mr-1"></i>${detailsBtnLabel}
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => selectVehicle(vehicle.id));
+                
+                return card;
+            }
+
+            // Выбор автомобиля
+            function selectVehicle(vehicleId) {
+                selectedVehicleId = vehicleId;
+                document.querySelectorAll('.vehicle-carousel-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                event.currentTarget.classList.add('selected');
+                console.log('Выбран автомобиль:', vehicleId);
+            }
+
+            // Обработчики изменения фильтров
+            document.getElementById('transferCountry')?.addEventListener('change', (e) => {
+                const countryId = e.target.value;
+                populateCitySelect(countryId);
+                document.getElementById('transferCity').value = '';
+                applyVehicleFilters();
+            });
+
+            document.getElementById('transferCity')?.addEventListener('change', applyVehicleFilters);
+            document.getElementById('vehicleType')?.addEventListener('change', applyVehicleFilters);
+            document.getElementById('vehicleCapacity')?.addEventListener('change', applyVehicleFilters);
+            
+            // Расчёт количества дней аренды и обновление отображения цен
+            function updateRentalDays() {
+                const startVal = document.getElementById('pickupDate')?.value;
+                const endVal = document.getElementById('dropoffDate')?.value;
+                const infoEl = document.getElementById('rentalDaysInfo');
+                const countEl = document.getElementById('rentalDaysCount');
+
+                if (!startVal || !endVal) {
+                    infoEl?.classList.add('hidden');
+                    return;
+                }
+
+                const start = new Date(startVal);
+                const end = new Date(endVal);
+                const MS_PER_DAY = 1000 * 60 * 60 * 24;
+                // Включительный расчёт: 23→25 = 3 дня, 23→23 = 1 день
+                const diffDays = Math.floor((end - start) / MS_PER_DAY);
+                const days = diffDays + 1;
+
+                if (days < 1) {
+                    infoEl?.classList.add('hidden');
+                    return;
+                }
+
+                if (countEl) countEl.textContent = days;
+                infoEl?.classList.remove('hidden');
+
+                // 🆕 Обновляем отображение цен (с учётом валюты + суточных расходов водителя)
+                refreshVehicleCardPrices();
+            }
+
+            // Обработчик смены языка - обновляем селекты стран, городов и локаль календаря
+            window.addEventListener('languageChanged', (e) => {
+                const newLang = e.detail.language;
+                console.log('🌍 Язык изменен на:', newLang, '- обновляем селекты стран и городов');
+                const selectedCountryId = document.getElementById('transferCountry')?.value;
+                populateCountrySelect();
+                if (selectedCountryId) {
+                    document.getElementById('transferCountry').value = selectedCountryId;
+                    populateCitySelect(selectedCountryId);
+                } else {
+                    populateCitySelect();
+                }
+                // Переинициализируем Flatpickr с новой локалью
+                initDatePickers(newLang);
+                // Обновляем также карусель автомобилей
+                loadVehicles();
+            });
+
+            // Функция слайдера изображений транспорта
+            window.slideVehicleImage = function(btn, direction) {
+                const slider = btn.closest('.vehicle-images-slider');
+                if (!slider) return;
+                
+                const container = slider.querySelector('.vehicle-images-container');
+                const count = parseInt(slider.dataset.count) || 1;
+                let current = parseInt(slider.dataset.current) || 0;
+                
+                current += direction;
+                if (current < 0) current = count - 1;
+                if (current >= count) current = 0;
+                
+                slider.dataset.current = current;
+                container.style.transform = `translateX(-${current * 100}%)`;
+                
+                // Обновляем точки
+                const dots = slider.querySelectorAll('.vehicle-slider-dot');
+                dots.forEach((dot, idx) => {
+                    dot.classList.toggle('active', idx === current);
+                });
+            };
+
+            // Инициализация при загрузке
+            console.log('🚗 Инициализация трансфера: загрузка стран и городов...');
+            loadCountries();
+            loadCities();
+            // Автомобили загружаются только после выбора даты
+
+            // --- Модальное окно "Детали" автомобиля ---
+            window.openVehicleDetailsModal = function(vehicleId) {
+                const vehicle = allVehicles.find(v => v.id === vehicleId);
+                if (!vehicle) return;
+
+                const lang = window.currentLanguage || 'en';
+                const name = lang === 'ru' ? (vehicle.nameRu || vehicle.nameEn) : (vehicle.nameEn || vehicle.nameRu);
+                const description = lang === 'ru'
+                    ? (vehicle.descriptionRu || vehicle.descriptionEn)
+                    : (vehicle.descriptionEn || vehicle.descriptionRu);
+                const noDescText = lang === 'ru' ? 'Описание не добавлено' : 'No description available';
+                const closeLabel = lang === 'ru' ? 'Закрыть' : 'Close';
+
+                document.getElementById('vehicleDetailsName').textContent = name || '';
+                document.getElementById('vehicleDetailsDescription').textContent = description && description.trim() ? description : noDescText;
+                document.getElementById('vehicleDetailsCloseBtn').textContent = closeLabel;
+
+                const modal = document.getElementById('vehicleDetailsModal');
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            };
+
+            window.closeVehicleDetailsModal = function() {
+                document.getElementById('vehicleDetailsModal').style.display = 'none';
+                document.body.style.overflow = '';
+            };
+
+            // Закрытие по клавише Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('vehicleDetailsModal');
+                    if (modal && modal.style.display !== 'none') {
+                        window.closeVehicleDetailsModal();
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Модальное окно: детали автомобиля -->
+    <div id="vehicleDetailsModal"
+         style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; z-index:9999;
+                background:rgba(0,0,0,0.6); align-items:center; justify-content:center; padding:16px;"
+         onclick="if(event.target===this)closeVehicleDetailsModal()">
+        <div style="background:#ffffff; border-radius:16px; box-shadow:0 24px 64px rgba(0,0,0,0.28);
+                    width:100%; max-width:520px; max-height:88vh; display:flex; flex-direction:column;
+                    overflow:hidden; position:relative;">
+            <!-- Шапка -->
+            <div style="display:flex; align-items:flex-start; justify-content:space-between;
+                        padding:20px 24px 18px; border-bottom:1px solid #e5e7eb; gap:12px; flex-shrink:0;">
+                <h3 id="vehicleDetailsName"
+                    style="margin:0; font-size:17px; font-weight:700; color:#111827; line-height:1.35;"></h3>
+                <button type="button"
+                        onclick="closeVehicleDetailsModal()"
+                        style="flex-shrink:0; background:none; border:none; cursor:pointer;
+                               color:#9ca3af; padding:0; line-height:0; transition:color 0.15s;"
+                        onmouseover="this.style.color='#374151'"
+                        onmouseout="this.style.color='#9ca3af'"
+                        aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none"
+                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <!-- Тело -->
+            <div style="padding:20px 24px; overflow-y:auto; flex:1;">
+                <p id="vehicleDetailsDescription"
+                   style="margin:0; font-size:14px; line-height:1.75; color:#4b5563; white-space:pre-wrap;"></p>
+            </div>
+            <!-- Подвал -->
+            <div style="padding:16px 24px; border-top:1px solid #e5e7eb; flex-shrink:0;">
+                <button id="vehicleDetailsCloseBtn"
+                        type="button"
+                        onclick="closeVehicleDetailsModal()"
+                        style="width:100%; background:#1f2937; color:#ffffff; border:none;
+                               border-radius:10px; padding:12px 20px; font-size:14px; font-weight:600;
+                               cursor:pointer; transition:background 0.15s;"
+                        onmouseover="this.style.background='#374151'"
+                        onmouseout="this.style.background='#1f2937'">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

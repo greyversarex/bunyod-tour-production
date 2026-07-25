@@ -1,0 +1,590 @@
+import { Request, Response } from 'express';
+import prisma from '../config/database';
+import { Prisma } from '@prisma/client';
+import { 
+  getLanguageFromRequest, 
+  createLocalizedResponse, 
+  parseMultilingualField,
+  safeJsonParse
+} from '../utils/multilingual';
+import { isDriverDateSelectionEnabled } from '../utils/dateAvailabilitySettings';
+
+// Translation function for vehicle types
+const getVehicleTypeTranslation = (type: string | null, language: string): string => {
+  if (!type) return '';
+  
+  const translations: Record<string, { ru: string; en: string }> = {
+    'sedan': { ru: 'Седан', en: 'Sedan' },
+    'suv': { ru: 'Внедорожник', en: 'SUV' },
+    'minibus': { ru: 'Микроавтобус', en: 'Minibus' },
+    'bus': { ru: 'Автобус', en: 'Bus' },
+    'minivan': { ru: 'Минивэн', en: 'Minivan' },
+    'luxury': { ru: 'Люкс', en: 'Luxury' }
+  };
+  
+  return translations[type.toLowerCase()]?.[language as 'ru' | 'en'] || type;
+};
+
+// Get all vehicles with multilingual support
+// GET /api/vehicles?lang=en/ru&includeRaw=true&date=2025-01-15
+export const getVehicles = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const language = getLanguageFromRequest(req);
+    const includeRaw = req.query.includeRaw === 'true';
+    const filterDate = req.query.date as string | undefined;
+    
+    let vehicles = await prisma.vehicle.findMany({
+      include: {
+        vehicleCountry: true,
+        vehicleCity: true,
+        driver: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+    
+    // Filter by driver availability if date is provided.
+    // Когда выбор дат выключен — все машины доступны на любую будущую дату,
+    // поэтому фильтрацию по доступным датам водителя пропускаем.
+    const selectionEnabled = await isDriverDateSelectionEnabled();
+    if (filterDate && selectionEnabled) {
+      const selectedDate = new Date(filterDate);
+      const dayOfWeek = selectedDate.getDay(); // 0=Sunday, 1=Monday, etc.
+      
+      vehicles = vehicles.filter((vehicle: any) => {
+        // If vehicle has no driver, it's always available
+        if (!vehicle.driver) return true;
+        
+        // Check if driver has availableDates (new calendar system) - prioritize this
+        if (vehicle.driver.availableDates) {
+          try {
+            let driverDates = vehicle.driver.availableDates;
+            if (typeof driverDates === 'string') {
+              driverDates = JSON.parse(driverDates);
+            }
+            
+            if (Array.isArray(driverDates) && driverDates.length > 0) {
+              // Check if the selected date is in driver's available dates
+              const isAvailable = driverDates.includes(filterDate);
+              console.log(`🚗 Driver ${vehicle.driver.id} availableDates check: ${filterDate} -> ${isAvailable}`);
+              return isAvailable;
+            }
+          } catch (e) {
+            console.error('Error parsing driver availableDates:', e);
+          }
+        }
+        
+        // Fallback to availableDays (legacy day-of-week system)
+        if (!vehicle.driver.availableDays) return true;
+        
+        try {
+          let driverDays = vehicle.driver.availableDays;
+          if (typeof driverDays === 'string') {
+            driverDays = JSON.parse(driverDays);
+          }
+          
+          if (!Array.isArray(driverDays) || driverDays.length === 0) return true;
+          
+          // Check if dayOfWeek is in driver's available days
+          const isAvailable = driverDays.includes(String(dayOfWeek)) || driverDays.includes(dayOfWeek);
+          return isAvailable;
+        } catch (e) {
+          console.error('Error parsing driver availableDays:', e);
+          return true; // Show vehicle if parsing fails
+        }
+      });
+      
+      console.log(`🚗 Vehicles filtered by date ${filterDate} (day: ${dayOfWeek}): ${vehicles.length} available`);
+    }
+
+    // Localize vehicles data with safe JSON parsing
+    const localizedVehicles = vehicles.map((vehicle: any) => {
+      try {
+        if (includeRaw) {
+          // FOR ADMIN: return ONLY SAFE fields + raw JSON + localized fields
+          return {
+            id: vehicle.id,
+            type: vehicle.type,
+            typeTranslated: getVehicleTypeTranslation(vehicle.type, language),
+            licensePlate: vehicle.licensePlate,
+            capacity: vehicle.capacity,
+            images: vehicle.images,
+            pricePerDay: vehicle.pricePerDay,
+            currency: vehicle.currency,
+            countryId: vehicle.countryId,
+            cityId: vehicle.cityId,
+            country: vehicle.vehicleCountry,
+            city: vehicle.vehicleCity,
+            driver: vehicle.driver,
+            driverId: vehicle.driverId,
+            brand: vehicle.brand,
+            year: vehicle.year,
+            isActive: vehicle.isActive,
+            createdAt: vehicle.createdAt,
+            updatedAt: vehicle.updatedAt,
+            _localized: {
+              name: parseMultilingualField(vehicle.name, language),
+              description: parseMultilingualField(vehicle.description, language)
+            },
+            _raw: {
+              name: safeJsonParse(vehicle.name),
+              description: safeJsonParse(vehicle.description)
+            }
+          };
+        } else {
+          // FOR PUBLIC USE: include both languages for frontend
+          const parsedName = safeJsonParse(vehicle.name);
+          const parsedDescription = safeJsonParse(vehicle.description);
+          
+          return {
+            ...vehicle,
+            name: parseMultilingualField(vehicle.name, language),
+            nameRu: typeof parsedName === 'object' ? parsedName.ru : parsedName,
+            nameEn: typeof parsedName === 'object' ? parsedName.en : parsedName,
+            description: parseMultilingualField(vehicle.description, language),
+            descriptionRu: typeof parsedDescription === 'object' ? parsedDescription.ru : parsedDescription,
+            descriptionEn: typeof parsedDescription === 'object' ? parsedDescription.en : parsedDescription,
+            typeTranslated: getVehicleTypeTranslation(vehicle.type, language),
+            country: vehicle.vehicleCountry,
+            city: vehicle.vehicleCity
+          };
+        }
+      } catch (jsonError) {
+        console.error('Error parsing vehicle JSON fields:', jsonError, 'Vehicle ID:', vehicle.id);
+        return {
+          ...vehicle,
+          name: vehicle.name || '',
+          description: vehicle.description || ''
+        };
+      }
+    });
+
+    const response = createLocalizedResponse(
+      localizedVehicles,
+      [],
+      language,
+      'Vehicles retrieved successfully'
+    );
+
+    return res.json(response);
+  } catch (error) {
+    console.error('Error fetching vehicles:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching vehicles',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Get single vehicle with multilingual support
+// GET /api/vehicles/:id?lang=en/ru&includeRaw=true
+export const getVehicle = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { id } = req.params;
+    const language = getLanguageFromRequest(req);
+    const includeRaw = req.query.includeRaw === 'true';
+    
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        vehicleCountry: true,
+        vehicleCity: true,
+        driver: true
+      }
+    });
+    
+    if (!vehicle) {
+      return res.status(404).json({
+        success: false,
+        message: 'Vehicle not found'
+      });
+    }
+
+    // Localize vehicle data
+    let localizedVehicle;
+    try {
+      if (includeRaw) {
+        localizedVehicle = {
+          id: vehicle.id,
+          type: vehicle.type,
+          typeTranslated: getVehicleTypeTranslation(vehicle.type, language),
+          licensePlate: vehicle.licensePlate,
+          capacity: vehicle.capacity,
+          images: vehicle.images,
+          pricePerDay: vehicle.pricePerDay,
+          currency: vehicle.currency,
+          countryId: vehicle.countryId,
+          cityId: vehicle.cityId,
+          driverId: vehicle.driverId,
+          country: vehicle.vehicleCountry,
+          city: vehicle.vehicleCity,
+          driver: vehicle.driver,
+          brand: vehicle.brand,
+          year: vehicle.year,
+          isActive: vehicle.isActive,
+          createdAt: vehicle.createdAt,
+          updatedAt: vehicle.updatedAt,
+          _localized: {
+            name: parseMultilingualField(vehicle.name, language),
+            description: parseMultilingualField(vehicle.description, language)
+          },
+          _raw: {
+            name: safeJsonParse(vehicle.name),
+            description: safeJsonParse(vehicle.description)
+          }
+        };
+      } else {
+        const parsedName = safeJsonParse(vehicle.name);
+        const parsedDescription = safeJsonParse(vehicle.description);
+        
+        localizedVehicle = {
+          ...vehicle,
+          name: parseMultilingualField(vehicle.name, language),
+          nameRu: typeof parsedName === 'object' ? parsedName.ru : parsedName,
+          nameEn: typeof parsedName === 'object' ? parsedName.en : parsedName,
+          description: parseMultilingualField(vehicle.description, language),
+          descriptionRu: typeof parsedDescription === 'object' ? parsedDescription.ru : parsedDescription,
+          descriptionEn: typeof parsedDescription === 'object' ? parsedDescription.en : parsedDescription,
+          typeTranslated: getVehicleTypeTranslation(vehicle.type, language),
+          country: vehicle.vehicleCountry,
+          city: vehicle.vehicleCity
+        };
+      }
+    } catch (jsonError) {
+      console.error('Error parsing vehicle JSON fields:', jsonError);
+      localizedVehicle = {
+        ...vehicle,
+        name: vehicle.name || '',
+        description: vehicle.description || ''
+      };
+    }
+
+    const response = createLocalizedResponse(
+      localizedVehicle,
+      [],
+      language,
+      'Vehicle retrieved successfully'
+    );
+
+    return res.json(response);
+  } catch (error) {
+    console.error('Error fetching vehicle:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching vehicle',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Create vehicle
+// POST /api/vehicles
+export const createVehicle = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    let { 
+      name, 
+      description, 
+      type, 
+      licensePlate, 
+      capacity, 
+      pricePerDay, 
+      currency, 
+      countryId, 
+      cityId,
+      driverId,
+      brand,
+      year,
+      isActive 
+    } = req.body;
+
+    // Parse JSON strings if needed (from FormData)
+    if (typeof name === 'string') {
+      try {
+        name = JSON.parse(name);
+        req.body.name = name;
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid name format - must be valid JSON'
+        });
+      }
+    }
+    
+    if (description && typeof description === 'string') {
+      try {
+        description = JSON.parse(description);
+        req.body.description = description;
+      } catch (e) {
+        // description can be a simple string, ignore parsing error
+      }
+    }
+
+    // Validation
+    if (!name || !name.ru || !name.en) {
+      return res.status(400).json({
+        success: false,
+        error: 'Vehicle name is required in both Russian and English'
+      });
+    }
+
+    if (!type) {
+      return res.status(400).json({
+        success: false,
+        error: 'Vehicle type is required'
+      });
+    }
+
+    if (!licensePlate) {
+      return res.status(400).json({
+        success: false,
+        error: 'License plate is required'
+      });
+    }
+
+    if (!capacity || capacity < 1) {
+      return res.status(400).json({
+        success: false,
+        error: 'Valid capacity is required'
+      });
+    }
+
+    // Check if license plate already exists
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { licensePlate }
+    });
+
+    if (existingVehicle) {
+      return res.status(400).json({
+        success: false,
+        error: 'Vehicle with this license plate already exists'
+      });
+    }
+
+    // Process uploaded image files
+    const files = req.files as Express.Multer.File[];
+    let imagePaths: string[] = [];
+    
+    if (files && files.length > 0) {
+      imagePaths = files.map(file => `/uploads/vehicles/${file.filename}`);
+    }
+
+    // Create vehicle
+    const vehicle = await prisma.vehicle.create({
+      data: {
+        name,
+        description: description || { ru: '', en: '' },
+        type: type.toLowerCase(),
+        licensePlate,
+        capacity: parseInt(capacity),
+        images: imagePaths.length > 0 ? imagePaths : Prisma.JsonNull,
+        pricePerDay: pricePerDay ? parseFloat(pricePerDay) : null,
+        currency: currency || 'TJS',
+        countryId: countryId ? parseInt(countryId) : null,
+        cityId: cityId ? parseInt(cityId) : null,
+        driverId: driverId ? parseInt(driverId) : null,
+        brand: brand || null,
+        year: year ? parseInt(year) : null,
+        isActive: isActive !== undefined ? (isActive === 'true' || isActive === true) : true
+      },
+      include: {
+        vehicleCountry: true,
+        vehicleCity: true,
+        driver: true
+      }
+    });
+
+    return res.status(201).json({
+      success: true,
+      data: vehicle,
+      message: 'Vehicle created successfully'
+    });
+  } catch (error) {
+    console.error('Error creating vehicle:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error creating vehicle',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Update vehicle
+// PUT /api/vehicles/:id
+export const updateVehicle = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { id } = req.params;
+    let { 
+      name, 
+      description, 
+      type, 
+      licensePlate, 
+      capacity, 
+      images, 
+      pricePerDay, 
+      currency, 
+      countryId, 
+      cityId,
+      driverId,
+      brand,
+      year,
+      isActive 
+    } = req.body;
+
+    // Check if vehicle exists
+    const existingVehicle = await prisma.vehicle.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existingVehicle) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vehicle not found'
+      });
+    }
+
+    // Parse JSON strings if needed
+    if (name && typeof name === 'string') {
+      try {
+        name = JSON.parse(name);
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid name format - must be valid JSON'
+        });
+      }
+    }
+    
+    if (description && typeof description === 'string') {
+      try {
+        description = JSON.parse(description);
+      } catch (e) {
+        // description can be a simple string, ignore parsing error
+      }
+    }
+
+    // Check license plate uniqueness if changed
+    if (licensePlate && licensePlate !== existingVehicle.licensePlate) {
+      const duplicatePlate = await prisma.vehicle.findUnique({
+        where: { licensePlate }
+      });
+
+      if (duplicatePlate) {
+        return res.status(400).json({
+          success: false,
+          error: 'Vehicle with this license plate already exists'
+        });
+      }
+    }
+
+    // Process uploaded image files
+    const files = req.files as Express.Multer.File[];
+    
+    // Prepare update data
+    const updateData: any = {};
+    if (name) updateData.name = name;
+    if (description !== undefined) updateData.description = description;
+    if (type) updateData.type = type.toLowerCase();
+    if (licensePlate) updateData.licensePlate = licensePlate;
+    if (capacity) updateData.capacity = parseInt(capacity);
+    
+    // Handle existing images (from edit form) and new uploaded files
+    const { existingImages } = req.body;
+    let finalImages: string[] = [];
+    
+    // Parse existing images if provided
+    if (existingImages) {
+      try {
+        const parsedExisting = typeof existingImages === 'string' ? JSON.parse(existingImages) : existingImages;
+        if (Array.isArray(parsedExisting)) {
+          finalImages = parsedExisting;
+        }
+      } catch (e) {
+        console.error('Error parsing existingImages:', e);
+      }
+    }
+    
+    // Add new uploaded files
+    if (files && files.length > 0) {
+      const newImagePaths = files.map(file => `/uploads/vehicles/${file.filename}`);
+      finalImages = [...finalImages, ...newImagePaths];
+    }
+    
+    // Update images if we have any changes (either existing or new)
+    if (existingImages !== undefined || (files && files.length > 0)) {
+      updateData.images = finalImages;
+    }
+    // If neither existingImages nor new files provided, keep existing images in DB
+    
+    if (pricePerDay !== undefined) updateData.pricePerDay = pricePerDay ? parseFloat(pricePerDay) : null;
+    if (currency) updateData.currency = currency;
+    if (countryId !== undefined) updateData.countryId = countryId ? parseInt(countryId) : null;
+    if (cityId !== undefined) updateData.cityId = cityId ? parseInt(cityId) : null;
+    if (driverId !== undefined) updateData.driverId = driverId ? parseInt(driverId) : null;
+    if (brand !== undefined) updateData.brand = brand || null;
+    if (year !== undefined) updateData.year = year ? parseInt(year) : null;
+    if (isActive !== undefined) updateData.isActive = (isActive === 'true' || isActive === true);
+
+    // Update vehicle
+    const vehicle = await prisma.vehicle.update({
+      where: { id: parseInt(id) },
+      data: updateData,
+      include: {
+        vehicleCountry: true,
+        vehicleCity: true,
+        driver: true
+      }
+    });
+
+    return res.json({
+      success: true,
+      data: vehicle,
+      message: 'Vehicle updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating vehicle:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error updating vehicle',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// Delete vehicle
+// DELETE /api/vehicles/:id
+export const deleteVehicle = async (req: Request, res: Response): Promise<Response> => {
+  try {
+    const { id } = req.params;
+
+    // Check if vehicle exists
+    const vehicle = await prisma.vehicle.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!vehicle) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vehicle not found'
+      });
+    }
+
+    // Delete vehicle
+    await prisma.vehicle.delete({
+      where: { id: parseInt(id) }
+    });
+
+    return res.json({
+      success: true,
+      message: 'Vehicle deleted successfully'
+    });
+  } catch (error) {
+    console.error('Error deleting vehicle:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error deleting vehicle',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};

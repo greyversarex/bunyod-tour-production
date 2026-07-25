@@ -1,0 +1,512 @@
+/**
+ * 🗄️ АВТОМАТИЧЕСКАЯ ИНИЦИАЛИЗАЦИЯ БАЗЫ ДАННЫХ
+ * 
+ * Этот файл создает базовые данные при развертывании на новом сервере.
+ * Запускается автоматически при старте сервера если база данных пустая.
+ */
+
+import prisma from '../config/database';
+import { safeInitializeWithVersioning, completeInitialization } from './migrationVersioning';
+
+/**
+ * 🏷️ Миграция категорий к правильному набору (15 истинных категорий)
+ */
+async function migrateCategoriesToCorrectSet() {
+    console.log('🔄 Миграция категорий к правильному набору...');
+    
+    // 🎯 ИСТИННЫЕ КАТЕГОРИИ согласно навигационному меню сайта (RU/EN ТОЛЬКО!)
+    const correctCategories = [
+        { name: JSON.stringify({ en: "One-day", ru: "Однодневный" }), legacyNames: ["однодневные", "однодневные туры", "day", "day tours"] },
+        { name: JSON.stringify({ en: "Multi-day", ru: "Многодневный" }), legacyNames: ["многодневные", "многодневные туры", "multi-day tours"] },
+        { name: JSON.stringify({ en: "Excursion", ru: "Экскурсия" }), legacyNames: ["экскурсии", "excursions"] },
+        { name: JSON.stringify({ en: "City", ru: "Городской" }), legacyNames: ["городские", "городские туры", "city tours"] },
+        { name: JSON.stringify({ en: "Nature/Eco", ru: "Природа/экологический" }), legacyNames: ["природа/экологические", "природа/экологические туры", "nature/ecological", "nature/ecological tours", "nature/eco tours"] },
+        { name: JSON.stringify({ en: "Cultural & Educational", ru: "Культурно познавательный" }), legacyNames: ["культурно познавательные", "культурно познавательные туры", "cultural & educational tours", "cultural educational tours"] },
+        { name: JSON.stringify({ en: "Historical", ru: "Исторический" }), legacyNames: ["исторические", "исторические туры", "historical tours"] },
+        { name: JSON.stringify({ en: "Hiking/Trekking", ru: "Походы/трекинг" }), legacyNames: ["походы/треккинги", "hiking/trekking"] },
+        { name: JSON.stringify({ en: "Mountain Landscapes", ru: "Горные ландшафты" }), legacyNames: ["горные туры", "mountain tours", "mountain landscapes"] },
+        { name: JSON.stringify({ en: "Lake Landscapes", ru: "Озерные ландшафты" }), legacyNames: ["озерные туры", "lake tours", "lake landscapes"] },
+        { name: JSON.stringify({ en: "Adventure", ru: "Приключенческий" }), legacyNames: ["приключенческие", "приключенческие туры", "adventure tours"] },
+        { name: JSON.stringify({ en: "Gastronomic", ru: "Гастрономический" }), legacyNames: ["гастрономические", "гастрономические туры", "gastronomic tours"] },
+        { name: JSON.stringify({ en: "Car/Safari/Jeep", ru: "Авто/сафари/джип" }), legacyNames: ["автотуры/сафари/джип-туры", "auto/safari/jeep", "auto tours/safari/jeep tours"] },
+        { name: JSON.stringify({ en: "Agrotourism", ru: "Агротуризм" }), legacyNames: ["агротуры", "agro tours", "agro"] },
+        { name: JSON.stringify({ en: "VIP", ru: "VIP" }), legacyNames: ["vip туры", "vip tours"] }
+    ];
+    
+    try {
+        const existingCategories = await prisma.category.findMany({
+            include: { _count: { select: { tours: true } } }
+        });
+        
+        console.log(`📊 Найдено ${existingCategories.length} существующих категорий`);
+        const processedIds = new Set();
+        
+        // Нормализуем каждую каноническую категорию
+        for (const canonical of correctCategories) {
+            const canonicalParsed = JSON.parse(canonical.name);
+            const canonicalRuNorm = canonicalParsed.ru.toLowerCase().trim();
+            const canonicalEnNorm = canonicalParsed.en.toLowerCase().trim();
+            
+            // Находим существующие категории, которые могут соответствовать этой канонической
+            const matchingCategories = existingCategories.filter((cat: any) => {
+                if (processedIds.has(cat.id)) return false;
+                
+                try {
+                    const parsed = JSON.parse(cat.name);
+                    const ruLower = (parsed.ru || '').toLowerCase().trim();
+                    const enLower = (parsed.en || '').toLowerCase().trim();
+                    
+                    // Exact match first
+                    if (ruLower === canonicalRuNorm || enLower === canonicalEnNorm) return true;
+                    
+                    // Legacy name match
+                    return canonical.legacyNames.some((legacy: string) => 
+                        ruLower === legacy.toLowerCase() || enLower === legacy.toLowerCase()
+                    );
+                } catch {
+                    return false;
+                }
+            });
+            
+            if (matchingCategories.length > 0) {
+                // Берем первую найденную категорию и обновляем её
+                const primary = matchingCategories[0];
+                await prisma.category.update({
+                    where: { id: primary.id },
+                    data: { name: canonical.name }
+                });
+                processedIds.add(primary.id);
+                console.log(`🔄 Обновлена категория ID ${primary.id}: ${primary.name} → ${canonical.name}`);
+                
+                // Если есть дубликаты, переносим их туры и удаляем
+                for (let i = 1; i < matchingCategories.length; i++) {
+                    const duplicate = matchingCategories[i];
+                    await prisma.tour.updateMany({
+                        where: { categoryId: duplicate.id },
+                        data: { categoryId: primary.id }
+                    });
+                    await prisma.category.delete({ where: { id: duplicate.id } });
+                    processedIds.add(duplicate.id);
+                    console.log(`🗑️ Удален дубликат ID ${duplicate.id}, туры перенесены на ID ${primary.id}`);
+                }
+            } else {
+                // Создаем новую категорию
+                const newCat = await prisma.category.create({ data: { name: canonical.name } });
+                processedIds.add(newCat.id);
+                console.log(`✅ Создана новая категория: ${canonicalParsed.ru}`);
+            }
+        }
+        
+        // Проверяем несопоставленные категории
+        const unmatched = existingCategories.filter((cat: any) => !processedIds.has(cat.id));
+        if (unmatched.length > 0) {
+            console.warn(`⚠️ Найдено ${unmatched.length} несопоставленных категорий:`);
+            for (const cat of unmatched) {
+                console.warn(`   - "${cat.name}" (ID: ${cat.id}, туров: ${cat._count.tours})`);
+                // Удаляем только пустые несопоставленные категории
+                if (cat._count.tours === 0) {
+                    await prisma.category.delete({ where: { id: cat.id } });
+                    console.log(`🗑️ Удалена пустая несопоставленная категория: ${cat.name}`);
+                } else {
+                    console.warn(`⚠️ Категория "${cat.name}" содержит ${cat._count.tours} туров и требует ручной проверки через админ-панель`);
+                }
+            }
+        }
+        
+        console.log(`✅ Миграция категорий завершена! Всего должно быть ${correctCategories.length} категорий`);
+        
+    } catch (error) {
+        console.error('❌ Ошибка при миграции категорий:', error);
+        throw error;
+    }
+}
+
+/**
+ * 🏷️ Создание категорий по умолчанию (только для пустых БД)
+ */
+async function createDefaultCategories() {
+    console.log('🏷️ Создание категорий по умолчанию...');
+    
+    // Эта функция теперь вызывает миграцию
+    await migrateCategoriesToCorrectSet();
+}
+
+/**
+ * 📋 Создание блоков туров по умолчанию
+ */
+async function createDefaultTourBlocks() {
+    console.log('📋 Создание блоков туров по умолчанию...');
+    
+    const tourBlocks = [
+        {
+            title: JSON.stringify({ ru: "Популярные туры", en: "Popular Tours" }),
+            description: JSON.stringify({ ru: "Самые востребованные туры нашей компании", en: "Most popular tours of our company" }),
+            slug: "popular-tours",
+            isActive: true,
+            sortOrder: 1
+        },
+        {
+            title: JSON.stringify({ ru: "Рекомендованные туры по Центральной Азии", en: "Recommended Central Asia Tours" }),
+            description: JSON.stringify({ ru: "Лучшие туры для знакомства с Центральной Азией", en: "Best tours to discover Central Asia" }),
+            slug: "recommended-central-asia",
+            isActive: true,
+            sortOrder: 2
+        },
+        {
+            title: JSON.stringify({ ru: "Туры по Таджикистану", en: "Tajikistan Tours" }),
+            description: JSON.stringify({ ru: "Откройте для себя красоты Таджикистана", en: "Discover the beauty of Tajikistan" }),
+            slug: "tajikistan-tours",
+            isActive: true,
+            sortOrder: 3
+        },
+        {
+            title: JSON.stringify({ ru: "Туры по Узбекистану", en: "Uzbekistan Tours" }),
+            description: JSON.stringify({ ru: "Исследуйте древние города Узбекистана", en: "Explore ancient cities of Uzbekistan" }),
+            slug: "uzbekistan-tours",
+            isActive: true,
+            sortOrder: 4
+        },
+        {
+            title: JSON.stringify({ ru: "Туры по Кыргызстану", en: "Kyrgyzstan Tours" }),
+            description: JSON.stringify({ ru: "Горные приключения в Кыргызстане", en: "Mountain adventures in Kyrgyzstan" }),
+            slug: "kyrgyzstan-tours",
+            isActive: true,
+            sortOrder: 5
+        },
+        {
+            title: JSON.stringify({ ru: "Эксклюзивные туры", en: "Exclusive Tours" }),
+            description: JSON.stringify({ ru: "Уникальные и эксклюзивные туристические программы", en: "Unique and exclusive tour programs" }),
+            slug: "exclusive-tours",
+            isActive: true,
+            sortOrder: 6
+        }
+    ];
+    
+    for (const block of tourBlocks) {
+        await prisma.tourBlock.create({
+            data: block
+        });
+    }
+    
+    console.log(`✅ Создано ${tourBlocks.length} блоков туров по умолчанию`);
+}
+
+/**
+ * 🌍 Создание стран по умолчанию
+ */
+async function createDefaultCountries() {
+    console.log('🌍 Создание стран по умолчанию...');
+    
+    const countries = [
+        { name: "Таджикистан", nameRu: "Таджикистан", nameEn: "Tajikistan", code: "TJ" },
+        { name: "Узбекистан", nameRu: "Узбекистан", nameEn: "Uzbekistan", code: "UZ" },
+        { name: "Кыргызстан", nameRu: "Кыргызстан", nameEn: "Kyrgyzstan", code: "KG" },
+        { name: "Казахстан", nameRu: "Казахстан", nameEn: "Kazakhstan", code: "KZ" },
+        { name: "Туркменистан", nameRu: "Туркменистан", nameEn: "Turkmenistan", code: "TM" }
+    ];
+    
+    for (const country of countries) {
+        await prisma.country.create({
+            data: country
+        });
+    }
+    
+    console.log(`✅ Создано ${countries.length} стран по умолчанию`);
+}
+
+/**
+ * 🏙️ Создание городов по умолчанию
+ */
+async function createDefaultCities() {
+    console.log('🏙️ Создание городов по умолчанию...');
+    
+    // Сначала получаем ID стран
+    const countries = await prisma.country.findMany();
+    const countryMap = new Map();
+    countries.forEach((country: any) => {
+        countryMap.set(country.name, country.id);
+    });
+    
+    const cities = [
+        { name: "Душанбе", nameRu: "Душанбе", nameEn: "Dushanbe", countryId: countryMap.get("Таджикистан") },
+        { name: "Худжанд", nameRu: "Худжанд", nameEn: "Khujand", countryId: countryMap.get("Таджикистан") },
+        { name: "Хорог", nameRu: "Хорог", nameEn: "Khorog", countryId: countryMap.get("Таджикистан") },
+        { name: "Ташкент", nameRu: "Ташкент", nameEn: "Tashkent", countryId: countryMap.get("Узбекистан") },
+        { name: "Самарканд", nameRu: "Самарканд", nameEn: "Samarkand", countryId: countryMap.get("Узбекистан") },
+        { name: "Бухара", nameRu: "Бухара", nameEn: "Bukhara", countryId: countryMap.get("Узбекистан") },
+        { name: "Бишкек", nameRu: "Бишкек", nameEn: "Bishkek", countryId: countryMap.get("Кыргызстан") },
+        { name: "Астана", nameRu: "Астана", nameEn: "Astana", countryId: countryMap.get("Казахстан") },
+        { name: "Алматы", nameRu: "Алматы", nameEn: "Almaty", countryId: countryMap.get("Казахстан") },
+        { name: "Ашхабад", nameRu: "Ашхабад", nameEn: "Ashgabat", countryId: countryMap.get("Туркменистан") }
+    ];
+    
+    for (const city of cities) {
+        if (city.countryId) {
+            await prisma.city.create({
+                data: city
+            });
+        }
+    }
+    
+    console.log(`✅ Создано ${cities.length} городов по умолчанию`);
+}
+
+/**
+ * 🎬 Создание слайдов по умолчанию
+ */
+async function createDefaultSlides() {
+    console.log('🎬 Создание слайдов по умолчанию...');
+    
+    const slides = [
+        {
+            title: JSON.stringify({ 
+                ru: "Добро пожаловать в Центральную Азию", 
+                en: "Welcome to Central Asia" 
+            }),
+            description: JSON.stringify({ 
+                ru: "Откройте для себя удивительные пейзажи и богатую культуру региона", 
+                en: "Discover amazing landscapes and rich culture of the region" 
+            }),
+            image: "/public/images/default-slide-1.jpg",
+            link: "/tours",
+            isActive: true,
+            order: 1
+        },
+        {
+            title: JSON.stringify({ 
+                ru: "Незабываемые приключения", 
+                en: "Unforgettable Adventures" 
+            }),
+            description: JSON.stringify({ 
+                ru: "Горы, озера, древние города - все это ждет вас", 
+                en: "Mountains, lakes, ancient cities - all this awaits you" 
+            }),
+            image: "/public/images/default-slide-2.jpg", 
+            link: "/tours",
+            isActive: true,
+            order: 2
+        },
+        {
+            title: JSON.stringify({ 
+                ru: "Экспертные гиды", 
+                en: "Expert Guides" 
+            }),
+            description: JSON.stringify({ 
+                ru: "Наши опытные гиды покажут вам лучшие места региона", 
+                en: "Our experienced guides will show you the best places in the region" 
+            }),
+            image: "/public/images/default-slide-3.jpg",
+            link: "/guides", 
+            isActive: true,
+            order: 3
+        }
+    ];
+    
+    for (const slide of slides) {
+        await prisma.slide.create({
+            data: slide
+        });
+    }
+    
+    console.log(`✅ Создано ${slides.length} слайдов по умолчанию`);
+}
+
+/**
+ * 💱 Создание курсов валют по умолчанию
+ */
+async function createDefaultExchangeRates() {
+    console.log('💱 Создание курсов валют по умолчанию...');
+    
+    const defaultRates = [
+        {
+            currency: 'TJS',
+            rate: 1,
+            symbol: 'tjs',
+            name: 'Сомони',
+            isActive: true
+        },
+        {
+            currency: 'USD',
+            rate: 11.0,
+            symbol: '$',
+            name: 'Доллар США',
+            isActive: true
+        },
+        {
+            currency: 'EUR',
+            rate: 12.0,
+            symbol: '€',
+            name: 'Евро',
+            isActive: true
+        },
+        {
+            currency: 'RUB',
+            rate: 0.12,
+            symbol: '₽',
+            name: 'Российский рубль',
+            isActive: true
+        },
+        {
+            currency: 'CNY',
+            rate: 1.5,
+            symbol: '¥',
+            name: 'Китайский юань',
+            isActive: true
+        }
+    ];
+    
+    for (const rate of defaultRates) {
+        await prisma.exchangeRate.create({
+            data: rate
+        });
+    }
+    
+    console.log(`✅ Создано ${defaultRates.length} курсов валют по умолчанию`);
+}
+
+/**
+ * 🔍 Проверка инициализации базы данных
+ */
+async function checkDatabaseInitialization() {
+    console.log('🔍 Проверка инициализации базы данных...');
+    
+    try {
+        // Проверяем количество записей
+        const [categoryCount, tourBlockCount, countryCount, cityCount, slideCount, exchangeRateCount] = await Promise.all([
+            prisma.category.count(),
+            prisma.tourBlock.count(),
+            prisma.country.count(),
+            prisma.city.count(),
+            prisma.slide.count(),
+            prisma.exchangeRate.count()
+        ]);
+        
+        console.log(`📊 Текущие данные в БД:`);
+        console.log(`   Categories: ${categoryCount}`);
+        console.log(`   Tour Blocks: ${tourBlockCount}`);
+        console.log(`   Countries: ${countryCount}`);
+        console.log(`   Cities: ${cityCount}`);
+        console.log(`   Slides: ${slideCount}`);
+        console.log(`   Exchange Rates: ${exchangeRateCount}`);
+        
+        return {
+            categories: categoryCount,
+            tourBlocks: tourBlockCount,
+            countries: countryCount,
+            cities: cityCount,
+            slides: slideCount,
+            exchangeRates: exchangeRateCount
+        };
+    } catch (error) {
+        console.error('❌ Ошибка при проверке БД:', error);
+        return null;
+    }
+}
+
+/**
+ * 🚀 ГЛАВНАЯ ФУНКЦИЯ ИНИЦИАЛИЗАЦИИ
+ */
+export async function initializeDatabase() {
+    console.log('🚀 Начинаем инициализацию базы данных...');
+    
+    try {
+        // 🔒 Проверяем версии миграций для защиты от перезаписи  
+        const shouldInitialize = await safeInitializeWithVersioning();
+        
+        // 📊 ВСЕГДА проверяем текущее состояние БД
+        const stats = await checkDatabaseInitialization();
+        
+        if (!stats) {
+            console.log('❌ Не удалось проверить БД, пропускаем инициализацию');
+            return false;
+        }
+        
+        // 💱 КРИТИЧЕСКИ ВАЖНО: Курсы валют создаются ВСЕГДА если их нет
+        // Это гарантирует работу конвертации валют при любом сценарии развертывания
+        if (stats.exchangeRates === 0) {
+            console.log('💱 Валюты отсутствуют - создаём базовый набор...');
+            await createDefaultExchangeRates();
+        } else {
+            console.log('✅ Курсы валют уже существуют, пропускаем создание');
+        }
+        
+        // 🏷️ КРИТИЧЕСКИ ВАЖНО: Миграция категорий запускается ВСЕГДА
+        // Это обновляет названия категорий до актуальной версии при любом развертывании
+        console.log('🏷️ Проверка и миграция категорий к актуальному набору...');
+        await createDefaultCategories();
+        
+        // Если БД уже инициализирована согласно миграциям, остальное пропускаем
+        if (!shouldInitialize) {
+            console.log('✅ База данных уже инициализирована согласно версии миграций');
+            return true;
+        }
+        
+        // Создаем недостающие данные ИДЕМПОТЕНТНО (не ломаем существующие связи)
+        
+        if (stats.countries === 0) {
+            await createDefaultCountries();
+        } else {
+            console.log('✅ Страны уже существуют, пропускаем создание');
+        }
+        
+        if (stats.cities === 0) {
+            await createDefaultCities();
+        } else {
+            console.log('✅ Города уже существуют, пропускаем создание');
+        }
+        
+        if (stats.tourBlocks === 0) {
+            await createDefaultTourBlocks();
+        } else {
+            console.log('✅ Блоки туров уже существуют, пропускаем создание');
+        }
+        
+        if (stats.slides === 0) {
+            await createDefaultSlides();
+        } else {
+            console.log('✅ Слайды уже существуют, пропускаем создание');
+        }
+        
+        // 🎯 Сохраняем версии миграций после успешной инициализации
+        await completeInitialization();
+        
+        console.log('🎉 Инициализация базы данных завершена!');
+        
+        // Финальная проверка
+        await checkDatabaseInitialization();
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка при инициализации БД:', error);
+        return false;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * 🔧 Принудительная переинициализация (для разработки)
+ */
+export async function forceResetDatabase() {
+    console.log('🔧 ПРИНУДИТЕЛЬНАЯ ПЕРЕИНИЦИАЛИЗАЦИЯ БД...');
+    
+    try {
+        // Удаляем все данные
+        await prisma.tourBlockAssignment.deleteMany();
+        await prisma.slide.deleteMany();
+        await prisma.city.deleteMany();
+        await prisma.country.deleteMany();
+        await prisma.tourBlock.deleteMany();
+        await prisma.category.deleteMany();
+        
+        console.log('🗑️ Все базовые данные удалены');
+        
+        // Создаем заново
+        await initializeDatabase();
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Ошибка при сбросе БД:', error);
+        return false;
+    }
+}

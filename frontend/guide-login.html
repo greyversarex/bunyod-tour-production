@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="guide.login_page_title">Tour Guide Login - Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background: #3E3E3E;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            letter-spacing: 0.03em;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.28);
+        }
+        .lang-btn.active {
+            background: rgba(255,255,255,0.35);
+            border-color: rgba(255,255,255,0.6);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Language switcher -->
+    <div class="flex gap-2 mb-4">
+        <button class="lang-btn" id="langRu" onclick="switchGuideLoginLang('ru')">RU</button>
+        <button class="lang-btn active" id="langEn" onclick="switchGuideLoginLang('en')">EN</button>
+    </div>
+
+    <div class="login-card max-w-md w-full rounded-2xl shadow-2xl p-8">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-user-tie text-white text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2" data-translate="form.guide_cabinet">Tour Guide Cabinet</h1>
+            <p class="text-gray-600" data-translate="form.sign_in">Sign in to your account</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="login" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-user mr-2 text-blue-600"></i><span data-translate="form.login">Login</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="login" 
+                    name="login" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200"
+                    placeholder="Enter login" data-translate-attr="placeholder:form.enter_login"
+                >
+            </div>
+
+            <div class="space-y-2">
+                <label for="password" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-lock mr-2 text-blue-600"></i><span data-translate="form.password">Password</span>
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200 pr-12"
+                        placeholder="Enter password" data-translate-attr="placeholder:form.enter_password"
+                    >
+                    <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="errorText"></span>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingMessage" class="hidden bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                <span data-translate="form.loading_login">Signing in...</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+                type="submit" 
+                id="loginButton"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
+            >
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                <span data-translate="btn.login">Login</span>
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="mt-8 text-center text-sm text-gray-600">
+            <p data-translate="form.forgot_password">Forgot password? Contact administrator</p>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <a href="/" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    <span data-translate="form.back_home">Back Home</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        // ====== TRANSLATION HELPER ======
+        const t = (key) => (window.getTranslation ? window.getTranslation(key, window.currentLanguage || 'en') : key);
+
+        // ====== LANGUAGE SWITCHER ======
+        function switchGuideLoginLang(lang) {
+            if (window.updatePageLanguage) {
+                window.updatePageLanguage(lang);
+            }
+            document.getElementById('langRu').classList.toggle('active', lang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            // Update html lang attribute
+            document.documentElement.lang = lang;
+            // Update title
+            document.title = t('guide.login_page_title');
+        }
+
+        // Init language switcher state on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const lang = window.currentLanguage || 'en';
+            document.getElementById('langRu').classList.toggle('active', lang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+        });
+
+        // Listen for language changes from i18n system
+        document.addEventListener('languageChanged', function(e) {
+            const lang = e.detail && e.detail.language ? e.detail.language : (window.currentLanguage || 'en');
+            document.getElementById('langRu').classList.toggle('active', lang === 'ru');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            document.documentElement.lang = lang;
+            document.title = t('guide.login_page_title');
+        });
+
+        // ====== TOGGLE PASSWORD VISIBILITY ======
+        const togglePassword = document.getElementById('togglePassword');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const toggleIcon = this.querySelector('i');
+                if (passwordInput && passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('fa-eye');
+                        toggleIcon.classList.add('fa-eye-slash');
+                    }
+                } else if (passwordInput) {
+                    passwordInput.type = 'password';
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('fa-eye-slash');
+                        toggleIcon.classList.add('fa-eye');
+                    }
+                }
+            });
+        }
+
+        // ====== FORM SUBMISSION ======
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const loginData = {
+                login: formData.get('login'),
+                password: formData.get('password')
+            };
+
+            showLoadingState();
+
+            try {
+                const response = await fetch('/api/guide/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    localStorage.setItem('tourGuideToken', result.token);
+                    localStorage.setItem('tourGuideData', JSON.stringify(result.guide));
+                    window.location.href = '/guide/dashboard.html';
+                } else {
+                    showError(result.message || t('guide.error_login'));
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError(t('guide.error_server'));
+            } finally {
+                hideLoadingState();
+            }
+        });
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+
+        function showLoadingState() {
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('loginButton').disabled = true;
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingMessage').classList.add('hidden');
+            document.getElementById('loginButton').disabled = false;
+        }
+
+        // Check if already logged in
+        if (localStorage.getItem('tourGuideToken')) {
+            window.location.href = '/guide/dashboard.html';
+        }
+    </script>
+    
+</body>
+</html>

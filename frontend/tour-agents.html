@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="tour_agents.page_title">Tour Agent Program | Bunyod-Tour</title>
+    <meta name="description" data-translate-attr="content" data-translate="tour_agents.meta_description" content="Affiliate program 'Tour Agent' by Bunyod-Tour. Earn 10% (15% for ATACA members) commission for selling tour packages from bunyodtour.tj.">
+    <meta property="og:title" content="Tour Agent Program | Bunyod-Tour">
+    <meta property="og:description" content="Affiliate program 'Tour Agent' by Bunyod-Tour. Earn 10% (15% for ATACA members) commission for selling tour packages.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+
+    <!-- 🌐 Центральная система интернационализации -->
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <!-- Динамическая загрузка хедера и футера -->
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="cache-buster" content="TOUR-AGENTS-2026-04-28-V2">
+
+    <style>
+        :root {
+            --brand-dark: #1f2937;
+            --brand-darker: #111827;
+            --brand-mid: #374151;
+            --brand-soft: #6b7280;
+            --brand-gold: #0ea5e9;
+            --brand-gold-light: #38bdf8;
+            --brand-gold-dark: #0284c7;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #f8fafc;
+        }
+
+        /* === Унифицированный градиентный заголовок (как на About Us) === */
+        .gradient-text {
+            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .gradient-text-gold {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* === HERO === */
+        .ta-hero {
+            position: relative;
+            min-height: 560px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            background:
+                linear-gradient(135deg, rgba(17,24,39,0.92) 0%, rgba(31,41,55,0.78) 60%, rgba(55,65,81,0.65) 100%),
+                url('/tour-agents-image.png') center/cover no-repeat;
+            overflow: hidden;
+        }
+        .ta-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at top right, rgba(14,165,233,0.18), transparent 55%);
+            pointer-events: none;
+        }
+        .ta-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.1rem;
+            border: 1px solid rgba(56,189,248,0.55);
+            background: rgba(56,189,248,0.12);
+            color: #7dd3fc;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            font-weight: 600;
+            backdrop-filter: blur(6px);
+        }
+        .ta-hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 2.5rem;
+            max-width: 720px;
+        }
+        .ta-hero-stat {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 1rem;
+            padding: 1.1rem 1rem;
+            text-align: center;
+        }
+        .ta-hero-stat .v {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .ta-hero-stat .l {
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.75);
+            margin-top: 0.25rem;
+            letter-spacing: 0.04em;
+        }
+
+        /* === КНОПКИ === */
+        .ta-cta-btn {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: #fff;
+            padding: 0.95rem 2.2rem;
+            border-radius: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(14,165,233,0.4);
+            letter-spacing: 0.01em;
+        }
+        .ta-cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(14,165,233,0.5);
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+        }
+        .ta-cta-btn-dark {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #fff;
+            padding: 0.95rem 2.2rem;
+            border-radius: 0.85rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(31,41,55,0.3);
+        }
+        .ta-cta-btn-dark:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(31,41,55,0.4);
+        }
+        .ta-cta-btn-outline {
+            border: 2px solid rgba(255,255,255,0.7);
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+            padding: 0.85rem 1.9rem;
+            border-radius: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(6px);
+        }
+        .ta-cta-btn-outline:hover {
+            background: #fff;
+            color: #111827;
+            transform: translateY(-2px);
+        }
+        .ta-cta-btn-ghost {
+            border: 2px solid #1f2937;
+            color: #1f2937;
+            background: #fff;
+            padding: 0.85rem 1.9rem;
+            border-radius: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            transition: all 0.3s ease;
+        }
+        .ta-cta-btn-ghost:hover {
+            background: #1f2937;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* === Подзаголовки секций === */
+        .ta-section-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.85rem;
+            background: rgba(14,165,233,0.12);
+            color: #0369a1;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+        .ta-section-eyebrow svg { width: 0.9rem; height: 0.9rem; }
+
+        /* === КАРТОЧКИ === */
+        .ta-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid rgba(229,231,235,0.7);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 16px rgba(15,23,42,0.04);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .ta-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(15,23,42,0.08);
+        }
+
+        /* О компании - блок с акцентом */
+        .ta-about-stat {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.25rem 0.85rem;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .ta-about-stat:hover {
+            border-color: #38bdf8;
+            transform: translateY(-3px);
+        }
+        .ta-about-stat .v {
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #111827;
+            line-height: 1;
+        }
+        .ta-about-stat .l {
+            font-size: 0.78rem;
+            color: #6b7280;
+            margin-top: 0.45rem;
+            font-weight: 500;
+        }
+
+        /* Карточки "Кто может стать" */
+        .ta-who-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+        .ta-who-card:hover {
+            transform: translateY(-4px);
+            border-color: #0ea5e9;
+            box-shadow: 0 12px 28px rgba(14,165,233,0.12);
+        }
+        .ta-who-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            color: #0369a1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        .ta-who-card:hover .ta-who-icon {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        .ta-who-icon svg {
+            width: 28px;
+            height: 28px;
+        }
+        .ta-who-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        /* Список ✓ */
+        .ta-check-list li {
+            position: relative;
+            padding-left: 2.25rem;
+            margin-bottom: 1rem;
+            color: #374151;
+            line-height: 1.6;
+        }
+        .ta-check-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.15rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            background-image:
+                url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24'><polyline points='20 6 9 17 4 12'/></svg>"),
+                linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: 60% 60%, cover;
+            box-shadow: 0 3px 8px rgba(14,165,233,0.3);
+        }
+
+        /* Шаги (1, 2, 3) */
+        .ta-step {
+            counter-increment: ta-step-counter;
+            position: relative;
+            padding-left: 4.5rem;
+            min-height: 3rem;
+        }
+        .ta-step::before {
+            content: counter(ta-step-counter);
+            position: absolute;
+            left: 0;
+            top: -0.25rem;
+            width: 3.25rem;
+            height: 3.25rem;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: 800;
+            box-shadow: 0 6px 18px rgba(31,41,55,0.3);
+        }
+        .ta-steps {
+            counter-reset: ta-step-counter;
+        }
+
+        /* Большая денежная карточка */
+        .ta-money-card {
+            position: relative;
+            background: linear-gradient(145deg, #ffffff 0%, #fafbfc 100%);
+            border: 1px solid #e5e7eb;
+            border-radius: 1.5rem;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .ta-money-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(15,23,42,0.1);
+        }
+        .ta-money-card.highlighted {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-color: #0ea5e9;
+            color: #fff;
+        }
+        .ta-money-card.highlighted .ta-money-label { color: #38bdf8; }
+        .ta-money-card.highlighted .ta-money-text  { color: rgba(255,255,255,0.85); }
+        .ta-money-card.highlighted .ta-money-note  {
+            background: rgba(14,165,233,0.18);
+            color: #7dd3fc;
+            border-color: rgba(14,165,233,0.4);
+        }
+        .ta-money-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 1.25rem;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+            color: #0369a1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+        .ta-money-card.highlighted .ta-money-icon {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            color: #fff;
+        }
+        .ta-money-icon svg { width: 32px; height: 32px; }
+        .ta-money-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .ta-money-value {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        .ta-money-text {
+            color: #4b5563;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        .ta-money-note {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: rgba(14,165,233,0.1);
+            color: #0369a1;
+            border: 1px solid rgba(14,165,233,0.3);
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Финальный CTA - тёмный */
+        .ta-final-cta {
+            background:
+                linear-gradient(135deg, rgba(17,24,39,0.95) 0%, rgba(31,41,55,0.92) 100%),
+                url('/tour-agents-image.png') center/cover no-repeat;
+            color: #fff;
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .ta-final-cta::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(14,165,233,0.18), transparent 65%);
+            pointer-events: none;
+        }
+        .ta-final-cta > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Иконки секций */
+        .ta-section-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 1rem;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: #38bdf8;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            box-shadow: 0 8px 20px rgba(31,41,55,0.25);
+        }
+        .ta-section-icon svg { width: 28px; height: 28px; }
+
+        /* Скролл-анимации */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        .scroll-animate.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .ta-hero { min-height: 480px; }
+            .ta-hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem; }
+            .ta-hero-stat { padding: 0.75rem 0.5rem; }
+            .ta-hero-stat .v { font-size: 1.1rem; }
+            .ta-hero-stat .l { font-size: 0.65rem; }
+            .ta-money-value { font-size: 3.5rem; }
+            .ta-step { padding-left: 4rem; }
+            .ta-step::before { width: 2.75rem; height: 2.75rem; font-size: 1.15rem; }
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body>
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    <!-- Динамический хедер -->
+    <div id="header-container"></div>
+
+    <!-- ============ HERO ============ -->
+    <section class="ta-hero">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-24 text-center w-full relative z-10">
+            <span class="ta-hero-badge mb-6">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-3.5 h-3.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span data-translate="tour_agents.hero_badge">Affiliate Program</span>
+            </span>
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 leading-tight" data-translate="tour_agents.hero_title">«TOUR AGENT»</h1>
+            <p class="text-lg md:text-xl text-gray-100 max-w-3xl mx-auto leading-relaxed" data-translate="tour_agents.hero_subtitle">
+                A loyal partner platform from Bunyod-Tour LLC — terms of cooperation and an opportunity to find an accessible profession in tourism.
+            </p>
+
+            <div class="flex flex-wrap items-center justify-center gap-3 mt-8">
+                <a href="/travel-agent-apply.html" class="ta-cta-btn">
+                    <span data-translate="tour_agents.hero_cta">Become a Tour Partner</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </a>
+                <a href="#how-to-earn" class="ta-cta-btn-outline">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+                    </svg>
+                    <span data-translate="tour_agents.hero_cta_secondary">How does it work?</span>
+                </a>
+            </div>
+
+            <div class="ta-hero-stats mx-auto">
+                <div class="ta-hero-stat">
+                    <div class="v">10–15%</div>
+                    <div class="l" data-translate="tour_agents.hero_stat_commission">Commission per sale</div>
+                </div>
+                <div class="ta-hero-stat">
+                    <div class="v">10</div>
+                    <div class="l" data-translate="tour_agents.hero_stat_payout">Days to payout</div>
+                </div>
+                <div class="ta-hero-stat">
+                    <div class="v">200+</div>
+                    <div class="l" data-translate="tour_agents.hero_stat_tours">Tours to sell</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <main>
+
+        <!-- ============ ЦЕЛЬ ПРОГРАММЫ ============ -->
+        <section class="py-20 md:py-24 bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center scroll-animate">
+                <span class="ta-section-eyebrow">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span data-translate="tour_agents.purpose_eyebrow">About the program</span>
+                </span>
+                <h2 class="text-4xl md:text-5xl font-extrabold mb-6 gradient-text" data-translate="tour_agents.purpose_title">
+                    Program Purpose
+                </h2>
+                <p class="text-lg md:text-xl text-gray-600 leading-relaxed" data-translate="tour_agents.purpose_text">
+                    This program, within the framework of the activities of Bunyod-Tour LLC, is presented as a loyal partner platform, a condition for cooperation, and an opportunity to find an accessible place and type of employment (profession) for relevant groups of people.
+                </p>
+            </div>
+        </section>
+
+        <!-- ============ О КОМПАНИИ ============ -->
+        <section class="py-20 md:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <span data-translate="tour_agents.about_eyebrow">Who we are</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold gradient-text" data-translate="tour_agents.about_title">
+                        Bunyod-Tour LLC
+                    </h2>
+                </div>
+
+                <div class="ta-card p-8 md:p-12 scroll-animate">
+                    <p class="text-lg text-gray-700 leading-relaxed mb-5" data-translate="tour_agents.about_p1">
+                        Limited Liability Company "Bunyod-Tour" is a regional travel company founded in 2017 in Dushanbe, Tajikistan (license No. 0000253 dated October 25, 2022). Its primary activity is inbound tourism — welcoming foreign tourists and providing them with services in Tajikistan and Central Asia.
+                    </p>
+                    <p class="text-lg text-gray-700 leading-relaxed mb-8" data-translate="tour_agents.about_p2">
+                        Bunyod-Tour operates an online portal for booking tourism products (one of the first in Central Asia), offers over 200 tourist routes (tours), provides transportation (transfers) and tour-guide services, and features an independent, autonomous (online) tourist route development system. The company collaborates with over 50 regional and international organizations.
+                    </p>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="ta-about-stat">
+                            <div class="v">2017</div>
+                            <div class="l" data-translate="tour_agents.stat_founded">Founded</div>
+                        </div>
+                        <div class="ta-about-stat">
+                            <div class="v">200+</div>
+                            <div class="l" data-translate="tour_agents.stat_tours">Tour routes</div>
+                        </div>
+                        <div class="ta-about-stat">
+                            <div class="v">50+</div>
+                            <div class="l" data-translate="tour_agents.stat_partners">Partner organizations</div>
+                        </div>
+                        <div class="ta-about-stat">
+                            <div class="v" style="font-size:1.4rem;">№ 0000253</div>
+                            <div class="l" data-translate="tour_agents.stat_license">Tourism license</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ КТО МОЖЕТ СТАТЬ ============ -->
+        <section class="py-20 md:py-24 bg-white">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        <span data-translate="tour_agents.who_eyebrow">Open to everyone</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text" data-translate="tour_agents.who_title">Who Can Become a Tour Partner (Tour Agent)?</h2>
+                    <p class="text-lg text-gray-600 max-w-2xl mx-auto" data-translate="tour_agents.who_intro">
+                        The following groups can become our tour partners:
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 scroll-animate">
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item1">Travel companies</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item2">Bloggers</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item3">Travel-industry specialists</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item4">Interns</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item5">Freelancers</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item6">Job seekers</h3>
+                    </div>
+                    <div class="ta-who-card">
+                        <div class="ta-who-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"/></svg>
+                        </div>
+                        <h3 data-translate="tour_agents.who_item7">Students</h3>
+                    </div>
+                    <div class="ta-who-card" style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: #fff; border-color: #0ea5e9;">
+                        <div class="ta-who-icon" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: #fff;">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        </div>
+                        <h3 style="color:#38bdf8;" data-translate="tour_agents.who_item_more">…and you?</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ОБЯЗАННОСТИ ============ -->
+        <section class="py-20 md:py-24">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                        <span data-translate="tour_agents.duties_eyebrow">What you do</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold gradient-text" data-translate="tour_agents.duties_title">
+                        Main Responsibilities of a Tour Agent
+                    </h2>
+                </div>
+                <div class="ta-card p-8 md:p-10 scroll-animate">
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 text-white flex items-center justify-center font-extrabold shadow-lg shadow-sky-500/30">1</div>
+                        <p class="text-lg text-gray-800 font-semibold pt-1">
+                            <span data-translate="tour_agents.duties_intro">Through the website</span>
+                            <a href="https://bunyodtour.tj" class="text-sky-700 underline hover:text-sky-800 font-bold">https://bunyodtour.tj</a>:
+                        </p>
+                    </div>
+                    <ul class="ta-check-list text-base md:text-lg pl-14 mb-8">
+                        <li data-translate="tour_agents.duties_1a">Selling tourist products (tour packages) to tourists.</li>
+                        <li data-translate="tour_agents.duties_1b">Offering tourism products to tourists in any way possible, including at exhibitions and online.</li>
+                        <li data-translate="tour_agents.duties_1c">Advertising tourist products in any way possible, especially online, to attract foreign tourists.</li>
+                    </ul>
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-sky-400 to-sky-600 text-white flex items-center justify-center font-extrabold shadow-lg shadow-sky-500/30">2</div>
+                        <p class="text-lg text-gray-800 font-semibold pt-1" data-translate="tour_agents.duties_2">
+                            Come up with a special type of tourism product and put it into action using the Company's capabilities.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ЧТО ТАКОЕ ТУРПРОДУКТ ============ -->
+        <section class="py-20 md:py-24 bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-10 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span data-translate="tour_agents.product_eyebrow">Definition</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold gradient-text" data-translate="tour_agents.product_title">
+                        What Is a Tourist Product?
+                    </h2>
+                </div>
+                <div class="ta-card p-8 md:p-10 text-center scroll-animate">
+                    <div class="ta-section-icon">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/></svg>
+                    </div>
+                    <p class="text-lg md:text-xl text-gray-700 leading-relaxed">
+                        <span data-translate="tour_agents.product_text_before">A tourist product is a tour or tourism service that is available for tourists to book on our website —</span>
+                        <a href="https://bunyodtour.tj" class="text-sky-700 underline hover:text-sky-800 font-semibold">https://bunyodtour.tj</a><span data-translate="tour_agents.product_text_after">and available for booking by tourists.</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ КАК СТАТЬ ТУРАГЕНТОМ ============ -->
+        <section class="py-20 md:py-24">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                        <span data-translate="tour_agents.howto_eyebrow">Get started</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold gradient-text" data-translate="tour_agents.howto_title">
+                        How to Become a Tour Agent
+                    </h2>
+                </div>
+                <div class="ta-card p-8 md:p-12 scroll-animate">
+                    <div class="ta-steps space-y-8">
+                        <div class="ta-step">
+                            <p class="text-lg text-gray-700 leading-relaxed">
+                                <span data-translate="tour_agents.howto_step1_before">Submit an application through our website —</span>
+                                <a href="https://bunyodtour.tj" class="text-sky-700 underline hover:text-sky-800 font-semibold">https://bunyodtour.tj</a><span data-translate="tour_agents.howto_step1_after">, the page "Become a Partner" — and read the relevant terms and conditions and the partnership agreement.</span>
+                            </p>
+                        </div>
+                        <div class="ta-step">
+                            <p class="text-lg text-gray-700 leading-relaxed" data-translate="tour_agents.howto_step2">
+                                If approved, a confirmation email will be sent to the applicant's email address.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-center mt-12">
+                        <a href="/travel-agent-apply.html" class="ta-cta-btn">
+                            <span data-translate="tour_agents.howto_cta">Become a Tour Partner</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ КАК РАБОТАЕТ СИСТЕМА ============ -->
+        <section class="py-20 md:py-24 bg-white">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span data-translate="tour_agents.system_eyebrow">Workflow</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text" data-translate="tour_agents.system_title">
+                        How Does the System Work?
+                    </h2>
+                    <p class="text-lg text-gray-600" data-translate="tour_agents.system_intro">
+                        The system is very simple and easy:
+                    </p>
+                </div>
+                <div class="ta-card p-8 md:p-12 scroll-animate">
+                    <div class="ta-steps space-y-8">
+                        <div class="ta-step">
+                            <p class="text-lg text-gray-700 leading-relaxed" data-translate="tour_agents.system_step1">
+                                After the tourist has finished choosing a tour, the tour agent sends the relevant information to the company through the personal account, including the Voucher ID number of the ordered tour received from the tourist.
+                            </p>
+                        </div>
+                        <div class="ta-step">
+                            <p class="text-lg text-gray-700 leading-relaxed" data-translate="tour_agents.system_step2">
+                                A confirmation that the order has been accepted is then sent to the tour agent's personal account.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ СКОЛЬКО ЗАРАБАТЫВАЕТ ============ -->
+        <section id="how-to-earn" class="py-20 md:py-24">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12 scroll-animate">
+                    <span class="ta-section-eyebrow">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span data-translate="tour_agents.earn_eyebrow">Your reward</span>
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 gradient-text-gold" data-translate="tour_agents.earn_title">
+                        How Does a Tour Agent Make Money?
+                    </h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 scroll-animate">
+                    <div class="ta-money-card highlighted">
+                        <div class="ta-money-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                        </div>
+                        <div class="ta-money-label" data-translate="tour_agents.earn_commission_label">Commission</div>
+                        <div class="ta-money-value">10%</div>
+                        <p class="ta-money-text" data-translate="tour_agents.earn_commission_value">
+                            of the tour price for selling the tour product
+                        </p>
+                        <div class="ta-money-note" data-translate="tour_agents.earn_commission_note">15% for ATACA members</div>
+                    </div>
+                    <div class="ta-money-card">
+                        <div class="ta-money-icon">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="ta-money-label" data-translate="tour_agents.earn_payment_label">Payout</div>
+                        <div class="ta-money-value" data-translate="tour_agents.earn_payment_value">10 days</div>
+                        <p class="ta-money-text" data-translate="tour_agents.earn_payment_note">
+                            Funds are transferred to the tour agent's bank account or card within 10 days after the tour is completed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ ФИНАЛЬНЫЙ CTA ============ -->
+        <section class="py-16 md:py-20">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 scroll-animate">
+                <div class="ta-final-cta">
+                    <span class="ta-hero-badge mb-5">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-3.5 h-3.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        </svg>
+                        <span data-translate="tour_agents.final_eyebrow">Join the program</span>
+                    </span>
+                    <h2 class="text-3xl md:text-5xl font-extrabold mb-4 leading-tight" data-translate="tour_agents.cta_join">
+                        Come and join us — and you can achieve success!
+                    </h2>
+                    <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl mx-auto" data-translate="tour_agents.cta_subtitle">
+                        Apply to the partner program or download the full program description.
+                    </p>
+                    <div class="flex flex-wrap items-center justify-center gap-4">
+                        <a href="/travel-agent-apply.html" class="ta-cta-btn">
+                            <span data-translate="tour_agents.cta_button">Become a Tour Partner</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                            </svg>
+                        </a>
+                        <a href="/public/documents/tour-agent-program-en.pdf"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           class="ta-cta-btn-outline lang-doc-link"
+                           data-doc-ru="/public/documents/tour-agent-program-ru.pdf"
+                           data-doc-en="/public/documents/tour-agent-program-en.pdf">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span data-translate="tour_agents.download_program">Download program (PDF)</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Динамический футер -->
+    <div id="footer-container"></div>
+
+    <!-- Scroll-анимации -->
+    <script data-cfasync="false">
+        document.addEventListener('DOMContentLoaded', function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+            document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>

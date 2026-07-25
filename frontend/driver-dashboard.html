@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет водителя | Bunyod-Tour</title>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/utils.js"></script>
+    <style>
+        .event-card {
+            transition: all 0.3s ease;
+            border-left: 4px solid #3b82f6;
+        }
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .event-pending {
+            border-left-color: #f59e0b;
+        }
+        .event-started {
+            border-left-color: #10b981;
+        }
+        .event-completed {
+            border-left-color: #6b7280;
+        }
+        .btn-action {
+            transition: all 0.3s ease;
+        }
+        .btn-action:hover {
+            transform: scale(1.05);
+        }
+        .status-badge {
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        .status-started {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-completed {
+            background: #e5e7eb;
+            color: #374151;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">
+                <i class="fas fa-car mr-2 text-blue-600"></i>
+                Кабинет водителя
+            </h1>
+            <div class="flex items-center gap-4">
+                <span id="driverName" class="text-gray-700 font-semibold">Водитель</span>
+                <button onclick="logout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Выход
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+
+        <!-- Availability Calendar Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-calendar-check mr-3 text-purple-600"></i>
+                    Календарь доступности
+                </h2>
+                <div class="flex gap-2">
+                    <span id="selectedDatesCount" class="text-sm text-gray-600 self-center mr-2">Выбрано: 0 дней</span>
+                    <button onclick="saveAvailableDates()" id="saveAvailabilityBtn" class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50">
+                        <i class="fas fa-save mr-2"></i>Сохранить
+                    </button>
+                </div>
+            </div>
+            <p class="text-gray-600 mb-4">Выберите конкретные даты, когда вы доступны для трансферов. Нажмите на дату, чтобы выбрать её. Ваши машины будут показываться клиентам только в выбранные даты.</p>
+            
+            <!-- Calendar Navigation -->
+            <div class="flex items-center justify-between mb-4">
+                <button onclick="changeMonth(-1)" class="p-2 rounded-full hover:bg-gray-200 transition">
+                    <i class="fas fa-chevron-left text-gray-600"></i>
+                </button>
+                <h3 id="currentMonthDisplay" class="text-lg font-semibold text-gray-800"></h3>
+                <button onclick="changeMonth(1)" class="p-2 rounded-full hover:bg-gray-200 transition">
+                    <i class="fas fa-chevron-right text-gray-600"></i>
+                </button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="bg-gray-100 p-4 rounded-lg">
+                <div class="grid grid-cols-7 gap-2 mb-3">
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Пн</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Вт</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Ср</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Чт</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Пт</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Сб</div>
+                    <div class="text-center text-sm font-medium text-gray-500 py-2">Вс</div>
+                </div>
+                <div id="calendarDays" class="grid grid-cols-7 gap-2"></div>
+                
+                <!-- Legend -->
+                <div class="mt-4 flex flex-wrap gap-4 text-sm">
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+                        <span class="text-gray-600">Доступен</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-gray-200 rounded mr-2"></div>
+                        <span class="text-gray-600">Недоступен</span>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="w-4 h-4 bg-gray-100 border border-dashed border-gray-300 rounded mr-2"></div>
+                        <span class="text-gray-600">Прошедшие дни</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="availabilityStatus" class="mt-3 text-sm hidden"></div>
+        </div>
+
+        <!-- Transfer Requests Section -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-car-side mr-3 text-green-600"></i>
+                    Заявки на трансфер
+                </h2>
+                <button onclick="loadTransferRequests()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+                    <i class="fas fa-sync-alt mr-2"></i>Обновить
+                </button>
+            </div>
+
+            <!-- Loading state -->
+            <div id="loadingTransfers" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-3xl text-green-600 mb-4"></i>
+                <p class="text-gray-600">Загрузка заявок на трансфер...</p>
+            </div>
+
+            <!-- No transfers message -->
+            <div id="noTransfers" class="text-center py-8 hidden">
+                <i class="fas fa-inbox text-6xl text-gray-400 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Нет заявок на трансфер</h3>
+                <p class="text-gray-500">Когда клиент оплатит трансфер с вашей машиной, заявка появится здесь</p>
+            </div>
+
+            <!-- Transfers container -->
+            <div id="transfersContainer" class="space-y-4"></div>
+        </div>
+
+        <!-- Rejection Modal for Transfer -->
+        <div id="transferRejectionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+            <div class="bg-white rounded-xl max-w-md w-full p-6 m-4">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Отклонить заявку</h3>
+                <p class="text-gray-600 mb-4">Укажите причину отклонения (необязательно):</p>
+                <textarea id="transferRejectionNote" class="w-full p-3 border rounded-lg mb-4" rows="3" placeholder="Причина отклонения..."></textarea>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeTransferRejectionModal()" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg">Отмена</button>
+                    <button onclick="confirmTransferRejection()" class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg">Отклонить</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script data-cfasync="false">
+        let driverToken = localStorage.getItem('driverToken');
+        let driverInfo = JSON.parse(localStorage.getItem('driverInfo') || '{}');
+
+        // Check authentication
+        if (!driverToken) {
+            window.location.href = '/driver-login.html';
+        }
+
+        // Set driver name
+        if (driverInfo.name) {
+            document.getElementById('driverName').textContent = driverInfo.name;
+        }
+
+        // Calendar state
+        let currentMonth = new Date();
+        let selectedDates = new Set();
+        let dateSelectionEnabled = true; // false = выбор дат отключён администратором
+        const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 
+                            'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadDateSelectionMode();
+            loadAvailableDates();
+            loadTransferRequests();
+        });
+
+        // Загружает режим выбора дат (вкл/выкл) из настроек сайта
+        async function loadDateSelectionMode() {
+            try {
+                const res = await fetch('/api/cms/settings?group=booking');
+                if (res.ok) {
+                    const json = await res.json();
+                    if (json.success && Array.isArray(json.data)) {
+                        const s = json.data.find(x => x.key === 'date_selection_enabled_drivers');
+                        dateSelectionEnabled = s ? s.value === 'true' : false;
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading date selection mode:', e);
+            }
+            applyDateSelectionMode();
+        }
+
+        // Показывает уведомление и блокирует выбор/сохранение при выключенном режиме
+        function applyDateSelectionMode() {
+            const cal = document.getElementById('calendarDays');
+            const saveBtn = document.getElementById('saveAvailabilityBtn');
+            let notice = document.getElementById('dateSelectionDisabledNotice');
+            if (!dateSelectionEnabled) {
+                if (!notice && cal && cal.parentElement) {
+                    notice = document.createElement('div');
+                    notice.id = 'dateSelectionDisabledNotice';
+                    notice.className = 'mb-4 p-3 rounded-lg text-sm';
+                    notice.style.backgroundColor = '#FEF3C7';
+                    notice.style.color = '#92400E';
+                    notice.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Выбор дат временно отключён администратором. Ваши машины доступны для бронирования в любой день.';
+                    cal.parentElement.insertBefore(notice, cal);
+                }
+                if (saveBtn) { saveBtn.disabled = true; saveBtn.style.opacity = '0.5'; saveBtn.style.cursor = 'not-allowed'; }
+            } else {
+                if (notice) notice.remove();
+                if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = ''; saveBtn.style.cursor = ''; }
+            }
+        }
+
+        // Load available dates from server
+        async function loadAvailableDates() {
+            try {
+                const response = await fetch('/api/drivers/me', {
+                    headers: {
+                        'Authorization': `Bearer ${driverToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.data?.availableDates) {
+                    let dates = data.data.availableDates;
+                    if (typeof dates === 'string') {
+                        try { dates = JSON.parse(dates); } catch(e) { dates = []; }
+                    }
+                    
+                    if (Array.isArray(dates)) {
+                        selectedDates = new Set(dates);
+                    }
+                }
+                
+                renderCalendar();
+                updateSelectedCount();
+            } catch (error) {
+                console.error('Error loading available dates:', error);
+                renderCalendar();
+            }
+        }
+
+        // Change month
+        function changeMonth(delta) {
+            currentMonth.setMonth(currentMonth.getMonth() + delta);
+            renderCalendar();
+        }
+
+        // Render calendar
+        function renderCalendar() {
+            const container = document.getElementById('calendarDays');
+            const monthDisplay = document.getElementById('currentMonthDisplay');
+            
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+            
+            monthDisplay.textContent = `${monthNames[month]} ${year}`;
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Get the day of week for the first day (0 = Sunday, we need Monday = 0)
+            let startDay = firstDay.getDay();
+            startDay = startDay === 0 ? 6 : startDay - 1; // Convert to Monday-first
+            
+            let html = '';
+            
+            // Empty cells for days before the first of the month
+            for (let i = 0; i < startDay; i++) {
+                html += '<div class="p-2"></div>';
+            }
+            
+            // Days of the month
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateObj = new Date(year, month, day);
+                const dateString = formatDateForAPI(dateObj);
+                const isPast = dateObj < today;
+                const isSelected = selectedDates.has(dateString);
+                
+                let classes = 'p-2 text-center rounded-lg cursor-pointer transition font-medium ';
+                
+                if (isPast) {
+                    classes += 'bg-gray-100 text-gray-400 cursor-not-allowed border border-dashed border-gray-300';
+                } else if (!dateSelectionEnabled) {
+                    // Выбор дат выключен — все будущие даты доступны (только для показа)
+                    classes += 'bg-green-500 text-white cursor-not-allowed';
+                } else if (isSelected) {
+                    classes += 'bg-green-500 text-white hover:bg-green-600';
+                } else {
+                    classes += 'bg-gray-200 text-gray-700 hover:bg-gray-300';
+                }
+                
+                const onClick = (isPast || !dateSelectionEnabled) ? '' : `onclick="toggleDate('${dateString}')"`;
+                html += `<div class="${classes}" ${onClick}>${day}</div>`;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Format date for API (YYYY-MM-DD)
+        function formatDateForAPI(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Toggle date selection
+        function toggleDate(dateString) {
+            if (selectedDates.has(dateString)) {
+                selectedDates.delete(dateString);
+            } else {
+                selectedDates.add(dateString);
+            }
+            renderCalendar();
+            updateSelectedCount();
+        }
+
+        // Update selected dates count
+        function updateSelectedCount() {
+            const countSpan = document.getElementById('selectedDatesCount');
+            countSpan.textContent = `Выбрано: ${selectedDates.size} дней`;
+        }
+
+        // Save available dates to server
+        async function saveAvailableDates() {
+            const btn = document.getElementById('saveAvailabilityBtn');
+            const statusDiv = document.getElementById('availabilityStatus');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Сохранение...';
+            
+            try {
+                const response = await fetch('/api/drivers/update-available-dates', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${driverToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ availableDates: Array.from(selectedDates) })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.textContent = `✅ Сохранено ${data.count || selectedDates.size} доступных дат!`;
+                    statusDiv.className = 'mt-3 text-sm text-green-600';
+                    statusDiv.classList.remove('hidden');
+                    setTimeout(() => statusDiv.classList.add('hidden'), 3000);
+                } else {
+                    throw new Error(data.message || 'Ошибка сохранения');
+                }
+            } catch (error) {
+                console.error('Error saving available dates:', error);
+                statusDiv.textContent = '❌ Ошибка: ' + error.message;
+                statusDiv.className = 'mt-3 text-sm text-red-600';
+                statusDiv.classList.remove('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i>Сохранить';
+            }
+        }
+
+        function formatDateTime(dateTimeString) {
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showSuccess(message) {
+            // Simple success notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        function showError(message) {
+            // Simple error notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // ========== TRANSFER REQUESTS SECTION ==========
+        let transferRequests = [];
+        let currentRejectionRequestId = null;
+
+        async function loadTransferRequests() {
+            const loadingDiv = document.getElementById('loadingTransfers');
+            const noTransfersDiv = document.getElementById('noTransfers');
+            const container = document.getElementById('transfersContainer');
+            
+            loadingDiv.classList.remove('hidden');
+            noTransfersDiv.classList.add('hidden');
+            container.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/drivers/my-transfers', {
+                    headers: {
+                        'Authorization': `Bearer ${driverToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                console.log('📋 [DRIVER TRANSFERS] API response:', data);
+
+                if (data.success) {
+                    transferRequests = data.data?.transfers || [];
+                    displayTransferRequests(transferRequests);
+                } else {
+                    throw new Error(data.message || 'Ошибка загрузки заявок');
+                }
+            } catch (error) {
+                console.error('Error loading transfer requests:', error);
+                showError('Ошибка загрузки заявок на трансфер');
+            } finally {
+                loadingDiv.classList.add('hidden');
+            }
+        }
+
+        function displayTransferRequests(transfers) {
+            const container = document.getElementById('transfersContainer');
+            const noTransfersDiv = document.getElementById('noTransfers');
+            
+            // Filter only paid transfers
+            const paidTransfers = transfers.filter(t => t.paymentStatus === 'paid');
+            
+            if (paidTransfers.length === 0) {
+                noTransfersDiv.classList.remove('hidden');
+                container.innerHTML = '';
+                return;
+            }
+
+            noTransfersDiv.classList.add('hidden');
+            
+            container.innerHTML = paidTransfers.map(transfer => {
+                const driverResponse = transfer.driverResponse || 'pending';
+                let statusBadge = '';
+                let actionButtons = '';
+                
+                if (driverResponse === 'pending') {
+                    statusBadge = '<span class="status-badge status-pending">Ожидает ответа</span>';
+                    actionButtons = `
+                        <button onclick="acceptTransfer(${transfer.id})" 
+                                class="btn-action bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-check mr-2"></i>Принять
+                        </button>
+                        <button onclick="openTransferRejectionModal(${transfer.id})" 
+                                class="btn-action bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                            <i class="fas fa-times mr-2"></i>Отклонить
+                        </button>
+                    `;
+                } else if (driverResponse === 'accepted') {
+                    statusBadge = '<span class="status-badge status-started">Принято</span>';
+                } else if (driverResponse === 'rejected') {
+                    statusBadge = '<span class="status-badge status-completed">Отклонено</span>';
+                }
+
+                const vehicleName = transfer.vehicle?.name || 'Транспорт';
+                const vehicleInfo = transfer.vehicle ? `${vehicleName} (${transfer.vehicle.licensePlate || ''})` : '';
+
+                return `
+                    <div class="event-card bg-white p-6 rounded-lg shadow-md" style="border-left-color: #10b981;">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex-1">
+                                <div class="flex items-center mb-2">
+                                    <h3 class="text-xl font-semibold text-gray-800 mr-3">${transfer.fullName}</h3>
+                                    ${statusBadge}
+                                </div>
+                                <p class="text-gray-600 mb-2">
+                                    <i class="fas fa-envelope mr-2 text-green-500"></i>
+                                    ${transfer.email || 'Не указан'} 
+                                    ${transfer.phone ? `<i class="fas fa-phone ml-4 mr-2 text-green-500"></i>${transfer.phone}` : ''}
+                                </p>
+                                <p class="text-gray-600 mb-2">
+                                    <i class="fas fa-calendar mr-2 text-green-500"></i>
+                                    ${transfer.rentalDays > 1 && transfer.dropoffDate 
+                                        ? `${transfer.pickupDate} — ${transfer.dropoffDate} (${transfer.rentalDays} дн.)` 
+                                        : transfer.pickupDate} в ${transfer.pickupTime}
+                                </p>
+                                <p class="text-gray-600 mb-2">
+                                    <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>
+                                    ${transfer.pickupLocation} → ${transfer.dropoffLocation}
+                                </p>
+                                <p class="text-gray-600 mb-2">
+                                    <i class="fas fa-users mr-2 text-green-500"></i>
+                                    Пассажиров: ${transfer.numberOfPeople || 1}
+                                </p>
+                                ${vehicleInfo ? `
+                                    <p class="text-gray-600 mb-2">
+                                        <i class="fas fa-car mr-2 text-green-500"></i>
+                                        ${vehicleInfo}
+                                    </p>
+                                ` : ''}
+                                <p class="font-semibold text-green-600">
+                                    <i class="fas fa-money-bill-wave mr-2"></i>
+                                    ${parseFloat(transfer.finalPrice || transfer.estimatedPrice || 0).toFixed(2)} TJS
+                                </p>
+                                ${transfer.specialRequests ? `
+                                    <p class="text-gray-500 mt-2 text-sm">
+                                        <i class="fas fa-comment mr-2"></i>
+                                        ${transfer.specialRequests}
+                                    </p>
+                                ` : ''}
+                                ${transfer.driverResponseNote ? `
+                                    <p class="text-red-500 mt-2 text-sm">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        Причина отклонения: ${transfer.driverResponseNote}
+                                    </p>
+                                ` : ''}
+                            </div>
+                            <div class="flex flex-col space-y-2 ml-4">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function acceptTransfer(requestId) {
+            try {
+                const response = await fetch(`/api/drivers/my-transfers/${requestId}/respond`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${driverToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ response: 'accepted' })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('Заявка принята! Клиент получит уведомление.');
+                    loadTransferRequests();
+                } else {
+                    throw new Error(data.message || 'Ошибка при принятии заявки');
+                }
+            } catch (error) {
+                console.error('Error accepting transfer:', error);
+                showError('Ошибка при принятии заявки');
+            }
+        }
+
+        function openTransferRejectionModal(requestId) {
+            currentRejectionRequestId = requestId;
+            document.getElementById('transferRejectionNote').value = '';
+            document.getElementById('transferRejectionModal').classList.remove('hidden');
+        }
+
+        function closeTransferRejectionModal() {
+            currentRejectionRequestId = null;
+            document.getElementById('transferRejectionModal').classList.add('hidden');
+        }
+
+        async function confirmTransferRejection() {
+            if (!currentRejectionRequestId) return;
+
+            try {
+                const note = document.getElementById('transferRejectionNote').value.trim();
+                
+                const response = await fetch(`/api/drivers/my-transfers/${currentRejectionRequestId}/respond`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${driverToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        response: 'rejected',
+                        note: note || null
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    closeTransferRejectionModal();
+                    showSuccess('Заявка отклонена. Клиент получит уведомление.');
+                    loadTransferRequests();
+                } else {
+                    throw new Error(data.message || 'Ошибка при отклонении заявки');
+                }
+            } catch (error) {
+                console.error('Error rejecting transfer:', error);
+                showError('Ошибка при отклонении заявки');
+            }
+        }
+
+        // Load transfer requests on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransferRequests();
+        });
+
+        function logout() {
+            if (confirm('Вы уверены, что хотите выйти?')) {
+                localStorage.removeItem('driverToken');
+                localStorage.removeItem('driverInfo');
+                window.location.href = '/driver-login.html';
+            }
+        }
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+</body>
+</html>

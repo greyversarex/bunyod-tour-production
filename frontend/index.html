@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- ✅ ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК ОШИБОК: Предотвращает всплытие некритических ошибок
+         от сторонних скриптов (GTM, Elfsight, GetButton и др.) до систем мониторинга.
+         Должен стоять ДО любых сторонних скриптов (выше — только i18n early-boot,
+         который ничего не выбрасывает). Использует capture:true чтобы
+         перехватить событие ДО любых других слушателей. -->
+    <script data-cfasync="false">
+    (function() {
+        var THIRD_PARTY_PATTERNS = [
+            'googletagmanager.com', 'google-analytics.com', 'googleadservices.com',
+            'elfsight.com', 'getbutton.io', 'doubleclick.net', 'googleapis.com', 'gstatic.com'
+        ];
+
+        function isThirdParty(src) {
+            if (!src) return false;
+            for (var i = 0; i < THIRD_PARTY_PATTERNS.length; i++) {
+                if (src.indexOf(THIRD_PARTY_PATTERNS[i]) !== -1) return true;
+            }
+            return false;
+        }
+
+        // window.onerror — перехватываем и подавляем не-Error исключения
+        window.onerror = function(msg, src, line, col, err) {
+            if (isThirdParty(src)) return true;
+            if (err !== undefined && err !== null && !(err instanceof Error)) {
+                console.warn('[BunyodTour] Подавлено не-Error исключение:', msg, 'src:', src);
+                return true;
+            }
+            return false;
+        };
+
+        // ErrorEvent (capture:true — РАНЬШЕ любых других обработчиков)
+        window.addEventListener('error', function(event) {
+            var src = (event.filename) || '';
+            if (isThirdParty(src)) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                return;
+            }
+            // Если error — не экземпляр Error (бросили строку/объект/null)
+            if (event.error !== undefined && event.error !== null && !(event.error instanceof Error)) {
+                console.warn('[BunyodTour] Подавлена не-Error ошибка от:', src);
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }, true /* capture */);
+
+        // unhandledrejection (capture:true)
+        window.addEventListener('unhandledrejection', function(event) {
+            var reason = event.reason;
+            if (reason === undefined || reason === null || !(reason instanceof Error)) {
+                console.warn('[BunyodTour] Подавлен unhandledrejection с не-Error значением:', reason);
+                event.preventDefault();
+                event.stopImmediatePropagation();
+            }
+        }, true /* capture */);
+    })();
+    </script>
+    <!-- /Глобальный перехватчик ошибок -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager + Google Analytics: только на продакшене, не на dev-доменах -->
+    <script data-cfasync="false">
+    (function() {
+      var h = window.location.hostname;
+      var isDevDomain = (h === 'localhost' || h === '127.0.0.1' ||
+        h.indexOf('.local') !== -1 || h.indexOf('192.168.') === 0 ||
+        h.indexOf('staging.') === 0 || h.indexOf('dev.') === 0);
+      if (isDevDomain) return; // Пропускаем GTM/GA на dev-доменах
+
+      // GTM
+      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','GTM-5DDMKVT');
+
+      // Google tag (gtag.js) — загружаем динамически только на продакшене
+      var gtagScript = document.createElement('script');
+      gtagScript.async = true;
+      gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=AW-713421696';
+      document.head.appendChild(gtagScript);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    })();
+    </script>
+    <!-- End Google Tag Manager / Google Analytics -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tours in Tajikistan & Central Asia</title>
+    <meta name="description" content="Discover the beauty of Central Asia with Bunyod-Tour. Book tours to Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan, and Turkmenistan.">
+    <meta property="og:title" content="Tours in Tajikistan & Central Asia">
+    <meta property="og:description" content="Discover the beauty of Central Asia with Bunyod-Tour. Book tours to Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan, and Turkmenistan.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    
+    <!-- Preload critical resources for better LCP -->
+    <link rel="preload" href="/public/css/tailwind.css" as="style">
+
+    <!-- ⚡ LCP: максимально ранний запрос слайдов + preload первой картинки (герой = LCP-элемент).
+         Выполняется синхронно при парсинге <head>, ДО загрузки отложенного bundle, поэтому
+         запрос /api/slides стартует раньше, а картинку браузер начинает грузить приоритетно.
+         data-cfasync="false" — чтобы Cloudflare Rocket Loader не откладывал скрипт. -->
+    <script data-cfasync="false">
+      (function () {
+        try {
+          window.__heroSlidesPromise = fetch('/api/slides', { headers: { 'Accept': 'application/json' } })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              try {
+                if (d && d.success && d.data && d.data.length) {
+                  var img = d.data[0] && d.data[0].image;
+                  if (img) {
+                    img = String(img).trim();
+                    if (img.indexOf('http') !== 0 && img.charAt(0) !== '/') img = '/' + img;
+                    if (img && !document.getElementById('heroPreload')) {
+                      var l = document.createElement('link');
+                      l.id = 'heroPreload';
+                      l.rel = 'preload';
+                      l.as = 'image';
+                      l.href = img;
+                      l.setAttribute('fetchpriority', 'high');
+                      document.head.appendChild(l);
+                    }
+                  }
+                }
+              } catch (e) { /* preload не критичен */ }
+              return d;
+            })
+            .catch(function () { return null; });
+        } catch (e) { window.__heroSlidesPromise = null; }
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+            overflow-x: hidden;
+        }
+        html { overflow-x: hidden; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    
+    <!-- Flatpickr Calendar (CSS грузим асинхронно — календарь появляется только по клику, не блокирует первую отрисовку) -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"></noscript>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script data-cfasync="false" defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" defer src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" defer src="/public/js/multilingual-utils.js?v=2.5"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js?v=1.6"></script>
+    <script data-cfasync="false" defer src="/public/js/utils.js"></script>
+    
+    <script data-cfasync="false" src="/public/js/cache-utils.js"></script>
+    <style>
+        .banner-height {
+            height: 70vh;
+            min-height: 400px;
+        }
+        .gradient-overlay {
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6));
+            z-index: 1;
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .filter-gradient {
+            background: linear-gradient(135deg, #4A4A4A 0%, #3E3E3E 50%, #2F2F2F 100%);
+            box-shadow: 0 10px 30px rgba(47, 47, 47, 0.4);
+        }
+        .modern-select {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .modern-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+        }
+        .modern-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+        .modern-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+        }
+        .service-card {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.6s ease;
+        }
+        .service-card:hover::before {
+            left: 100%;
+        }
+        .service-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .service-icon {
+            background: linear-gradient(135deg, var(--icon-color-1), var(--icon-color-2));
+            box-shadow: 0 8px 20px var(--icon-shadow);
+            transition: all 0.3s ease;
+        }
+        .service-card:hover .service-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+        
+        /* Welcome Payment Banner Animations */
+        @keyframes gradient-x {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+        
+        @keyframes border-glow {
+            0%, 100% { opacity: 0.3; transform: translateX(-100%); }
+            50% { opacity: 0.6; transform: translateX(100%); }
+        }
+        
+        @keyframes float-particle {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100px) translateX(20px); opacity: 0; }
+        }
+        
+        .welcome-banner {
+            background-size: 200% 200%;
+            animation: gradient-x 8s ease infinite;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.15), 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .welcome-banner:hover {
+            box-shadow: 0 0 50px rgba(245, 158, 11, 0.25), 0 15px 50px rgba(0, 0, 0, 0.3);
+            border-color: rgba(245, 158, 11, 0.5);
+        }
+        
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: rgba(245, 158, 11, 0.6);
+            border-radius: 50%;
+            animation: float-particle 4s ease-in-out infinite;
+        }
+        
+        .particle-1 { left: 10%; bottom: 20%; animation-delay: 0s; }
+        .particle-2 { left: 25%; bottom: 10%; animation-delay: 0.8s; }
+        .particle-3 { left: 50%; bottom: 15%; animation-delay: 1.6s; }
+        .particle-4 { left: 70%; bottom: 25%; animation-delay: 2.4s; }
+        .particle-5 { left: 85%; bottom: 10%; animation-delay: 3.2s; }
+        
+        .animate-gradient-x {
+            background-size: 200% 200%;
+            animation: gradient-x 8s ease infinite;
+        }
+        
+        /* Tour Block Carousel Styles */
+        .tour-block-container {
+            position: relative;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+        
+        .tour-carousel {
+            display: flex;
+            scroll-behavior: smooth;
+            gap: 1.5rem;
+            padding: 0 24px;
+            width: fit-content;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            overflow-y: visible;
+        }
+        
+        .tour-card {
+            min-width: 300px;
+            flex-shrink: 0;
+        }
+        
+        @media (max-width: 768px) {
+            #find-tours-section {
+                display: none !important;
+            }
+            
+            .tour-block-container {
+                width: 100vw !important;
+                margin-left: calc(-50vw + 50%) !important;
+                margin-right: 0 !important;
+                overflow-x: auto !important;
+                overflow-y: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                position: relative !important;
+            }
+            
+            .tour-carousel {
+                gap: 12px;
+                padding: 0 !important;
+                padding-left: 24px !important;
+                padding-right: 100px !important;
+                overflow: visible !important;
+            }
+            
+            .tour-card {
+                min-width: 260px !important;
+                max-width: 260px !important;
+                flex-shrink: 0 !important;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .tour-block-container {
+                width: auto !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+        }
+        
+        .tour-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hero Slider Styles */
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+        }
+        
+        .hero-slide-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            z-index: 0;
+        }
+        
+        .slider-dot {
+            cursor: pointer;
+            padding: 16px;
+            min-width: 44px;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-color: transparent;
+        }
+        
+        .slider-dot::before {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .slider-dot.active::before {
+            background-color: white;
+            transform: scale(1.2);
+        }
+        
+        .slider-dot:hover::before {
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .tour-card {
+            min-width: 280px;
+            max-width: 280px;
+            flex-shrink: 0;
+        }
+        
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 50%;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        
+        .carousel-button:hover {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .carousel-button:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .carousel-button.prev {
+            left: 10px;
+        }
+        
+        .carousel-button.next {
+            right: 10px;
+        }
+        
+        .carousel-button svg {
+            width: 24px;
+            height: 24px;
+            color: #3e3e3e;
+        }
+        
+        .carousel-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: translateY(-50%) scale(0.9);
+        }
+        
+        /* ===== МОБИЛЬНАЯ АДАПТАЦИЯ ===== */
+        @media (max-width: 768px) {
+            /* Баннер/Слайдер */
+            .banner-height {
+                height: 50vh;
+                min-height: 400px;
+            }
+            
+            .hero-slide h1 {
+                font-size: 2rem !important;
+                line-height: 1.2;
+                margin-bottom: 1rem !important;
+            }
+            
+            .hero-slide p {
+                font-size: 0.95rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            .hero-slide a {
+                font-size: 0.9rem !important;
+                padding: 0.6rem 1.5rem !important;
+            }
+            
+            #sliderNavigation {
+                bottom: 3rem;
+            }
+            
+            /* Скрываем стрелки слайдера на мобильных */
+            #prevSlide, #nextSlide {
+                display: none !important;
+            }
+            
+            /* Карусель туров */
+            .tour-carousel {
+                padding: 0;
+                gap: 16px;
+                width: auto;
+                margin: unset;
+                scroll-snap-type: x mandatory;
+                touch-action: pan-x;
+            }
+            
+            .tour-block-container {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Скрываем стрелки карусели туров на мобильных */
+            .carousel-button {
+                display: none !important;
+            }
+            
+            /* Карточки туров - 100% ширины контейнера (точно как блок "Виды тура") */
+            .tour-card {
+                flex: 0 0 calc(100% - 8px);
+                width: calc(100% - 8px);
+                min-width: unset;
+                max-width: unset;
+                box-sizing: border-box;
+                scroll-snap-align: center;
+            }
+            
+            /* Первая карточка - компенсируем отступ */
+            .tour-card:first-child {
+                margin-left: 0;
+            }
+            
+            /* Секции */
+            section {
+                padding-top: 2rem !important;
+                padding-bottom: 2rem !important;
+            }
+            
+            section h2 {
+                font-size: 1.75rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+            
+            section h3 {
+                font-size: 1.25rem !important;
+            }
+        }
+        
+        /* Экстра-малые экраны */
+        @media (max-width: 480px) {
+            .banner-height {
+                height: 45vh;
+                min-height: 350px;
+            }
+            
+            .hero-slide h1 {
+                font-size: 1.5rem !important;
+            }
+            
+            .hero-slide p {
+                font-size: 0.875rem !important;
+            }
+            
+            section h2 {
+                font-size: 1.5rem !important;
+            }
+        }
+        
+        /* Анимированные иконки услуг */
+        .car-icon, .guide-icon, .agency-icon, .class-icon {
+            font-size: 3rem;
+            transition: all 0.4s ease;
+            display: inline-block;
+            color: #3E3E3E;
+        }
+        
+        .service-card:hover .car-icon {
+            animation: drive 1.5s ease-in-out infinite alternate;
+            color: #2563EB;
+            filter: drop-shadow(0 4px 12px rgba(37, 99, 235, 0.4));
+        }
+        
+        .service-card:hover .car-icon {
+            color: #2563EB;
+            transform: scale(1.1);
+        }
+        @keyframes drive {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(15px); }
+        }
+        
+        .service-card:hover .guide-icon {
+            animation: wave 1.2s ease-in-out infinite;
+            color: #059669;
+            filter: drop-shadow(0 4px 12px rgba(5, 150, 105, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            75% { transform: rotate(-10deg); }
+        }
+        
+        .service-card:hover .agency-icon {
+            animation: bounce 1s ease-in-out infinite;
+            color: #DC2626;
+            filter: drop-shadow(0 4px 12px rgba(220, 38, 38, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.1); }
+        }
+        
+        .service-card:hover .class-icon {
+            animation: rotate 2s linear infinite;
+            color: #7C3AED;
+            filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.4));
+            transform: scale(1.1);
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        
+        /* Стили для выпадающих меню навигации */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #2F2F2F;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            z-index: 1000;
+            border-radius: 8px;
+            top: 100%;
+            left: 0;
+            padding: 8px 0;
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        .dropdown-content a {
+            color: white;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #4A4A4A;
+        }
+        .dropdown-content .dropdown-submenu {
+            position: relative;
+        }
+        .dropdown-content .dropdown-submenu .dropdown-subcontent {
+            display: none !important;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            background-color: #2F2F2F;
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 0;
+            z-index: 1001;
+        }
+        .dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+            display: block !important;
+        }
+        
+        /* Стили для языкового селектора */
+        .language-selector {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            color: white;
+            padding: 8px 12px;
+            transition: all 0.3s ease;
+        }
+        .language-selector:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        /* Стили для поисковика */
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+
+        .search-input {
+            flex: 1;
+            padding: 16px 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .search-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+            transform: translateY(-2px);
+            outline: none;
+        }
+        .filter-icon-btn {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .filter-icon-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        /* Стили для языкового селектора с флагами */
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .lang-selector-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            min-width: 80px;
+        }
+        
+        .lang-selector-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .selected-flag {
+            width: 24px;
+            height: 16px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.4);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        
+        .flag {
+            width: 20px;
+            height: 14px;
+            border-radius: 2px;
+            display: inline-block;
+            margin-right: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        /* HOTFIX: Принудительное отображение эмодзи флагов (отключаем псевдоэлементы) */
+        .flag, .selected-flag {
+            width: 24px;
+            height: 16px;
+            display: inline-block !important;
+            text-align: center;
+            line-height: 16px;
+            font-size: 16px !important;
+            border-radius: 2px;
+            margin-right: 8px;
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            /* Критично: отключаем любые псевдоэлементы которые могут добавлять текстовые коды */
+            text-indent: 0 !important;
+            color: inherit !important;
+        }
+
+        /* 🚨 ГЛОБАЛЬНАЯ ЗАЩИТА: Отключение ВСЕХ псевдоэлементов флагов */
+        [class^="flag-"]::before, [class*=" flag-"]::before,
+        [class^="flag-"]::after,  [class*=" flag-"]::after {
+            content: none !important;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            font-size: 0 !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+        }
+
+        /* 🎌 ГЛОБАЛЬНАЯ ЗАЩИТА: Принудительные эмодзи для ВСЕХ флагов */
+        [class^="flag-"], [class*=" flag-"] {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            font-size: 16px !important;
+            color: inherit !important;
+            text-indent: 0 !important;
+            letter-spacing: 0 !important;
+            word-spacing: 0 !important;
+            text-transform: none !important;
+            text-decoration: none !important;
+            background: none !important;
+            background-image: none !important;
+            text-shadow: none !important;
+        }
+
+        /* 🔧 СПЕЦИФИЧЕСКИЕ ФЛАГИ: Дополнительная защита для языкового селектора */
+        .flag, .selected-flag,
+        .flag-ru, .flag-us, .flag-tj, .flag-ir, .flag-de, .flag-cn {
+            font-family: "Apple Color Emoji", "Segoe UI Emoji", "NotoColorEmoji", "Segoe UI Symbol", "Android Emoji", "EmojiSymbols" !important;
+            font-size: 16px !important;
+            color: inherit !important;
+            text-indent: 0 !important;
+            background: none !important;
+            background-image: none !important;
+        }
+
+        /* 💀 УБИЙЦА псевдоэлементов: Дублирующая защита для всех возможных комбинаций */
+        .flag::before, .flag::after, .selected-flag::before, .selected-flag::after,
+        .flag-ru::before, .flag-ru::after, .flag-us::before, .flag-us::after,
+        .flag-tj::before, .flag-tj::after, .flag-ir::before, .flag-ir::after,
+        .flag-de::before, .flag-de::after, .flag-cn::before, .flag-cn::after {
+            content: none !important;
+            display: none !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            z-index: -9999 !important;
+            font-size: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+        }
+        
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+            margin-left: auto;
+        }
+        
+        .dropdown-arrow.open {
+            transform: rotate(180deg);
+        }
+        
+        .lang-dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(47, 47, 47, 0.95);
+            backdrop-filter: blur(10px);
+            min-width: 160px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .lang-dropdown-content.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .lang-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .lang-option:last-child {
+            border-bottom: none;
+        }
+        
+        .lang-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+        }
+        
+        .lang-option.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: #ffffff;
+        }
+        
+        .lang-option .flag {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        
+        .lang-option .lang-name {
+            font-weight: 500;
+            flex: 1;
+        }
+        
+        /* Система поиска с выдвижными фильтрами */
+        .search-filter-container {
+            margin-bottom: 2rem;
+        }
+        
+        /* Скрываем старый поисковик на мобилке (используем новый в хедере) */
+        @media (max-width: 768px) {
+            .search-filter-container {
+                display: none;
+            }
+        }
+        
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            background: #3E3E3E;
+            padding: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(62, 62, 62, 0.3);
+        }
+        
+        .search-input-compact {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-input-compact::placeholder {
+            color: #9CA3AF;
+        }
+        
+        .search-input-compact:focus {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        .filter-toggle-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .filter-toggle-btn:hover {
+            background: #F8F9FA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .search-btn-compact {
+            padding: 1rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            background: #6B7280;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+        }
+        
+        .search-btn-compact:hover {
+            background: #4B5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+        }
+        
+        /* Панель фильтров */
+        .filter-panel {
+            background: #3E3E3E;
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: none;
+            box-shadow: 0 8px 25px rgba(62, 62, 62, 0.3);
+            transition: all 0.4s ease;
+            animation: slideDown 0.4s ease;
+            margin-top: 1rem;
+        }
+        
+        .filter-panel.hidden {
+            display: none;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .filter-select, .filter-date {
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #374151;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            appearance: none;
+            cursor: pointer;
+        }
+        
+        .filter-select option {
+            background: white;
+            color: #374151;
+        }
+        
+        .filter-select:focus, .filter-date:focus {
+            background: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .filter-select:hover, .filter-date:hover {
+            background: #F8F9FA;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Стрелка для select */
+        .filter-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+        
+        /* Стили для автодополнения */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 0.875rem 1.25rem;
+            cursor: pointer;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f9fafb;
+        }
+        
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .suggestion-icon {
+            width: 20px;
+            height: 20px;
+            color: #6b7280;
+        }
+        
+        .suggestion-text {
+            flex: 1;
+            font-size: 0.95rem;
+            color: #374151;
+        }
+        
+        .suggestion-type {
+            font-size: 0.75rem;
+            color: #9ca3af;
+            background: #f3f4f6;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .search-section {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1.25rem;
+            }
+            
+            .search-input-compact, .filter-toggle-btn, .search-btn-compact {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .filter-panel {
+                padding: 1rem;
+                margin: 1rem 0;
+            }
+        }
+    </style>
+    
+    <!-- ✅ АРХИТЕКТУРНАЯ ЧИСТОТА: Leaflet подключается только в footer! -->
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header будет загружен динамически через layout-loader.js -->
+    <div id="header-container"></div>
+    <!-- Spacer будет добавлен автоматически через layout-loader.js -->
+
+    <!-- Главный баннер/слайдер -->
+    <section id="heroSlider" class="banner-height relative overflow-hidden" style="background: #f3f4f6;">
+        <!-- Слайды будут загружены динамически -->
+        <div id="slidesContainer" class="h-full w-full">
+            <!-- Контейнер будет заполнен слайдами через JavaScript -->
+        </div>
+        
+        <!-- Навигация слайдера -->
+        <div id="sliderNavigation" class="absolute bottom-20 left-1/2 transform -translate-x-1/2 flex space-x-2">
+            <!-- Точки будут добавлены динамически -->
+        </div>
+        
+        <!-- Стрелки навигации -->
+        <button id="prevSlide" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl opacity-70 hover:opacity-100 transition-opacity duration-300 z-10" style="display: none;">
+            &#8249;
+        </button>
+        <button id="nextSlide" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl opacity-70 hover:opacity-100 transition-opacity duration-300 z-10" style="display: none;">
+            &#8250;
+        </button>
+        
+        <!-- Брендинг -->
+        <div class="absolute bottom-8 right-8">
+            <div class="bg-black bg-opacity-50 text-white px-4 py-2 rounded-lg text-sm">
+                <span data-translate="hero.more_with_bunyod">More with Bunyod-Tour</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Мобильный поиск (перемещён из хедера под баннер, только мобильные) -->
+    <div id="mobileSearchUnderBanner" class="md:hidden"></div>
+
+    <!-- Мобильный баннер оплаты (только для мобильных) -->
+    <div id="mobile-payment-banner" class="md:hidden px-4 py-4 bg-white">
+        <div class="flex items-stretch gap-3">
+            <!-- Visa/Mastercard icon -->
+            <div class="flex-shrink-0 bg-white rounded-xl px-3 shadow-lg border-2 border-sky-200 flex items-center justify-center" style="box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);">
+                <img src="/attached_assets/VISA-MASTER-01_1768733497603.png" alt="Visa Mastercard" class="w-14 h-auto object-contain" loading="lazy">
+            </div>
+            
+            <!-- Text bubble -->
+            <div class="flex-1 relative">
+                <div class="rounded-2xl px-4 py-3 shadow-lg" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); box-shadow: 0 8px 30px rgba(14, 165, 233, 0.35);">
+                    <h3 class="text-sm font-bold text-white mb-1" data-translate="banner.payment_title">e-Booking system for Tours</h3>
+                    <p class="text-white/90 text-xs leading-snug" data-translate="banner.payment_description_short">Visa/Mastercard: 10% or 25% advance payment, balance on tour day</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Система фильтров туров -->
+    <section id="find-tours-section" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flying-plane-container">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.find_perfect_tour">Find the Perfect Tour</h2>
+                <div class="flying-plane">✈️</div>
+                <div class="plane-speech-bubble-fixed">
+                    <span class="speech-text">Путешествия - это единственная вещь, покупая которую, становишься богаче!</span>
+                </div>
+            </div>
+            
+            <!-- Компактный поисковик с фильтрами -->
+                <div class="search-filter-container">
+                    <!-- Поисковая строка с кнопкой фильтра -->
+                    <div class="search-section">
+                        <div class="search-autocomplete-container" style="position: relative; flex: 1; width: 100%;">
+                            <input type="text" id="searchInput" class="search-input-compact" data-translate-placeholder="placeholder.search_perfect_tour" placeholder="Find the perfect tour: Pamir, Iskanderkul, trekking..." 
+                                   onkeypress="if(event.key==='Enter') performSearch()" 
+                                   oninput="handleSearchInput(this.value)" 
+                                   onfocus="showSuggestions()" 
+                                   onblur="hideSuggestions()"
+                                   style="width: 100%;">
+                            <div id="searchSuggestions" class="search-suggestions hidden"></div>
+                        </div>
+                        
+                        <button onclick="toggleFilterPanel()" class="filter-toggle-btn">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                            </svg>
+                            <span data-translate="btn.filter">Filters</span>
+                        </button>
+                        
+                        <button onclick="performSearch()" class="search-btn-compact">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <span data-translate="btn.search">Search</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Панель фильтров (скрыта по умолчанию) -->
+                    <div id="filterPanel" class="filter-panel hidden">
+                        <div class="filter-grid">
+                            <select id="countryFilter" class="filter-select" onchange="updateCities(); updateHotels()">
+                                <option value="" data-translate="filter.country">Country</option>
+                                <option value="Таджикистан" data-translate="country.tajikistan">Tajikistan</option>
+                                <option value="Узбекистан" data-translate="country.uzbekistan">Uzbekistan</option>
+                                <option value="Кыргызстан" data-translate="country.kyrgyzstan">Kyrgyzstan</option>
+                                <option value="Казахстан" data-translate="country.kazakhstan">Kazakhstan</option>
+                                <option value="Туркменистан" data-translate="country.turkmenistan">Turkmenistan</option>
+                            </select>
+                            
+                            <select id="cityFilter" class="filter-select">
+                                <option value="" data-translate="filter.city">City</option>
+                            </select>
+                            
+                            <select id="formatFilter" class="filter-select">
+                                <option value="" data-translate="filter.tour_type">Tour Type</option>
+                                <option value="Персональный" data-translate="tour_type.personal">Private</option>
+                                <option value="Групповой персональный" data-translate="tour_type.group_personal">Group Private</option>
+                                <option value="Групповой общий" data-translate="tour_type.group_general">Group Shared</option>
+                                <option value="VIP" data-translate="tour.vip">VIP</option>
+                            </select>
+                            
+                            <select id="categoryFilter" class="filter-select">
+                                <option value="" data-translate="filter.category">Category</option>
+                                <option value="Однодневные" data-translate="tour.single_day">Day Tours</option>
+                                <option value="Многодневные" data-translate="tour.multi_day">Multi-day Tours</option>
+                                <option value="Экскурсии" data-translate="tour.excursions">Excursions</option>
+                                <option value="Городские туры" data-translate="tour.city_tours">City Tours</option>
+                                <option value="Природа, экологические туры" data-translate="tour.nature_eco">Nature/Ecological</option>
+                                <option value="Культурно познавательные туры" data-translate="tour.cultural">Cultural &amp; Educational</option>
+                                <option value="Исторические туры" data-translate="tour.historical">Historical</option>
+                                <option value="Походы, трекинги" data-translate="tour.trekking">Hiking/Trekking</option>
+                                <option value="Горные ландшафты" data-translate="tour.mountain_landscapes">Mountain Landscapes</option>
+                                <option value="Озерные ландшафты" data-translate="tour.lake_landscapes">Lake Landscapes</option>
+                                <option value="Приключенческие туры" data-translate="tour.adventure">Adventure</option>
+                                <option value="Гастрономические туры" data-translate="tour.gastronomy">Gastronomic</option>
+                                <option value="Автотуры, сафари, джип-туры" data-translate="tour.auto_safari">Auto/Safari/Jeep</option>
+                                <option value="Агротуры" data-translate="tour.agro">Agrotourism</option>
+                                <option value="VIP туры" data-translate="tour.vip">VIP</option>
+                            </select>
+                            
+                            <input type="text" id="dateFilter" class="filter-date" placeholder="DD.MM.YYYY" readonly>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- Приветственный баннер с информацией об оплате -->
+            <div id="welcome-payment-banner" class="mt-8 flex items-stretch gap-4">
+                <!-- Visa/Mastercard icon -->
+                <div class="flex-shrink-0 bg-white rounded-2xl px-4 shadow-xl border-2 border-sky-300 transform hover:scale-105 transition-transform duration-300 flex items-center justify-center" style="box-shadow: 0 8px 25px rgba(14, 165, 233, 0.25);">
+                    <img src="/attached_assets/VISA-MASTER-01_1768733497603.png" alt="Visa Mastercard" class="w-24 h-auto object-contain" loading="lazy">
+                </div>
+                
+                <!-- Text bubble -->
+                <div class="flex-1 relative">
+                    <div class="rounded-3xl px-6 py-5 shadow-xl" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); box-shadow: 0 10px 40px rgba(14, 165, 233, 0.35);">
+                        <h3 class="text-xl font-bold text-white mb-2" data-translate="banner.payment_title">e-Booking system for Tours</h3>
+                        <p class="text-white/90 text-sm leading-relaxed italic" data-translate="banner.payment_description">You can book tours using Visa or Mastercard by paying 10% or 25% of the tour cost in advance, with the remaining balance due on the first day of the tour.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Результаты поиска -->
+            <div id="searchResults" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900" data-translate="title.search_results">Search Results</h3>
+                    <button onclick="clearSearch()" class="text-gray-600 hover:text-gray-900 font-medium" data-translate="common.show_all_tours">Show All Tours</button>
+                </div>
+                <div id="toursGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Динамические туры загружаются сюда через JavaScript -->
+    <!-- Секции туров будут созданы автоматически функцией loadTourBlocks() -->
+
+
+
+    <!-- Динамические блоки туров загружаются здесь -->
+    <div id="tour-blocks-container">
+        <!-- Блоки туров будут загружены динамически через JavaScript -->
+    </div>
+
+
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="home.services.title">Our Services</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Трансфер -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="text-5xl mb-4">🚐</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.transfer_title">TRANSFER</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature1">Trips across all 5-STAN territories with experienced drivers</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature2">Airport, railway and border pickups in 5-STAN</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature3">Inter-country and inter-city trips</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.transfer_feature4">Affordable and comfortable vehicles</span></li>
+                    </ul>
+                    <button onclick="window.location.href='/transfer.html'" class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;">
+                        <span data-translate="btn.order_transfer">Order Transfer</span>
+                    </button>
+                </div>
+
+                <!-- Тур-гиды -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="text-5xl mb-4">🧭</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.guides_title">TOUR GUIDES</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature1">Experienced tour guides in all 5-STAN</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature2">Professional accompaniment</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature3">Local knowledge and multilingual skills</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.guides_feature4">Friend on the trip, savings and safety</span></li>
+                    </ul>
+                    <a href="/tour-guides.html" class="block w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto text-center" style="background-color: #3E3E3E;">
+                        <span data-translate="btn.order_guide">Order Tour Guide</span>
+                    </a>
+                </div>
+
+                <!-- B2B партнерство -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="text-5xl mb-4">🏢</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.agency_title">B2B PARTNERSHIP</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature1">Tour agency services in all 5-STAN</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature2">Ready and accessible tour packages for sale</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature3">Rewards for each sold package</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.agency_feature4">Flexible and mutually beneficial partnership terms</span></li>
+                    </ul>
+                    <button onclick="window.location.href='/travel-agent-apply.html'" class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;" data-translate="home.services.become_agent_btn">Become a Partner</button>
+                </div>
+
+                <!-- Собственный тур -->
+                <div class="service-card rounded-xl p-8 flex flex-col h-full" style="--icon-color-1: #3E3E3E; --icon-color-2: #2E2E2E; --icon-shadow: rgba(62, 62, 62, 0.3);">
+                    <div class="flex flex-col items-center text-center mb-6">
+                        <div class="text-5xl mb-4">🗺️</div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2" data-translate="service.custom_tour_title">CUSTOM TOUR</h3>
+                    </div>
+                    <ul class="text-sm text-gray-700 mb-6 space-y-2 flex-grow">
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature1">Create your tour across all 5-STAN</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature2">Route selection at your discretion</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature3">Hotel selection and accommodation class</span></li>
+                        <li class="flex items-start"><span class="mr-2" style="color: #3E3E3E;">•</span> <span data-translate="service.custom_feature4">Flexible visit time settings</span></li>
+                    </ul>
+                    <button onclick="window.location.href='/custom-tour-order.html'" class="w-full text-white py-3 px-6 rounded-xl font-bold transition-all duration-300 hover:scale-105 hover:shadow-lg mt-auto" style="background-color: #3E3E3E;" data-translate="home.services.create_tour_btn">Create a Tour</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Направления -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900" data-translate="title.tours_by_cities">Tours by Cities</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <!-- Душанбе -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=1'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.dushanbe">Dushanbe</h3>
+                    </div>
+                </div>
+
+                <!-- Хорог -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=3'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.khorog">Khorog</h3>
+                    </div>
+                </div>
+
+                <!-- Худжанд -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=2'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.khujand">Khujand</h3>
+                    </div>
+                </div>
+
+                <!-- Ташкент -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=5'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.tashkent">Tashkent</h3>
+                    </div>
+                </div>
+
+                <!-- Самарканд -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=6'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.samarkand">Samarkand</h3>
+                    </div>
+                </div>
+
+                <!-- Бухара -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=7'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.bukhara">Bukhara</h3>
+                    </div>
+                </div>
+
+                <!-- Бишкек -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=8'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.bishkek">Bishkek</h3>
+                    </div>
+                </div>
+
+                <!-- Астана -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=11'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.astana">Astana</h3>
+                    </div>
+                </div>
+
+                <!-- Алматы -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=10'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.almaty">Almaty</h3>
+                    </div>
+                </div>
+
+                <!-- Ош -->
+                <div class="relative group cursor-pointer overflow-hidden rounded-lg h-32" onclick="window.location.href='/tours-search.html?cityId=9'">
+                    <div class="absolute inset-0 bg-gray-200 pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-30 transition-all pointer-events-none"></div>
+                    <div class="absolute inset-0 flex items-center justify-center text-white pointer-events-none">
+                        <h3 class="text-lg font-bold" data-translate="city.osh">Osh</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section class="py-16 bg-white" id="reviewsSection">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
+                <span data-translate="reviews.title">Customer Reviews</span>
+            </h2>
+            
+            <!-- Reviews container - horizontal scroll (single row) on all screen sizes -->
+            <div class="reviews-nav-wrapper">
+                <!-- Стрелка влево -->
+                <button class="reviews-arrow reviews-arrow-left" id="reviewsArrowLeft" onclick="scrollReviews(-1)" aria-label="Предыдущие отзывы">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                </button>
+
+                <div class="reviews-wrapper">
+                    <div id="reviewsGrid" class="reviews-container">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Стрелка вправо -->
+                <button class="reviews-arrow reviews-arrow-right" id="reviewsArrowRight" onclick="scrollReviews(1)" aria-label="Следующие отзывы">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+            </div>
+
+            <style>
+                /* Обёртка с кнопками навигации */
+                .reviews-nav-wrapper {
+                    position: relative;
+                    display: flex;
+                    align-items: center;
+                    gap: 0;
+                }
+
+                /* Стрелки — скрыты на мобайле, видны на десктопе */
+                .reviews-arrow {
+                    display: none;
+                }
+                @media (min-width: 768px) {
+                    .reviews-arrow {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        flex-shrink: 0;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        border: 1.5px solid #e5e7eb;
+                        background: rgba(255, 255, 255, 0.92);
+                        backdrop-filter: blur(8px);
+                        color: #3E3E3E;
+                        cursor: pointer;
+                        transition: background 0.2s, box-shadow 0.2s, opacity 0.2s;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                        z-index: 2;
+                        opacity: 1;
+                    }
+                    .reviews-arrow:hover {
+                        background: #f3f4f6;
+                        box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+                    }
+                    .reviews-arrow.disabled {
+                        opacity: 0.25;
+                        cursor: default;
+                        pointer-events: none;
+                    }
+                    .reviews-arrow-left {
+                        margin-right: 12px;
+                    }
+                    .reviews-arrow-right {
+                        margin-left: 12px;
+                    }
+                }
+
+                /* Внутренняя обёртка скролла */
+                .reviews-wrapper {
+                    flex: 1;
+                    overflow-x: auto;
+                    overflow-y: visible;
+                }
+
+                /* Единая горизонтальная лента */
+                .reviews-container {
+                    display: flex;
+                    flex-direction: row;
+                    flex-wrap: nowrap;
+                    gap: 20px;
+                    overflow-x: auto;
+                    overflow-y: visible;
+                    padding-bottom: 12px;
+                    scroll-snap-type: x mandatory;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: thin;
+                    scrollbar-color: #d1d5db transparent;
+                }
+                .reviews-container::-webkit-scrollbar {
+                    height: 5px;
+                }
+                .reviews-container::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .reviews-container::-webkit-scrollbar-thumb {
+                    background: #d1d5db;
+                    border-radius: 3px;
+                }
+                .reviews-container > div {
+                    flex-shrink: 0;
+                    width: 300px;
+                    scroll-snap-align: start;
+                }
+                @media (min-width: 768px) {
+                    .reviews-container > div {
+                        width: 340px;
+                    }
+                }
+                @media (min-width: 1024px) {
+                    .reviews-container > div {
+                        width: 360px;
+                    }
+                }
+            </style>
+
+            <script data-cfasync="false">
+                function scrollReviews(direction) {
+                    const container = document.getElementById('reviewsGrid');
+                    if (!container) return;
+                    const cardWidth = container.querySelector('div') ? container.querySelector('div').offsetWidth + 20 : 380;
+                    container.scrollBy({ left: direction * cardWidth, behavior: 'smooth' });
+                    setTimeout(updateReviewArrows, 350);
+                }
+
+                function updateReviewArrows() {
+                    const container = document.getElementById('reviewsGrid');
+                    const leftBtn  = document.getElementById('reviewsArrowLeft');
+                    const rightBtn = document.getElementById('reviewsArrowRight');
+                    if (!container || !leftBtn || !rightBtn) return;
+                    const atStart = container.scrollLeft < 8;
+                    const atEnd   = container.scrollLeft >= container.scrollWidth - container.clientWidth - 8;
+                    leftBtn.classList.toggle('disabled', atStart);
+                    rightBtn.classList.toggle('disabled', atEnd);
+                }
+
+                // Обновляем состояние стрелок при скролле
+                document.addEventListener('DOMContentLoaded', function() {
+                    const container = document.getElementById('reviewsGrid');
+                    if (container) {
+                        container.addEventListener('scroll', updateReviewArrows, { passive: true });
+                    }
+                });
+            </script>
+            
+            <div id="noReviews" class="text-center text-gray-500 py-12" style="display: none;">
+                <p data-translate="reviews.no_reviews">No reviews yet</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- TripAdvisor Reviews Widget (Elfsight) -->
+    <section class="py-16 bg-gray-50" id="tripadvisorReviewsSection">
+        <div class="max-w-7xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-900">
+                <span data-translate="reviews.tripadvisor_title">TripAdvisor Reviews</span>
+            </h2>
+            <!-- Elfsight загружается только на production-домене bunyodtour.tj -->
+            <script data-cfasync="false">
+            (function() {
+                var hostname = window.location.hostname;
+                var isDevDomain = hostname === 'localhost' ||
+                                  hostname === '127.0.0.1' ||
+                                  hostname.includes('.local') ||
+                                  hostname.startsWith('192.168.') ||
+                                  hostname.startsWith('staging.') ||
+                                  hostname.startsWith('dev.');
+                if (!isDevDomain) {
+                    var s = document.createElement('script');
+                    s.src = 'https://static.elfsight.com/platform/platform.js';
+                    s.async = true;
+                    document.currentScript.parentNode.appendChild(s);
+                }
+            })();
+            </script>
+            <div class="elfsight-app-b0e18494-19cc-4859-bc14-63811dad5135" data-elfsight-app-lazy></div>
+        </div>
+    </section>
+
+    <!-- Footer будет загружен динамически через layout-loader.js -->
+    <div id="footer-container"></div>
+
+    <!-- HOME PAGE SCRIPTS -->
+    <script data-cfasync="false" src="/public/js/home-page.js?v=7.0" defer></script>
+
+    <!-- Перенос мобильного поисковика из хедера под баннер (только главная) -->
+    <script data-cfasync="false">
+    (function() {
+        function relocateMobileSearch() {
+            var searchRow = document.getElementById('headerMobileSearchRow');
+            var placeholder = document.getElementById('mobileSearchUnderBanner');
+            if (searchRow && placeholder && searchRow.parentElement !== placeholder) {
+                placeholder.appendChild(searchRow);
+                return true;
+            }
+            return false;
+        }
+        document.addEventListener('layout:ready', relocateMobileSearch);
+        if (!relocateMobileSearch()) {
+            var attempts = 0;
+            var timer = setInterval(function() {
+                attempts++;
+                if (relocateMobileSearch() || attempts > 60) {
+                    clearInterval(timer);
+                }
+            }, 100);
+        }
+    })();
+    </script>
+
+    <!-- Plane Speech Bubble Quote Rotation -->
+    <script data-cfasync="false">
+    (function() {
+        const travelQuotes = [
+            { ru: 'Путешествия - это единственная вещь, покупая которую, становишься богаче!', en: 'Travel is the only thing you buy that makes you richer!' },
+            { ru: 'Мир - это книга, и те, кто не путешествуют, читают лишь одну страницу', en: 'The world is a book, and those who do not travel read only one page' },
+            { ru: 'Не откладывай на завтра то, что можешь увидеть сегодня!', en: 'Do not put off till tomorrow what you can see today!' },
+            { ru: 'Жизнь коротка, а мир велик. Путешествуй!', en: 'Life is short, the world is wide. Travel!' },
+            { ru: 'Лучшее образование - это путешествия', en: 'The best education is travel' },
+            { ru: 'Приключения ждут тебя!', en: 'Adventure awaits you!' },
+            { ru: 'Открой для себя Центральную Азию!', en: 'Discover Central Asia!' },
+            { ru: 'Каждое путешествие меняет тебя навсегда', en: 'Every journey changes you forever' },
+            { ru: 'Соберите чемоданы - впереди приключение!', en: 'Pack your bags - adventure ahead!' },
+            { ru: 'Путешествие в тысячу миль начинается с первого шага', en: 'A journey of a thousand miles begins with a single step' }
+        ];
+        
+        let currentIndex = 0;
+        
+        function getCurrentLanguage() {
+            return localStorage.getItem('selectedLanguage') || window.currentLanguage || document.documentElement.lang || 'en';
+        }
+        
+        function updateQuoteLanguage() {
+            const speechTexts = document.querySelectorAll('.speech-text');
+            if (speechTexts.length === 0) return;
+            
+            const lang = getCurrentLanguage();
+            const quote = travelQuotes[currentIndex][lang] || travelQuotes[currentIndex]['en'] || travelQuotes[currentIndex]['ru'];
+            
+            speechTexts.forEach(el => {
+                el.textContent = quote;
+            });
+        }
+        
+        function rotateQuotes() {
+            const speechTexts = document.querySelectorAll('.speech-text');
+            if (speechTexts.length === 0) return;
+            
+            currentIndex = (currentIndex + 1) % travelQuotes.length;
+            const lang = getCurrentLanguage();
+            const quote = travelQuotes[currentIndex][lang] || travelQuotes[currentIndex]['en'] || travelQuotes[currentIndex]['ru'];
+            
+            speechTexts.forEach(el => {
+                el.style.opacity = '0';
+                setTimeout(() => {
+                    el.textContent = quote;
+                    el.style.opacity = '1';
+                }, 300);
+            });
+        }
+        
+        // Rotate quotes every 5 seconds
+        setInterval(rotateQuotes, 5000);
+        
+        // Listen for language change events
+        document.addEventListener('languageChanged', function(e) {
+            updateQuoteLanguage();
+        });
+        
+        // Also listen for storage changes (in case language is changed)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'selectedLanguage') {
+                updateQuoteLanguage();
+            }
+        });
+        
+        // Set initial quote based on language
+        setTimeout(() => {
+            updateQuoteLanguage();
+        }, 500);
+    })();
+    </script>
+
+<!-- Модальное окно для отображения полного списка стран и городов -->
+<div id="locationModal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeLocationModal()"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+            <div class="absolute top-0 right-0 pt-4 pr-4">
+                <button type="button" onclick="closeLocationModal()" class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="sm:flex sm:items-start">
+                <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                    <h3 class="text-lg leading-6 font-bold text-gray-900 mb-4" id="modal-title" data-translate="location.details">Tour Location</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 8l2.55 3.4A1 1 0 0116 13H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
+                                <span data-translate="location.countries">Countries</span>
+                            </h4>
+                            <ul id="modalCountriesList" class="space-y-1 text-sm text-gray-600"></ul>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                                <span data-translate="location.cities">Cities</span>
+                            </h4>
+                            <ul id="modalCitiesList" class="space-y-1 text-sm text-gray-600"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script data-cfasync="false">
+// Глобальные функции для модального окна локации
+function openLocationModal(countries, cities) {
+    const modal = document.getElementById('locationModal');
+    const countriesList = document.getElementById('modalCountriesList');
+    const citiesList = document.getElementById('modalCitiesList');
+    
+    // Заполняем списки
+    countriesList.innerHTML = countries.map(c => `<li class="flex items-center gap-1"><span class="text-green-500">✓</span> ${c}</li>`).join('');
+    citiesList.innerHTML = cities.length > 0 
+        ? cities.map(c => `<li class="flex items-center gap-1"><span class="text-blue-500">•</span> ${c}</li>`).join('')
+        : '<li class="text-gray-400 italic">—</li>';
+    
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLocationModal() {
+    const modal = document.getElementById('locationModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+// Закрытие по Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLocationModal();
+    }
+});
+</script>
+
+</body>
+</html>

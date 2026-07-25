@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="agent.dashboard_title">Travel Agent Dashboard - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="/public/js/phone-country-selector.js?v=2.1"></script>
+    <script data-cfasync="false" defer src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js?v=1.6"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; }
+        .dashboard-header {
+            background: linear-gradient(135deg, #2F2F2F 0%, #3E3E3E 100%);
+            padding: 30px 20px;
+            color: white;
+        }
+        .dashboard-header h1 { font-size: 2rem; margin-bottom: 10px; }
+        .agent-info { display: flex; gap: 20px; align-items: center; margin-top: 15px; flex-wrap: wrap; }
+        .agent-info-item { display: flex; align-items: center; gap: 8px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 30px; margin-top: 30px; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .card h2 { color: #3E3E3E; margin-bottom: 20px; font-size: 1.5rem; }
+        .card ol { list-style: decimal; }
+        .card ul { list-style: disc; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #3E3E3E; }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%; padding: 12px; border: 2px solid #e0e0e0;
+            border-radius: 8px; font-size: 1rem;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus { outline: none; border-color: #3E3E3E; }
+        .btn {
+            background: #3E3E3E; color: white; padding: 12px 30px;
+            border: none; border-radius: 8px; font-size: 1rem;
+            cursor: pointer; transition: background 0.3s;
+        }
+        .btn:hover { background: #2F2F2F; }
+        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-logout { background: #f44336; }
+        .btn-logout:hover { background: #d32f2f; }
+        .message { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .message.success { background: #4CAF50; color: white; }
+        .message.error { background: #f44336; color: white; }
+        .message.warning { background: #ff9800; color: white; }
+        .required { color: red; }
+        .bookings-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .bookings-table th,
+        .bookings-table td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        .bookings-table th { background: #f5f5f5; font-weight: 600; color: #3E3E3E; }
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+        .status-pending   { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .tabs { display: flex; gap: 10px; border-bottom: 2px solid #e0e0e0; margin-bottom: 30px; }
+        .tab {
+            padding: 10px 20px; cursor: pointer; border: none;
+            background: none; color: #666; font-weight: 600; transition: color 0.3s;
+        }
+        .tab.active { color: #3E3E3E; border-bottom: 3px solid #3E3E3E; margin-bottom: -2px; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Единый хедер сайта (загружается через layout-loader.js) -->
+    <div id="header-container"></div>
+
+    <div class="dashboard-header">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1 data-translate="agent.dashboard_header">Travel Agent Dashboard</h1>
+                    <div class="agent-info">
+                        <div class="agent-info-item">
+                            <i class="fas fa-id-card"></i>
+                            <span id="agentId">-</span>
+                        </div>
+                        <div class="agent-info-item">
+                            <i class="fas fa-building"></i>
+                            <span id="companyName">-</span>
+                        </div>
+                        <div class="agent-info-item">
+                            <i class="fas fa-envelope"></i>
+                            <span id="agentEmail">-</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-logout" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span data-translate="agent.logout">Logout</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="passwordChangeAlert" class="message warning" style="margin-top: 20px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong data-translate="agent.password_alert_title">Attention!</strong>
+            <span data-translate="agent.password_change_alert">You must change your password before continuing.</span>
+        </div>
+
+        <!-- Partnership Status Card -->
+        <div id="partnershipStatusCard" class="card" style="margin-top: 20px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h3 style="margin: 0 0 10px 0; display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-handshake" style="color: #3E3E3E;"></i>
+                        <span data-translate="agent.partnership_status">Partnership Status</span>
+                    </h3>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div>
+                            <span id="labelAccountStatus" style="color: #666; font-size: 14px;" data-translate="agent.account_status">Account status:</span>
+                            <span id="agentStatusBadge" style="margin-left: 10px; padding: 4px 12px; border-radius: 12px; font-size: 13px; font-weight: 600;"></span>
+                        </div>
+                        <div>
+                            <span id="labelPartnerSince" style="color: #666; font-size: 14px;" data-translate="agent.partner_since">Partner since:</span>
+                            <span id="partnerSince" style="margin-left: 10px; font-weight: 600; color: #3E3E3E;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs" style="margin-top: 30px;">
+            <button class="tab active" id="tab-btn-booking" onclick="switchTab('booking')" data-translate="agent.tab_booking">Tour Request</button>
+            <button class="tab" id="tab-btn-history" onclick="switchTab('history')" data-translate="agent.tab_history">Request History</button>
+            <button class="tab" id="tab-btn-password" onclick="switchTab('password')" data-translate="agent.tab_password">Change Password</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Tab: Booking Request -->
+            <div id="tab-booking" class="tab-content active">
+                <div class="card">
+                    <h2 data-translate="agent.booking_form_title">Tour Booking Request</h2>
+                    <div id="bookingMessage" class="message"></div>
+
+                    <form id="bookingForm">
+                        <div class="form-group">
+                            <label for="voucherId">
+                                <span data-translate="agent.voucher_id_label">Client Voucher ID</span>
+                                <span class="required">*</span>
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: stretch;">
+                                <input type="text" id="voucherId" name="voucherId" required
+                                    data-translate-placeholder="agent.voucher_id_placeholder"
+                                    placeholder="E.g.: BT-52026"
+                                    style="flex: 1; text-transform: uppercase; letter-spacing: 0.5px;"
+                                    oninput="this.value = this.value.toUpperCase()">
+                                <button type="button" id="verifyVoucherBtn" onclick="verifyVoucher()"
+                                    style="padding: 0 16px; background: #3E3E3E; color: white; border: none; border-radius: 8px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; transition: background 0.2s;"
+                                    onmouseover="this.style.background='#2F2F2F'" onmouseout="this.style.background='#3E3E3E'">
+                                    <span data-translate="agent.verify_voucher">Verify</span>
+                                </button>
+                            </div>
+                            <div id="voucherResult" style="display:none; margin-top: 8px; padding: 12px 14px; border-radius: 8px; font-size: 0.87rem; line-height: 1.5;"></div>
+                            <div style="margin-top: 8px; padding: 10px 13px; background: #f0f4ff; border-left: 3px solid #6b83c4; border-radius: 4px; font-size: 0.82rem; color: #444; line-height: 1.5;">
+                                <span data-translate="agent.voucher_id_help">Enter the voucher code from the client's confirmation email (format: BT-XXXXXX). Click "Verify" and the system will find the tour and date automatically.</span>
+                            </div>
+                            <div style="margin-top: 10px; padding: 12px 14px; background: #fff8ed; border-left: 3px solid #d9a441; border-radius: 4px; font-size: 0.82rem; color: #444; line-height: 1.6;">
+                                <strong data-translate="agent.voucher_note_title">Note:</strong>
+                                <span data-translate="agent.voucher_note_intro">There are three sources where you can obtain the Voucher ID for a booked tour:</span>
+                                <ol style="margin: 8px 0 0 0; padding-left: 20px; list-style: decimal;">
+                                    <li style="margin-bottom: 4px;" data-translate="agent.voucher_note_1">You, as a travel agent, book a tour for your tourist by providing your email address — the Voucher will be sent to your email address.</li>
+                                    <li style="margin-bottom: 4px;" data-translate="agent.voucher_note_2">The tourist, with your assistance, books a tour independently by providing their email address — the Voucher will be sent to the tourist's email address.</li>
+                                    <li data-translate="agent.voucher_note_3">You submit a special order to the tour operator — in this case, the Voucher ID is the contract number you entered into with the tourist.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tourDate">
+                                <span data-translate="agent.tour_date">Tour Start Date</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="date" id="tourDate" name="tourDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="numberOfTourists">
+                                <span data-translate="agent.number_of_tourists">Number of Tourists</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="number" id="numberOfTourists" name="numberOfTourists" min="1" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientName">
+                                <span data-translate="agent.client_name">Client Name</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="clientName" name="clientName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="clientEmail">
+                                <span data-translate="agent.client_email">Client Email</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="email" id="clientEmail" name="clientEmail" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>
+                                <span data-translate="agent.client_phone">Client Phone</span>
+                                <span class="required">*</span>
+                            </label>
+                            <div id="clientPhoneSelector" data-phone-selector data-default-country="TJ"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="specialRequests" data-translate="agent.special_requests">Special Requests</label>
+                            <textarea id="specialRequests" name="specialRequests" rows="4"
+                                data-translate-placeholder="agent.special_requests_placeholder"
+                                placeholder="Enter any special requirements or requests"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn" id="bookingBtn">
+                            <span data-translate="agent.submit_booking">Submit Request</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tab: Booking History -->
+            <div id="tab-history" class="tab-content">
+                <div class="card">
+                    <h2 data-translate="agent.history_title">Your Request History</h2>
+                    <div id="historyMessage" class="message"></div>
+
+                    <table class="bookings-table">
+                        <thead>
+                            <tr>
+                                <th data-translate="agent.col_booking_id">Request ID</th>
+                                <th data-translate="agent.col_voucher">Voucher</th>
+                                <th data-translate="agent.col_tour">Tour</th>
+                                <th data-translate="agent.col_tour_date">Tour Date</th>
+                                <th data-translate="agent.col_tourists">Tourists</th>
+                                <th data-translate="agent.col_status">Status</th>
+                                <th data-translate="agent.col_created">Request Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: #999;" data-translate="agent.loading">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Change Password -->
+            <div id="tab-password" class="tab-content">
+                <div class="card">
+                    <h2 data-translate="agent.password_change_title">Change Password</h2>
+                    <div id="passwordMessage" class="message"></div>
+
+                    <form id="passwordForm">
+                        <div class="form-group">
+                            <label for="currentPassword">
+                                <span data-translate="agent.current_password">Current Password</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="password" id="currentPassword" name="currentPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="newPassword">
+                                <span data-translate="agent.new_password">New Password</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="password" id="newPassword" name="newPassword" required minlength="8">
+                            <small style="color: #666;" data-translate="agent.min_8_chars">Minimum 8 characters</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">
+                                <span data-translate="agent.confirm_password">Confirm New Password</span>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        </div>
+
+                        <button type="submit" class="btn" id="passwordBtn">
+                            <span data-translate="agent.change_password_button">Change Password</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        let agentInfo = null;
+        let agentToken = null;
+        let currentBookings = [];
+
+        const t = (key) => window.getTranslation ? window.getTranslation(key, window.currentLanguage || 'ru') : key;
+
+        // Verify token via API
+        async function verifyToken() {
+            try {
+                const response = await fetch('/api/travel-agents/profile', {
+                    headers: { 'Authorization': `Bearer ${agentToken}` },
+                });
+                if (response.status === 401) return false;
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.message === 'Ваш аккаунт заблокирован') {
+                        alert(t('agent.blocked_account'));
+                        return false;
+                    }
+                }
+                return response.ok;
+            } catch (error) {
+                console.error('Token verification error:', error);
+                return false;
+            }
+        }
+
+        // Page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            agentToken = localStorage.getItem('agentToken');
+            const agentInfoStr = localStorage.getItem('agentInfo');
+
+            if (!agentToken || !agentInfoStr) {
+                window.location.href = '/agent-login.html';
+                return;
+            }
+
+            try {
+                agentInfo = JSON.parse(agentInfoStr);
+                const isValid = await verifyToken();
+                if (!isValid) { logout(); return; }
+
+                displayAgentInfo();
+                loadBookings();
+
+                const urlParams = new URLSearchParams(window.location.search);
+                if (agentInfo.mustChangePassword || urlParams.get('changePassword') === 'true') {
+                    document.getElementById('passwordChangeAlert').style.display = 'block';
+                    switchTab('password');
+                }
+
+                initializeFormHandlers();
+            } catch (error) {
+                console.error('Error parsing agent info:', error);
+                window.location.href = '/agent-login.html';
+            }
+        });
+
+        function displayAgentInfo() {
+            document.getElementById('agentId').textContent = agentInfo.agentId || '-';
+            document.getElementById('companyName').textContent = agentInfo.companyName || '-';
+            document.getElementById('agentEmail').textContent = agentInfo.email || '-';
+
+            if (agentInfo.status) {
+                const statusCard = document.getElementById('partnershipStatusCard');
+                const statusBadge = document.getElementById('agentStatusBadge');
+                const partnerSince = document.getElementById('partnerSince');
+
+                statusCard.style.display = 'block';
+
+                if (agentInfo.status === 'active') {
+                    statusBadge.textContent = t('agent.status_active');
+                    statusBadge.style.background = '#d4edda';
+                    statusBadge.style.color = '#155724';
+                } else if (agentInfo.status === 'suspended') {
+                    statusBadge.textContent = t('agent.status_suspended');
+                    statusBadge.style.background = '#f8d7da';
+                    statusBadge.style.color = '#721c24';
+                }
+
+                if (agentInfo.createdAt) {
+                    const date = new Date(agentInfo.createdAt);
+                    const locale = (window.currentLanguage === 'en') ? 'en-US' : 'ru-RU';
+                    partnerSince.textContent = date.toLocaleDateString(locale, {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                }
+            }
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'pending':   'agent.status_pending',
+                'confirmed': 'agent.status_confirmed',
+                'completed': 'agent.status_completed',
+                'cancelled': 'agent.status_cancelled',
+            };
+            return t(map[status] || status);
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            const btn = document.getElementById(`tab-btn-${tabName}`);
+            if (btn) btn.classList.add('active');
+            const content = document.getElementById(`tab-${tabName}`);
+            if (content) content.classList.add('active');
+        }
+
+        function renderBookingsTable() {
+            const tbody = document.getElementById('bookingsTableBody');
+            if (!currentBookings || currentBookings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:40px;color:#999;">${t('agent.no_bookings')}</td></tr>`;
+                return;
+            }
+            const lang = window.currentLanguage || 'ru';
+            const locale = lang === 'en' ? 'en-US' : 'ru-RU';
+            tbody.innerHTML = currentBookings.map(booking => {
+                const tourTitle = booking.tour?.title?.[lang] || booking.tour?.title?.ru || `Tour #${booking.tourId}`;
+                const voucherCell = booking.voucherId
+                    ? `<span style="font-family: monospace; font-size: 0.82rem; background: #f0fdf4; color: #166534; padding: 2px 7px; border-radius: 4px; border: 1px solid #bbf7d0;">${booking.voucherId}</span>`
+                    : '<span style="color:#bbb;">—</span>';
+                return `
+                    <tr>
+                        <td>${booking.bookingId}</td>
+                        <td>${voucherCell}</td>
+                        <td>${tourTitle}</td>
+                        <td>${new Date(booking.tourDate).toLocaleDateString(locale)}</td>
+                        <td>${booking.numberOfTourists}</td>
+                        <td><span class="status-badge status-${booking.status}">${getStatusText(booking.status)}</span></td>
+                        <td>${new Date(booking.createdAt).toLocaleDateString(locale)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadBookings() {
+            const tbody = document.getElementById('bookingsTableBody');
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">${t('agent.loading')}</td></tr>`;
+
+            try {
+                const response = await fetch('/api/travel-agents/bookings', {
+                    headers: { 'Authorization': `Bearer ${agentToken}` },
+                });
+
+                if (response.status === 401) { logout(); return; }
+
+                if (response.status === 403) {
+                    const data = await response.json();
+                    if (data.requirePasswordChange) {
+                        document.getElementById('passwordChangeAlert').style.display = 'block';
+                        switchTab('password');
+                        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#ff9800;">${t('agent.password_change_required')}</td></tr>`;
+                        return;
+                    }
+                }
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    currentBookings = data.bookings || [];
+                    renderBookingsTable();
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">${t('agent.load_error')}</td></tr>`;
+                }
+            } catch (error) {
+                console.error('Load bookings error:', error);
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:#999;">${t('agent.load_error')}</td></tr>`;
+            }
+        }
+
+        async function verifyVoucher() {
+            const input = document.getElementById('voucherId');
+            const code = input ? input.value.trim().toUpperCase() : '';
+            const result = document.getElementById('voucherResult');
+            const btn = document.getElementById('verifyVoucherBtn');
+
+            if (!code) {
+                result.style.display = 'block';
+                result.style.background = '#fff7ed';
+                result.style.border = '1px solid #fed7aa';
+                result.style.color = '#92400e';
+                result.innerHTML = '⚠️ ' + t('agent.voucher_enter_first');
+                return;
+            }
+
+            // Показываем загрузку
+            result.style.display = 'block';
+            result.style.background = '#f9fafb';
+            result.style.border = '1px solid #e5e7eb';
+            result.style.color = '#6b7280';
+            result.innerHTML = '⏳ ' + t('agent.voucher_checking');
+            if (btn) btn.disabled = true;
+
+            try {
+                const response = await fetch(`/api/travel-agents/bookings/voucher-lookup/${encodeURIComponent(code)}`, {
+                    headers: { 'Authorization': `Bearer ${agentToken}` }
+                });
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    const d = data.data;
+                    const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                    const dateStr = d.tourDate ? new Date(d.tourDate).toLocaleDateString(lang === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+
+                    // Авто-заполняем дату и количество туристов
+                    const tourDateEl = document.getElementById('tourDate');
+                    const touristsEl = document.getElementById('numberOfTourists');
+                    if (tourDateEl && d.tourDate) {
+                        tourDateEl.value = d.tourDate.split('T')[0];
+                    }
+                    if (touristsEl && d.touristsCount) {
+                        touristsEl.value = d.touristsCount;
+                    }
+
+                    result.style.background = '#f0fdf4';
+                    result.style.border = '1px solid #bbf7d0';
+                    result.style.color = '#166534';
+                    result.innerHTML = `<strong>✅ ${t('agent.voucher_found')}</strong><br>
+                        🗺️ ${d.tourName}<br>
+                        📅 ${dateStr}<br>
+                        👥 ${d.touristsCount} ${t('agent.tourists_count_label')}`;
+                } else {
+                    result.style.background = '#fef2f2';
+                    result.style.border = '1px solid #fecaca';
+                    result.style.color = '#991b1b';
+                    result.innerHTML = `❌ ${data.message || t('agent.voucher_not_found')}`;
+                }
+            } catch (e) {
+                result.style.background = '#fef2f2';
+                result.style.border = '1px solid #fecaca';
+                result.style.color = '#991b1b';
+                result.innerHTML = '❌ ' + t('agent.voucher_lookup_error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function initializeFormHandlers() {
+            // Booking form
+            const bookingForm = document.getElementById('bookingForm');
+            if (!bookingForm) return;
+
+            bookingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const message = document.getElementById('bookingMessage');
+                const btn = document.getElementById('bookingBtn');
+                const btnSpan = btn.querySelector('span');
+
+                message.style.display = 'none';
+
+                const phoneInput = document.getElementById('clientPhoneSelector-input');
+                if (!phoneInput || !phoneInput.value.trim()) {
+                    alert(t('agent.enter_phone'));
+                    if (phoneInput) phoneInput.focus();
+                    return;
+                }
+
+                const phoneSelector = window.phoneSelectors && window.phoneSelectors['clientPhoneSelector'];
+                const clientPhone = phoneSelector
+                    ? phoneSelector.getFullPhoneNumber()
+                    : (() => {
+                        const btn = document.getElementById('clientPhoneSelector-button');
+                        const codeMatch = btn && btn.textContent.match(/(\+\d+)/);
+                        const code = codeMatch ? codeMatch[1] : '+992';
+                        return `${code}${phoneInput.value.replace(/\D/g, '')}`;
+                    })();
+
+                btn.disabled = true;
+                if (btnSpan) btnSpan.textContent = t('agent.submitting');
+
+                const voucherInput = document.getElementById('voucherId').value.trim().toUpperCase();
+                if (!voucherInput) {
+                    message.className = 'message error';
+                    message.textContent = t('agent.voucher_required');
+                    message.style.display = 'block';
+                    btn.disabled = false;
+                    if (btnSpan) btnSpan.textContent = t('agent.submit_booking');
+                    return;
+                }
+
+                const formData = {
+                    voucherId: voucherInput,
+                    tourDate: document.getElementById('tourDate').value,
+                    numberOfTourists: parseInt(document.getElementById('numberOfTourists').value),
+                    clientName: document.getElementById('clientName').value.trim(),
+                    clientEmail: document.getElementById('clientEmail').value.trim(),
+                    clientPhone,
+                    specialRequests: document.getElementById('specialRequests').value.trim() || null,
+                };
+
+                try {
+                    const response = await fetch('/api/travel-agents/bookings', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${agentToken}`,
+                        },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        message.className = 'message success';
+                        message.textContent = `${t('agent.booking_success_prefix')} ${data.booking.bookingId}`;
+                        message.style.display = 'block';
+                        bookingForm.reset();
+                        loadBookings();
+                    } else {
+                        message.className = 'message error';
+                        message.textContent = data.message || t('agent.booking_error');
+                        message.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Booking error:', error);
+                    message.className = 'message error';
+                    message.textContent = t('agent.booking_error');
+                    message.style.display = 'block';
+                } finally {
+                    btn.disabled = false;
+                    if (btnSpan) btnSpan.textContent = t('agent.submit_booking');
+                }
+            });
+
+            // Password form
+            const passwordForm = document.getElementById('passwordForm');
+            if (!passwordForm) return;
+
+            passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const message = document.getElementById('passwordMessage');
+                const btn = document.getElementById('passwordBtn');
+                const btnSpan = btn.querySelector('span');
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                message.style.display = 'none';
+
+                if (newPassword !== confirmPassword) {
+                    message.className = 'message error';
+                    message.textContent = t('agent.passwords_mismatch');
+                    message.style.display = 'block';
+                    return;
+                }
+
+                if (newPassword.length < 8) {
+                    message.className = 'message error';
+                    message.textContent = t('agent.password_too_short');
+                    message.style.display = 'block';
+                    return;
+                }
+
+                btn.disabled = true;
+                if (btnSpan) btnSpan.textContent = t('agent.saving');
+
+                try {
+                    const response = await fetch('/api/travel-agents/change-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${agentToken}`,
+                        },
+                        body: JSON.stringify({ currentPassword, newPassword }),
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok && data.success) {
+                        message.className = 'message success';
+                        message.textContent = t('agent.password_changed');
+                        message.style.display = 'block';
+                        passwordForm.reset();
+                        document.getElementById('passwordChangeAlert').style.display = 'none';
+                        agentInfo.mustChangePassword = false;
+                        localStorage.setItem('agentInfo', JSON.stringify(agentInfo));
+                    } else {
+                        message.className = 'message error';
+                        message.textContent = data.message || t('agent.booking_error');
+                        message.style.display = 'block';
+                    }
+                } catch (error) {
+                    console.error('Password change error:', error);
+                    message.className = 'message error';
+                    message.textContent = t('agent.booking_error');
+                    message.style.display = 'block';
+                } finally {
+                    btn.disabled = false;
+                    if (btnSpan) btnSpan.textContent = t('agent.change_password_button');
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('agentToken');
+            localStorage.removeItem('agentInfo');
+            window.location.href = '/agent-login.html';
+        }
+
+        // Re-render on language change
+        window.addEventListener('languageChanged', () => {
+            displayAgentInfo();
+            renderBookingsTable();
+            // Update placeholder translations
+            document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-translate-placeholder');
+                el.placeholder = t(key);
+            });
+        });
+    </script>
+
+    <!-- Единый футер сайта (загружается через layout-loader.js) -->
+    <div id="footer-container"></div>
+</body>
+</html>

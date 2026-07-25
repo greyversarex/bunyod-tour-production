@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">News - Bunyod-Tour</title>
+    <script data-cfasync="false" src="/public/js/cache-utils.js"></script>
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .content-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+        }
+        .article-content {
+            line-height: 1.8;
+        }
+        .article-content p {
+            margin-bottom: 1rem;
+        }
+        .article-content h2 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 1.5rem 0 1rem 0;
+            color: #2D3748;
+        }
+        .article-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem 0;
+            color: #4A5568;
+        }
+        .article-content ul, .article-content ol {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        .article-content li {
+            margin-bottom: 0.5rem;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <section class="bg-white py-4 border-b">
+        <div class="max-w-4xl mx-auto px-6">
+            <nav class="flex items-center space-x-2 text-sm">
+                <a href="index.html" class="text-blue-600 hover:text-blue-800" data-translate="news_detail.home">Home</a>
+                <span class="text-gray-400">/</span>
+                <a href="news.html" class="text-blue-600 hover:text-blue-800" data-translate="news_detail.news">News</a>
+                <span class="text-gray-400">/</span>
+                <span class="text-gray-600" id="breadcrumbTitle">Loading...</span>
+            </nav>
+        </div>
+    </section>
+
+    <main class="py-8">
+        <div class="max-w-4xl mx-auto px-6">
+            <div id="loadingSpinner" class="text-center py-20">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-600"></i>
+                <p class="text-gray-600 mt-4" data-translate="news_detail.loading">Loading news...</p>
+            </div>
+
+            <article id="newsArticle" class="hidden">
+                <header class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <span class="text-gray-500 text-sm" id="publishDate">
+                            <i class="fas fa-calendar mr-2"></i>Publication date
+                        </span>
+                    </div>
+                    
+                    <h1 id="newsTitle" class="text-4xl font-bold text-gray-900 mb-4 leading-tight">
+                        News title
+                    </h1>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-500 mb-6">
+                        
+                    </div>
+
+                    <div id="newsImageContainer" class="mb-8 hidden">
+                        <img id="newsImage" alt="News image" class="w-full h-96 object-cover rounded-xl shadow-lg">
+                    </div>
+                    
+                    <div id="newsGallery" class="mb-8 hidden">
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="galleryGrid">
+                        </div>
+                    </div>
+                </header>
+
+                <div id="newsExcerpt" class="bg-gray-100 rounded-lg p-6 mb-8 text-lg text-gray-700 italic border-l-4 border-blue-500">
+                    Brief description
+                </div>
+
+                <div id="newsContent" class="article-content text-gray-800 prose max-w-none">
+                    News content will be loaded here...
+                </div>
+
+                <div id="newsTags" class="mt-8 pt-8 border-t">
+                    <h3 class="text-lg font-semibold mb-4" data-translate="news_detail.tags">Tags:</h3>
+                    <div class="flex flex-wrap gap-2">
+                    </div>
+                </div>
+            </article>
+
+            <div id="errorState" class="text-center py-20 hidden">
+                <i class="fas fa-exclamation-triangle text-6xl text-red-500 mb-6"></i>
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4" data-translate="news_detail.not_found">News not found</h2>
+                <p class="text-gray-600 mb-6" data-translate="news_detail.not_found_desc">The requested news article does not exist or has been removed</p>
+                <a href="news.html" class="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2"></i><span data-translate="news_detail.back_to_news">Back to News</span>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <section id="relatedNews" class="py-12 bg-white hidden">
+        <div class="max-w-4xl mx-auto px-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8" data-translate="news_detail.related_news">Related News</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="relatedNewsContainer">
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        let currentNews = null;
+        let currentLang = 'en';
+        const API_BASE = '/api';
+
+        function getCurrentLanguage() {
+            return window.currentLanguage || 
+                   localStorage.getItem('selectedLanguage') || 
+                   'en';
+        }
+
+        function getTranslation(key) {
+            const lang = getCurrentLanguage();
+            const translations = {
+                'news_detail.home': { ru: 'Главная', en: 'Home' },
+                'news_detail.news': { ru: 'Новости', en: 'News' },
+                'news_detail.loading': { ru: 'Загружаем новость...', en: 'Loading news...' },
+                'news_detail.tags': { ru: 'Теги:', en: 'Tags:' },
+                'news_detail.not_found': { ru: 'Новость не найдена', en: 'News not found' },
+                'news_detail.not_found_desc': { ru: 'Запрашиваемая новость не существует или была удалена', en: 'The requested news article does not exist or has been removed' },
+                'news_detail.back_to_news': { ru: 'Вернуться к новостям', en: 'Back to News' },
+                'news_detail.related_news': { ru: 'Похожие новости', en: 'Related News' },
+                'news_detail.subscribe_title': { ru: 'Подпишитесь на наши новости', en: 'Subscribe to our news' },
+                'news_detail.subscribe_desc': { ru: 'Получайте уведомления о новых турах, специальных предложениях и интересных событиях в мире туризма', en: 'Get notifications about new tours, special offers, and interesting events in tourism' },
+                'news_detail.email_placeholder': { ru: 'Введите ваш email', en: 'Enter your email' },
+                'news_detail.subscribe_btn': { ru: 'Подписаться', en: 'Subscribe' },
+                'news_detail.min_read': { ru: 'мин чтения', en: 'min read' },
+                'news_detail.views': { ru: 'просмотров', en: 'views' },
+                'news_detail.link_copied': { ru: 'Ссылка скопирована в буфер обмена!', en: 'Link copied to clipboard!' },
+                'news_detail.thanks_subscribe': { ru: 'Спасибо за подписку! Мы будем уведомлять вас о новых новостях.', en: 'Thank you for subscribing! We will notify you about new updates.' },
+                'news_detail.subscribe_error': { ru: 'Ошибка подписки', en: 'Subscription error' },
+                'news_detail.connection_error': { ru: 'Ошибка соединения с сервером', en: 'Server connection error' },
+                'category.tours': { ru: 'Новые туры', en: 'New Tours' },
+                'category.events': { ru: 'События', en: 'Events' },
+                'category.announcements': { ru: 'Объявления', en: 'Announcements' },
+                'category.tips': { ru: 'Советы', en: 'Tips' },
+                'category.general': { ru: 'Общие', en: 'General' }
+            };
+            return translations[key] ? translations[key][lang] : key;
+        }
+
+        function parseMultilingualContent(content, lang) {
+            if (!content) return '';
+            
+            const currentLang = lang || getCurrentLanguage();
+            
+            try {
+                let parsed = content;
+                if (typeof content === 'string') {
+                    parsed = JSON.parse(content);
+                }
+                return parsed[currentLang] || parsed.en || parsed.ru || content;
+            } catch {
+                return content;
+            }
+        }
+
+        function formatDate(dateString) {
+            const lang = getCurrentLanguage();
+            const date = new Date(dateString);
+            return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentLang = getCurrentLanguage();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const newsId = urlParams.get('id');
+            const newsSlug = urlParams.get('slug');
+            
+            if (newsId) {
+                loadNewsById(newsId);
+            } else if (newsSlug) {
+                loadNewsBySlug(newsSlug);
+            } else {
+                showError();
+            }
+
+            setupEventListeners();
+            setupLanguageListener();
+        });
+
+        function setupLanguageListener() {
+            document.addEventListener('languageChanged', function(event) {
+                console.log(`🌐 News Detail: language changed to ${event.detail.language}`);
+                currentLang = event.detail.language;
+                window.currentLanguage = event.detail.language;
+                if (currentNews) {
+                    renderNews(currentNews);
+                    loadRelatedNews(currentNews.category, currentNews.id);
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            const newsletterForm = document.getElementById('newsletterForm');
+            if (newsletterForm) newsletterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const email = this.querySelector('input[type="email"]').value;
+                subscribeToNewsletter(email);
+            });
+        }
+
+        async function loadNewsById(id) {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE}/news/${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentNews = data.data;
+                    renderNews(data.data);
+                    loadRelatedNews(data.data.category, data.data.id);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadNewsBySlug(slug) {
+            try {
+                showLoading(true);
+                
+                const response = await fetch(`${API_BASE}/news/slug/${slug}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    currentNews = data.data;
+                    renderNews(data.data);
+                    loadRelatedNews(data.data.category, data.data.id);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError();
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function renderNews(news) {
+            const article = document.getElementById('newsArticle');
+            const lang = getCurrentLanguage();
+            
+            const title = parseMultilingualContent(news.title, lang);
+            const excerpt = parseMultilingualContent(news.excerpt, lang);
+            const newsContent = parseMultilingualContent(news.content, lang);
+            
+            document.title = `${title} - Bunyod-Tour`;
+            
+            const pageTitle = document.getElementById('pageTitle');
+            if (pageTitle) pageTitle.textContent = `${title} - Bunyod-Tour`;
+            
+            const breadcrumb = document.getElementById('breadcrumbTitle');
+            if (breadcrumb) breadcrumb.textContent = title;
+            
+            const newsTitle = document.getElementById('newsTitle');
+            if (newsTitle) newsTitle.textContent = title;
+            
+            const categoryBadge = document.getElementById('categoryBadge');
+            if (categoryBadge) categoryBadge.textContent = '-';
+            
+            const publishDate = formatDate(news.publishedAt || news.publishDate);
+            const publishDateEl = document.getElementById('publishDate');
+            if (publishDateEl) publishDateEl.innerHTML = `<i class="fas fa-calendar mr-2"></i>${publishDate}`;
+            
+            const newsAuthorEl = document.getElementById('newsAuthor');
+            if (newsAuthorEl) {
+                if (news.author) {
+                    newsAuthorEl.innerHTML = `<i class="fas fa-user mr-2"></i>${news.author}`;
+                } else {
+                    newsAuthorEl.style.display = 'none';
+                }
+            }
+            
+            const readingTimeEl = document.getElementById('readingTime');
+            if (readingTimeEl) {
+                const readingTime = news.readTime || Math.ceil((newsContent || '').split(' ').length / 200);
+                readingTimeEl.innerHTML = `<i class="fas fa-clock mr-2"></i>${readingTime} ${getTranslation('news_detail.min_read') || 'min'}`;
+            }
+            
+            const viewsCountEl = document.getElementById('viewsCount');
+            if (viewsCountEl) viewsCountEl.style.display = 'none';
+            
+            if (news.image || news.imageUrl) {
+                const imageContainer = document.getElementById('newsImageContainer');
+                const image = document.getElementById('newsImage');
+                if (imageContainer && image) {
+                    image.src = news.image || news.imageUrl;
+                    image.alt = title;
+                    imageContainer.classList.remove('hidden');
+                }
+            }
+            
+            const images = news.images || [];
+            if (images.length > 1) {
+                const galleryContainer = document.getElementById('newsGallery');
+                const galleryGrid = document.getElementById('galleryGrid');
+                if (galleryContainer && galleryGrid) {
+                    galleryGrid.innerHTML = images.map((img, index) => `
+                        <div class="cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow" onclick="openLightbox('${img}')">
+                            <img src="${img}" alt="Image ${index + 1}" class="w-full h-32 object-cover hover:scale-105 transition-transform" onerror="this.parentElement.style.display='none'">
+                        </div>
+                    `).join('');
+                    galleryContainer.classList.remove('hidden');
+                }
+            }
+            
+            const excerptEl = document.getElementById('newsExcerpt');
+            if (excerptEl) {
+                if (excerpt) {
+                    excerptEl.textContent = excerpt;
+                } else {
+                    excerptEl.style.display = 'none';
+                }
+            }
+            
+            const contentEl = document.getElementById('newsContent');
+            if (contentEl) contentEl.innerHTML = newsContent;
+            
+            const tagsEl = document.getElementById('newsTags');
+            if (tagsEl) {
+                if (news.tags) {
+                    try {
+                        const tags = typeof news.tags === 'string' ? JSON.parse(news.tags) : news.tags;
+                        renderTags(tags);
+                    } catch(e) {
+                        tagsEl.style.display = 'none';
+                    }
+                } else {
+                    tagsEl.style.display = 'none';
+                }
+            }
+            
+            if (article) article.classList.remove('hidden');
+        }
+
+        function renderTags(tags) {
+            const container = document.getElementById('newsTags').querySelector('div');
+            
+            if (tags && tags.length > 0) {
+                container.innerHTML = tags.map(tag => 
+                    `<span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-sm">${tag}</span>`
+                ).join('');
+            } else {
+                document.getElementById('newsTags').style.display = 'none';
+            }
+        }
+
+        async function loadRelatedNews(category, currentId) {
+            try {
+                const response = await fetch(`${API_BASE}/news?category=${category}&limit=3`);
+                const data = await response.json();
+
+                if (data.success && data.data.news.length > 0) {
+                    const relatedNews = data.data.news.filter(n => n.id !== currentId);
+                    if (relatedNews.length > 0) {
+                        renderRelatedNews(relatedNews);
+                        document.getElementById('relatedNews').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading related news:', error);
+            }
+        }
+
+        function renderRelatedNews(news) {
+            const container = document.getElementById('relatedNewsContainer');
+            const lang = getCurrentLanguage();
+            
+            container.innerHTML = news.slice(0, 3).map(item => {
+                const title = parseMultilingualContent(item.title, lang);
+                const excerpt = parseMultilingualContent(item.excerpt, lang);
+                const publishDate = formatDate(item.publishedAt || item.publishDate);
+                
+                return `
+                    <article class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer" 
+                             onclick="window.location.href='news-detail.html?id=${item.id}'">
+                        <img src="${item.image || item.imageUrl || '/api/placeholder/300/200'}" 
+                             alt="${title}" 
+                             class="w-full h-48 object-cover"
+                             onerror="this.src='/api/placeholder/300/200'">
+                        <div class="p-6">
+                            <div class="text-sm text-gray-500 mb-2">${publishDate}</div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-3 line-clamp-2">${title}</h3>
+                            <p class="text-gray-600 text-sm line-clamp-3">${excerpt || ''}</p>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function getCategoryName(category) {
+            const categoryKey = `category.${category}`;
+            const translated = getTranslation(categoryKey);
+            if (translated !== categoryKey) {
+                return translated;
+            }
+            
+            const lang = getCurrentLanguage();
+            const categories = {
+                'tours': { ru: 'Новые туры', en: 'New Tours' },
+                'events': { ru: 'События', en: 'Events' },
+                'announcements': { ru: 'Объявления', en: 'Announcements' },  
+                'tips': { ru: 'Советы', en: 'Tips' },
+                'general': { ru: 'Общие', en: 'General' }
+            };
+            return categories[category] ? categories[category][lang] : (lang === 'ru' ? 'Новости' : 'News');
+        }
+
+        function shareOnSocial(platform) {
+            const url = window.location.href;
+            const title = currentNews ? parseMultilingualContent(currentNews.title, getCurrentLanguage()) : 'News';
+            
+            let shareUrl;
+            switch (platform) {
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
+                    break;
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(window.location.href).then(function() {
+                alert(getTranslation('news_detail.link_copied'));
+            });
+        }
+
+        function openLightbox(imageUrl) {
+            const lightbox = document.createElement('div');
+            lightbox.className = 'fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4';
+            lightbox.onclick = () => lightbox.remove();
+            lightbox.innerHTML = `
+                <button class="absolute top-4 right-4 text-white text-4xl hover:text-gray-300" onclick="this.parentElement.remove()">&times;</button>
+                <img src="${imageUrl}" alt="Full size image" class="max-w-full max-h-full object-contain rounded-lg">
+            `;
+            document.body.appendChild(lightbox);
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+        }
+
+        function showError() {
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        async function subscribeToNewsletter(email) {
+            try {
+                const response = await fetch(`${API_BASE}/news/newsletter/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert(getTranslation('news_detail.thanks_subscribe'));
+                    document.getElementById('newsletterForm').reset();
+                } else {
+                    alert(getTranslation('news_detail.subscribe_error') + ': ' + (data.message || ''));
+                }
+            } catch (error) {
+                console.error('Newsletter subscription error:', error);
+                alert(getTranslation('news_detail.connection_error'));
+            }
+        }
+    </script>
+    
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+</body>
+</html>

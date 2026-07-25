@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="news.page_title">News - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script data-cfasync="false" src="/public/js/cache-utils.js"></script>
+    <script data-cfasync="false" defer src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js"></script>
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .news-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .news-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        .news-image {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        .read-time {
+            color: #718096;
+            font-size: 0.875rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .pagination-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid #E5E7EB;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: #6B7280;
+            color: white;
+            border-color: #6B7280;
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-btn.active {
+            background: #6B7280;
+            color: white;
+            border-color: #6B7280;
+        }
+        
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .carousel-images {
+            display: flex;
+            transition: transform 0.3s ease;
+        }
+        .carousel-images img {
+            flex-shrink: 0;
+            width: 100%;
+        }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+        .carousel-container:hover .carousel-btn {
+            opacity: 1;
+        }
+        .carousel-btn:hover {
+            background: rgba(0,0,0,0.7);
+        }
+        .carousel-btn.prev { left: 8px; }
+        .carousel-btn.next { right: 8px; }
+        .carousel-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+        .carousel-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+        }
+        .carousel-dot.active {
+            background: white;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <section id="featuredSection" class="py-16 bg-gray-50" style="display: none;">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center" data-translate="news.featured_news">Featured News</h2>
+            <div id="featuredNews" class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-bold text-gray-900" data-translate="news.all_news">All News</h2>
+                <div id="loadingIndicator" class="loading-spinner" style="display: none;"></div>
+            </div>
+            
+            <div id="newsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            </div>
+            
+            <div id="pagination" class="flex justify-center items-center space-x-2">
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        let currentPage = 1;
+        let isLoading = false;
+        let newsCache = [];
+        let featuredCache = null;
+
+        function getCurrentLanguage() {
+            return window.currentLanguage || 
+                   localStorage.getItem('selectedLanguage') || 
+                   'en';
+        }
+
+        function getTranslation(key) {
+            if (window.getTranslation) {
+                return window.getTranslation(key);
+            }
+            const translations = {
+                'news.no_news_found': getCurrentLanguage() === 'ru' ? 'Новостей не найдено' : 'No news found',
+                'news.no_news_desc': getCurrentLanguage() === 'ru' ? 'Новости появятся совсем скоро. Заходите позже!' : 'News will appear very soon. Check back later!',
+                'news.read_more': getCurrentLanguage() === 'ru' ? 'Читать далее' : 'Read More',
+                'news.read_full': getCurrentLanguage() === 'ru' ? 'Читать полностью' : 'Read Full Article',
+                'news.min': getCurrentLanguage() === 'ru' ? 'мин' : 'min',
+                'news.views': getCurrentLanguage() === 'ru' ? 'просмотров' : 'views',
+                'news.featured': getCurrentLanguage() === 'ru' ? 'Рекомендуемое' : 'Featured',
+                'news.loading_error': getCurrentLanguage() === 'ru' ? 'Ошибка при загрузке новостей' : 'Error loading news',
+                'news.connection_error': getCurrentLanguage() === 'ru' ? 'Ошибка подключения к серверу' : 'Server connection error',
+                'news.error': getCurrentLanguage() === 'ru' ? 'Ошибка' : 'Error'
+            };
+            return translations[key] || key;
+        }
+
+        function parseMultilingualContent(content, lang) {
+            if (!content) return '';
+            
+            const currentLang = lang || getCurrentLanguage();
+            
+            try {
+                let parsed = content;
+                if (typeof content === 'string') {
+                    parsed = JSON.parse(content);
+                }
+                return parsed[currentLang] || parsed.en || parsed.ru || content;
+            } catch {
+                return content;
+            }
+        }
+
+        function formatDate(dateString) {
+            const lang = getCurrentLanguage();
+            const date = new Date(dateString);
+            return date.toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews();
+            setupLanguageListener();
+        });
+
+        function setupLanguageListener() {
+            document.addEventListener('languageChanged', function(event) {
+                console.log(`🌐 Новости: язык изменен на ${event.detail.language}`);
+                window.currentLanguage = event.detail.language;
+                localStorage.setItem('selectedLanguage', event.detail.language);
+                renderNewsFromCache();
+                renderFeaturedFromCache();
+            });
+        }
+        
+        function renderFeaturedFromCache() {
+            if (featuredCache) {
+                renderFeaturedNews(featuredCache);
+            }
+        }
+
+        async function loadNews() {
+            if (isLoading) return;
+            
+            isLoading = true;
+            showLoading(true);
+
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    limit: 9
+                });
+
+                const response = await fetch(`/api/news?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    newsCache = data.data.news || [];
+                    featuredCache = data.data.featured || null;
+                    renderNews(newsCache);
+                    renderFeaturedNews(featuredCache);
+                    renderPagination(data.data.pagination);
+                } else {
+                    showError(getTranslation('news.loading_error'));
+                }
+            } catch (error) {
+                console.error('Error loading news:', error);
+                showError(getTranslation('news.connection_error'));
+            } finally {
+                isLoading = false;
+                showLoading(false);
+            }
+        }
+
+        function renderNewsFromCache() {
+            if (newsCache.length > 0) {
+                renderNews(newsCache);
+            }
+        }
+
+        function renderNews(news) {
+            const newsGrid = document.getElementById('newsGrid');
+            const lang = getCurrentLanguage();
+            
+            if (!news || news.length === 0) {
+                newsGrid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <i class="fas fa-newspaper text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">${getTranslation('news.no_news_found')}</h3>
+                        <p class="text-gray-500">${getTranslation('news.no_news_desc')}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            newsGrid.innerHTML = news.map((article, idx) => {
+                const title = parseMultilingualContent(article.title, lang);
+                const excerpt = parseMultilingualContent(article.excerpt, lang);
+                const publishDate = formatDate(article.publishedAt);
+                const images = parseNewsImages(article.images);
+                const allImages = images.length > 0 ? images : [article.image || '/api/placeholder/400/225'];
+                const hasMultiple = allImages.length > 1;
+                const carouselId = `carousel-${idx}`;
+
+                return `
+                    <article class="news-card bg-white shadow-lg overflow-hidden">
+                        <div class="carousel-container" id="${carouselId}" data-index="0" data-count="${allImages.length}">
+                            <div class="carousel-images">
+                                ${allImages.map(img => `<img src="${img}" alt="${title}" class="news-image w-full" onerror="this.src='/api/placeholder/400/225'">`).join('')}
+                            </div>
+                            ${hasMultiple ? `
+                                <button class="carousel-btn prev" onclick="event.stopPropagation(); slideCarousel('${carouselId}', -1)"><i class="fas fa-chevron-left"></i></button>
+                                <button class="carousel-btn next" onclick="event.stopPropagation(); slideCarousel('${carouselId}', 1)"><i class="fas fa-chevron-right"></i></button>
+                                <div class="carousel-dots">
+                                    ${allImages.map((_, i) => `<div class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToSlide('${carouselId}', ${i})"></div>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="p-6 cursor-pointer" onclick="openNewsDetail('${article.slug}')">
+                            <h3 class="text-xl font-bold text-gray-900 mb-3 line-clamp-2">${title}</h3>
+                            <p class="text-gray-600 mb-4 line-clamp-3">${excerpt}</p>
+                            <div class="flex items-center justify-between text-sm text-gray-500 mt-4">
+                                <span><i class="far fa-calendar-alt mr-1"></i>${publishDate}</span>
+                                <span class="text-sm font-medium text-gray-700">${getTranslation('news.read_more')} →</span>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderFeaturedNews(featured) {
+            const featuredSection = document.getElementById('featuredSection');
+            const featuredNews = document.getElementById('featuredNews');
+
+            if (!featured) {
+                featuredSection.style.display = 'none';
+                return;
+            }
+
+            const lang = getCurrentLanguage();
+            featuredSection.style.display = 'block';
+            const title = parseMultilingualContent(featured.title, lang);
+            const excerpt = parseMultilingualContent(featured.excerpt, lang);
+            const publishDate = formatDate(featured.publishedAt);
+
+            featuredNews.innerHTML = `
+                <div class="relative">
+                    <img src="${featured.image || '/api/placeholder/600/400'}" alt="${title}" class="w-full h-80 object-cover rounded-lg" onerror="this.src='/api/placeholder/600/400'">
+                </div>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-4 text-sm text-gray-500">
+                        <span><i class="far fa-calendar-alt mr-1"></i>${publishDate}</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">
+                            <i class="fas fa-star mr-1"></i>${getTranslation('news.featured')}
+                        </span>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900">${title}</h2>
+                    <p class="text-lg text-gray-600 leading-relaxed">${excerpt}</p>
+                    <button 
+                        onclick="openNewsDetail('${featured.slug}')"
+                        class="inline-flex items-center px-6 py-3 text-white font-semibold rounded-lg transition-colors"
+                        style="background-color: #6B7280;"
+                        onmouseover="this.style.backgroundColor='#4B5563'" 
+                        onmouseout="this.style.backgroundColor='#6B7280'"
+                    >
+                        ${getTranslation('news.read_full')}
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderPagination(pagination) {
+            const paginationContainer = document.getElementById('pagination');
+            
+            if (!pagination || pagination.totalPages <= 1) {
+                paginationContainer.innerHTML = '';
+                return;
+            }
+
+            let paginationHTML = '';
+
+            paginationHTML += `
+                <button class="pagination-btn ${!pagination.hasPrev ? 'opacity-50 cursor-not-allowed' : ''}" 
+                        onclick="changePage(${pagination.currentPage - 1})" 
+                        ${!pagination.hasPrev ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            const startPage = Math.max(1, pagination.currentPage - 2);
+            const endPage = Math.min(pagination.totalPages, pagination.currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHTML += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+                if (startPage > 2) {
+                    paginationHTML += `<span class="px-2">...</span>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHTML += `
+                    <button class="pagination-btn ${i === pagination.currentPage ? 'active' : ''}" 
+                            onclick="changePage(${i})">
+                        ${i}
+                    </button>
+                `;
+            }
+
+            if (endPage < pagination.totalPages) {
+                if (endPage < pagination.totalPages - 1) {
+                    paginationHTML += `<span class="px-2">...</span>`;
+                }
+                paginationHTML += `<button class="pagination-btn" onclick="changePage(${pagination.totalPages})">${pagination.totalPages}</button>`;
+            }
+
+            paginationHTML += `
+                <button class="pagination-btn ${!pagination.hasNext ? 'opacity-50 cursor-not-allowed' : ''}" 
+                        onclick="changePage(${pagination.currentPage + 1})" 
+                        ${!pagination.hasNext ? 'disabled' : ''}>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            paginationContainer.innerHTML = paginationHTML;
+        }
+
+        function changePage(page) {
+            if (isLoading || page < 1) return;
+            currentPage = page;
+            loadNews();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function parseNewsImages(imagesField) {
+            if (!imagesField) return [];
+            try {
+                let parsed = imagesField;
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                if (typeof parsed === 'string') parsed = JSON.parse(parsed);
+                return Array.isArray(parsed) ? parsed : [];
+            } catch { return []; }
+        }
+
+        function slideCarousel(id, direction) {
+            const container = document.getElementById(id);
+            if (!container) return;
+            const count = parseInt(container.dataset.count);
+            let index = parseInt(container.dataset.index);
+            index = (index + direction + count) % count;
+            container.dataset.index = index;
+            updateCarousel(container, index);
+        }
+
+        function goToSlide(id, index) {
+            const container = document.getElementById(id);
+            if (!container) return;
+            container.dataset.index = index;
+            updateCarousel(container, index);
+        }
+
+        function updateCarousel(container, index) {
+            const imagesDiv = container.querySelector('.carousel-images');
+            if (imagesDiv) {
+                imagesDiv.style.transform = `translateX(-${index * 100}%)`;
+            }
+            const dots = container.querySelectorAll('.carousel-dot');
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+        }
+
+        function openNewsDetail(slug) {
+            window.location.href = `/news-detail.html?slug=${encodeURIComponent(slug)}`;
+        }
+
+        function showLoading(show) {
+            const indicator = document.getElementById('loadingIndicator');
+            indicator.style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const newsGrid = document.getElementById('newsGrid');
+            newsGrid.innerHTML = `
+                <div class="col-span-full text-center py-12">
+                    <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
+                    <h3 class="text-xl font-semibold text-red-700 mb-2">${getTranslation('news.error')}</h3>
+                    <p class="text-red-500">${message}</p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

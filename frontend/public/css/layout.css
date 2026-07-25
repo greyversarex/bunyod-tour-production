@@ -1,0 +1,1074 @@
+/**
+ * Centralized Layout Styles for Bunyod-Tour
+ * Contains all header, footer, dropdown, language/currency selector styles
+ * Single source of truth to eliminate duplication across pages
+ */
+
+/* ===== VIEW ALL BUTTON BLINKING ANIMATION ===== */
+@keyframes viewAllPulse {
+    0%, 100% { 
+        color: #374151; 
+        transform: scale(1);
+    }
+    50% { 
+        color: #0ea5e9; 
+        transform: scale(1.05);
+    }
+}
+
+.view-all-btn {
+    animation: viewAllPulse 2s ease-in-out infinite;
+}
+
+.view-all-btn:hover {
+    animation: none;
+    color: #0ea5e9 !important;
+    transform: scale(1.05);
+}
+
+/* ===== TOUR BLOCKS MOBILE SCROLL FIX ===== */
+.tour-carousel {
+    flex: 1;
+    display: flex;
+    overflow-x: auto;
+    gap: 24px;
+    padding: 0;
+    scroll-behavior: smooth;
+    touch-action: auto !important;  /* ✅ Allow both horizontal and vertical scrolling */
+    /* ✅ Hide scrollbar while keeping scroll functionality */
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+}
+
+.tour-carousel::-webkit-scrollbar {
+    display: none !important;  /* Chrome, Safari and Opera */
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.tour-carousel::-webkit-scrollbar-track {
+    display: none !important;
+}
+
+.tour-carousel::-webkit-scrollbar-thumb {
+    display: none !important;
+}
+
+.tour-block-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    touch-action: auto !important;  /* ✅ Allow touch interactions on mobile */
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+}
+
+.tour-block-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* ===== CAROUSEL BUTTON STYLES ===== */
+.carousel-button {
+    flex-shrink: 0;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    color: #374151;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carousel-button:hover:not(:disabled) {
+    background-color: #0ea5e9;
+    color: white;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+    border-color: #0ea5e9;
+}
+
+.carousel-button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.carousel-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+    color: #d1d5db;
+}
+
+.carousel-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 768px) {
+    .carousel-button {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+    
+    .carousel-button svg {
+        width: 18px;
+        height: 18px;
+    }
+}
+
+/* ===== DROPDOWN NAVIGATION STYLES ===== */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #2F2F2F;
+    min-width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    z-index: 1000;
+    border-radius: 8px;
+    top: 100%;
+    left: 0;
+    padding: 8px 0;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown-content a {
+    color: white !important;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.dropdown-content a:hover {
+    background-color: #4A4A4A;
+}
+
+/* ===== DROPDOWN SUBMENU STYLES ===== */
+.dropdown-content .dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-content .dropdown-submenu .dropdown-subcontent {
+    display: none !important;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background-color: #2F2F2F;
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
+    border-radius: 8px;
+    padding: 8px 0;
+    z-index: 1001;
+}
+
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu:hover .dropdown-subcontent {
+    display: block !important;
+}
+
+.dropdown-content .dropdown-submenu:hover > .dropdown-subcontent {
+    display: block !important;
+}
+
+/* ===== LANGUAGE SELECTOR STYLES ===== */
+.language-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.lang-selector-btn {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.35rem !important;
+    padding: 0.5rem 0.5rem 0.5rem 0.65rem !important;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+    border-radius: 8px !important;
+    color: white !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    backdrop-filter: blur(8px) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Валютный селектор - компактнее */
+.lang-selector-btn:has(.selected-currency) {
+    padding: 0.5rem 0.5rem 0.5rem 0.65rem !important;
+}
+
+.lang-selector-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.18));
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transform: translateY(-1px);
+}
+
+.lang-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(47, 47, 47, 0.98);
+    backdrop-filter: blur(12px);
+    border-radius: 0.5rem;
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 0;
+    min-width: 70px;
+    width: fit-content;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+}
+
+.lang-dropdown-content.show {
+    display: block;
+}
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.lang-option:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.lang-option.active {
+    background: rgba(255,255,255,0.15);
+    font-weight: 500;
+}
+
+/* ===== CURRENCY SELECTOR STYLES ===== */
+.currency-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.currency-selector-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08));
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    min-width: 100px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.currency-selector-btn:hover {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.18));
+    border-color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    transform: translateY(-1px);
+}
+
+.currency-dropdown-content {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: rgba(47, 47, 47, 0.98);
+    backdrop-filter: blur(10px);
+    border-radius: 0.5rem;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    padding: 0.5rem 0;
+    min-width: 75px;
+    width: fit-content;
+    z-index: 1000;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+}
+
+.currency-dropdown-content.show {
+    display: block;
+}
+
+.currency-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-decoration: none;
+}
+
+.currency-option:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.currency-option.active {
+    background: rgba(255,255,255,0.15);
+    font-weight: 500;
+}
+
+/* ===== DROPDOWN ARROWS ===== */
+.dropdown-arrow {
+    transition: transform 0.3s ease;
+}
+
+.dropdown-arrow.open {
+    transform: rotate(180deg);
+}
+
+/* ===== MOBILE RESPONSIVE STYLES ===== */
+@media (max-width: 768px) {
+    .dropdown-content,
+    .dropdown-subcontent {
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90vw;
+        max-width: 300px;
+    }
+    
+    .lang-dropdown-content,
+    .currency-dropdown-content {
+        right: 0;
+        left: auto;
+        transform: none;
+        width: auto;
+        min-width: 140px;
+    }
+    
+    /* Кнопки - минимум 44x44px для тач-устройств */
+    button:not(.filter-toggle-btn):not(.search-btn-compact), 
+    .btn, 
+    a.btn {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+    }
+    
+    /* Селекторы языка и валюты - компактные на мобильных */
+    .lang-selector-btn,
+    .currency-selector-btn {
+        min-height: 44px;
+        min-width: auto;
+        padding: 0.5rem 0.75rem;
+        font-size: 13px;
+        gap: 0.25rem;
+    }
+    
+    /* Скрываем флаги только на самых маленьких экранах */
+    .selected-flag {
+        display: none;
+    }
+    
+    .selected-lang,
+    .selected-currency {
+        font-size: 13px;
+    }
+    
+    /* Интерактивные элементы в выпадающих меню */
+    .dropdown-content a,
+    .lang-option,
+    .currency-option {
+        min-height: 44px;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+    }
+}
+
+/* ===== MOBILE MENU SPECIFIC STYLES ===== */
+#mobileMenu .lang-selector-btn {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.20));
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    min-height: 48px;
+    padding: 0.65rem 1rem;
+    font-size: 14px;
+    border-radius: 10px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+#mobileMenu .lang-selector-btn:active {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.30));
+    transform: scale(0.98);
+}
+
+#mobileMenu .lang-dropdown-content {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.18));
+    backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    position: absolute;
+    top: calc(100% + 0.25rem);
+    left: 0;
+    right: auto;
+    min-width: 100%;
+}
+
+#mobileMenu .lang-option {
+    border-radius: 8px;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#mobileMenu .lang-option .lang-name,
+#mobileMenu .lang-option .currency-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+#mobileMenu .lang-option:hover,
+#mobileMenu .lang-option:active {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+#mobileMenu .lang-option.active {
+    background: rgba(255, 255, 255, 0.30);
+    font-weight: 600;
+}
+
+/* ===== ACCESSIBILITY STYLES ===== */
+.dropdown-content a:focus,
+.lang-option:focus,
+.currency-option:focus {
+    outline: 2px solid rgba(255,255,255,0.5);
+    outline-offset: 2px;
+    background: rgba(255,255,255,0.1);
+}
+
+/* Ensure keyboard navigation */
+.dropdown:focus-within .dropdown-content {
+    display: block;
+}
+
+/* ===== HEADER SEARCH STYLES ===== */
+/* Скрываем мобильный поисковик, пока он прикреплён к хедеру.
+   На главной он переносится под баннер (в #mobileSearchUnderBanner),
+   поэтому там остаётся видимым; на остальных страницах исчезает. */
+header#site-header #headerMobileSearchRow {
+    display: none !important;
+}
+
+#headerSearchInput::placeholder {
+    color: #999;
+}
+
+#headerSearchInput:focus {
+    background: white;
+    border-color: #4A90E2;
+    outline: none;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+#headerSearchSuggestions a {
+    display: block;
+    padding: 0.6rem 1rem;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+    font-size: 13px;
+}
+
+#headerSearchSuggestions a:last-child {
+    border-bottom: none;
+}
+
+#headerSearchSuggestions a:hover {
+    background: #f5f5f5;
+}
+/* ============= TOUR DETAIL PAGE MOBILE RESPONSIVE STYLES ============= */
+
+/* Gallery stays in container - no breakout */
+.tour-gallery {
+    max-width: 100% !important;
+    width: 100% !important;
+}
+
+/* Desktop: thumbnails on the side */
+@media (min-width: 769px) {
+    .gallery-wrapper {
+        flex-direction: row !important;
+    }
+    
+    .thumbnail-column-desktop {
+        width: 128px !important;
+        flex-direction: column !important;
+        order: 1;
+    }
+    
+    .gallery-main-image {
+        order: 2;
+    }
+}
+
+/* Mobile: thumbnails below main image */
+@media (max-width: 768px) {
+    .tour-gallery {
+        border-radius: 0 !important;
+    }
+    
+    .gallery-wrapper {
+        flex-direction: column !important;
+    }
+    
+    .thumbnail-column-desktop {
+        order: 2;
+        width: 100% !important;
+        padding: 12px 4px !important;
+        border-top: 1px solid #e5e7eb !important;
+        overflow-x: auto !important;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        /* ✅ Hide scrollbar while keeping scroll functionality */
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+    
+    .thumbnail-column-desktop::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+    }
+    
+    .thumbnail-column-desktop::-webkit-scrollbar-track {
+        display: none !important;
+    }
+    
+    .thumbnail-column-desktop::-webkit-scrollbar-thumb {
+        display: none !important;
+    }
+    
+    #thumbnail-column {
+        flex-direction: row !important;
+        gap: 8px !important;
+        width: 100%;
+    }
+    
+    .thumbnail-column-desktop img,
+    .thumbnail-column-desktop .thumbnail {
+        width: 80px !important;
+        height: 80px !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start;
+    }
+    
+    #see-more-btn {
+        width: 80px !important;
+        height: 80px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .gallery-main-image {
+        order: 1;
+        padding: 12px !important;
+    }
+    
+    #main-image {
+        height: 280px !important;
+        max-height: 280px !important;
+        width: 100% !important;
+        object-fit: cover !important;
+    }
+}
+
+/* Desktop Info Strip - Harmonious Alignment */
+@media (min-width: 769px) {
+    .tour-info-strip-container {
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    #tour-info-strip {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 24px !important;
+    }
+    
+    #tour-info-strip > div {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center !important;
+        gap: 24px !important;
+    }
+    
+    #tour-info-strip > div > div {
+        display: flex !important;
+        align-items: center !important;
+        height: auto !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Align dropdown button properly */
+    #tour-info-strip button {
+        display: flex !important;
+        align-items: center !important;
+        height: auto !important;
+    }
+    
+    #tour-languages-label {
+        display: flex !important;
+        align-items: center !important;
+        gap: 4px !important;
+    }
+}
+
+/* Mobile Info Strip - Clean 2x2 layout */
+@media (max-width: 768px) {
+    .tour-info-strip-container {
+        margin-top: 0 !important;
+        margin-bottom: 16px !important;
+        padding: 12px 16px !important;
+    }
+    
+    #tour-info-strip {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+    
+    #tour-info-strip > div {
+        width: 100% !important;
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+    }
+    
+    #tour-info-strip > div > div {
+        flex-basis: calc(50% - 5px) !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    #tour-info-strip > div > div:last-child {
+        margin-left: auto !important;
+        flex-basis: auto !important;
+    }
+    
+    #share-btn {
+        padding: 0.5rem 0.6rem !important;
+        background: #3E3E3E !important;
+        border: 1.5px solid #3E3E3E !important;
+        color: white !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        transition: all 0.3s ease !important;
+        font-weight: 500 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        cursor: pointer !important;
+    }
+    
+    #share-btn:hover {
+        background: #4A4A4A !important;
+        border-color: #4A4A4A !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+    
+    #share-btn span {
+        margin: 0 !important;
+        font-size: 14px !important;
+    }
+    
+    #share-btn svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+    
+    /* ✅ MOBILE SHARE MENU FIX */
+    #share-menu {
+        right: -50px !important;
+        left: auto !important;
+        width: 200px !important;
+        max-width: calc(100vw - 20px) !important;
+    }
+    
+    #share-menu button {
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+        white-space: nowrap !important;
+    }
+    
+    #tour-info-strip button:not(#share-btn) {
+        padding: 0 !important;
+        background: none !important;
+        color: inherit !important;
+    }
+    
+    #tour-info-strip button:not(#share-btn):hover {
+        background: none !important;
+    }
+    
+    #tour-info-strip #share-btn {
+        padding: 0.5rem 0.6rem !important;
+        background: #3E3E3E !important;
+        border: 1.5px solid #3E3E3E !important;
+        color: white !important;
+        border-radius: 8px !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        transition: all 0.3s ease !important;
+        font-weight: 500 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+        cursor: pointer !important;
+    }
+    
+    #tour-info-strip #share-btn:hover {
+        background: #4A4A4A !important;
+        border-color: #4A4A4A !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        transform: translateY(-1px) !important;
+    }
+}
+
+/* Mobile Tabs */
+@media (max-width: 768px) {
+    .tour-tabs-nav {
+        scroll-snap-type: x mandatory !important;
+        scroll-behavior: smooth !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    .tour-tabs-nav button {
+        font-size: 12px !important;
+        padding: 8px 12px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start;
+    }
+}
+
+/* Mobile Booking Sidebar - Move below content on mobile */
+@media (max-width: 1024px) {
+    .tour-booking-sidebar {
+        order: 99 !important;
+        margin-top: 24px !important;
+    }
+}
+
+/* Mobile Title and Breadcrumb */
+@media (max-width: 768px) {
+    .max-w-7xl {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+    
+    h1 {
+        font-size: 24px !important;
+        line-height: 1.3 !important;
+    }
+    
+    #breadcrumb-container {
+        flex-wrap: wrap !important;
+        gap: 4px !important;
+    }
+    
+    #breadcrumb-container span {
+        font-size: 12px !important;
+    }
+}
+
+/* Tour details responsive padding */
+@media (max-width: 768px) {
+    #tour-details {
+        margin-top: 16px !important;
+    }
+    
+    #tour-details .p-6 {
+        padding: 16px !important;
+    }
+}
+
+/* Mobile Language & Currency Dropdowns - Compact */
+@media (max-width: 768px) {
+    .lang-dropdown-content {
+        max-width: 60px !important;
+        min-width: 50px !important;
+        padding: 0.4rem 0 !important;
+    }
+    
+    .lang-option {
+        gap: 0.3rem !important;
+        padding: 0.5rem 0.6rem !important;
+        font-size: 13px !important;
+    }
+}
+
+/* ===== AGGRESSIVE SCROLLBAR HIDING ===== */
+/* Webkit (Chrome, Safari, Edge, Opera) */
+*::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    background: transparent !important;
+}
+
+*::-webkit-scrollbar-track {
+    display: none !important;
+    background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    display: none !important;
+    background: transparent !important;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: none !important;
+    scrollbar-color: transparent transparent !important;
+}
+
+/* IE/Edge */
+* {
+    -ms-overflow-style: none !important;
+}
+
+/* ===== ANTI-COPY TEXT PROTECTION ===== */
+#tour-description-content,
+#content-program,
+.protected-description {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    -webkit-touch-callout: none !important;
+}
+
+/* Prevent text selection for copy protection */
+#tour-description-content p,
+#tour-description-content span,
+#tour-description-content div,
+#content-program p,
+#content-program span,
+#content-program div {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+/* Specific elements */
+.tour-carousel,
+.thumbnail-column-desktop,
+.tour-block-container {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    background: transparent !important;
+}
+
+/* ===== FLYING PLANE ANIMATION ===== */
+.flying-plane-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    min-height: 140px;
+    margin: 10px 0 0 0;
+    padding-top: 80px;
+}
+
+.flying-plane-container h2 {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    padding: 0;
+}
+
+.flying-plane {
+    position: absolute;
+    font-size: 24px;
+    top: 50%;
+    left: 50%;
+    margin-top: -12px;
+    margin-left: -12px;
+    pointer-events: none;
+    z-index: 10;
+    filter: drop-shadow(1px 1px 4px rgba(59, 130, 246, 0.4));
+    animation: smoothEllipse 15s linear infinite;
+}
+
+/* Smooth elliptical orbit */
+@keyframes smoothEllipse {
+    0%   { transform: translate(280px, 0px) rotate(90deg); }
+    6.25%  { transform: translate(243px, -25px) rotate(100deg); }
+    12.5%  { transform: translate(171px, -43px) rotate(120deg); }
+    18.75% { transform: translate(76px, -49px) rotate(150deg); }
+    25%  { transform: translate(0px, -45px) rotate(180deg); }
+    31.25% { transform: translate(-76px, -49px) rotate(210deg); }
+    37.5%  { transform: translate(-171px, -43px) rotate(240deg); }
+    43.75% { transform: translate(-243px, -25px) rotate(260deg); }
+    50%  { transform: translate(-280px, 0px) rotate(270deg); }
+    56.25% { transform: translate(-243px, 25px) rotate(280deg); }
+    62.5%  { transform: translate(-171px, 43px) rotate(300deg); }
+    68.75% { transform: translate(-76px, 49px) rotate(330deg); }
+    75%  { transform: translate(0px, 45px) rotate(360deg); }
+    81.25% { transform: translate(76px, 49px) rotate(390deg); }
+    87.5%  { transform: translate(171px, 43px) rotate(420deg); }
+    93.75% { transform: translate(243px, 25px) rotate(440deg); }
+    100% { transform: translate(280px, 0px) rotate(450deg); }
+}
+
+/* Speech bubble - fixed position above title */
+.plane-speech-bubble-fixed {
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 16px;
+    padding: 12px 20px;
+    min-width: 240px;
+    max-width: 320px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    font-size: 13px;
+    line-height: 1.5;
+    color: #374151;
+    text-align: center;
+    pointer-events: none;
+    z-index: 5;
+    animation: bubblePulse 4s ease-in-out infinite;
+}
+
+.plane-speech-bubble-fixed::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid white;
+}
+
+.speech-text {
+    display: block;
+    font-style: italic;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+}
+
+@keyframes bubblePulse {
+    0%, 100% { 
+        transform: translateX(-50%) scale(1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+    }
+    50% { 
+        transform: translateX(-50%) scale(1.02);
+        box-shadow: 0 6px 25px rgba(59, 130, 246, 0.15);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .flying-plane {
+        animation: smoothEllipseMobile 15s linear infinite;
+        font-size: 20px;
+    }
+    
+    .plane-speech-bubble-fixed {
+        min-width: 180px;
+        max-width: 260px;
+        font-size: 11px;
+        padding: 10px 14px;
+    }
+}
+
+@keyframes smoothEllipseMobile {
+    0%   { transform: translate(140px, 0px) rotate(90deg); }
+    25%  { transform: translate(0px, -35px) rotate(180deg); }
+    50%  { transform: translate(-140px, 0px) rotate(270deg); }
+    75%  { transform: translate(0px, 35px) rotate(360deg); }
+    100% { transform: translate(140px, 0px) rotate(450deg); }
+}
+
+@media (max-width: 500px) {
+    .plane-speech-bubble-fixed {
+        display: none;
+    }
+}
+
+/* ===== TOUR CARD PRICE + BUTTON ROW ===== */
+.tour-card-btn {
+    flex-shrink: 0;
+    width: 78px;
+}
+
+@media (max-width: 767px) {
+    .tour-card-price-row {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
+    .tour-card-btn {
+        width: 100% !important;
+        font-size: 13px !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        text-align: center !important;
+    }
+}
+
+/* ===== STICKY BAR - PUSH CHAT WIDGET UP ===== */
+body.sticky-bar-active .contact-widget {
+    bottom: 90px !important;
+}

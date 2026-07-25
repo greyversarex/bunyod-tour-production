@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="accommodation.page_title">Accommodation Regulation - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        .section-btn {
+            background: #6B7280;
+            box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3);
+            transition: all 0.3s ease;
+        }
+        .section-btn:hover {
+            background: #4B5563;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4);
+        }
+        .section-content {
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .info-card {
+            transition: all 0.3s ease;
+        }
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <div class="min-h-screen py-12 bg-gray-50" style="padding-top: 100px;">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-12 border border-gray-100">
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-6" data-translate="accommodation.main_title">ACCOMMODATION REGULATION</h1>
+                    <div class="w-20 h-1 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto mb-6"></div>
+                    <p class="text-lg text-gray-700 font-medium mb-4 leading-relaxed" data-translate="accommodation.intro_text">This regulation governs tourist accommodation in hotels and other accommodations in Central Asia and Tajikistan in accordance with generally recognized standards and local conditions.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleSection('hotel-types')" class="section-btn w-full text-left text-white p-6 rounded-lg font-bold text-xl flex justify-between items-center">
+                    <span data-translate="accommodation.hotel_types_title">I. TYPES AND CLASSIFICATIONS OF HOTELS</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="hotel-types" class="section-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-sm text-gray-600 italic mb-6" data-translate="accommodation.no_unified_standard">(No unified international classification exists today. The World Tourism Organization approved hotel standards in 1989, but they are recommendatory and not mandatory)</p>
+                    
+                    <div class="space-y-4">
+                        <div class="info-card bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_1star">Hotel-1★</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_1star_desc">A few rooms, minimal amenities and service level. The room has a bed, nightstand, chair, closet or hanger, mirror. Toilet and bathroom (shower) are shared on the floor. Guests receive 2 towels. Rooms cleaned daily, bed linen changed weekly.</p>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_2star">Hotel-2★</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_2star_desc">Several rooms, minimal amenities and service level. Room has bed, nightstand, chair, closet or hanger, mirror. Room has toilet and bathroom (shower). Guests receive 2 towels. Rooms cleaned daily, bed linen changed weekly.</p>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-4 rounded-lg border-l-4 border-orange-400">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_3star">Hotel-3★</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_3star_desc">Good amenities and service level. Room has refrigerator, TV, telephone, vanity table, separate bathroom with shower or bath. May have air conditioning and mini-bar. Breakfast is mandatory. Rooms cleaned and towels changed daily, bed linen changed twice a week.</p>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-4 rounded-lg border-l-4 border-blue-400">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_4star">Hotel-4★</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_4star_desc">Excellent amenities and service level. Spacious rooms with various categories available. Rooms must have TV, refrigerator, AC, mini-bar, small safe, bathrobe, slippers, phone with inter-city calling. Separate bathroom with toiletries. Linen and towels changed daily. Dry cleaning, laundry, ironing available.</p>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-4 rounded-lg border-l-4 border-purple-400">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_5star">Hotel-5★</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_5star_desc">Highest comfort and service level. Spacious rooms, often multi-room, with luxurious furnishings. Bathroom has jacuzzi bath and shower cabin, quality cosmetics set, terry bathrobe and slippers. Room cleaning and linen change daily. Restaurants, shops, saunas, pools available.</p>
+                        </div>
+
+                        <div class="info-card bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500 mt-6">
+                            <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.central_asia_note_title">Central Asia Specifics</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.central_asia_note">In Central Asia, including Tajikistan, where 93% of the area is mountains, hotels do not always meet classification requirements. For example, many hotels have rooms with two single beds (80x190), but this does not mean the room must have two people.</p>
+                        </div>
+
+                        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="info-card bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hostel">Hostel</h4>
+                                <p class="text-gray-700 text-sm" data-translate="accommodation.hostel_desc">Inexpensive hotel with limited services, multi-bed rooms with shared bathroom.</p>
+                            </div>
+                            <div class="info-card bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.guesthouse">Guesthouse</h4>
+                                <p class="text-gray-700 text-sm" data-translate="accommodation.guesthouse_desc">Two or three-story buildings with 20-30 rooms, homely atmosphere and small staff.</p>
+                            </div>
+                            <div class="info-card bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.hotel_garni">Hotel Garni</h4>
+                                <p class="text-gray-700 text-sm" data-translate="accommodation.hotel_garni_desc">Hotel without restaurant (even without breakfast).</p>
+                            </div>
+                            <div class="info-card bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-bold text-gray-800 mb-2" data-translate="accommodation.tourist_class">Tourist Class</h4>
+                                <p class="text-gray-700 text-sm" data-translate="accommodation.tourist_class_desc">Strictly boarding-type hotels for guests with very modest comfort requirements.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleSection('room-categories')" class="section-btn w-full text-left text-white p-6 rounded-lg font-bold text-xl flex justify-between items-center">
+                    <span data-translate="accommodation.room_categories_title">II-VII. ROOM CATEGORIES</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="room-categories" class="section-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-gray-400">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.standard">Standard</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.standard_1">• Standard furniture</li>
+                                <li data-translate="accommodation.standard_2">• Bedroom with comfortable bed</li>
+                                <li data-translate="accommodation.standard_3">• Bathroom</li>
+                                <li data-translate="accommodation.standard_4">• TV, AC, internet</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-blue-400">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.deluxe">De Luxe</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.deluxe_1">• Stylish interior design</li>
+                                <li data-translate="accommodation.deluxe_2">• Separate bathroom and toilet</li>
+                                <li data-translate="accommodation.deluxe_3">• Mini-bar, bathrobes, slippers</li>
+                                <li data-translate="accommodation.deluxe_4">• Pool, sauna, fitness</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-purple-400">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.suite">Suite</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.suite_1">• Luxurious 2-room suites</li>
+                                <li data-translate="accommodation.suite_2">• Separate living room</li>
+                                <li data-translate="accommodation.suite_3">• Spacious bathroom</li>
+                                <li data-translate="accommodation.suite_4">• May have balcony or terrace</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.premium">Premium/Luxe</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.premium_1">• Personal butler, VIP areas</li>
+                                <li data-translate="accommodation.premium_2">• Multiple bedrooms</li>
+                                <li data-translate="accommodation.premium_3">• Limousine service</li>
+                                <li data-translate="accommodation.premium_4">• Exclusive services</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-green-400">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.family">Family Room</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.family_1">• Rooms for 4+ people</li>
+                                <li data-translate="accommodation.family_2">• Extra beds available</li>
+                                <li data-translate="accommodation.family_3">• Play areas for children</li>
+                                <li data-translate="accommodation.family_4">• All amenities</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-card bg-gray-50 p-5 rounded-lg border-l-4 border-red-400">
+                            <h4 class="font-bold text-gray-800 mb-3 text-lg" data-translate="accommodation.economy">Economy</h4>
+                            <ul class="text-gray-700 text-sm space-y-1">
+                                <li data-translate="accommodation.economy_1">• One-room accommodation</li>
+                                <li data-translate="accommodation.economy_2">• Standard furniture</li>
+                                <li data-translate="accommodation.economy_3">• Double beds</li>
+                                <li data-translate="accommodation.economy_4">• Minimum amenities</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleSection('abbreviations')" class="section-btn w-full text-left text-white p-6 rounded-lg font-bold text-xl flex justify-between items-center">
+                    <span data-translate="accommodation.abbreviations_title">VIII. ACCOMMODATION DESIGNATIONS</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="abbreviations" class="section-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">STD</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.std"> — standard room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">DBL</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.dbl"> — double room with one double bed</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">SGL</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.sgl"> — single room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">TWN</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.twn"> — twin room with two single beds</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">TPL</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.tpl"> — triple room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">QDPL</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.qdpl"> — quadruple room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">DORM</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.dorm"> — dormitory room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">EB</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.eb"> — extra bed</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">SUP</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.sup"> — superior room</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">Check In</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.checkin"> — check-in (usually 14:00)</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">Check Out</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.checkout"> — check-out (usually 12:00)</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <span class="font-bold text-gray-800">FOC</span>
+                            <span class="text-gray-600 text-sm" data-translate="accommodation.foc"> — free of charge services</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleSection('meals')" class="section-btn w-full text-left text-white p-6 rounded-lg font-bold text-xl flex justify-between items-center">
+                    <span data-translate="accommodation.meals_title">IX. MEALS IN ACCOMMODATION</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="meals" class="section-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="info-card bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                            <h4 class="font-bold text-gray-800 mb-2">FB (Full Board)</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.fb">Full Board — three meals a day (breakfast + lunch + dinner). Drinks at lunch and dinner usually not included.</p>
+                        </div>
+                        <div class="info-card bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h4 class="font-bold text-gray-800 mb-2">HB (Half Board)</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.hb">Half Board — two meals a day (breakfast + dinner or lunch).</p>
+                        </div>
+                        <div class="info-card bg-purple-50 p-4 rounded-lg border-l-4 border-purple-500">
+                            <h4 class="font-bold text-gray-800 mb-2">All Inclusive</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.all">All Inclusive — three meals plus snacks, drinks and extra services.</p>
+                        </div>
+                        <div class="info-card bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                            <h4 class="font-bold text-gray-800 mb-2">B&B</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.bb">Bed &amp; Breakfast — room with breakfast.</p>
+                        </div>
+                        <div class="info-card bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                            <h4 class="font-bold text-gray-800 mb-2">BBF (Buffet)</h4>
+                            <p class="text-gray-700 text-sm" data-translate="accommodation.bbf">Popular breakfast option — buffet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const button = section.previousElementSibling;
+            const arrow = button.querySelector('.dropdown-arrow');
+            
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                arrow.textContent = '▲';
+            } else {
+                section.classList.add('hidden');
+                arrow.textContent = '▼';
+            }
+        }
+    </script>
+</body>
+</html>

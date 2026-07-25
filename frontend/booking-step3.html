@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="booking.step3.page_title">Booking - Payment | Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" src="/public/js/i18n.js?v=2.1"></script>
+    <script data-cfasync="false" src="/public/js/booking-state.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+        .progress-step.active {
+            background: #6B7280;
+            color: white;
+        }
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+        .payment-method {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .payment-method:hover {
+            border-color: #93C5FD;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+        .payment-method.selected {
+            border-color: #2563EB;
+            background: #EFF6FF;
+            box-shadow: 0 0 0 1px #2563EB, 0 4px 12px rgba(37, 99, 235, 0.15);
+        }
+        .payment-icon {
+            width: 60px;
+            height: 40px;
+            object-fit: contain;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/date-utils.js"></script>
+    <script data-cfasync="false" src="/js/tour-utils.js"></script>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Progress Indicator -->
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div id="progress-container" class="flex items-center justify-between">
+                <div id="hotel-step" class="flex items-center space-x-4">
+                    <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step1.title">Hotel Selection</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step2.title">Tourist Information</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="payment-step-number" class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">3</div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step3.title">Payment</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Payment Options Section (for group tours booked 30+ days ahead) -->
+        <div id="payment-options-section" class="bg-white rounded-lg shadow-lg p-8 mb-8" style="display: none;">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.payment_option_title">Step 1. Choose Payment Terms</h2>
+            
+            <div class="space-y-4">
+                <!-- Full Payment -->
+                <div class="payment-method" data-option="full" onclick="selectPaymentOption('full')">
+                    <div class="flex items-start">
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-money-bill-wave text-2xl text-gray-700"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_full">Full Payment</h3>
+                            <p class="text-gray-600 text-sm" data-translate="booking.payment_full_desc">Pay 100% of the tour cost</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Book Now - Pay Later (10% deposit) -->
+                <div class="payment-method" data-option="deposit" onclick="selectPaymentOption('deposit')" id="payment-option-deposit-10">
+                    <div class="flex items-start">
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-calendar-check text-2xl text-gray-700"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit">Book Now - Pay Later (10%)</h3>
+                            <p class="text-gray-600 text-sm" data-translate="booking.payment_deposit_desc">Pay 10% of the total tour cost now and 90% of the balance before the tour starts</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 25% deposit (only for personal and group_personal tours) -->
+                <div class="payment-method" data-option="deposit_25" onclick="selectPaymentOption('deposit_25')" id="payment-option-deposit-25" style="display: none;">
+                    <div class="flex items-start">
+                        <div class="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-lg mr-4 flex-shrink-0">
+                            <i class="fas fa-percentage text-2xl text-gray-700"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800" data-translate="booking.payment_deposit_25">Deposit 25%</h3>
+                            <p class="text-gray-600 text-sm" data-translate="booking.payment_deposit_25_desc">Pay 25% of the total tour cost now and 75% of the balance before the tour starts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cash Payment Notice (показывается только при выборе 10% или 25%) -->
+            <div id="cash-payment-notice" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg" style="display: none;">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-yellow-600 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-gray-800 font-medium" data-translate="booking.cash_notice_title">Attention:</p>
+                        <p class="text-gray-700 text-sm" data-translate="booking.cash_notice_text">The remaining balance is paid in cash in national currency on the first day of the tour.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instruction Notice: Choose payment option first -->
+            <div class="mt-6 p-4 bg-red-50 border-2 border-red-300 rounded-lg shadow-sm">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-exclamation-triangle text-red-600 text-xl mt-1"></i>
+                    <div>
+                        <p class="text-red-700 font-bold text-base" data-translate="booking.step1_instruction">After selecting payment terms above, proceed to Step 2 to choose payment method</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.select_payment">Step 2. Select Payment Method</h2>
+                
+                <div class="space-y-4">
+                    <!-- Payler -->
+                    <div class="payment-method" data-method="payler" onclick="selectPaymentMethod('payler')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.payler_title">VISA / MasterCard — Payler</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.payler_desc">Secure bank card payment</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                                <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AlifPay -->
+                    <div class="payment-method" data-method="alifpay" onclick="selectPaymentMethod('alifpay')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-green-100 rounded-lg mr-4">
+                                <i class="fab fa-cc-visa text-2xl text-green-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.alifpay_title">VISA / MasterCard — AlifPay</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.alifpay_desc">Local payment system of Tajikistan</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                                <i class="fab fa-cc-mastercard text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Binance - Temporarily disabled (not integrated) -->
+                    <!-- 
+                    <div class="payment-method" data-method="binance" onclick="selectPaymentMethod('binance')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-yellow-100 rounded-lg mr-4">
+                                <i class="fab fa-bitcoin text-2xl text-yellow-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.binance_title">Binance (Криптовалюта)</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.binance_desc">Оплата криптовалютой через Binance</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <i class="fab fa-bitcoin text-2xl text-yellow-600"></i>
+                                <i class="fab fa-ethereum text-2xl text-gray-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+
+                    <!-- Корти Милли - Temporarily disabled (not integrated) -->
+                    <!--
+                    <div class="payment-method" data-method="korti-milli" onclick="selectPaymentMethod('korti-milli')">
+                        <div class="flex items-center">
+                            <div class="flex items-center justify-center w-16 h-12 bg-red-100 rounded-lg mr-4">
+                                <i class="fas fa-credit-card text-2xl text-red-600"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-gray-800" data-translate="booking.korti_milli_title">Корти Милли</h3>
+                                <p class="text-gray-600 text-sm" data-translate="booking.korti_milli_desc">Национальная платежная система Таджикистана</p>
+                            </div>
+                            <div class="flex">
+                                <i class="fas fa-flag text-2xl text-red-500"></i>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between mt-8">
+                    <button id="back-btn" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i><span data-translate="booking.back">Back</span>
+                    </button>
+                    <button id="pay-btn" class="bg-sky-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-sky-600 transition-all shadow-md hover:shadow-sky-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <span data-translate="booking.pay">Pay</span>
+                        <i class="fas fa-credit-card ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+        <!-- Booking Voucher -->
+        <div class="bg-white rounded-lg shadow-lg mt-8">
+            <div id="booking-summary">
+                <!-- Voucher will be loaded here -->
+                <div class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                    <p class="text-gray-600 mt-2" data-translate="booking.loading_data">Loading booking data...</p>
+                </div>
+            </div>
+            
+            <!-- Security Info -->
+            <div class="border-t px-6 py-4 bg-gray-50">
+                <div class="flex items-center justify-center text-sm text-gray-600">
+                    <i class="fas fa-shield-alt text-green-500 mr-2"></i>
+                    <span data-translate="booking.ssl_protected">Your data is protected by SSL encryption</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Processing Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+            <div class="text-center">
+                <div id="payment-processing" class="hidden">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.processing_payment">Processing Payment</h3>
+                    <p class="text-gray-600" data-translate="booking.please_wait">Please wait...</p>
+                </div>
+                
+                <div id="payment-success" class="hidden">
+                    <i class="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.payment_success">Payment Successful!</h3>
+                    <p class="text-gray-600 mb-4" data-translate="booking.booking_confirmed">Your booking is confirmed</p>
+                    <button onclick="goToConfirmation()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                        <span data-translate="booking.view_details">View Details</span>
+                    </button>
+                </div>
+                
+                <div id="payment-error" class="hidden">
+                    <i class="fas fa-times-circle text-4xl text-red-500 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2" data-translate="booking.payment_error">Payment Error</h3>
+                    <p class="text-gray-600 mb-4" data-translate="booking.try_again_message">Try again or choose another payment method</p>
+                    <button onclick="closePaymentModal()" class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors">
+                        <span data-translate="booking.try_again">Try Again</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        let bookingState = {};
+        let selectedPaymentMethod = null;
+        let selectedPaymentOption = null; // 'full', 'deposit', or 'free_cancel'
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            setupEventListeners();
+        });
+
+        function initializePage() {
+            // Initialize language
+            window.currentLanguage = window.currentLanguage || localStorage.getItem('selectedLanguage') || 'en';
+            console.log('🌍 Step 3 initialized with language:', window.currentLanguage);
+            
+            // Initialize bookingStateManager
+            if (!window.bookingStateManager) {
+                console.error('❌ bookingStateManager not loaded!');
+                alert('Ошибка: система бронирования не инициализирована');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+            
+            window.bookingStateManager.init();
+
+            // Get booking ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+            
+            if (!bookingId || !window.bookingStateManager.state.bookingId) {
+                console.error('❌ No booking ID found. URL:', bookingId, 'State:', window.bookingStateManager.state.bookingId);
+                alert('Ошибка: данные бронирования не найдены');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+
+            // Use state from bookingStateManager
+            bookingState = window.bookingStateManager.state;
+            console.log('📦 Step 3 loaded booking state:', bookingState);
+
+            // Load booking summary
+            loadBookingSummary(bookingId);
+        }
+
+        // Helper function to get localized name from multilingual object or string
+        function getLocalizedName(nameValue) {
+            const lang = window.currentLanguage || 'en';
+            
+            // If it's already a string, return it
+            if (typeof nameValue === 'string') {
+                return nameValue;
+            }
+            
+            // If it's an object with language keys
+            if (typeof nameValue === 'object' && nameValue !== null) {
+                // Try current language first, then fallback to ru, then en, then any available value
+                return nameValue[lang] || nameValue.ru || nameValue.en || Object.values(nameValue)[0] || 'N/A';
+            }
+            
+            return 'N/A';
+        }
+
+        // ✅ Hide "Hotel Selection" step if tour has no hotels (same as step 2)
+        function hideHotelStepIfNoHotels() {
+            const booking = window.bookingStateManager?.state || bookingState;
+            const hasHotels = booking?.tour?.tourHotels && booking.tour.tourHotels.length > 0;
+            
+            console.log('🏨 Checking hotel step visibility:', {
+                hasHotels,
+                tourHotels: booking?.tour?.tourHotels
+            });
+            
+            if (!hasHotels) {
+                // Hide Hotel Selection step
+                const hotelStep = document.getElementById('hotel-step');
+                if (hotelStep) {
+                    hotelStep.style.display = 'none';
+                    console.log('✅ Hotel Selection step hidden (no hotels attached to tour)');
+                }
+                
+                // Renumber remaining steps
+                const paymentStepNumber = document.getElementById('payment-step-number');
+                if (paymentStepNumber) {
+                    paymentStepNumber.textContent = '2'; // Payment becomes step 2
+                    console.log('✅ Payment step renumbered to 2');
+                }
+            }
+        }
+
+        function setupEventListeners() {
+            const backBtn = document.getElementById('back-btn');
+            const payBtn = document.getElementById('pay-btn');
+            
+            if (backBtn) backBtn.addEventListener('click', goBack);
+            if (payBtn) payBtn.addEventListener('click', processPayment);
+            
+            // Listen for language changes
+            window.addEventListener('languageChanged', (e) => {
+                window.currentLanguage = e.detail.language;
+                console.log('🌍 Step 3 language changed to:', window.currentLanguage);
+                // Reload booking summary with new language
+                if (bookingState && bookingState.id) {
+                    loadBookingSummary(bookingState.id);
+                }
+            });
+        }
+
+        // Проверка условий и показ опций оплаты для туров (30+ дней)
+        function checkAndShowPaymentOptions(booking) {
+            const tourType = (booking?.tour?.tourType || '').toLowerCase();
+            const format = (booking?.tour?.format || '').toLowerCase();
+            const tourDate = booking?.tourDate;
+            
+            console.log('🔍 Checking payment options:', { tourType, format, tourDate });
+            
+            // Проверяем тип тура: "Групповой общий" (русский) или "group_shared" (английский)
+            const isGroupShared = (tourType.includes('групповой') && tourType.includes('общий')) || 
+                                 (tourType.includes('group') && tourType.includes('shared')) ||
+                                 tourType === 'group_shared' ||
+                                 format === 'group_shared' ||
+                                 (format.includes('group') && format.includes('shared'));
+            
+            // Проверяем тип тура: "Групповой персональный" (включая "group_private")
+            const isGroupPersonal = (tourType.includes('групповой') && tourType.includes('персональный')) ||
+                                   (tourType.includes('group') && tourType.includes('personal')) ||
+                                   (tourType.includes('group') && tourType.includes('private')) ||
+                                   tourType === 'group_personal' ||
+                                   tourType === 'group_private' ||
+                                   format === 'group_personal' ||
+                                   format === 'group_private';
+            
+            // Проверяем тип тура: "Персональный" (без группового)
+            // Проверяем как tourType, так и format для полной совместимости
+            const isPersonal = ((tourType.includes('персональный') || tourType.includes('personal') || tourType.includes('private') || tourType.includes('individual')) &&
+                              !tourType.includes('групповой') && !tourType.includes('group')) ||
+                              format === 'personal' ||
+                              format === 'individual' ||
+                              format === 'private';
+            
+            if ((!isGroupShared && !isPersonal && !isGroupPersonal) || !tourDate) {
+                console.log('❌ Payment options not shown: tour type invalid', {isGroupShared, isPersonal, isGroupPersonal});
+                return;
+            }
+            
+            // Вычисляем разницу в днях между сегодня и датой тура (timezone-safe)
+            const diffDays = daysUntilTour(tourDate);
+            
+            console.log('📅 Days until tour:', diffDays);
+            
+            // Если бронирование больше чем за 30 дней - показываем опции
+            if (diffDays >= 30) {
+                const paymentOptionsSection = document.getElementById('payment-options-section');
+                const deposit10Option = document.getElementById('payment-option-deposit-10');
+                const deposit30Option = document.getElementById('payment-option-deposit-25');
+                
+                paymentOptionsSection.style.display = 'block';
+                
+                // Для Групповых общий: 10% и 100%
+                if (isGroupShared) {
+                    deposit10Option.style.display = 'block';
+                    deposit30Option.style.display = 'none';
+                    console.log('✅ Payment options: 10% and 100% (group shared tour, in', diffDays, 'days)');
+                } 
+                // Для Групповых персональный: 25% и 100%
+                else if (isGroupPersonal) {
+                    deposit10Option.style.display = 'none';
+                    deposit30Option.style.display = 'block';
+                    console.log('✅ Payment options: 25% and 100% (group personal tour, in', diffDays, 'days)');
+                }
+                // Для индивидуально-персональных: 25% и 100% (10% НЕ доступен для приватных туров)
+                else if (isPersonal) {
+                    deposit10Option.style.display = 'none';
+                    deposit30Option.style.display = 'block';
+                    console.log('✅ Payment options: 25% and 100% (personal tour, in', diffDays, 'days)');
+                }
+            } else {
+                console.log('❌ Payment options not shown: only', diffDays, 'days until tour');
+            }
+        }
+
+        // Выбор типа оплаты (full, deposit, deposit_25)
+        function selectPaymentOption(option) {
+            // Разрешены: 'full', 'deposit' (10%), 'deposit_25' (25%)
+            if (option !== 'full' && option !== 'deposit' && option !== 'deposit_25') {
+                console.warn('⚠️ Invalid payment option:', option);
+                return;
+            }
+            
+            selectedPaymentOption = option;
+            console.log('💳 Selected payment option:', option);
+            
+            // Обновляем UI
+            document.querySelectorAll('#payment-options-section .payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            const selectedElement = document.querySelector(`[data-option="${option}"]`);
+            if (selectedElement) {
+                selectedElement.classList.add('selected');
+            }
+            
+            // Показываем/скрываем уведомление о наличных
+            const cashNotice = document.getElementById('cash-payment-notice');
+            if (cashNotice) {
+                if (option === 'deposit' || option === 'deposit_25') {
+                    cashNotice.style.display = 'block';
+                } else {
+                    cashNotice.style.display = 'none';
+                }
+            }
+            
+            // ✅ Активируем кнопку оплаты после выбора условий оплаты в Шаге 1
+            const payBtn = document.getElementById('pay-btn');
+            if (payBtn) {
+                payBtn.disabled = false;
+                console.log('✅ Кнопка оплаты активирована после выбора условий оплаты');
+            }
+            
+            // Перезагружаем summary чтобы показать пометки
+            if (bookingState && bookingState.id) {
+                loadBookingSummary(bookingState.id);
+            }
+        }
+
+        async function loadBookingSummary(bookingId) {
+            try {
+                const lang = window.currentLanguage || 'en';
+                console.log('Loading booking summary for ID:', bookingId, 'with language:', lang);
+                const response = await fetch(`/api/booking/${bookingId}?lang=${lang}`);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success && data.data) {
+                    // Sync with server to get canonical pricing
+                    await window.bookingStateManager.syncWithServer();
+                    console.log('✅ State synced with server, pricing:', window.bookingStateManager.getPricing());
+                    
+                    // ✅ Hide hotel step if no hotels attached to tour
+                    hideHotelStepIfNoHotels();
+                    
+                    // ✅ Check if payment options should be shown
+                    checkAndShowPaymentOptions(data.data);
+                    
+                    displayBookingSummary(data.data);
+                } else {
+                    console.error('API returned error:', data.message);
+                    document.getElementById('booking-summary').innerHTML = `
+                        <div class="text-center py-4">
+                            <p class="text-red-600">Ошибка загрузки данных бронирования: ${data.message || 'Неизвестная ошибка'}</p>
+                            <button onclick="loadBookingSummary(${bookingId})" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                                Попробовать снова
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading booking summary:', error);
+                document.getElementById('booking-summary').innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-red-600">Ошибка загрузки данных: ${error.message}</p>
+                        <button onclick="loadBookingSummary(${bookingId})" class="mt-2 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                            Попробовать снова
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        function displayBookingSummary(booking) {
+            const summaryContainer = document.getElementById('booking-summary');
+            
+            // Parse room and meal selections
+            let roomSelection = {};
+            let mealSelection = {};
+            
+            try {
+                if (booking.roomSelection) {
+                    roomSelection = typeof booking.roomSelection === 'string' ? 
+                        JSON.parse(booking.roomSelection) : booking.roomSelection;
+                }
+                if (booking.mealSelection) {
+                    mealSelection = typeof booking.mealSelection === 'string' ? 
+                        JSON.parse(booking.mealSelection) : booking.mealSelection;
+                }
+            } catch (e) {
+                console.warn('Error parsing room/meal selections:', e);
+            }
+
+            // Parse tourists
+            let tourists = [];
+            try {
+                if (booking.tourists) {
+                    tourists = typeof booking.tourists === 'string' ? 
+                        JSON.parse(booking.tourists) : booking.tourists;
+                }
+            } catch (e) {
+                console.warn('Error parsing tourists:', e);
+            }
+
+            // Parse hotel room and meal types
+            let hotelRoomTypes = {};
+            let hotelMealTypes = {};
+            
+            if (booking.hotel) {
+                try {
+                    if (booking.hotel.roomTypes) {
+                        hotelRoomTypes = typeof booking.hotel.roomTypes === 'string' ? 
+                            JSON.parse(booking.hotel.roomTypes) : booking.hotel.roomTypes;
+                    }
+                    if (booking.hotel.mealTypes) {
+                        hotelMealTypes = typeof booking.hotel.mealTypes === 'string' ? 
+                            JSON.parse(booking.hotel.mealTypes) : booking.hotel.mealTypes;
+                    }
+                } catch (e) {
+                    console.warn('Error parsing hotel types:', e);
+                }
+            }
+
+            // ✅ КРИТИЧНО: Используем УЖЕ РАССЧИТАННУЮ цену со step 1 (из БД), НЕ пересчитываем!
+            // Окончательные расчёты происходят на step 1, здесь только отображаем
+            const totalAmount = booking.totalPrice || booking.calculatedTotalPrice || 0;
+            
+            // ✅ Define tourDuration outside if block (used in HTML template)
+            const tourDuration = booking.tour.durationDays || parseInt(booking.tour.duration) || 1;
+            
+            console.log(`💰 Step 3 - Using final price from Step 1 (DB): ${totalAmount} TJS (NO recalculation)`);
+
+            // Generate booking reference number
+            const bookingRef = `BT-${booking.id || 'XXXX'}${new Date().getFullYear()}`;
+            const submissionTime = new Date(booking.createdAt || Date.now());
+            
+            // Count actual tourists if tourist list is available  
+            let actualTouristCount = booking.numberOfTourists;
+            if (tourists.length > 0) {
+                actualTouristCount = tourists.length;
+            }
+            
+            // ✅ Get adults/children for display
+            const numAdults = booking.adults || booking.numberOfTourists;
+            const numChildren = booking.children || 0;
+
+            // Get current language for localization
+            const lang = window.currentLanguage || 'en';
+            const dateLocale = lang === 'en' ? 'en-US' : 'ru-RU';
+            
+            // Localized tour title
+            const tourTitle = typeof booking.tour.title === 'object' ? 
+                (booking.tour.title[lang] || booking.tour.title.ru || booking.tour.title.en) : booking.tour.title;
+            
+            // Localized tour type via shared helper
+            const tourTypeDisplay = localizeTourType(booking.tour.tourType || booking.tour.format, lang);
+            
+            // Check durationType for correct unit display
+            const durationType = booking.tour.durationType || 'days';
+            let durationText;
+            if (durationType === 'hours') {
+                durationText = tourDuration > 1 ? getTranslation('booking.voucher.hours') : getTranslation('booking.voucher.hour');
+            } else {
+                durationText = tourDuration > 1 ? getTranslation('booking.voucher.days') : getTranslation('booking.voucher.day');
+            }
+            
+            // Create voucher in professional format
+            let summaryHtml = `
+                <!-- Company Header -->
+                <div class="text-white p-6 text-center" style="background-color: #3E3E3E; border-radius: 8px 8px 0 0;">
+                    <div class="flex items-center justify-center mb-3">
+                        <img src="Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="w-14 h-14 rounded-full mr-3 shadow-lg">
+                        <div>
+                            <h1 class="text-2xl font-bold" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.3);">BUNYOD-TOUR</h1>
+                            <p class="text-sm opacity-90" data-translate="booking.voucher.tagline">Ваш надежный спутник в мире путешествий по Центральной Азии</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="p-8">
+                    <!-- Header -->
+                    <div class="flex justify-between items-start mb-6 border-b pb-4">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-calendar-alt text-gray-500"></i>
+                            <span class="text-gray-600">${formatTourDate(booking.tourDate, dateLocale)}</span>
+                        </div>
+                        <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium" data-translate="booking.confirmed">
+                            ПОДТВЕРЖДЕН
+                        </div>
+                    </div>
+
+                    <!-- Tour Title -->
+                    <div class="mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">${tourTitle}</h2>
+                        <p class="text-gray-600">${tourTypeDisplay} - ${tourDuration} ${durationText}</p>
+                    </div>
+
+                    <!-- Main Content Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Left Column -->
+                        <div class="space-y-6">
+                            <!-- Lead Traveler -->
+                            ${booking.contactName ? `
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.contact_person">Контактное лицо:</h4>
+                                    <p class="text-gray-700">${booking.contactName}</p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Travelers -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.participants">Участники тура:</h4>
+                                <div class="space-y-2">
+                                    ${numChildren > 0 ? 
+                                        `${numAdults} ${getTranslation('booking.adults_short', lang)} + ${numChildren} ${getTranslation('booking.children_short', lang)}` :
+                                        `${actualTouristCount} ${getTranslation(actualTouristCount === 1 ? 'booking.voucher.participant_singular' : 'booking.voucher.participants_count', lang)}`}
+                                    ${tourists.length > 0 ? `
+                                        <div class="mt-3">
+                                            ${tourists.map((tourist, index) => `
+                                                <div class="flex items-center text-sm text-gray-600 mb-1">
+                                                    <span class="w-5 h-5 bg-gray-500 text-white rounded-full text-xs flex items-center justify-center mr-2">${index + 1}</span>
+                                                    ${tourist.fullName} ${tourist.dateOfBirth ? `(${new Date(tourist.dateOfBirth).toLocaleDateString(dateLocale)})` : ''}
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Tour Language -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.tour_language">Язык тура:</h4>
+                                <p class="text-gray-700">Russian</p>
+                            </div>
+
+                            <!-- Inclusions -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.included">Включено:</h4>
+                                <div class="text-gray-700 space-y-1 text-sm">
+                                    ${(() => {
+                                        let services = [];
+                                        try {
+                                            if (booking.tour.services) {
+                                                const parsed = typeof booking.tour.services === 'string' ? 
+                                                    JSON.parse(booking.tour.services) : booking.tour.services;
+                                                services = Array.isArray(parsed) ? parsed : [];
+                                            }
+                                        } catch (e) {
+                                            console.warn('Error parsing tour services:', e);
+                                        }
+                                        // 🚫 Скрываем авто-добавленный accommodation_std (без id) — он нужен только серверу
+                                        // для логики замены проживания, в "Включено" должны быть только выбранные админом компоненты.
+                                        services = services.filter(s => {
+                                            if (!s || typeof s !== 'object') return true;
+                                            return !(s.key === 'accommodation_std' && (s.id === undefined || s.id === null));
+                                        });
+                                        const serviceName = (service) => lang === 'en' && service.nameEn ? service.nameEn : service.name;
+                                        return services.map(service => 
+                                            `<div class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> ${serviceName(service)}</div>`
+                                        ).join('');
+                                    })()}
+                                    ${booking.hotel ? '<div class="flex items-center"><i class="fas fa-check text-green-500 mr-2"></i> <span data-translate="booking.accommodation">Проживание в отеле</span></div>' : ''}
+                                </div>
+                            </div>
+
+                            <!-- Special Requirements -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.special_requests">Особые требования:</h4>
+                                <p class="text-gray-700 text-sm">${booking.specialRequests || ''}</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-6">
+                            <!-- Booking Reference -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-1">${bookingRef}</h4>
+                                <p class="text-sm text-gray-600"><span data-translate="booking.voucher.confirmed_at">Подтверждено</span> ${submissionTime.toLocaleDateString(dateLocale)} ${submissionTime.toLocaleTimeString(dateLocale, {hour: '2-digit', minute:'2-digit'})} GMT+5</p>
+                            </div>
+
+                            <!-- Customer Info -->
+                            ${booking.contactPhone ? `
+                                <div>
+                                    <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.client_phone">Номер телефона клиента:</h4>
+                                    <p class="text-gray-700">${booking.contactPhone}</p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Pickup Point -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.pickup_location">Место сбора:</h4>
+                                <p class="text-gray-700">${(lang === 'en' && booking.tour.pickupInfoEn) ? booking.tour.pickupInfoEn : (booking.tour.pickupInfo || 'Центр города Душанбе')}</p>
+                            </div>
+
+                            <!-- Booking Source -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.booking_source">Источник бронирования:</h4>
+                                <p class="text-gray-700">Bunyod-Tour</p>
+                            </div>
+
+                            <!-- Product Code -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.product_code">Код продукта:</h4>
+                                <p class="text-gray-700">TOUR${booking.tour.id}TJ${tourDuration}D</p>
+                            </div>
+
+                            <!-- Tour Guide -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.voucher.tour_guide">Гид тура:</h4>
+                                <p class="text-gray-700">${booking.tour.guide || '<span data-translate="booking.voucher.assigned_at_start">Назначается при начале тура</span>'}</p>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                ${(() => {
+                                    if (selectedPaymentOption === 'deposit') {
+                                        const depositAmount = totalAmount * 0.1;
+                                        const remainingAmount = totalAmount * 0.9;
+                                        return `
+                                            <h4 class="font-semibold text-gray-800 mb-3">${getTranslation('booking.tour_total', lang)}</h4>
+                                            <p class="text-2xl font-bold text-gray-700">${totalAmount.toFixed(2)} TJS</p>
+                                            <p class="text-sm text-gray-600 mb-3">≈ ${(totalAmount / (exchangeRates.USD ? exchangeRates.USD.rate : 10.6)).toFixed(2)} USD</p>
+                                            <div class="pt-3 border-t border-gray-300">
+                                                <p class="text-sm text-gray-700 mb-1">${getTranslation('booking.deposit_now_10', lang)}</p>
+                                                <p class="text-xl font-bold text-green-600">${depositAmount.toFixed(2)} TJS</p>
+                                                <p class="text-xs text-gray-600">≈ ${(depositAmount / (exchangeRates.USD ? exchangeRates.USD.rate : 10.6)).toFixed(2)} USD</p>
+                                            </div>
+                                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                                <p class="text-sm text-gray-700">${getTranslation('booking.remainder_90', lang)} <span class="font-semibold">${remainingAmount.toFixed(2)} TJS</span></p>
+                                                <p class="text-xs text-gray-500">${getTranslation('booking.pay_before_tour', lang)}</p>
+                                            </div>
+                                        `;
+                                    }
+                                    if (selectedPaymentOption === 'deposit_25') {
+                                        const depositAmount = totalAmount * 0.25;
+                                        const remainingAmount = totalAmount * 0.75;
+                                        return `
+                                            <h4 class="font-semibold text-gray-800 mb-3">${getTranslation('booking.tour_total', lang)}</h4>
+                                            <p class="text-2xl font-bold text-gray-700">${totalAmount.toFixed(2)} TJS</p>
+                                            <p class="text-sm text-gray-600 mb-3">≈ ${(totalAmount / (exchangeRates.USD ? exchangeRates.USD.rate : 10.6)).toFixed(2)} USD</p>
+                                            <div class="pt-3 border-t border-gray-300">
+                                                <p class="text-sm text-gray-700 mb-1">${getTranslation('booking.deposit_now_25', lang)}</p>
+                                                <p class="text-xl font-bold text-green-600">${depositAmount.toFixed(2)} TJS</p>
+                                                <p class="text-xs text-gray-600">≈ ${(depositAmount / (exchangeRates.USD ? exchangeRates.USD.rate : 10.6)).toFixed(2)} USD</p>
+                                            </div>
+                                            <div class="mt-2 pt-2 border-t border-gray-200">
+                                                <p class="text-sm text-gray-700">${getTranslation('booking.remainder_75', lang)} <span class="font-semibold">${remainingAmount.toFixed(2)} TJS</span></p>
+                                                <p class="text-xs text-gray-500">${getTranslation('booking.pay_before_tour', lang)}</p>
+                                            </div>
+                                        `;
+                                    }
+                                    return `
+                                        <h4 class="font-semibold text-gray-800 mb-3" data-translate="booking.total_amount">Сумма к оплате:</h4>
+                                        <p class="text-2xl font-bold text-gray-700">${totalAmount.toFixed(2)} TJS</p>
+                                        <p class="text-sm text-gray-600">≈ ${(totalAmount / (exchangeRates.USD ? exchangeRates.USD.rate : 10.6)).toFixed(2)} USD</p>
+                                    `;
+                                })()}
+                            </div>
+                            
+                            <!-- Payment Option Badges -->
+                            ${(() => {
+                                let badges = '';
+                                
+                                // Показываем бейдж выбранной опции оплаты
+                                if (selectedPaymentOption === 'deposit') {
+                                    badges += `
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-calendar-check text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800">${getTranslation('booking.payment_deposit', lang)}</p>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">${getTranslation('booking.deposit_badge_10_desc', lang)}</p>
+                                        </div>
+                                    `;
+                                } else if (selectedPaymentOption === 'deposit_25') {
+                                    badges += `
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-percentage text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800">${getTranslation('booking.payment_deposit_25', lang)}</p>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">${getTranslation('booking.deposit_badge_25_desc', lang)}</p>
+                                        </div>
+                                    `;
+                                } else if (selectedPaymentOption === 'full') {
+                                    badges += `
+                                        <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                            <div class="flex items-center gap-2">
+                                                <i class="fas fa-check-circle text-gray-700"></i>
+                                                <p class="text-sm font-medium text-gray-800">${getTranslation('booking.payment_full', lang)}</p>
+                                            </div>
+                                            <p class="text-xs text-gray-600 mt-1">${getTranslation('booking.full_payment_desc', lang)}</p>
+                                        </div>
+                                    `;
+                                }
+                                
+                                // Политика раннего бронирования - показывается ТОЛЬКО если тур через 30+ дней
+                                if (booking.tourDate) {
+                                    const daysUntilTourValue = daysUntilTour(booking.tourDate);
+
+                                    // Показываем информацию о политике раннего бронирования только если >= 30 дней
+                                    if (daysUntilTourValue !== null && daysUntilTourValue >= 30) {
+                                        badges += `
+                                            <div class="mt-4 p-3 bg-gray-50 border border-gray-300 rounded-lg">
+                                                <div class="flex items-center gap-2">
+                                                    <i class="fas fa-undo text-gray-700"></i>
+                                                    <button 
+                                                        type="button"
+                                                        onclick="openCancellationPolicyModal()"
+                                                        class="text-sm font-medium text-gray-800 underline hover:text-gray-600 text-left"
+                                                        data-translate="booking.free_cancellation"
+                                                    >Бесплатная отмена</button>
+                                                </div>
+                                                <p class="text-xs text-gray-600 mt-1" data-translate="booking.cancellation_terms">Возврат средств возможен лишь за 30 дней до начала забронированного тура</p>
+                                                <p class="text-xs text-gray-500 mt-1" data-translate="booking.cancellation_special_notes">Другие требования указаны в разделе «Особые примечания», пункт 16.</p>
+                                            </div>
+                                        `;
+                                    }
+                                }
+                                
+                                return badges;
+                            })()}
+                        </div>
+                    </div>
+
+                    <!-- Hotel Details (if selected rooms) -->
+                    ${(() => {
+                        // ✅ FIX: Check if any rooms are selected (nested structure)
+                        const hasSelectedRooms = Object.values(roomSelection).some(rooms => 
+                            typeof rooms === 'object' && Object.values(rooms).some(qty => parseInt(qty) > 0)
+                        );
+                        
+                        if (!hasSelectedRooms) return '';
+                        
+                        // ✅ Build hotels HTML for all selected hotels
+                        let hotelsHtml = '';
+                        
+                        for (const [hotelId, rooms] of Object.entries(roomSelection)) {
+                            if (typeof rooms !== 'object') continue;
+                            
+                            const hasRooms = Object.values(rooms).some(qty => parseInt(qty) > 0);
+                            if (!hasRooms) continue;
+                            
+                            // Find hotel data
+                            const hotelData = booking.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                            booking.tour?.tourHotels?.find(h => h.hotel?.id == hotelId)?.hotel;
+                            
+                            if (!hotelData) continue;
+                            
+                            // Parse room types for this hotel
+                            let roomTypes = {};
+                            try {
+                                roomTypes = typeof hotelData.roomTypes === 'string' ? 
+                                    JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
+                            } catch (e) {
+                                console.warn('Error parsing room types:', e);
+                            }
+                            
+                            // ✅ FIX: Parse amenities (can be string or array)
+                            let amenities = [];
+                            try {
+                                if (hotelData.amenities) {
+                                    amenities = typeof hotelData.amenities === 'string' ? 
+                                        JSON.parse(hotelData.amenities) : hotelData.amenities;
+                                }
+                            } catch (e) {
+                                console.warn('Error parsing amenities:', e);
+                            }
+                            
+                            // Get localized hotel name
+                            const hotelName = typeof hotelData.name === 'object' ? 
+                                (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : hotelData.name;
+                            
+                            // Build rooms HTML for this hotel
+                            let roomsHtml = '';
+                            for (const [roomType, quantity] of Object.entries(rooms)) {
+                                if (parseInt(quantity) > 0 && roomTypes[roomType]) {
+                                    const roomName = getLocalizedName(roomTypes[roomType].name);
+                                    roomsHtml += `<p class="text-sm text-gray-600">${roomName} × ${quantity}</p>`;
+                                }
+                            }
+                            
+                            if (!roomsHtml) continue;
+                            
+                            hotelsHtml += `
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.hotel">Отель:</h5>
+                                            <p class="text-gray-800">${hotelName}</p>
+                                            <p class="text-sm text-gray-600">${hotelData.address || ''}</p>
+                                            ${hotelData.stars ? `<div class="text-yellow-500 mt-1">${'★'.repeat(hotelData.stars)}</div>` : ''}
+                                            ${hotelData.category ? `<p class="text-sm text-purple-600 font-medium mt-1"><span data-translate="booking.category">Категория</span>: ${hotelData.category}</p>` : ''}
+                                            ${amenities && amenities.length > 0 ? `
+                                                <div class="mt-2">
+                                                    <p class="text-sm text-gray-700 font-medium mb-1" data-translate="booking.amenities">Удобства:</p>
+                                                    <div class="flex flex-wrap gap-1">
+                                                        ${amenities.map(amenity => `
+                                                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs">${getTranslation('amenity.' + amenity) || amenity}</span>
+                                                        `).join('')}
+                                                    </div>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                        <div>
+                                            <h5 class="font-medium text-gray-700 mb-2" data-translate="booking.rooms">Номера:</h5>
+                                            ${roomsHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        
+                        if (!hotelsHtml) return '';
+                        
+                        return `
+                            <div class="border-t pt-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4" data-translate="booking.accommodation_details">Детали проживания</h3>
+                                ${hotelsHtml}
+                            </div>
+                        `;
+                    })()}
+
+                </div>
+            `;
+            
+            summaryContainer.innerHTML = summaryHtml;
+
+            // Store total price for payment
+            bookingState.finalTotalPrice = totalAmount;
+            console.log('💰 Final total price set:', bookingState.finalTotalPrice, 'TJS');
+        }
+
+        function selectPaymentMethod(method) {
+            selectedPaymentMethod = method;
+            
+            // Update UI — только сбрасываем методы оплаты, не трогаем тип оплаты
+            document.querySelectorAll('[data-method]').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.querySelector(`[data-method="${method}"]`).classList.add('selected');
+            
+            // Enable pay button
+            document.getElementById('pay-btn').disabled = false;
+        }
+
+        function goBack() {
+            // Get bookingId from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId') || bookingState?.bookingId;
+            
+            if (!bookingId) {
+                console.warn('⚠️ No booking ID found, going back with history.back()');
+                window.history.back();
+                return;
+            }
+            
+            // Redirect to step 2 with bookingId to reload saved data
+            window.location.href = `/booking-step2.html?bookingId=${bookingId}`;
+        }
+
+        async function processPayment() {
+            if (!selectedPaymentMethod) {
+                alert('Пожалуйста, выберите способ оплаты');
+                return;
+            }
+
+            // Get booking ID from URL (это основная информация)
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+
+            if (!bookingId) {
+                alert('Ошибка: ID бронирования не найден');
+                return;
+            }
+
+            // Show payment modal
+            showPaymentProcessing();
+
+            try {
+                // ШАГАН 1: Сначала создать Order из Booking
+                console.log('🔄 Создаем заказ из бронирования...');
+                console.log('💳 Payment option:', selectedPaymentOption || 'full (default)');
+                
+                const currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+                const savedBookingData = (() => { try { return JSON.parse(localStorage.getItem('bookingData') || '{}'); } catch { return {}; } })();
+                const selectedTourTime = savedBookingData.time || '';
+                
+                const createOrderResponse = await fetch(`/api/booking/${bookingId}/create-order`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentOption: selectedPaymentOption || 'full',
+                        language: currentLanguage,
+                        selectedTime: selectedTourTime
+                    })
+                });
+
+                const orderData = await createOrderResponse.json();
+                
+                if (!orderData.success) {
+                    console.error('❌ Не удалось создать заказ:', orderData.message);
+                    alert('Ошибка при создании заказа: ' + orderData.message);
+                    closePaymentModal();
+                    return;
+                }
+
+                const orderNumber = orderData.data.orderNumber;
+
+                // ШАГАН 2: Теперь инициировать оплату с orderNumber
+                let paymentResponse;
+                
+                // Route to appropriate payment system
+                if (selectedPaymentMethod === 'alif' || selectedPaymentMethod === 'alifpay') {
+                    paymentResponse = await fetch('/api/payments/alif/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else if (selectedPaymentMethod === 'payler') {
+                    paymentResponse = await fetch('/api/payments/payler/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            orderNumber: orderNumber
+                        })
+                    });
+                } else {
+                    alert('Метод оплаты временно недоступен');
+                    closePaymentModal();
+                    return;
+                }
+
+                const paymentData = await paymentResponse.json();
+                
+                console.log('💳 Payment response:', paymentData);
+                console.log('💳 Payment method:', selectedPaymentMethod);
+                
+                if (paymentData.success) {
+                    
+                    // Store order info for success page in sessionStorage (including bookingId for retry)
+                    sessionStorage.setItem('completedOrder', JSON.stringify({
+                        orderNumber: orderNumber,
+                        paymentMethod: selectedPaymentMethod,
+                        bookingId: bookingId
+                    }));
+                    
+                    // Redirect to payment gateway
+                    if (paymentData.data.method === 'POST' && paymentData.data.formData && paymentData.data.action) {
+                        // AlifPay Legacy: Create and submit POST form
+                        console.log('🔄 Creating POST form for AlifPay:', paymentData.data.action);
+                        redirectToAlifPay(paymentData.data.action, paymentData.data.formData);
+                    } else if (paymentData.data.paymentUrl || paymentData.data.redirectUrl) {
+                        // Payler: Direct GET redirect
+                        const redirectUrl = paymentData.data.paymentUrl || paymentData.data.redirectUrl;
+                        console.log('🔄 Redirecting to payment gateway:', redirectUrl);
+                        window.location.href = redirectUrl;
+                    }
+                } else {
+                    console.error('❌ Payment failed:', paymentData.message);
+                    showPaymentError();
+                }
+            } catch (error) {
+                console.error('❌ Error processing payment:', error);
+                showPaymentError();
+            }
+        }
+
+        function redirectToAlifPay(url, formData) {
+            // Create and submit form for AlifPay
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = url;
+            
+            Object.entries(formData).forEach(([key, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function showPaymentProcessing() {
+            document.getElementById('payment-modal').classList.remove('hidden');
+            document.getElementById('payment-processing').classList.remove('hidden');
+            document.getElementById('payment-success').classList.add('hidden');
+            document.getElementById('payment-error').classList.add('hidden');
+        }
+
+        function showPaymentSuccess() {
+            document.getElementById('payment-processing').classList.add('hidden');
+            document.getElementById('payment-success').classList.remove('hidden');
+            document.getElementById('payment-error').classList.add('hidden');
+        }
+
+        function showPaymentError() {
+            document.getElementById('payment-processing').classList.add('hidden');
+            document.getElementById('payment-success').classList.add('hidden');
+            document.getElementById('payment-error').classList.remove('hidden');
+        }
+
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.add('hidden');
+        }
+
+        function goToConfirmation() {
+            // Clear booking state
+            localStorage.removeItem('bookingState');
+            
+            // Redirect to success page
+            const orderNumber = bookingState.orderNumber || 'unknown';
+            window.location.href = `/frontend/payment-success.html?order=${orderNumber}`;
+        }
+
+        // Глобальная система валют (копия из booking-step1.html)
+        let globalCurrency = 'TJS';
+        let exchangeRates = {
+            TJS: { rate: 1, symbol: 'tjs' }
+            // Остальные курсы загружаются с сервера
+        };
+
+        // Функция конвертации цен
+        function convertPrice(priceInTJS, targetCurrency) {
+            if (!exchangeRates[targetCurrency]) return priceInTJS;
+            // Формула: priceInTJS / rate.rate (где rate = сколько TJS за 1 единицу валюты)
+            // Например: 100 TJS / 10.6 = 9.43 USD
+            return parseFloat((priceInTJS / exchangeRates[targetCurrency].rate).toFixed(2));
+        }
+
+        function convertAllPrices() {
+            document.querySelectorAll('.price-display').forEach(element => {
+                if (element.dataset.originalPrice) {
+                    const originalPrice = parseInt(element.dataset.originalPrice);
+                    const convertedPrice = convertPrice(originalPrice, globalCurrency);
+                    element.textContent = `${exchangeRates[globalCurrency].symbol}${convertedPrice}`;
+                }
+            });
+        }
+
+        // Загрузка курсов валют с сервера
+        async function loadExchangeRates() {
+            try {
+                const response = await fetch('/api/exchange-rates');
+                const data = await response.json();
+                
+                if (data.success) {
+                    data.data.forEach(rate => {
+                        exchangeRates[rate.currency] = {
+                            rate: parseFloat(rate.rate),
+                            symbol: rate.symbol
+                        };
+                    });
+                    
+                    // Применяем конвертацию после загрузки курсов
+                    convertAllPrices();
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки курсов валют:', error);
+            }
+        }
+
+        // Инициализация валютной системы
+        function initializeCurrency() {
+            // Восстанавливаем выбранную валюту из localStorage
+            const savedCurrency = localStorage.getItem('selectedCurrency');
+            if (savedCurrency && exchangeRates[savedCurrency]) {
+                globalCurrency = savedCurrency;
+            }
+            
+            // Загружаем актуальные курсы валют
+            loadExchangeRates();
+        }
+
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCurrency(); // Добавляем инициализацию валютной системы
+        });
+        // Cancellation Policy Modal
+        function openCancellationPolicyModal() {
+            const modal = document.getElementById('cancellation-policy-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeCancellationPolicyModal() {
+            const modal = document.getElementById('cancellation-policy-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Early Booking Modal
+        function openEarlyBookingModal() {
+            const modal = document.getElementById('early-booking-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeEarlyBookingModal() {
+            const modal = document.getElementById('early-booking-modal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close modals on backdrop click
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'cancellation-policy-modal') {
+                closeCancellationPolicyModal();
+            }
+            if (e.target.id === 'early-booking-modal') {
+                closeEarlyBookingModal();
+            }
+        });
+    </script>
+
+    <!-- Cancellation Policy Modal -->
+    <div id="cancellation-policy-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-hidden">
+            <div class="sticky top-0 bg-gradient-to-r from-gray-700 to-gray-600 px-8 py-5 flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-white" data-translate="booking.cancellation_policy_title">CANCELLATION POLICY</h3>
+                <button onclick="closeCancellationPolicyModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-3xl"></i>
+                </button>
+            </div>
+            <div class="px-8 py-8 overflow-y-auto" style="max-height: calc(85vh - 80px);">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-info-circle text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.cancel_point_1">Free cancellation of a booked tour (all types of tours) and a full refund are possible 30 days before the start of the tour (local time, UTC +5). In this case, a 100% refund will be made.</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-exclamation-triangle text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.cancel_point_2">However, this bonus option does not apply to those who booked a tour during this period (within 30 days before the start of the tour).</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-wallet text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.cancel_point_3">If the tour is cancelled less than 30 days before its start, the amount paid will be refunded minus the deposit.</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-edit text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.cancel_point_4">Any changes to the tour product or other conditions of the Booking Request are permitted by agreement of the Parties no later than 48 hours before the start of the tour.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Early Booking Policy Modal -->
+    <div id="early-booking-modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[85vh] overflow-hidden">
+            <div class="sticky top-0 bg-gradient-to-r from-gray-700 to-gray-600 px-8 py-5 flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-white" data-translate="booking.early_booking_policy_title">EARLY BOOKING POLICY</h3>
+                <button onclick="closeEarlyBookingModal()" class="text-white hover:text-gray-200 transition-colors">
+                    <i class="fas fa-times text-3xl"></i>
+                </button>
+            </div>
+            <div class="px-8 py-8 overflow-y-auto" style="max-height: calc(85vh - 80px);">
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-calendar-check text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.early_point_1">Book now - pay later, 72 hours before the tour start or on the first day of the tour.</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-percent text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.early_point_2">Tourists who book (register) in advance for a group shared tour can make a deposit of just 10% of the tour cost to sign up for the tour</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-coins text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.early_point_3">The balance (90%) should be paid due 72 hours before the tour start (via accepted payment methods) or on the first day of the tour (in cash).</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-clock text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.early_point_4">However, registration (booking) must be completed no later than 30 days before the tour start.</p>
+                    </div>
+                    <div class="flex items-start gap-4 p-5 bg-gray-50 rounded-xl border-l-4 border-gray-600">
+                        <i class="fas fa-file-contract text-gray-600 text-2xl mt-1 flex-shrink-0"></i>
+                        <p class="text-gray-800 text-base leading-relaxed" data-translate="booking.early_point_5">Any changes to the tour product or other conditions of the Booking Request are permitted by agreement of the Parties no later than 48 hours before the start of the tour.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,339 @@
+
+<!-- End Google Tag Manager (noscript) -->
+
+<!-- Centralized Layout Styles -->
+<link rel="stylesheet" href="/public/css/layout.css?v=1780420001">
+
+<!-- Хедер -->
+<header id="site-header" class="shadow-md" style="position: fixed; top: 0; left: 0; right: 0; z-index: 999; background-color: #3E3E3E; width: 100%;">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between h-16 px-4 md:px-6">
+            <!-- Логотип -->
+            <a href="/" class="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
+                <img src="/Logo-Ru_1754635713718.png" alt="Bunyod-Tour Logo" class="w-10 h-10 md:w-12 md:h-12 mr-2 md:mr-3 rounded-full">
+                <span class="text-lg md:text-xl font-bold text-white">Bunyod-Tour</span>
+            </a>
+            
+            <!-- Навигационное меню -->
+            <nav class="hidden md:flex space-x-6">
+                <a href="/about-us.html" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.about">About Us</a>
+                
+                <!-- Услуги (с выпадающим меню) -->
+                <div class="dropdown">
+                    <a href="#" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.services">Services</a>
+                    <div class="dropdown-content">
+                        <div class="dropdown-submenu">
+                            <a href="/tours-search.html" data-translate="nav.tours">Tours</a>
+                            <div id="header-tour-categories" class="dropdown-subcontent" style="width: 400px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px;">
+                                <!-- Категории туров загружаются динамически из /api/categories?type=tour -->
+                                <a href="/tours-search.html?category=1" style="padding: 8px;" data-translate="tour.single_day">Day Tours</a>
+                                <a href="/tours-search.html?category=2" style="padding: 8px;" data-translate="tour.multi_day">Multi-day Tours</a>
+                                <a href="/tours-search.html?category=3" style="padding: 8px;" data-translate="tour.excursions">Excursions</a>
+                                <a href="/tours-search.html?category=4" style="padding: 8px;" data-translate="tour.city_tours">City Tours</a>
+                                <a href="/tours-search.html?category=5" style="padding: 8px;" data-translate="tour.nature_eco">Nature/Ecological</a>
+                                <a href="/tours-search.html?category=6" style="padding: 8px;" data-translate="tour.cultural">Cultural &amp; Educational</a>
+                                <a href="/tours-search.html?category=7" style="padding: 8px;" data-translate="tour.historical">Historical</a>
+                                <a href="/tours-search.html?category=8" style="padding: 8px;" data-translate="tour.trekking">Hiking/Trekking</a>
+                                <a href="/tours-search.html?category=9" style="padding: 8px;" data-translate="tour.mountain_landscapes">Mountain Landscapes</a>
+                                <a href="/tours-search.html?category=10" style="padding: 8px;" data-translate="tour.lake_landscapes">Lake Landscapes</a>
+                                <a href="/tours-search.html?category=11" style="padding: 8px;" data-translate="tour.adventure">Adventure</a>
+                                <a href="/tours-search.html?category=12" style="padding: 8px;" data-translate="tour.gastronomy">Gastronomic</a>
+                                <a href="/tours-search.html?category=13" style="padding: 8px;" data-translate="tour.auto_safari">Auto/Safari/Jeep</a>
+                                <a href="/tours-search.html?category=14" style="padding: 8px;" data-translate="tour.agro">Agrotourism</a>
+                                <a href="/tours-search.html?category=15" style="padding: 8px;" data-translate="tour.vip">VIP</a>
+                            </div>
+                        </div>
+                        <a href="/custom-tour-order.html" data-translate="nav.create_tour">Create Your Tour</a>
+                        <a href="/tour-guides.html" data-translate="nav.hire_guide">Hire a Guide</a>
+                        <a href="/transfer.html" data-translate="nav.order_transfer">Order Transfer</a>
+                        <a href="/travel-agent-apply.html" data-translate="nav.become_partner">Become a Partner</a>
+                        <a href="/hotels-catalog.html" data-translate="nav.our_hotels">Our Hotels</a>
+                        <a href="/vehicles-catalog.html" data-translate="nav.our_vehicles">Our Fleet</a>
+                        <a href="/visa-support.html" data-translate="nav.visa_support">Visa Support</a>
+                    </div>
+                </div>
+                
+                <!-- Туристам (с выпадающим меню) -->
+                <div class="dropdown">
+                    <a href="#" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.tourists">For Tourists</a>
+                    <div class="dropdown-content">
+                        <a href="/website-guide.html" data-translate="nav.site_guide">Website Guide</a>
+                        <a href="/special-notes.html" data-translate="nav.special_notes">Special Notes</a>
+                        <a href="/public/documents/offer-agreement-ru.pdf" target="_blank" data-translate="nav.offer_agreement" data-doc-ru="/public/documents/offer-agreement-ru.pdf" data-doc-en="/public/documents/offer-agreement-en.pdf" class="lang-doc-link">Offer Agreement</a>
+                        <a href="/public/documents/payment-refund-policy-ru.pdf" target="_blank" data-translate="nav.payment_rules" data-doc-ru="/public/documents/payment-refund-policy-ru.pdf" data-doc-en="/public/documents/payment-refund-policy-en.pdf" class="lang-doc-link">Payment and Refund Rules</a>
+                        <a href="/accommodation-regulation.html" data-translate="nav.accommodation_regulation">Accommodation Regulation</a>
+                    </div>
+                </div>
+                
+                <!-- Акции (БЕЗ выпадающего меню) -->
+                <a href="/aktsii.html" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.promotions">Promotions</a>
+                <a href="/news.html" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.news">News</a>
+                <a href="/#reviewsSection" onclick="return (function(){var el=document.getElementById('reviewsSection');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});return false;}return true;}());" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.reviews">Reviews</a>
+                
+                <!-- Турагенты ОТКЛЮЧЕНО по запросу пользователя
+                <div class="dropdown">
+                    <a href="#" class="text-white hover:text-gray-300 transition-colors" data-translate="nav.tour_agents">Турагенты</a>
+                    <div class="dropdown-content">
+                        <a href="/tour-agents-catalog.html" data-translate="nav.our_agents">Наши турагенты</a>
+                        <a href="/tour-agents.html" data-translate="nav.for_agents">Для турагентов</a>
+                    </div>
+                </div>
+                -->
+            </nav>
+            
+            <!-- Языковой и валютный селекторы (десктоп и мобильно) -->
+            <div class="flex items-center space-x-2">
+                <!-- Десктоп версия (скрыта на мобилке) -->
+                <div class="hidden md:flex items-center space-x-2 md:space-x-4">
+                    <!-- Языковой селектор -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleLanguageDropdown()" style="padding: 0.5rem 0.5rem 0.5rem 0.65rem !important; gap: 0.35rem !important;">
+                            <span class="selected-lang" id="current-language">EN</span>
+                            <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="langDropdown">
+                            <a href="#" class="lang-option active" data-lang="en" onclick="switchSiteLanguage('en')">
+                                <span class="lang-name">EN</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="ru" onclick="switchSiteLanguage('ru')">
+                                <span class="lang-name">RU</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Валютный селектор -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleCurrencyDropdown()" style="padding: 0.5rem 0.5rem 0.5rem 0.65rem !important; gap: 0.35rem !important;">
+                            <span class="selected-currency">TJS</span>
+                            <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="currencyDropdown">
+                            <a href="#" class="lang-option active" data-currency="TJS" onclick="selectCurrency('TJS', 'TJS')">
+                                <span class="currency-name">TJS</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="USD" onclick="selectCurrency('USD', 'USD')">
+                                <span class="currency-name">USD</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="EUR" onclick="selectCurrency('EUR', 'EUR')">
+                                <span class="currency-name">EUR</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="RUB" onclick="selectCurrency('RUB', 'RUB')">
+                                <span class="currency-name">RUB</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="CNY" onclick="selectCurrency('CNY', 'CNY')">
+                                <span class="currency-name">CNY</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Мобильная версия (только на мобилке) -->
+                <div class="md:hidden flex items-center space-x-1">
+                    <!-- Язык мобильно -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleLanguageDropdownMobile()" style="padding: 0.35rem 0.5rem !important; gap: 0.3rem !important; font-size: 12px !important;">
+                            <span class="selected-lang" id="current-language-mobile">RU</span>
+                            <svg class="dropdown-arrow" width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="langDropdownMobile" style="right: auto; left: 0;">
+                            <a href="#" class="lang-option active" data-lang="en" onclick="switchSiteLanguage('en')">
+                                <span class="lang-name">EN</span>
+                            </a>
+                            <a href="#" class="lang-option" data-lang="ru" onclick="switchSiteLanguage('ru')">
+                                <span class="lang-name">RU</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Валюта мобильно -->
+                    <div class="language-dropdown">
+                        <button class="lang-selector-btn" onclick="toggleCurrencyDropdownMobile()" style="padding: 0.35rem 0.5rem !important; gap: 0.3rem !important; font-size: 12px !important;">
+                            <span class="selected-currency">TJS</span>
+                            <svg class="dropdown-arrow" width="8" height="8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                        <div class="lang-dropdown-content" id="currencyDropdownMobile" style="right: auto; left: 0;">
+                            <a href="#" class="lang-option active" data-currency="TJS" onclick="selectCurrency('TJS', 'TJS')">
+                                <span class="currency-name">TJS</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="USD" onclick="selectCurrency('USD', 'USD')">
+                                <span class="currency-name">USD</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="EUR" onclick="selectCurrency('EUR', 'EUR')">
+                                <span class="currency-name">EUR</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="RUB" onclick="selectCurrency('RUB', 'RUB')">
+                                <span class="currency-name">RUB</span>
+                            </a>
+                            <a href="#" class="lang-option" data-currency="CNY" onclick="selectCurrency('CNY', 'CNY')">
+                                <span class="currency-name">CNY</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Бургер-меню (только мобильные) -->
+            <button class="md:hidden text-white p-2 flex items-center justify-center" style="min-width: 44px; min-height: 44px;" onclick="toggleMobileMenu()" id="mobileMenuButton">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Вторая строка хедера: поиск и фильтр (только мобильная версия) -->
+        <div id="headerMobileSearchRow" class="md:hidden" style="background-color: #3E3E3E; border-top: 1px solid rgba(255,255,255,0.1); padding: 0.75rem 1.5rem;">
+            <div class="flex items-center gap-3">
+                <!-- Поле поиска -->
+                <div class="flex-1 relative">
+                    <input type="text" id="headerSearchInput" 
+                           style="width: 100%; padding: 0.6rem 1rem; border-radius: 6px; background: white; border: 1.5px solid #ddd; color: #333; font-size: 13px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.3s ease;"
+                           data-translate-placeholder="placeholder.search_perfect_tour"
+                           placeholder="Find the perfect tour: Pamir, Iskanderkul, trekking...">
+                    <div id="headerSearchSuggestions" class="absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg hidden z-50" style="max-height: 300px; overflow-y: auto; background: white; border: 1.5px solid #ddd;"></div>
+                </div>
+                
+                <!-- Кнопка фильтра -->
+                <button onclick="openHeaderFilters()" style="display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0.6rem; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.06)); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                </button>
+                
+                <!-- Кнопка поиска -->
+                <button onclick="performHeaderSearch()" style="display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 0.6rem; background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.06)); border: 1.5px solid rgba(255,255,255,0.3); border-radius: 6px; color: white; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(8px); box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Мобильное меню (выдвижное) -->
+    <div id="mobileMenu" class="hidden md:hidden fixed inset-0 z-50 bg-gray-900 bg-opacity-95">
+        <div class="flex flex-col h-full">
+            <!-- Заголовок мобильного меню -->
+            <div class="flex items-center justify-between p-4 border-b border-gray-700">
+                <span class="text-xl font-bold text-white">Меню</span>
+                <button onclick="toggleMobileMenu()" class="text-white p-2 flex items-center justify-center" style="min-width: 44px; min-height: 44px;">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Пункты меню -->
+            <nav class="flex-1 overflow-y-auto py-4">
+                <!-- Переключатели языка и валюты в мобильном меню -->
+                <div class="px-4 py-3 border-b border-gray-700">
+                    <div class="flex gap-3 justify-center">
+                        <!-- Язык -->
+                        <div>
+                            <div class="language-dropdown">
+                                <button class="lang-selector-btn justify-between" style="padding: 0.5rem 0.6rem !important; gap: 0.4rem !important;" onclick="toggleMobileLangDropdown()">
+                                    <span class="selected-lang">EN</span>
+                                    <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="lang-dropdown-content" id="mobileLangDropdown">
+                                    <a href="#" class="lang-option active" data-lang="en" onclick="switchSiteLanguage('en')">
+                                        <span class="lang-name">EN</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-lang="ru" onclick="switchSiteLanguage('ru')">
+                                        <span class="lang-name">RU</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Валюта -->
+                        <div>
+                            <div class="language-dropdown">
+                                <button class="lang-selector-btn justify-between" style="padding: 0.5rem 0.7rem !important; gap: 0.4rem !important;" onclick="toggleMobileCurrencyDropdown()">
+                                    <span class="selected-currency">TJS</span>
+                                    <svg class="dropdown-arrow" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
+                                </button>
+                                <div class="lang-dropdown-content" id="mobileCurrencyDropdown">
+                                    <a href="#" class="lang-option active" data-currency="TJS" onclick="selectCurrency('TJS', 'TJS')">
+                                        <span class="currency-name">TJS</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="USD" onclick="selectCurrency('USD', 'USD')">
+                                        <span class="currency-name">USD</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="EUR" onclick="selectCurrency('EUR', 'EUR')">
+                                        <span class="currency-name">EUR</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="RUB" onclick="selectCurrency('RUB', 'RUB')">
+                                        <span class="currency-name">RUB</span>
+                                    </a>
+                                    <a href="#" class="lang-option" data-currency="CNY" onclick="selectCurrency('CNY', 'CNY')">
+                                        <span class="currency-name">CNY</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="/tours-search.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.tours">Tours</a>
+                <a href="/about-us.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.about">About Us</a>
+                
+                <!-- Услуги -->
+                <div class="mobile-dropdown">
+                    <button onclick="toggleMobileDropdown('services')" class="w-full flex items-center justify-between px-6 py-3 text-white hover:bg-gray-800 transition-colors">
+                        <span data-translate="nav.services">Services</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="mobile-services" class="hidden bg-gray-800">
+                        <a href="/tours-search.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.tours">Tours</a>
+                        <a href="/custom-tour-order.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.create_tour">Create Your Tour</a>
+                        <a href="/tour-guides.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.hire_guide">Hire a Guide</a>
+                        <a href="/transfer.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.order_transfer">Order Transfer</a>
+                        <a href="/travel-agent-apply.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.become_partner">Become a Partner</a>
+                        <a href="/hotels-catalog.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.our_hotels">Our Hotels</a>
+                        <a href="/vehicles-catalog.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.our_vehicles">Our Fleet</a>
+                        <a href="/visa-support.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.visa_support">Visa Support</a>
+                    </div>
+                </div>
+                
+                <!-- Туристам -->
+                <div class="mobile-dropdown">
+                    <button onclick="toggleMobileDropdown('tourists')" class="w-full flex items-center justify-between px-6 py-3 text-white hover:bg-gray-800 transition-colors">
+                        <span data-translate="nav.tourists">For Tourists</span>
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    <div id="mobile-tourists" class="hidden bg-gray-800">
+                        <a href="/website-guide.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.site_guide">Website Guide</a>
+                        <a href="/special-notes.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.special_notes">Special Notes</a>
+                        <a href="/public/documents/offer-agreement-ru.pdf" target="_blank" class="block px-10 py-2 text-gray-300 hover:text-white lang-doc-link" data-translate="nav.offer_agreement" data-doc-ru="/public/documents/offer-agreement-ru.pdf" data-doc-en="/public/documents/offer-agreement-en.pdf">Offer Agreement</a>
+                        <a href="/public/documents/payment-refund-policy-ru.pdf" target="_blank" class="block px-10 py-2 text-gray-300 hover:text-white lang-doc-link" data-translate="nav.payment_rules" data-doc-ru="/public/documents/payment-refund-policy-ru.pdf" data-doc-en="/public/documents/payment-refund-policy-en.pdf">Payment and Refund Rules</a>
+                        <a href="/accommodation-regulation.html" class="block px-10 py-2 text-gray-300 hover:text-white" data-translate="nav.accommodation_regulation">Accommodation Regulation</a>
+                    </div>
+                </div>
+                
+                <a href="/aktsii.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.promotions">Promotions</a>
+                <a href="/news.html" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.news">News</a>
+                <a href="/#reviewsSection" onclick="toggleMobileMenu();return (function(){var el=document.getElementById('reviewsSection');if(el){el.scrollIntoView({behavior:'smooth',block:'start'});return false;}return true;}());" class="block px-6 py-3 text-white hover:bg-gray-800 transition-colors" data-translate="nav.reviews">Reviews</a>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<script data-cfasync="false">
+// Sticky header - always visible on scroll
+// Header уже имеет класс 'sticky top-0', поэтому дополнительный JS не требуется

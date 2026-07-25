@@ -1,0 +1,53 @@
+import express from 'express';
+import { authenticateTourGuide } from '../middleware/tourGuideAuth';
+import { requireAdmin } from '../middleware/auth';
+import { loginLimiter, registrationLimiter } from '../middleware/rateLimiter';
+import {
+  loginTourGuide,
+  getGuideTours,
+  getGuideAssignedBookings,
+  updateBookingExecutionStatus,
+  getTourDetails,
+  startTour,
+  finishTour,
+  collectReviews,
+  collectGuideReviews,
+  createTourGuideProfile,
+  updateGuideProfile,
+  uploadGuideAvatar,
+  uploadGuideDocuments,
+  deleteGuideDocument,
+  upload
+} from '../controllers/tourGuideController';
+
+const router = express.Router();
+
+// Авторизация с защитой от brute-force
+router.post('/login', loginLimiter, loginTourGuide);
+
+// Создание тургида с аутентификацией (для админ панели) - с поддержкой загрузки файлов
+router.post('/create-with-auth', requireAdmin, upload.fields([
+  { name: 'avatar', maxCount: 1 },
+  { name: 'documents', maxCount: 10 }
+]), createTourGuideProfile);
+
+// Защищённые маршруты для тургидов (требуют авторизации)
+router.get('/tours', authenticateTourGuide, getGuideTours);
+router.get('/bookings', authenticateTourGuide, getGuideAssignedBookings); // New: get assigned bookings
+router.post('/bookings/status', authenticateTourGuide, updateBookingExecutionStatus); // New: update execution status
+router.get('/tours/:id', authenticateTourGuide, getTourDetails);
+router.post('/tours/:id/start', authenticateTourGuide, startTour);
+router.post('/tours/:id/finish', authenticateTourGuide, finishTour);
+router.post('/tours/:id/collect-reviews', authenticateTourGuide, collectReviews);
+router.post('/collect-guide-reviews', authenticateTourGuide, collectGuideReviews);
+
+// Маршруты для управления профилем гида (админ панель) - с поддержкой загрузки файлов
+router.put('/profile/:id', requireAdmin, upload.fields([
+  { name: 'avatar', maxCount: 1 },
+  { name: 'documents', maxCount: 10 }
+]), updateGuideProfile);
+router.post('/profile/:id/avatar', requireAdmin, upload.single('avatar'), uploadGuideAvatar);
+router.post('/profile/:id/documents', requireAdmin, upload.array('documents', 10), uploadGuideDocuments);
+router.delete('/profile/:id/document', requireAdmin, deleteGuideDocument);
+
+export default router;

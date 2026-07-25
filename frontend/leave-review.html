@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave a Review | Bunyod-Tour</title>
+    <meta name="description" content="Share your experience with Bunyod-Tour. Leave a review about your tour to Central Asia.">
+    <meta property="og:title" content="Leave a Review | Bunyod-Tour">
+    <meta property="og:description" content="Share your experience with Bunyod-Tour. Leave a review about your tour to Central Asia.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="/public/css/common.css">
+    
+    <!-- i18n -->
+    <script data-cfasync="false" src="/public/js/i18n.js" defer></script>
+    <script data-cfasync="false" src="/public/js/utils.js" defer></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js" defer></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body style="background: #f3f4f6;">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header будет загружен динамически -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <main class="min-h-screen py-20">
+        <div class="max-w-3xl mx-auto px-6">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                    <span data-translate="reviews.universal_title">Leave a Review</span>
+                </h1>
+                <p class="text-gray-600 mb-8" data-translate="reviews.universal_desc">We would be very grateful if you could take a little time to leave a review of our services!</p>
+                
+                <form id="reviewForm" class="space-y-6">
+                    <!-- Имя -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.your_name">Your Name *</span> *
+                        </label>
+                        <input type="text" id="reviewerName" required
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                               data-translate-placeholder="form.name_placeholder"
+                               placeholder="John Doe">
+                    </div>
+                    
+                    <!-- Выбор тура -->
+                    <div id="tourSelectContainer">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.select_tour">Select Tour</span> *
+                        </label>
+                        <select id="tourSelect" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
+                            <option value="">Загрузка туров...</option>
+                        </select>
+                    </div>
+                    <!-- Заблокированный тур (показывается если tourId передан через URL) -->
+                    <div id="tourLockedContainer" class="hidden">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.tour">Tour</span>
+                        </label>
+                        <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                            <span id="tourLockedName">Загрузка...</span>
+                        </div>
+                        <input type="hidden" id="tourLockedId" value="">
+                    </div>
+                    
+                    <!-- Выбор гида (опционально) -->
+                    <div id="guideSelectContainer">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.select_guide">Select Guide</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.optional">(optional)</span>
+                        </label>
+                        <select id="guideSelect"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent">
+                            <option value="" data-translate="form.guide_not_specified">Guide not specified</option>
+                        </select>
+                        <p class="text-sm text-gray-500 mt-1" data-translate="form.guide_help">If you want to rate the guide who accompanied you</p>
+                    </div>
+                    <!-- Заблокированный гид (показывается если guideId передан через URL) -->
+                    <div id="guideLockedContainer" class="hidden">
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="form.guide">Guide</span>
+                        </label>
+                        <div class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">
+                            <span id="guideLockedName">Загрузка...</span>
+                        </div>
+                        <input type="hidden" id="guideLockedId" value="">
+                    </div>
+                    
+                    <!-- Рейтинг тура -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.tour_rating">Tour Rating</span> *
+                        </label>
+                        <div class="flex gap-2" id="tourRatingStars">
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="tourRating" required>
+                        <p class="text-sm text-red-500 mt-1 hidden" id="tourRatingError" data-translate="form.tour_rating_error">Please rate the tour</p>
+                    </div>
+                    
+                    <!-- Рейтинг гида (опционально) -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.guide_rating">Guide Rating</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.optional">(optional)</span>
+                        </label>
+                        <div class="flex gap-2" id="guideRatingStars">
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="1"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="2"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="3"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="4"></i>
+                            <i class="fas fa-star text-3xl text-gray-300 cursor-pointer hover:text-yellow-500 transition-colors" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="guideRating">
+                    </div>
+                    
+                    <!-- Текст отзыва -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <span data-translate="reviews.your_review">Your Review</span>
+                            <span class="text-gray-500 text-sm" data-translate="form.optional">(optional)</span>
+                        </label>
+                        <textarea id="reviewText" rows="6"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-400 focus:border-transparent"
+                                  data-translate-placeholder="form.review_placeholder"
+                                  placeholder="Share your travel experience..."></textarea>
+                    </div>
+                    
+                    <!-- Кнопка отправки -->
+                    <button type="submit" id="submitBtn"
+                            class="w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-6 rounded-lg transition-all duration-300 hover:scale-105">
+                        <span data-translate="btn.submit_review">Submit Review</span>
+                    </button>
+                    
+                    <p class="text-sm text-gray-500 text-center">
+                        <span data-translate="reviews.moderation_notice">Your review will be moderated before publication</span>
+                    </p>
+                </form>
+                
+                <!-- Success Message -->
+                <div id="successMessage" class="hidden mt-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span data-translate="reviews.success_message">Thank you! Your review has been submitted and will be published after moderation.</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Footer будет загружен динамически -->
+    <div id="footer-container"></div>
+    
+    <script data-cfasync="false">
+        // Загрузка туров и гидов
+        async function loadTours() {
+            try {
+                const response = await fetch('/api/tours');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const select = document.getElementById('tourSelect');
+                    const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+                    
+                    const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                    const selectTourText = (window.translations && window.translations['form.select_tour_option']) 
+                        ? (window.translations['form.select_tour_option'][lang] || 'Выберите тур...') 
+                        : 'Выберите тур...';
+                    select.innerHTML = '<option value="">' + selectTourText + '</option>';
+                    data.data.forEach(tour => {
+                        const title = typeof tour.title === 'object' 
+                            ? (tour.title[currentLang] || tour.title.ru || tour.title.en)
+                            : tour.title;
+                        
+                        const option = document.createElement('option');
+                        option.value = tour.id;
+                        option.textContent = title;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tours:', error);
+            }
+        }
+        
+        // Загрузка гидов
+        async function loadGuides() {
+            try {
+                const response = await fetch('/api/guides');
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    const select = document.getElementById('guideSelect');
+                    
+                    const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                    const guideNotSpecText = (window.translations && window.translations['form.guide_not_specified']) 
+                        ? (window.translations['form.guide_not_specified'][lang] || 'Гид не указан') 
+                        : 'Гид не указан';
+                    select.innerHTML = '<option value="">' + guideNotSpecText + '</option>';
+                    data.data.forEach(guide => {
+                        const name = typeof guide.name === 'object' ? (guide.name[localStorage.getItem('language') || 'ru'] || guide.name.ru || guide.name.en || 'Гид') : (guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`);
+                        
+                        const option = document.createElement('option');
+                        option.value = guide.id;
+                        option.textContent = name.trim();
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading guides:', error);
+            }
+        }
+        
+        // Рейтинг звёздами
+        function setupStarRating(containerId, inputId) {
+            const container = document.getElementById(containerId);
+            const input = document.getElementById(inputId);
+            const stars = container.querySelectorAll('.fa-star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.getAttribute('data-rating'));
+                    input.value = rating;
+                    
+                    stars.forEach((s, index) => {
+                        if (index < rating) {
+                            s.classList.remove('text-gray-300');
+                            s.classList.add('text-yellow-500');
+                        } else {
+                            s.classList.remove('text-yellow-500');
+                            s.classList.add('text-gray-300');
+                        }
+                    });
+                });
+            });
+        }
+        
+        // Отправка формы
+        const reviewFormEl = document.getElementById('reviewForm');
+        if (reviewFormEl) reviewFormEl.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Валидация рейтинга тура
+            const tourRatingValue = document.getElementById('tourRating').value;
+            if (!tourRatingValue) {
+                document.getElementById('tourRatingError').classList.remove('hidden');
+                return;
+            }
+            document.getElementById('tourRatingError').classList.add('hidden');
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Отправка...';
+            
+            try {
+                // Отправляем отзыв
+                // Используем заблокированные значения если они есть, иначе из select
+                const tourLockedId = document.getElementById('tourLockedId').value;
+                const guideLockedId = document.getElementById('guideLockedId').value;
+                const tourSelectVal = tourLockedId || document.getElementById('tourSelect').value;
+                const guideSelectVal = guideLockedId || document.getElementById('guideSelect').value;
+                
+                const reviewTextValue = document.getElementById('reviewText').value.trim();
+                const reviewData = {
+                    reviewerName: document.getElementById('reviewerName').value,
+                    tourId: parseInt(tourSelectVal),
+                    guideId: guideSelectVal ? parseInt(guideSelectVal) : null,
+                    rating: parseInt(document.getElementById('tourRating').value),
+                    guideRating: document.getElementById('guideRating').value 
+                        ? parseInt(document.getElementById('guideRating').value) 
+                        : null,
+                    text: reviewTextValue || null
+                };
+                
+                const response = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviewData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('reviewForm').style.display = 'none';
+                    document.getElementById('successMessage').classList.remove('hidden');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 3000);
+                } else {
+                    alert('Ошибка: ' + (data.message || 'Не удалось отправить отзыв'));
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Отправить отзыв';
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Ошибка при отправке отзыва');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Отправить отзыв';
+            }
+        });
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Получаем параметры из URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const preselectedTourId = urlParams.get('tourId');
+            const preselectedGuideId = urlParams.get('guideId');
+            const preselectedName = urlParams.get('name');
+            
+            // Debug: показываем что получили из URL
+            console.log('🔍 URL params:', { tourId: preselectedTourId, guideId: preselectedGuideId, name: preselectedName });
+            console.log('🔍 Full URL:', window.location.href);
+            
+            // Если передано имя - заполняем
+            if (preselectedName) {
+                document.getElementById('reviewerName').value = decodeURIComponent(preselectedName);
+            }
+            
+            const currentLang = localStorage.getItem('selectedLanguage') || 'ru';
+            
+            // Если передан tourId - сразу блокируем выбор, потом загружаем название
+            if (preselectedTourId) {
+                // Сначала сразу блокируем и устанавливаем ID (до fetch)
+                document.getElementById('tourSelectContainer').classList.add('hidden');
+                document.getElementById('tourSelect').removeAttribute('required'); // Убираем required чтобы форма прошла валидацию
+                document.getElementById('tourLockedContainer').classList.remove('hidden');
+                document.getElementById('tourLockedName').textContent = `Тур #${preselectedTourId}`;
+                document.getElementById('tourLockedId').value = preselectedTourId;
+                
+                // Затем асинхронно загружаем название
+                fetch(`/api/tours/${preselectedTourId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const tour = data.data;
+                            const title = typeof tour.title === 'object' 
+                                ? (tour.title[currentLang] || tour.title.ru || tour.title.en)
+                                : tour.title;
+                            if (title) {
+                                document.getElementById('tourLockedName').textContent = title;
+                            }
+                        }
+                    })
+                    .catch(e => console.error('Error loading tour name:', e));
+            } else {
+                await loadTours();
+            }
+            
+            // Если передан guideId - сразу блокируем выбор, потом загружаем имя
+            if (preselectedGuideId) {
+                // Сначала сразу блокируем и устанавливаем ID (до fetch)
+                document.getElementById('guideSelectContainer').classList.add('hidden');
+                document.getElementById('guideLockedContainer').classList.remove('hidden');
+                document.getElementById('guideLockedName').textContent = `Гид #${preselectedGuideId}`;
+                document.getElementById('guideLockedId').value = preselectedGuideId;
+                
+                // Затем асинхронно загружаем имя
+                fetch(`/api/guides/${preselectedGuideId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.data) {
+                            const guide = data.data;
+                            const name = typeof guide.name === 'object' 
+                                ? (guide.name[currentLang] || guide.name.ru || guide.name.en || 'Гид')
+                                : (guide.name || `${guide.firstName || ''} ${guide.lastName || ''}`);
+                            if (name && name.trim()) {
+                                document.getElementById('guideLockedName').textContent = name.trim();
+                            }
+                        }
+                    })
+                    .catch(e => console.error('Error loading guide name:', e));
+            } else {
+                await loadGuides();
+            }
+            
+            // Настраиваем звёзды тура и гида
+            setupStarRating('tourRatingStars', 'tourRating');
+            setupStarRating('guideRatingStars', 'guideRating');
+            
+            // Кастомная кнопка выбора файлов
+            const customFileBtn = document.getElementById('customFileBtn');
+            const fileInput = document.getElementById('reviewPhotos');
+            const fileSelectedText = document.getElementById('fileSelectedText');
+            
+            customFileBtn.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', () => {
+                const lang = localStorage.getItem('selectedLanguage') || 'ru';
+                const filesCount = fileInput.files.length;
+                
+                if (filesCount === 0) {
+                    const noFileText = (window.translations && window.translations['form.no_file_selected']) 
+                        ? (window.translations['form.no_file_selected'][lang] || 'Файл не выбран') 
+                        : 'Файл не выбран';
+                    fileSelectedText.textContent = noFileText;
+                } else if (filesCount === 1) {
+                    fileSelectedText.textContent = fileInput.files[0].name;
+                } else {
+                    const filesSelectedText = (window.translations && window.translations['form.files_selected']) 
+                        ? (window.translations['form.files_selected'][lang] || '{count} файлов выбрано') 
+                        : '{count} файлов выбрано';
+                    fileSelectedText.textContent = filesSelectedText.replace('{count}', filesCount);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

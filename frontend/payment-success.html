@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <!-- Event snippet for Purchase-2026 conversion page -->
+    <!-- Fires immediately on page load; gtag() pushes to dataLayer queue which is processed when the library loads -->
+    <script data-cfasync="false">
+      (function() {
+        var _p = new URLSearchParams(window.location.search);
+        var _txId = _p.get('order') || _p.get('orderNumber') || _p.get('orderId') || '';
+        gtag('event', 'conversion', {
+            'send_to': 'AW-713421696/TyWoCMOmuu8bEIDnl9QC',
+            'value': 1.0,
+            'currency': 'USD',
+            'transaction_id': _txId
+        });
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="payment.success_page_title">Payment Successful - Bunyod-Tour</title>
+    
+    
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+        
+        .success-animation {
+            animation: successPulse 2s infinite;
+        }
+        
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold text-gray-900" data-translate="common.company_name">Bunyod-Tour</h1>
+                </div>
+                <button onclick="goHome()" class="text-blue-600 hover:text-blue-800 font-medium">
+                    <i class="fas fa-home mr-2"></i><span data-translate="payment.to_home">Home</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Success Content -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4">
+        <div class="max-w-md w-full success-container">
+            <!-- Success Card (will be replaced by error/processing views if needed) -->
+            <div id="successCard" class="bg-white rounded-2xl shadow-2xl p-8 text-center card-shadow">
+                <!-- Success Icon -->
+                <div class="success-animation mb-6">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-check text-3xl text-green-500"></i>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <h2 class="text-2xl font-bold text-gray-900 mb-4" data-translate="payment.success_title">Payment Successful!</h2>
+                
+                <p class="text-gray-600 mb-6" data-translate="payment.booking_confirmed">Your booking is confirmed. A confirmation with order details has been sent to your email.</p>
+
+                <!-- Order Details -->
+                <div id="orderDetails" class="bg-gray-50 rounded-lg p-4 mb-6 text-left">
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.order_number">Order number:</span>
+                            <span id="orderNumber" class="font-medium">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" id="serviceTypeLabel" data-translate="payment.service_type">Service:</span>
+                            <span id="serviceName" class="font-medium">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.amount">Amount:</span>
+                            <span id="totalAmount" class="font-medium text-green-600">...</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600" data-translate="payment.payment_method">Payment method:</span>
+                            <span id="paymentMethod" class="font-medium">...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <button onclick="downloadReceipt()" class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <i class="fas fa-download mr-2"></i><span data-translate="payment.download_receipt">Download receipt</span>
+                    </button>
+                    
+                    <button onclick="goHome()" class="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-medium">
+                        <i class="fas fa-home mr-2"></i><span data-translate="payment.return_home">Return to home</span>
+                    </button>
+                    
+                </div>
+            </div>
+
+            <div class="mt-6 text-center text-sm text-gray-500">
+                <p>
+                    <i class="fas fa-envelope mr-1"></i>
+                    <span data-translate="payment.email_sent">Booking details have been sent to your email</span>
+                </p>
+                <p class="mt-2">
+                    <i class="fas fa-phone mr-1"></i>
+                    <span data-translate="payment.questions_call">Questions? Call:</span> +992 55 885 05 05
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <i class="fas fa-spinner fa-spin text-2xl text-blue-600 mb-4"></i>
+            <p data-translate="payment.loading">Loading order details...</p>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        function applyLanguage() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawLang = urlParams.get('lang') || localStorage.getItem('selectedLanguage') || 'en';
+            // Поддерживаем только en/ru. Любой другой язык (it, fr, de и т.д.) → en (наш дефолт).
+            const lang = (rawLang === 'ru') ? 'ru' : 'en';
+            localStorage.setItem('selectedLanguage', lang);
+            document.documentElement.lang = lang;
+            if (typeof window.updatePageLanguage === 'function') {
+                window.updatePageLanguage(lang);
+                return true;
+            }
+            return false;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!applyLanguage()) {
+                let attempts = 0;
+                const interval = setInterval(function() {
+                    attempts++;
+                    if (applyLanguage() || attempts > 20) {
+                        clearInterval(interval);
+                    }
+                }, 200);
+            }
+            loadOrderDetails();
+        });
+
+        function loadOrderDetails() {
+            // Show loading
+            document.getElementById('loadingModal').classList.remove('hidden');
+            
+            // Get order information from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order') || urlParams.get('orderNumber');
+            const orderData = sessionStorage.getItem('completedOrder');
+            
+            if (orderNumber) {
+                // First verify payment status, then fetch full order details
+                verifyAndFetchOrder(orderNumber);
+            } else if (orderData) {
+                // Use data from localStorage
+                displayOrderDetails(JSON.parse(orderData));
+                document.getElementById('loadingModal').classList.add('hidden');
+            } else {
+                // Default message if no order data
+                displayDefaultSuccess();
+                document.getElementById('loadingModal').classList.add('hidden');
+            }
+        }
+
+        async function verifyAndFetchOrder(orderNumber) {
+            try {
+                // First, verify and update payment status with Payler
+                const urlParams2 = new URLSearchParams(window.location.search);
+                const verifyToken = urlParams2.get('vt') || undefined;
+                const verifyBody = { orderNumber };
+                if (verifyToken) verifyBody.verifyToken = verifyToken;
+                
+                const verifyResponse = await fetch('/api/payments/verify-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(verifyBody)
+                });
+                const verifyData = await verifyResponse.json();
+                
+                console.log('Payment verification result:', verifyData);
+                
+                if (verifyData.success && verifyData.data) {
+                    const paymentStatus = verifyData.data.paymentStatus;
+                    
+                    // Check if payment was verified successfully
+                    if (paymentStatus === 'paid') {
+                        // Payment confirmed - fetch full order details
+                        await fetchOrderDetails(orderNumber);
+                        
+                            if (verifyData.data.justVerified) {
+                            const lang = getCurrentLang();
+                            showNotification(lang === 'en' ? 'Payment confirmed!' : 'Платёж подтверждён!', 'success');
+                        }
+                    } else if (paymentStatus === 'failed' || paymentStatus === 'refunded') {
+                        // Payment failed - show error page
+                        showPaymentError(orderNumber, paymentStatus);
+                    } else if (paymentStatus === 'processing') {
+                        // Still processing - show waiting message
+                        showProcessingStatus(orderNumber, verifyData.data);
+                    } else {
+                        // Unknown status - show default
+                        await fetchOrderDetails(orderNumber);
+                    }
+                } else {
+                    // Verification failed - try to fetch order anyway
+                    await fetchOrderDetails(orderNumber);
+                }
+            } catch (error) {
+                console.error('Error verifying payment:', error);
+                // Fallback to just fetching order
+                await fetchOrderDetails(orderNumber);
+            } finally {
+                document.getElementById('loadingModal').classList.add('hidden');
+            }
+        }
+
+        async function fetchOrderDetails(orderNumber) {
+            try {
+                const lang = getCurrentLang();
+                const response = await fetch(`/api/orders/number/${orderNumber}?lang=${lang}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayOrderDetails(data.data);
+                } else {
+                    displayDefaultSuccess();
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                displayDefaultSuccess();
+            }
+        }
+        
+        function showPaymentError(orderNumber, status) {
+            const container = document.querySelector('.success-container');
+            if (!container) return;
+            const lang = getCurrentLang();
+            const title = status === 'refunded' 
+                ? (lang === 'en' ? 'Payment Refunded' : 'Платёж возвращён')
+                : (lang === 'en' ? 'Payment Failed' : 'Платёж не прошёл');
+            const text = lang === 'en' ? 'Unfortunately, your payment was not completed successfully.' : 'К сожалению, ваш платёж не был завершён успешно.';
+            const orderLabel = lang === 'en' ? 'Order number:' : 'Номер заказа:';
+            const homeText = lang === 'en' ? 'Return to home' : 'На главную';
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl p-8 text-center card-shadow">
+                    <div class="mx-auto w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-times text-3xl text-red-600"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-4">${title}</h1>
+                    <p class="text-gray-600 mb-6">${text}</p>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <p class="text-sm text-gray-500">${orderLabel} <span class="font-medium">${orderNumber}</span></p>
+                    </div>
+                    <div class="space-y-3">
+                        <a href="/" class="block w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-home mr-2"></i>${homeText}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showProcessingStatus(orderNumber, data) {
+            const container = document.querySelector('.success-container');
+            if (!container) return;
+            const lang = getCurrentLang();
+            const paylerStatus = data.paylerStatus || (lang === 'en' ? 'Processing' : 'Обработка');
+            const title = lang === 'en' ? 'Processing Payment' : 'Обработка платежа';
+            const text = lang === 'en' ? 'Your payment is being processed.' : 'Ваш платёж находится в обработке.';
+            const statusLabel = lang === 'en' ? 'Status:' : 'Статус:';
+            const orderLabel = lang === 'en' ? 'Order number:' : 'Номер заказа:';
+            const refreshText = lang === 'en' ? 'Refresh status' : 'Обновить статус';
+            const homeText = lang === 'en' ? 'Return to home' : 'На главную';
+            container.innerHTML = `
+                <div class="bg-white rounded-2xl shadow-2xl p-8 text-center card-shadow">
+                    <div class="mx-auto w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                        <i class="fas fa-clock text-3xl text-yellow-600 animate-pulse"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900 mb-4">${title}</h1>
+                    <p class="text-gray-600 mb-2">${text}</p>
+                    <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                        <p class="text-sm text-gray-500 mb-1">${statusLabel} <span class="font-medium">${paylerStatus}</span></p>
+                        <p class="text-sm text-gray-500">${orderLabel} <span class="font-medium">${orderNumber}</span></p>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="location.reload()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-sync mr-2"></i>${refreshText}
+                        </button>
+                        <a href="/" class="block w-full border border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-lg font-medium transition-colors">
+                            <i class="fas fa-home mr-2"></i>${homeText}
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showNotification(message, type = 'success') {
+            try {
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            } catch (e) {
+                console.log('Notification:', message);
+            }
+        }
+
+        function getCurrentLang() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const raw = urlParams.get('lang') || localStorage.getItem('selectedLanguage') || 'en';
+            // Поддерживаем только en/ru. Любой другой язык (it, fr, de и т.д.) → en (наш дефолт).
+            return (raw === 'ru') ? 'ru' : 'en';
+        }
+
+        function displayOrderDetails(order) {
+            if (order) {
+                const lang = getCurrentLang();
+                const orderNum = order.orderNumber || '№' + order.id;
+                document.getElementById('orderNumber').textContent = orderNum;
+                
+                let serviceType = lang === 'en' ? 'Service' : 'Услуга';
+                let serviceName = lang === 'en' ? 'Tour' : 'Тур';
+                
+                if (orderNum.startsWith('GH-')) {
+                    serviceType = lang === 'en' ? 'Guide' : 'Гид';
+                    const guideName = order.guideHireRequest?.guide?.name;
+                    serviceName = (typeof guideName === 'object' && guideName !== null) 
+                        ? (guideName[lang] || guideName.ru || guideName.en) 
+                        : (guideName || (lang === 'en' ? 'Guide Hire' : 'Найм гида'));
+                } else if (orderNum.startsWith('TR-')) {
+                    serviceType = lang === 'en' ? 'Transfer' : 'Трансфер';
+                    const pickup = order.transferRequest?.pickupLocation || '';
+                    const dropoff = order.transferRequest?.dropoffLocation || '';
+                    serviceName = pickup && dropoff ? `${pickup} → ${dropoff}` : (lang === 'en' ? 'Transfer' : 'Трансфер');
+                } else if (orderNum.startsWith('CT-')) {
+                    serviceType = lang === 'en' ? 'Custom Tour' : 'Собственный тур';
+                    serviceName = lang === 'en' ? 'Custom Tour' : 'Индивидуальный тур';
+                } else {
+                    serviceType = lang === 'en' ? 'Tour' : 'Тур';
+                    const tourTitle = order.tour?.title;
+                    if (typeof tourTitle === 'object' && tourTitle !== null) {
+                        serviceName = tourTitle[lang] || tourTitle.ru || tourTitle.en || (lang === 'en' ? 'Tour in Tajikistan' : 'Тур по Таджикистану');
+                    } else if (typeof tourTitle === 'string' && tourTitle) {
+                        try {
+                            const parsed = JSON.parse(tourTitle);
+                            serviceName = (typeof parsed === 'object' && parsed !== null) ? (parsed[lang] || parsed.ru || parsed.en || tourTitle) : tourTitle;
+                        } catch(e) {
+                            serviceName = tourTitle;
+                        }
+                    } else {
+                        serviceName = lang === 'en' ? 'Tour in Tajikistan' : 'Тур по Таджикистану';
+                    }
+                }
+                
+                document.getElementById('serviceTypeLabel').textContent = serviceType + ':';
+                document.getElementById('serviceName').textContent = serviceName;
+                document.getElementById('totalAmount').textContent = `${parseFloat(order.totalAmount).toFixed(2)} TJS`;
+                
+                // Format payment method
+                const paymentMethodNames = {
+                    'alif': 'AlifPay',
+                    'payler': 'Payler',
+                    'stripe': 'Stripe',
+                    'card': 'Банковская карта'
+                };
+                document.getElementById('paymentMethod').textContent = 
+                    paymentMethodNames[order.paymentMethod] || order.paymentMethod || 'Банковская карта';
+                
+                // 📊 GA4 Enhanced Ecommerce + Enhanced Conversions — purchase event with real order data
+                // (Google Ads conversion snippet fires immediately in <head> via static script)
+                try {
+                    const orderAmount = parseFloat(order.totalAmount) || 0;
+                    const orderCurrency = order.currency || 'TJS';
+
+                    // Разбиваем полное имя на имя и фамилию
+                    const fullName = order.customer?.fullName || '';
+                    const nameParts = fullName.trim().split(/\s+/);
+                    const firstName = nameParts[0] || '';
+                    const lastName = nameParts.slice(1).join(' ') || '';
+
+                    // Нормализуем телефон: убираем всё кроме цифр и ведущего +
+                    const rawPhone = order.customer?.phone || '';
+                    const normalizedPhone = rawPhone.startsWith('+')
+                        ? '+' + rawPhone.replace(/\D/g, '')
+                        : rawPhone.replace(/\D/g, '')
+                            ? '+' + rawPhone.replace(/\D/g, '')
+                            : '';
+
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                        event: 'purchase',
+                        ecommerce: {
+                            transaction_id: orderNum,
+                            value: orderAmount,
+                            currency: orderCurrency,
+                            items: [{
+                                item_id: order.tourId ? 'TOUR-' + order.tourId : orderNum,
+                                item_name: serviceName,
+                                price: orderAmount,
+                                quantity: 1
+                            }]
+                        },
+                        // Enhanced Conversions: GTM сам захэширует email и телефон перед отправкой в Google
+                        user_data: {
+                            email: order.customer?.email || '',
+                            phone_number: normalizedPhone,
+                            address: {
+                                first_name: firstName,
+                                last_name: lastName,
+                                country: 'TJ'
+                            }
+                        }
+                    });
+                    console.log('📊 GA4 purchase event sent:', { orderNum, orderAmount, orderCurrency, hasUserData: !!order.customer?.email });
+                } catch (e) {}
+            }
+        }
+
+        function displayDefaultSuccess() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderNumber = urlParams.get('order') || urlParams.get('orderNumber') || '';
+            const lang = getCurrentLang();
+            
+            let serviceType = lang === 'en' ? 'Service' : 'Услуга';
+            let serviceName = lang === 'en' ? 'Service paid' : 'Услуга оплачена';
+            
+            if (orderNumber.startsWith('GH-')) {
+                serviceType = lang === 'en' ? 'Guide' : 'Гид';
+                serviceName = lang === 'en' ? 'Guide Hire' : 'Найм гида';
+            } else if (orderNumber.startsWith('TR-')) {
+                serviceType = lang === 'en' ? 'Transfer' : 'Трансфер';
+                serviceName = lang === 'en' ? 'Transfer' : 'Трансфер';
+            } else if (orderNumber.startsWith('CT-')) {
+                serviceType = lang === 'en' ? 'Custom Tour' : 'Собственный тур';
+                serviceName = lang === 'en' ? 'Custom Tour' : 'Индивидуальный тур';
+            } else {
+                serviceType = lang === 'en' ? 'Tour' : 'Тур';
+                serviceName = lang === 'en' ? 'Tour in Tajikistan' : 'Тур по Таджикистану';
+            }
+            
+            document.getElementById('orderNumber').textContent = orderNumber || (lang === 'en' ? 'Successfully paid' : 'Успешно оплачен');
+            document.getElementById('serviceTypeLabel').textContent = serviceType + ':';
+            document.getElementById('serviceName').textContent = serviceName;
+            document.getElementById('totalAmount').textContent = '...';
+            document.getElementById('paymentMethod').textContent = '...';
+        }
+
+        function downloadReceipt() {
+            const orderNumber = document.getElementById('orderNumber').textContent;
+            
+            if (orderNumber && orderNumber !== '...' && orderNumber !== 'Успешно оплачен' && orderNumber !== 'Successfully paid') {
+                const lang = getCurrentLang();
+                const link = document.createElement('a');
+                link.href = `/api/orders/${orderNumber}/receipt?lang=${lang}`;
+                link.download = `receipt-${orderNumber}.html`;
+                link.click();
+            } else {
+                const lang = getCurrentLang();
+                alert(lang === 'en' ? 'Order information is unavailable' : 'Информация о заказе недоступна');
+            }
+        }
+
+        function goHome() {
+            // Clear any stored booking data
+            sessionStorage.removeItem('bookingState');
+            sessionStorage.removeItem('completedOrder');
+            
+            // Redirect to home
+            window.location.href = '/';
+        }
+
+        // Auto-clear sessionStorage after 5 minutes to prevent clutter
+        setTimeout(() => {
+            sessionStorage.removeItem('completedOrder');
+        }, 5 * 60 * 1000);
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+</body>
+</html>

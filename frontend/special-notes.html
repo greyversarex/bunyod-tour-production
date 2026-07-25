@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="special.page_title">Special Notes - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        .faq-btn {
+            background: #4B5563;
+            box-shadow: 0 2px 8px rgba(75, 85, 99, 0.3);
+            transition: all 0.3s ease;
+        }
+        .faq-btn:hover {
+            background: #374151;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.4);
+        }
+        .faq-btn.active {
+            background: #1F2937;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .faq-content {
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+        .faq-btn.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-left: 4px solid #F59E0B;
+        }
+        .note-box {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            border-left: 4px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="header-container"></div>
+
+    <div class="min-h-screen py-12 bg-gray-50" style="padding-top: 100px;">
+        <div class="max-w-5xl mx-auto px-6">
+            
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800 mb-3" data-translate="special.main_title">Special Notes</h1>
+                <p class="text-gray-600 max-w-3xl mx-auto" data-translate="special.main_description">Special Notes are the legal and behavioral norms contained in the contractual basis of our services and tours, which are provided to tourists as information and recommendations when booking our tours/services.</p>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('company-policy')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.company_policy_title">1. Company Policy</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="company-policy" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.company_policy_text">To provide all guests with an atmosphere of trust, comfort and fair treatment. We adhere to legal regulations, ethical standards and internationally accepted standards for service provision and payment practices. We welcome suggestions from tourists to improve our services.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('legal-aspects')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.legal_aspects_title">2. Legal Aspects</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="legal-aspects" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.legal_aspects_text">Any relations, disputes and claims between the Company and the tourist are governed by the laws of the Republic of Tajikistan.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('offer-agreement')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.offer_agreement_title">3. Offer-Agreement</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="offer-agreement" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.offer_agreement_text">The Offer-Agreement is a public offer for tourists, which is a standard form of agreement for the provision of tourist services and is published on the website http://bunyodtour.tj.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('offer-acceptance')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.offer_acceptance_title">4. Offer Acceptance</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="offer-acceptance" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.offer_acceptance_text">Offer acceptance is the tourist's agreement to the terms of the Offer-Agreement. The tourist accepts the terms of the offer-agreement by filling out an online form with personal data and paying for the tour or service.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('website')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.website_title">5. Website</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="website" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.website_text">Website is our Company's website located at http://bunyodtour.tj.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('client')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.client_title">6. Client (Tourist)</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="client" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.client_text">A client (tourist) is an individual who orders and/or pays for tourist services for themselves or third parties.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('tour-product')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.tour_product_title">7. Tour Product</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="tour-product" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.tour_product_text">A tour product is a package of tourist services consisting of at least two (2) components: transportation and guide-interpreter services, as well as other services that are not additional to transportation or guide-interpreter services, such as: accommodation, meals, excursions and other tourist services.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('tour-types')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.tour_types_title">8. Types of Tours</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="tour-types" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.tour_types_text">Types of tours: (1) Private Tour - comfortable tour type, individual, services are provided personally; payment is charged per group; (2) Group Tour, Private - comfortable tour type, group, individual; services are provided personally; payment is charged per group; (3) Group Tour, Shared - budget tour type, group, shared; payment is charged per person.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('tour-time-types')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.tour_time_types_title">9. Tour Types by Duration</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="tour-time-types" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.tour_time_types_text">Types of tours by duration: (1) One-day tour - a tour package for one day, lasting 5-12 hours; (2) Multi-day tour - a tour package for two or more days; (3) Excursion - one or more types of tour services in central cities for 2-4 hours.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('booked-product')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.booked_product_title">10. Booked Tour Product</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="booked-product" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.booked_product_text">A booked tour product is a paid tour product (voucher) issued to the tourist after acceptance of the offer-agreement, online application (order) for the tour product and payment.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('application')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.application_title">11. Tour Product Application (Order)</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="application" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.application_text">A tour product application (order) is an online application for booking a tour product, in which the tourist indicates their data (full name, passport numbers, contacts) and other information.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('confirmation')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.confirmation_title">12. Application Confirmation</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="confirmation" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.confirmation_text">Tour product application confirmation is the official confirmation of the tour product booking after payment is received.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('payment-product')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.payment_product_title">13. Tour Product Payment</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="payment-product" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.payment_product_text">Tour product payment is the tourist (or on behalf of the tourist) making a full payment or deposit for the tour product through the website's online payment system or other payment methods.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('payment-policy')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.payment_policy_title">14. Payment Policy</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="payment-policy" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.payment_policy_text">Payment Policy is a document regulating the procedure for payment for tourist services and is published on the website http://bunyodtour.tj.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('refund-policy')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.refund_policy_title">15. Payment and Refund Policy</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="refund-policy" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.refund_policy_text">Payment and Refund Policy is a document regulating the procedure for payment and refund for tourist services and is published on the website http://bunyodtour.tj.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('free-cancellation')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.free_cancellation_title">16. Free Cancellation</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="free-cancellation" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.free_cancellation_text">Cancellation of a booked tour and a full refund (100%) is possible 30 days before the tour start (local time, UTC +5). This option does not apply to those who booked a tour within 30 days before the tour start date.</p>
+                    <p class="text-gray-700 leading-relaxed mt-3" data-translate="special.free_cancellation_loi">This bonus does not apply to booked travel packages that require a Letter of Official Invitation (LOI).</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('early-booking')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.early_booking_title">17. Early Booking (Book Now - Pay Later!)</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="early-booking" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.early_booking_text">Book now - pay later! Tourists can make a deposit of just 10% of the tour cost, with the balance (90%) due in cash on the first day of the tour or by other payment methods 72 hours before the tour start. Registration must be completed no later than 30 days before the tour start. This option is only available for "Group Tour, Shared" category tours.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('last-minute')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.last_minute_title">18. Last Minute Tours</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="last-minute" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.last_minute_text">Book tours and excursions at affordable prices now! Last-minute tours are available on our website only at specific times, just a short time before the tour starts. You can find last-minute tours in the "Special Offers" section.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('special-offers')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.special_offers_title">19. Special Offers</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="special-offers" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.special_offers_text">Book any tour 12 months in advance and save 12% — and enjoy other perks only with us! Stay up-to-date with last-minute deals and save 10% to 20% on package tours.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('primary-currency')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.primary_currency_title">20. Primary Currency</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="primary-currency" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.primary_currency_text">The site's primary currency is the somoni (TJS), so all payments will be made in somoni (TJS). Other currencies, such as the USD, Euro, Ruble, and Yuan, are presented as reference currencies.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('payment-methods')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.payment_methods_title">21. Payment Methods</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="payment-methods" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.payment_methods_text">To pay for tours/services, you can use payment methods such as bank accounts (TJS, US$, EUR and RUB), Visa, Mastercard, Korti Milli, Mir cards, as well as online wallets and cryptocurrencies (for more details, see the Payment and Refund Rules).</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('changes')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.changes_title">22. Changes to the Tour Product</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="changes" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.changes_text">Any changes to the Tour Product or other conditions of the Booking Application are permitted by agreement of the Parties no later than 48 hours before the start of the tour.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('accommodation')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.accommodation_title">23. Accommodation Policy</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="accommodation" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.accommodation_text">Accommodation refers to the options (hotels) presented in the booking system on the website by hotel categories. In case of force majeure and booking of a Tour Product less than 30 days before the start of the tour, there is a possibility that the hotel may be replaced with a hotel of the same or higher category.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('meal')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.meal_title">24. Standard Meal</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="meal" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.meal_text">Standard meal includes salad, 1st and/or 2nd hot dish, bread, tea, however guests can order other dishes for an additional fee.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('privacy')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.privacy_title">25. Privacy Policy</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="privacy" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.privacy_text">Privacy Policy is a document developed in accordance with the requirements of the Law of the Republic of Tajikistan dated August 3, 2018 No. 1537 "On the Protection of Personal Data" and published on the website http://bunyodtour.tj.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('insurance')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.insurance_title">26. Insurance</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="insurance" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.insurance_text">Some of our tour products are extreme, so tourists are advised to exercise caution while traveling. Please insure yourself against accidents in advance. Our company is responsible for providing the services specified in the tour package.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('force-majeure')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.force_majeure_title">27. Force Majeure</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="force-majeure" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.force_majeure_text">Force majeure is an irresistible force, an unpredictable event that is beyond our control and leads to the impossibility of providing tourist services, including natural disasters, epidemics and pandemics, military actions, riots, strikes, decisions of government authorities.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('registration')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.registration_title">28. Temporary Registration</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="registration" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.registration_text">Guests (foreign citizens) intending to stay in Tajikistan for more than 10 days must register with the Passport Control and Temporary Registration Department of the Ministry of Internal Affairs of Tajikistan.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('hiking-tips')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.hiking_tips_title">29. Tourist Recommendations for Hiking</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="hiking-tips" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.hiking_tips_text">Tourists who are going hiking are recommended to take: passport and other essential documents; backpack (35-50 liters); sleeping bag; sunglasses; trekking poles; personal hygiene items; light towel; swimming suit; long-sleeved shirt; warm fleece sweater; down jacket; gloves; warm hat; trekking boots.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('how-to-use')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.how_to_use_title">30. How to Use the Website?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="how-to-use" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.how_to_use_text">For step-by-step instructions on booking travel products, see the Website User Guide.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('contact-us')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="special.contact_us_title">31. How to Contact Us?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="contact-us" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="special.contact_us_text">If you have any additional questions about our tours, services, or need help with booking, we will be happy to help. Just call us — we are always available by phone, WhatsApp and/or Telegram (+992) 915-123-344 or email us at info@bunyodtour.tj</p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="/public/documents/special-notes-ru.pdf" target="_blank" class="inline-flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors mr-4 mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span data-translate="special.download_pdf_ru">Download PDF (RU)</span>
+                </a>
+                <a href="/public/documents/special-notes-en.pdf" target="_blank" class="inline-flex items-center gap-2 bg-gray-700 text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors mb-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span data-translate="special.download_pdf_en">Download PDF (EN)</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        function toggleFaq(id) {
+            const content = document.getElementById(id);
+            const btn = content.previousElementSibling;
+            const isHidden = content.classList.contains('hidden');
+            
+            document.querySelectorAll('.faq-content').forEach(c => {
+                c.classList.add('hidden');
+                c.previousElementSibling.classList.remove('active');
+            });
+            
+            if (isHidden) {
+                content.classList.remove('hidden');
+                btn.classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="guide.profile_title">Guide Profile | Bunyod-Tour</title>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/public/css/layout.css?v=1780420000">
+    <script data-cfasync="false" src="/public/js/multilingual-utils.js?v=2.5"></script>
+    <script data-cfasync="false" src="/public/js/i18n.js?v=1759745702"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js?v=1.69745702"></script>
+    <script data-cfasync="false" src="/public/js/utils.js?v=1759745702"></script>
+    <script data-cfasync="false" src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <!-- Guide Profile Container -->
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
+            <p class="text-gray-600" data-translate="guide.loading">Loading guide profile...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden text-center py-12">
+            <i class="fas fa-exclamation-circle text-4xl text-red-500 mb-4"></i>
+            <p class="text-red-600 text-lg mb-4" data-translate="guide.error">Error loading guide profile</p>
+            <button onclick="window.location.href='/tour-guides.html'" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-all">
+                <i class="fas fa-arrow-left mr-2"></i><span data-translate="guide.back_to_guides">Back to guides list</span>
+            </button>
+        </div>
+
+        <!-- Guide Profile Content -->
+        <div id="guide-profile" class="hidden">
+            <!-- Guide Header Card -->
+            <div id="guide-card" class="bg-white rounded-xl shadow-lg p-8 mb-8 relative border-2 border-gray-200">
+                <!-- Download Button -->
+                <button id="download-card-btn" onclick="downloadGuideCard()" 
+                        class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 p-3 rounded-lg transition-all shadow-sm z-10"
+                        title="Скачать карточку гида">
+                    <i class="fas fa-download text-lg"></i>
+                </button>
+                
+                <!-- Certificate ID Header -->
+                <div class="text-center mb-6 pb-4 border-b-2 border-gray-200">
+                    <h2 class="text-2xl md:text-3xl font-bold tracking-wide" style="font-family: 'Times New Roman', serif; color: #1a5f7a;">
+                        CERTIFICATE ID#<span id="certificate-id" class="ml-1"></span>
+                    </h2>
+                </div>
+                
+                <div class="flex flex-col md:flex-row gap-8">
+                    <!-- Guide Photo -->
+                    <div class="flex-shrink-0 text-center">
+                        <img id="guide-photo" 
+                             src="" 
+                             alt="Guide Photo" 
+                             class="w-48 h-48 rounded-xl object-cover border-4 border-gray-200 mb-3">
+                        <!-- Tour GUIDE Badge -->
+                        <div class="mt-2">
+                            <p class="text-2xl font-black text-gray-800 leading-tight tracking-tight" style="font-family: 'Inter', sans-serif;" data-translate="guide.badge_tour">Tour</p>
+                            <p class="text-3xl font-black text-gray-800 leading-tight tracking-tight" style="font-family: 'Inter', sans-serif;" data-translate="guide.badge_guide">GUIDE</p>
+                        </div>
+                    </div>
+
+                    <!-- Guide Info -->
+                    <div class="flex-1">
+                        <h1 id="guide-name" class="text-3xl font-bold text-gray-800 mb-2"></h1>
+                        
+                        <!-- Rating -->
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div id="guide-stars" class="flex text-yellow-400 text-xl"></div>
+                                <span id="guide-rating" class="text-gray-700 font-semibold text-lg"></span>
+                            </div>
+                            <span id="guide-review-count" class="text-gray-500"></span>
+                        </div>
+
+                        <!-- Key Info Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <!-- Experience -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-briefcase text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.experience">Experience</p>
+                                    <p id="guide-experience" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                            <!-- Languages -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-language text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.languages">Languages</p>
+                                    <p id="guide-languages" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                            <!-- Region -->
+                            <div class="flex items-center gap-3">
+                                <i class="fas fa-map-marker-alt text-gray-600 text-xl"></i>
+                                <div>
+                                    <p class="text-sm text-gray-500" data-translate="guide.region">Service Region</p>
+                                    <p id="guide-region" class="font-semibold text-gray-800"></p>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2" data-translate="guide.about">About Guide</h3>
+                            <p id="guide-description" class="text-gray-600 leading-relaxed"></p>
+                        </div>
+
+                        <!-- Accreditation -->
+                        <div class="mt-6 pt-4 border-t border-gray-100">
+                            <div class="flex items-center gap-4">
+                                <!-- Bunyod-Tour Logo -->
+                                <img src="/Logo-Ru_1754635713718.png" alt="Bunyod-Tour" class="w-20 h-auto flex-shrink-0">
+                                <div class="text-gray-500 italic">
+                                    <p class="text-base leading-relaxed">
+                                        <span data-translate="guide.accredited">Accredited by</span> 
+                                        <span class="font-medium not-italic" data-translate="guide.company_name">Bunyod-Tour LLC</span>, 
+                                        <span data-translate="guide.valid_registry">valid according to the Register of Guides at</span>
+                                    </p>
+                                    <p class="text-base">
+                                        <a href="https://bunyodtour.tj" target="_blank" class="text-blue-600 hover:underline not-italic font-medium">https://bunyodtour.tj</a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        let guideData = null;
+        let guideStats = null; // Сохраняем статистику для использования при переключении языка
+        const API_BASE = `${window.location.protocol}//${window.location.hostname}:${window.location.port}/api`;
+
+        // Get guide ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const guideId = urlParams.get('id');
+
+        if (!guideId) {
+            showError();
+        } else {
+            loadGuideProfile();
+        }
+
+        async function loadGuideProfile() {
+            try {
+                const lang = getCurrentLanguage();
+                console.log('Loading guide profile for ID:', guideId, 'Language:', lang);
+
+                // Load guide data
+                const guideResponse = await fetch(`${API_BASE}/guides/${guideId}?lang=${lang}`);
+                if (!guideResponse.ok) throw new Error('Guide not found');
+                
+                const guideResult = await guideResponse.json();
+                guideData = guideResult.data;
+
+                // Загружаем актуальную статистику из обеих таблиц отзывов
+                const statsResponse = await fetch(`${API_BASE}/guide-reviews/guide/${guideId}/stats`);
+                const statsResult = await statsResponse.json();
+                guideStats = statsResult.data; // Сохраняем для повторного использования
+
+                displayGuide(guideData, guideStats);
+
+                document.getElementById('loading-state').classList.add('hidden');
+                document.getElementById('guide-profile').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading guide profile:', error);
+                showError();
+            }
+        }
+
+        function displayGuide(guide, stats = null) {
+            const lang = getCurrentLanguage();
+
+            // Photo
+            const photoEl = document.getElementById('guide-photo');
+            if (guide.photo) {
+                // If photo already has full path (starts with / or http), use it as is
+                if (guide.photo.startsWith('/') || guide.photo.startsWith('http')) {
+                    photoEl.src = guide.photo;
+                } else {
+                    photoEl.src = `/uploads/guides/${guide.photo}`;
+                }
+            } else if (guide.avatar) {
+                // Same logic for avatar
+                if (guide.avatar.startsWith('/') || guide.avatar.startsWith('http')) {
+                    photoEl.src = guide.avatar;
+                } else {
+                    photoEl.src = `/uploads/guides/${guide.avatar}`;
+                }
+            } else {
+                photoEl.src = '/uploads/guides/default-guide.jpg';
+            }
+
+            // Name - handle multilingual object
+            const guideName = getMultilingualText(guide.name, lang) || (lang === 'ru' ? 'Не указано' : 'Not specified');
+            document.getElementById('guide-name').textContent = guideName;
+
+            // Rating - используем актуальные данные из статистики или из модели гида
+            const rating = stats?.averageRating ?? guide.rating ?? 0;
+            const totalReviews = stats?.totalReviews ?? guide.reviewsCount ?? 0;
+            
+            document.getElementById('guide-rating').textContent = rating.toFixed(1);
+            displayStars(rating, 'guide-stars');
+            
+            // Количество оценок
+            const ratingText = lang === 'ru' 
+                ? `(${totalReviews} ${getRatingsWord(totalReviews)})`
+                : `(${totalReviews} rating${totalReviews !== 1 ? 's' : ''})`;
+            document.getElementById('guide-review-count').textContent = ratingText;
+
+            // Experience
+            const experienceText = guide.experience ? 
+                `${guide.experience} ${lang === 'ru' ? 'лет опыта' : 'years of experience'}` : 
+                (lang === 'ru' ? 'Не указано' : 'Not specified');
+            document.getElementById('guide-experience').textContent = experienceText;
+
+            // Languages - translate language names to current language
+            const languageTranslations = {
+                // Russian language names
+                'Русский': { ru: 'Русский', en: 'Russian' },
+                'Английский': { ru: 'Английский', en: 'English' },
+                'Французский': { ru: 'Французский', en: 'French' },
+                'Немецкий': { ru: 'Немецкий', en: 'German' },
+                'Испанский': { ru: 'Испанский', en: 'Spanish' },
+                'Итальянский': { ru: 'Итальянский', en: 'Italian' },
+                'Китайский': { ru: 'Китайский', en: 'Chinese' },
+                'Японский': { ru: 'Японский', en: 'Japanese' },
+                'Таджикский': { ru: 'Таджикский', en: 'Tajik' },
+                'Узбекский': { ru: 'Узбекский', en: 'Uzbek' },
+                'Персидский': { ru: 'Персидский', en: 'Persian' },
+                'Арабский': { ru: 'Арабский', en: 'Arabic' },
+                'Турецкий': { ru: 'Турецкий', en: 'Turkish' },
+                'Корейский': { ru: 'Корейский', en: 'Korean' },
+                'Португальский': { ru: 'Португальский', en: 'Portuguese' },
+            };
+            
+            let languagesText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            if (guide.languages) {
+                if (Array.isArray(guide.languages)) {
+                    languagesText = guide.languages
+                        .map(l => languageTranslations[l]?.[lang] || l)
+                        .join(', ');
+                } else if (typeof guide.languages === 'object' && !Array.isArray(guide.languages)) {
+                    languagesText = getMultilingualText(guide.languages, lang);
+                } else if (typeof guide.languages === 'string') {
+                    // Parse comma-separated string and translate
+                    const langs = guide.languages.split(',').map(l => l.trim());
+                    languagesText = langs
+                        .map(l => languageTranslations[l]?.[lang] || l)
+                        .join(', ');
+                }
+            }
+            document.getElementById('guide-languages').textContent = languagesText;
+
+            // Region - use separate nameRu/nameEn fields or fallback to name JSONB
+            let regionText = '';
+            if (guide.guideCountry) {
+                // Try to get localized name from separate fields first
+                const countryName = lang === 'en' 
+                    ? (guide.guideCountry.nameEn || guide.guideCountry.nameRu || getMultilingualText(guide.guideCountry.name, lang))
+                    : (guide.guideCountry.nameRu || guide.guideCountry.nameEn || getMultilingualText(guide.guideCountry.name, lang));
+                regionText = countryName;
+                
+                if (guide.guideCity) {
+                    // Try to get localized name from separate fields first
+                    const cityName = lang === 'en'
+                        ? (guide.guideCity.nameEn || guide.guideCity.nameRu || getMultilingualText(guide.guideCity.name, lang))
+                        : (guide.guideCity.nameRu || guide.guideCity.nameEn || getMultilingualText(guide.guideCity.name, lang));
+                    if (cityName) {
+                        regionText += `, ${cityName}`;
+                    }
+                }
+            }
+            
+            if (!regionText) {
+                regionText = lang === 'ru' ? 'Не указано' : 'Not specified';
+            }
+            document.getElementById('guide-region').textContent = regionText;
+
+            // Certificate ID в заголовке
+            const certificateId = guide.registration || '—';
+            document.getElementById('certificate-id').textContent = certificateId;
+
+            // Description - handle multilingual object
+            const descriptionText = getMultilingualText(guide.description, lang) || (lang === 'ru' ? 'Описание отсутствует' : 'No description available');
+            document.getElementById('guide-description').textContent = descriptionText;
+        }
+
+        // Helper function to get text from multilingual field
+        function getMultilingualText(field, language) {
+            if (!field) return '';
+            
+            // If it's already a string, return it
+            if (typeof field === 'string') {
+                return field;
+            }
+            
+            // If it's an object with language keys
+            if (typeof field === 'object' && field !== null) {
+                // Try to get the requested language
+                const text = field[language];
+                if (text && text.trim()) {
+                    return text;
+                }
+                
+                // Fallback to Russian if English is empty
+                if (language === 'en' && field.ru && field.ru.trim()) {
+                    return field.ru;
+                }
+                
+                // Fallback to English if Russian is empty
+                if (language === 'ru' && field.en && field.en.trim()) {
+                    return field.en;
+                }
+                
+                // Return any non-empty value
+                return field.ru || field.en || '';
+            }
+            
+            return '';
+        }
+
+        function displayStars(rating, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
+
+            for (let i = 0; i < 5; i++) {
+                const star = document.createElement('i');
+                if (i < fullStars) {
+                    star.className = 'fas fa-star';
+                } else if (i === fullStars && hasHalfStar) {
+                    star.className = 'fas fa-star-half-alt';
+                } else {
+                    star.className = 'far fa-star';
+                }
+                container.appendChild(star);
+            }
+        }
+
+        function getRatingsWord(count) {
+            const remainder10 = count % 10;
+            const remainder100 = count % 100;
+            
+            if (remainder10 === 1 && remainder100 !== 11) {
+                return 'оценка';
+            } else if (remainder10 >= 2 && remainder10 <= 4 && (remainder100 < 10 || remainder100 >= 20)) {
+                return 'оценки';
+            } else {
+                return 'оценок';
+            }
+        }
+
+        function showError() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+        }
+
+        // Initialize i18n - update UI without reloading data
+        window.addEventListener('languageChanged', (e) => {
+            if (guideData) {
+                // Обновляем отображение с сохранённой статистикой
+                displayGuide(guideData, guideStats);
+            }
+        });
+
+        // Download guide card as image
+        async function downloadGuideCard() {
+            const card = document.getElementById('guide-card');
+            const downloadBtn = document.getElementById('download-card-btn');
+            const guideName = document.getElementById('guide-name').textContent || 'guide';
+            
+            // Hide download button temporarily
+            downloadBtn.style.display = 'none';
+            
+            try {
+                // Show loading state on button
+                const canvas = await html2canvas(card, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    allowTaint: true,
+                    logging: false
+                });
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `${guideName.replace(/\s+/g, '_')}_card.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+            } catch (error) {
+                console.error('Error generating image:', error);
+                alert('Ошибка при создании изображения. Попробуйте снова.');
+            } finally {
+                // Show download button again
+                downloadBtn.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

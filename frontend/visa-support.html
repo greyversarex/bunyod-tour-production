@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="visa.page_title">Visa Support - Bunyod-Tour</title>
+    <meta property="og:title" content="Visa Support - Bunyod-Tour">
+    <meta property="og:description" content="Complete visa support for traveling to Tajikistan and Central Asia. Information on e-visa, visa on arrival, requirements and application tips.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bunyodtour.tj/visa-support.html">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Visa Support - Bunyod-Tour">
+    <meta name="twitter:description" content="Complete visa support for traveling to Tajikistan and Central Asia. Information on e-visa, visa on arrival, requirements and application tips.">
+    <meta name="twitter:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <style>
+        .banner-height { height: 70vh; }
+        .gradient-overlay { background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)); }
+        .hero-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+        .lang-option { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: white; text-decoration: none; transition: all 0.3s ease; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .lang-option:last-child { border-bottom: none; }
+        .lang-option:hover { background: rgba(255, 255, 255, 0.1); color: #ffffff; }
+        .lang-option.active { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+        .lang-option .flag { font-size: 1.25rem; flex-shrink: 0; }
+        .lang-option .lang-name { font-weight: 500; flex: 1; }
+        .visa-section-btn { background: #6B7280; box-shadow: 0 2px 8px rgba(107, 114, 128, 0.3); transition: all 0.3s ease; }
+        .visa-section-btn:hover { background: #4B5563; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(107, 114, 128, 0.4); }
+        .visa-content { animation: slideDown 0.3s ease; }
+        .country-item { padding: 0.25rem 0; border-bottom: 1px solid #f3f4f6; }
+        .country-item:last-child { border-bottom: none; }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <div class="min-h-screen py-12 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-12 border border-gray-100">
+                <div class="text-center">
+                    <h1 class="text-5xl font-bold text-gray-900 mb-6 letterspacing-tight" data-translate="visa.main_title">TAJIKISTAN VISA</h1>
+                    <div class="w-20 h-1 bg-gradient-to-r from-gray-600 to-gray-800 mx-auto mb-6"></div>
+                    <p class="text-xl text-gray-700 font-medium mb-8 leading-relaxed" data-translate="visa.intro_text">Three types of visas are issued for visiting Tajikistan:</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border-l-4 border-gray-400">
+                        <div class="flex items-center mb-3">
+                            <div class="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">1</div>
+                            <h3 class="font-bold text-gray-800" data-translate="visa.visa_free">Visa-free regime</h3>
+                        </div>
+                        <p class="text-sm text-gray-600" data-translate="visa.visa_free_desc">Citizens of certain countries can enter without a visa</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border-l-4 border-gray-400">
+                        <div class="flex items-center mb-3">
+                            <div class="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">2</div>
+                            <h3 class="font-bold text-gray-800" data-translate="visa.e_visa">Electronic visa</h3>
+                        </div>
+                        <p class="text-sm text-gray-600" data-translate="visa.e_visa_desc">Simplified online visa processing</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border-l-4 border-gray-400">
+                        <div class="flex items-center mb-3">
+                            <div class="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white font-bold text-sm mr-3">3</div>
+                            <h3 class="font-bold text-gray-800" data-translate="visa.standard_visa">Standard visa</h3>
+                        </div>
+                        <p class="text-sm text-gray-600" data-translate="visa.standard_visa_desc_short">Traditional processing through consulates</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visa-Free Regime Section -->
+            <div class="mb-4">
+                <button onclick="toggleSection('visa-free')" class="visa-section-btn w-full text-left text-white p-6 rounded-lg font-bold text-2xl flex justify-between items-center transition-colors">
+                    <span data-translate="visa.visa_free_section">VISA-FREE REGIME</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="visa-free" class="visa-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-gray-700 text-sm">
+                        <div>
+                            <div class="country-item">1. <span data-translate="visa.country_andorra">ANDORRA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">2. <span data-translate="visa.country_argentina">ARGENTINA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">3. <span data-translate="visa.country_armenia">ARMENIA</span> - <span data-translate="visa.all_types_90">all types of foreign, up to 90 days</span></div>
+                            <div class="country-item">4. <span data-translate="visa.country_australia">AUSTRALIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">5. <span data-translate="visa.country_austria">AUSTRIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">6. <span data-translate="visa.country_azerbaijan">AZERBAIJAN</span> - <span data-translate="visa.all_types_90">all types of foreign, up to 90 days</span></div>
+                            <div class="country-item">7. <span data-translate="visa.country_afghanistan">AFGHANISTAN</span> - <span data-translate="visa.diplomatic_30">diplomatic, up to 30 days</span></div>
+                            <div class="country-item">8. <span data-translate="visa.country_albania">ALBANIA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">9. <span data-translate="visa.country_algeria">ALGERIA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">10. <span data-translate="visa.country_bahamas">BAHAMAS</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">11. <span data-translate="visa.country_bahrain">BAHRAIN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">12. <span data-translate="visa.country_barbados">BARBADOS</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">13. <span data-translate="visa.country_belarus">BELARUS</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">14. <span data-translate="visa.country_belgium">BELGIUM</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">15. <span data-translate="visa.country_bosnia">BOSNIA and HERZEGOVINA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">16. <span data-translate="visa.country_brazil">BRAZIL</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">17. <span data-translate="visa.country_brunei">BRUNEI Darussalam</span> - <span data-translate="visa.official_diplomatic_14">official, diplomatic, up to 14 days</span></div>
+                            <div class="country-item">18. <span data-translate="visa.country_bulgaria">BULGARIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">19. <span data-translate="visa.country_canada">CANADA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">20. <span data-translate="visa.country_chile">CHILE</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">21. <span data-translate="visa.country_china">CHINA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">22. <span data-translate="visa.country_costa_rica">COSTA RICA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">23. <span data-translate="visa.country_croatia">CROATIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">24. <span data-translate="visa.country_cuba">CUBA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">25. <span data-translate="visa.country_cyprus">CYPRUS</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">26. <span data-translate="visa.country_czech">CZECH</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">27. <span data-translate="visa.country_denmark">DENMARK</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">28. <span data-translate="visa.country_dominica">DOMINICA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">29. <span data-translate="visa.country_dominican">DOMINICAN Republic</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">30. <span data-translate="visa.country_ecuador">ECUADOR</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">31. <span data-translate="visa.country_estonia">ESTONIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">32. <span data-translate="visa.country_fiji">FIJI</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">33. <span data-translate="visa.country_finland">FINLAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">34. <span data-translate="visa.country_france">FRANCE</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">35. <span data-translate="visa.country_georgia">GEORGIA</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">36. <span data-translate="visa.country_germany">GERMANY</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">37. <span data-translate="visa.country_greece">HELLENIC (Greece)</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                        </div>
+                        <div>
+                            <div class="country-item">38. <span data-translate="visa.country_hungary">HUNGARY</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">39. <span data-translate="visa.country_iceland">ICELAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">40. <span data-translate="visa.country_india">INDIA</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">41. <span data-translate="visa.country_indonesia">INDONESIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">42. <span data-translate="visa.country_iran">IRAN</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">43. <span data-translate="visa.country_ireland">IRELAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">44. <span data-translate="visa.country_italy">ITALY</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">45. <span data-translate="visa.country_jamaica">JAMAICA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">46. <span data-translate="visa.country_japan">JAPAN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">47. <span data-translate="visa.country_jordan">JORDAN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">48. <span data-translate="visa.country_kazakhstan">KAZAKHSTAN</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">49. <span data-translate="visa.country_kuwait">KUWAIT</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">50. <span data-translate="visa.country_kyrgyzstan">KYRGYZSTAN</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">51. <span data-translate="visa.country_laos">LAO</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">52. <span data-translate="visa.country_latvia">LATVIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">53. <span data-translate="visa.country_lebanon">LEBANON</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">54. <span data-translate="visa.country_liechtenstein">LIECHTENSTEIN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">55. <span data-translate="visa.country_lithuania">LITHUANIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">56. <span data-translate="visa.country_luxembourg">LUXEMBOURG</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">57. <span data-translate="visa.country_madagascar">MADAGASCAR</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">58. <span data-translate="visa.country_malaysia">MALAYSIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">59. <span data-translate="visa.country_maldives">MALDIVES</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">60. <span data-translate="visa.country_malta">MALTA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">61. <span data-translate="visa.country_marshall">MARSHALL Islands</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">62. <span data-translate="visa.country_mexico">MEXICO</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">63. <span data-translate="visa.country_moldova">MOLDOVA</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">64. <span data-translate="visa.country_monaco">MONACO</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">65. <span data-translate="visa.country_mongolia">MONGOLIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">66. <span data-translate="visa.country_montenegro">MONTENEGRO</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">67. <span data-translate="visa.country_morocco">MOROCCO</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">68. <span data-translate="visa.country_netherlands">NETHERLANDS</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">69. <span data-translate="visa.country_new_zealand">NEW ZEALAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">70. <span data-translate="visa.country_nicaragua">NICARAGUA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">71. <span data-translate="visa.country_north_korea">NORTH KOREA</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">72. <span data-translate="visa.country_north_macedonia">NORTH MACEDONIA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">73. <span data-translate="visa.country_norway">NORWAY</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">74. <span data-translate="visa.country_oman">OMAN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                        </div>
+                        <div>
+                            <div class="country-item">75. <span data-translate="visa.country_pakistan">PAKISTAN</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">76. <span data-translate="visa.country_palestine">PALESTINE</span> - <span data-translate="visa.diplomatic_service_30">for diplomatic and service/special passports, up to 30 days</span></div>
+                            <div class="country-item">77. <span data-translate="visa.country_panama">PANAMA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">78. <span data-translate="visa.country_philippines">PHILIPPINES</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">79. <span data-translate="visa.country_poland">POLAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">80. <span data-translate="visa.country_portugal">PORTUGAL</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">81. <span data-translate="visa.country_qatar">QATAR</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">82. <span data-translate="visa.country_romania">ROMANIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">83. <span data-translate="visa.country_russia">RUSSIA</span> - <span data-translate="visa.all_types_unlimited">all types of foreign</span></div>
+                            <div class="country-item">84. <span data-translate="visa.country_saint_kitts">SAINT KITTS and NEVIS</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">85. <span data-translate="visa.country_saint_lucia">SAINT LUCIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">86. <span data-translate="visa.country_saint_vincent">SAINT VINCENT and the Grenadines</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">87. <span data-translate="visa.country_san_marino">SAN MARINO</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">88. <span data-translate="visa.country_saudi_arabia">SAUDI ARABIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">89. <span data-translate="visa.country_serbia">SERBIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">90. <span data-translate="visa.country_singapore">SINGAPORE</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">91. <span data-translate="visa.country_slovakia">SLOVAK</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">92. <span data-translate="visa.country_slovenia">SLOVENIA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">93. <span data-translate="visa.country_solomon">SOLOMON Islands</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">94. <span data-translate="visa.country_south_korea">SOUTH KOREA</span> - <span data-translate="visa.official_diplomatic_30">official, diplomatic, up to 30 days</span></div>
+                            <div class="country-item">95. <span data-translate="visa.country_spain">SPAIN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">96. <span data-translate="visa.country_sri_lanka">SRI LANKA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">97. <span data-translate="visa.country_sweden">SWEDEN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">98. <span data-translate="visa.country_switzerland">SWISS Confederation</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">99. <span data-translate="visa.country_thailand">THAILAND</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">100. <span data-translate="visa.country_tunisia">TUNISIA</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">101. <span data-translate="visa.country_turkey">TURKEY</span> - <span data-translate="visa.official_diplomatic_special_30">official, diplomatic and special, up to 30 days</span></div>
+                            <div class="country-item">102. <span data-translate="visa.country_turkmenistan">TURKMENISTAN</span> - <span data-translate="visa.diplomatic_30">diplomatic, up to 30 days</span></div>
+                            <div class="country-item">103. <span data-translate="visa.country_ukraine">UKRAINE</span> - <span data-translate="visa.all_types_90">all types of foreign, up to 90 days</span></div>
+                            <div class="country-item">104. <span data-translate="visa.country_uae">UNITED ARAB EMIRATES</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">105. <span data-translate="visa.country_usa">UNITED STATES OF AMERICA</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">106. <span data-translate="visa.country_uzbekistan">UZBEKISTAN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">107. <span data-translate="visa.country_vanuatu">VANUATU</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                            <div class="country-item">108. <span data-translate="visa.country_vatican">VATICAN</span> - <span data-translate="visa.all_types_30">all types of foreign, up to 30 days</span></div>
+                            <div class="country-item">109. <span data-translate="visa.country_vietnam">VIETNAM</span> - <span data-translate="visa.all_types_14_55">all types of foreign, up to 14 days (for citizens over 55 years of age)</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Electronic Visa Section -->
+            <div class="mb-4">
+                <button onclick="toggleSection('electronic-visa')" class="visa-section-btn w-full text-left text-white p-6 rounded-lg font-bold text-2xl flex justify-between items-center transition-colors">
+                    <span data-translate="visa.electronic_visa_section">ELECTRONIC AND SIMPLIFIED VISA</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="electronic-visa" class="visa-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-400">
+                        <p class="text-sm text-gray-700 italic">
+                            <strong data-translate="visa.electronic_visa_notice">ATTENTION! — "electronic visa processing system" is not related to "electronic visa" system.</strong>
+                            <br /><span data-translate="visa.evisa_description">"Electronic visa" is processed at</span> <a href="https://www.evisa.tj" class="text-blue-600 hover:underline">https://www.evisa.tj</a> — <span data-translate="visa.evisa_details">this is a single-entry visa issued for up to 45 days.</span>
+                            <br /><span data-translate="visa.visa_system_description">However, "Electronic visa processing system" operates at</span> <a href="https://www.visa.gov.tj" class="text-blue-600 hover:underline">https://www.visa.gov.tj</a> — <span data-translate="visa.visa_system_details">this is a system for submitting electronic visa applications.</span>
+                            <br /><span data-translate="visa.eligible_countries">List of eligible countries is presented below:</span>
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-700 text-sm">
+                        <div>
+                            <div class="country-item">1. <span data-translate="visa.country_australia">AUSTRALIA</span></div>
+                            <div class="country-item">2. <span data-translate="visa.country_austria">AUSTRIA</span></div>
+                            <div class="country-item">3. <span data-translate="visa.country_albania">ALBANIA</span></div>
+                            <div class="country-item">4. <span data-translate="visa.country_algeria">ALGERIA</span></div>
+                            <div class="country-item">5. <span data-translate="visa.country_andorra">ANDORRA</span></div>
+                            <div class="country-item">6. <span data-translate="visa.evisa_antigua">ANTIGUA and BARBUDA</span></div>
+                            <div class="country-item">7. <span data-translate="visa.country_usa">UNITED STATES OF AMERICA</span></div>
+                            <div class="country-item">8. <span data-translate="visa.country_argentina">ARGENTINA</span></div>
+                            <div class="country-item">9. <span data-translate="visa.evisa_south_africa">SOUTH AFRICA</span></div>
+                            <div class="country-item">10. <span data-translate="visa.country_barbados">BARBADOS</span></div>
+                            <div class="country-item">11. <span data-translate="visa.country_bahrain">BAHRAIN</span></div>
+                            <div class="country-item">12. <span data-translate="visa.evisa_belize">BELIZE</span></div>
+                            <div class="country-item">13. <span data-translate="visa.country_belgium">BELGIUM</span></div>
+                            <div class="country-item">14. <span data-translate="visa.country_bulgaria">BULGARIA</span></div>
+                            <div class="country-item">15. <span data-translate="visa.evisa_bolivia">BOLIVIA</span></div>
+                            <div class="country-item">16. <span data-translate="visa.country_bosnia">BOSNIA and HERZEGOVINA</span></div>
+                            <div class="country-item">17. <span data-translate="visa.country_brazil">BRAZIL</span></div>
+                            <div class="country-item">18. <span data-translate="visa.country_brunei">BRUNEI Darussalam</span></div>
+                            <div class="country-item">19. <span data-translate="visa.country_bahamas">BAHAMAS</span></div>
+                            <div class="country-item">20. <span data-translate="visa.evisa_uk">UNITED KINGDOM</span></div>
+                            <div class="country-item">21. <span data-translate="visa.evisa_venezuela">VENEZUELA</span></div>
+                            <div class="country-item">22. <span data-translate="visa.country_vatican">VATICAN</span></div>
+                            <div class="country-item">23. <span data-translate="visa.country_hungary">HUNGARY</span></div>
+                            <div class="country-item">24. <span data-translate="visa.country_vietnam">VIETNAM</span></div>
+                            <div class="country-item">25. <span data-translate="visa.evisa_guyana">GUYANA</span></div>
+                            <div class="country-item">26. <span data-translate="visa.evisa_guatemala">GUATEMALA</span></div>
+                            <div class="country-item">27. <span data-translate="visa.country_germany">GERMANY</span></div>
+                            <div class="country-item">28. <span data-translate="visa.evisa_grenada">GRENADA</span></div>
+                            <div class="country-item">29. <span data-translate="visa.country_greece">HELLENIC (Greece)</span></div>
+                            <div class="country-item">30. <span data-translate="visa.country_denmark">DENMARK</span></div>
+                            <div class="country-item">31. <span data-translate="visa.country_dominican">DOMINICAN Republic</span></div>
+                            <div class="country-item">32. <span data-translate="visa.country_dominica">DOMINICA</span></div>
+                            <div class="country-item">33. <span data-translate="visa.evisa_egypt">EGYPT</span></div>
+                            <div class="country-item">34. <span data-translate="visa.country_new_zealand">NEW ZEALAND</span></div>
+                            <div class="country-item">35. <span data-translate="visa.evisa_israel">ISRAEL</span></div>
+                            <div class="country-item">36. <span data-translate="visa.country_india">INDIA</span></div>
+                            <div class="country-item">37. <span data-translate="visa.country_indonesia">INDONESIA</span></div>
+                            <div class="country-item">38. <span data-translate="visa.country_jordan">JORDAN</span></div>
+                            <div class="country-item">39. <span data-translate="visa.country_iran">IRAN</span></div>
+                            <div class="country-item">40. <span data-translate="visa.country_ireland">IRELAND</span></div>
+                            <div class="country-item">41. <span data-translate="visa.country_iceland">ICELAND</span></div>
+                            <div class="country-item">42. <span data-translate="visa.country_spain">SPAIN</span></div>
+                        </div>
+                        <div>
+                            <div class="country-item">43. <span data-translate="visa.country_italy">ITALY</span></div>
+                            <div class="country-item">44. <span data-translate="visa.country_canada">CANADA</span></div>
+                            <div class="country-item">45. <span data-translate="visa.country_qatar">QATAR</span></div>
+                            <div class="country-item">46. <span data-translate="visa.country_cyprus">CYPRUS</span></div>
+                            <div class="country-item">47. <span data-translate="visa.country_china">CHINA</span></div>
+                            <div class="country-item">48. <span data-translate="visa.evisa_colombia">COLOMBIA</span></div>
+                            <div class="country-item">49. <span data-translate="visa.country_south_korea">SOUTH KOREA</span></div>
+                            <div class="country-item">50. <span data-translate="visa.country_costa_rica">COSTA RICA</span></div>
+                            <div class="country-item">51. <span data-translate="visa.country_cuba">CUBA</span></div>
+                            <div class="country-item">52. <span data-translate="visa.country_kuwait">KUWAIT</span></div>
+                            <div class="country-item">53. <span data-translate="visa.country_latvia">LATVIA</span></div>
+                            <div class="country-item">54. <span data-translate="visa.country_lebanon">LEBANON</span></div>
+                            <div class="country-item">55. <span data-translate="visa.country_lithuania">LITHUANIA</span></div>
+                            <div class="country-item">56. <span data-translate="visa.country_liechtenstein">LIECHTENSTEIN</span></div>
+                            <div class="country-item">57. <span data-translate="visa.country_luxembourg">LUXEMBOURG</span></div>
+                            <div class="country-item">58. <span data-translate="visa.evisa_mauritius">MAURITIUS</span></div>
+                            <div class="country-item">59. <span data-translate="visa.country_north_macedonia">NORTH MACEDONIA</span></div>
+                            <div class="country-item">60. <span data-translate="visa.country_malaysia">MALAYSIA</span></div>
+                            <div class="country-item">61. <span data-translate="visa.country_maldives">MALDIVES</span></div>
+                            <div class="country-item">62. <span data-translate="visa.country_malta">MALTA</span></div>
+                            <div class="country-item">63. <span data-translate="visa.country_morocco">MOROCCO</span></div>
+                            <div class="country-item">64. <span data-translate="visa.country_mexico">MEXICO</span></div>
+                            <div class="country-item">65. <span data-translate="visa.country_monaco">MONACO</span></div>
+                            <div class="country-item">66. <span data-translate="visa.country_mongolia">MONGOLIA</span></div>
+                            <div class="country-item">67. <span data-translate="visa.country_netherlands">NETHERLANDS</span></div>
+                            <div class="country-item">68. <span data-translate="visa.country_norway">NORWAY</span></div>
+                            <div class="country-item">69. <span data-translate="visa.country_pakistan">PAKISTAN</span></div>
+                            <div class="country-item">70. <span data-translate="visa.country_panama">PANAMA</span></div>
+                            <div class="country-item">71. <span data-translate="visa.evisa_paraguay">PARAGUAY</span></div>
+                            <div class="country-item">72. <span data-translate="visa.evisa_papua">PAPUA NEW GUINEA</span></div>
+                            <div class="country-item">73. <span data-translate="visa.evisa_peru">PERU</span></div>
+                            <div class="country-item">74. <span data-translate="visa.country_poland">POLAND</span></div>
+                            <div class="country-item">75. <span data-translate="visa.country_portugal">PORTUGAL</span></div>
+                            <div class="country-item">76. <span data-translate="visa.country_romania">ROMANIA</span></div>
+                            <div class="country-item">77. <span data-translate="visa.country_san_marino">SAN MARINO</span></div>
+                            <div class="country-item">78. <span data-translate="visa.country_saudi_arabia">SAUDI ARABIA</span></div>
+                            <div class="country-item">79. <span data-translate="visa.evisa_seychelles">SEYCHELLES</span></div>
+                            <div class="country-item">80. <span data-translate="visa.evisa_senegal">SENEGAL</span></div>
+                            <div class="country-item">81. <span data-translate="visa.country_saint_vincent">SAINT VINCENT and the Grenadines</span></div>
+                            <div class="country-item">82. <span data-translate="visa.country_saint_kitts">SAINT KITTS and NEVIS</span></div>
+                            <div class="country-item">83. <span data-translate="visa.country_saint_lucia">SAINT LUCIA</span></div>
+                            <div class="country-item">84. <span data-translate="visa.country_serbia">SERBIA</span></div>
+                        </div>
+                        <div>
+                            <div class="country-item">85. <span data-translate="visa.country_singapore">SINGAPORE</span></div>
+                            <div class="country-item">86. <span data-translate="visa.country_slovakia">SLOVAK</span></div>
+                            <div class="country-item">87. <span data-translate="visa.country_slovenia">SLOVENIA</span></div>
+                            <div class="country-item">88. <span data-translate="visa.evisa_suriname">SURINAME</span></div>
+                            <div class="country-item">89. <span data-translate="visa.country_thailand">THAILAND</span></div>
+                            <div class="country-item">90. <span data-translate="visa.evisa_trinidad">TRINIDAD and TOBAGO</span></div>
+                            <div class="country-item">91. <span data-translate="visa.country_tunisia">TUNISIA</span></div>
+                            <div class="country-item">92. <span data-translate="visa.country_turkey">TURKEY</span></div>
+                            <div class="country-item">93. <span data-translate="visa.country_turkmenistan">TURKMENISTAN</span></div>
+                            <div class="country-item">94. <span data-translate="visa.country_uzbekistan">UZBEKISTAN</span></div>
+                            <div class="country-item">95. <span data-translate="visa.evisa_uruguay">URUGUAY</span></div>
+                            <div class="country-item">96. <span data-translate="visa.country_fiji">FIJI</span></div>
+                            <div class="country-item">97. <span data-translate="visa.country_philippines">PHILIPPINES</span></div>
+                            <div class="country-item">98. <span data-translate="visa.country_france">FRANCE</span></div>
+                            <div class="country-item">99. <span data-translate="visa.country_finland">FINLAND</span></div>
+                            <div class="country-item">100. <span data-translate="visa.country_croatia">CROATIA</span></div>
+                            <div class="country-item">101. <span data-translate="visa.country_montenegro">MONTENEGRO</span></div>
+                            <div class="country-item">102. <span data-translate="visa.country_czech">CZECH</span></div>
+                            <div class="country-item">103. <span data-translate="visa.country_chile">CHILE</span></div>
+                            <div class="country-item">104. <span data-translate="visa.country_switzerland">SWISS Confederation</span></div>
+                            <div class="country-item">105. <span data-translate="visa.country_sweden">SWEDEN</span></div>
+                            <div class="country-item">106. <span data-translate="visa.country_sri_lanka">SRI LANKA</span></div>
+                            <div class="country-item">107. <span data-translate="visa.country_ecuador">ECUADOR</span></div>
+                            <div class="country-item">108. <span data-translate="visa.evisa_el_salvador">EL SALVADOR</span></div>
+                            <div class="country-item">109. <span data-translate="visa.country_estonia">ESTONIA</span></div>
+                            <div class="country-item">110. <span data-translate="visa.country_uae">UNITED ARAB EMIRATES</span></div>
+                            <div class="country-item">111. <span data-translate="visa.country_jamaica">JAMAICA</span></div>
+                            <div class="country-item">112. <span data-translate="visa.country_japan">JAPAN</span></div>
+                            <div class="country-item">113. <span data-translate="visa.evisa_cambodia">CAMBODIA</span></div>
+                            <div class="country-item">114. <span data-translate="visa.evisa_bhutan">BHUTAN</span></div>
+                            <div class="country-item">115. <span data-translate="visa.evisa_honduras">HONDURAS</span></div>
+                            <div class="country-item">116. <span data-translate="visa.evisa_cape_verde">CABO VERDE</span></div>
+                            <div class="country-item">117. <span data-translate="visa.country_nicaragua">NICARAGUA</span></div>
+                            <div class="country-item">118. <span data-translate="visa.evisa_ghana">GHANA</span></div>
+                            <div class="country-item">119. <span data-translate="visa.evisa_cameroon">CAMEROON</span></div>
+                            <div class="country-item">120. <span data-translate="visa.evisa_benin">BENIN</span></div>
+                            <div class="country-item">121. <span data-translate="visa.evisa_tanzania">TANZANIA</span></div>
+                            <div class="country-item">122. <span data-translate="visa.evisa_kenya">KENYA</span></div>
+                            <div class="country-item">123. <span data-translate="visa.country_laos">LAO</span></div>
+                            <div class="country-item">124. <span data-translate="visa.evisa_congo">CONGO</span></div>
+                            <div class="country-item">125. <span data-translate="visa.evisa_bangladesh">BANGLADESH</span></div>
+                            <div class="country-item">126. <span data-translate="visa.evisa_burkina">BURKINA FASO</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Standard Visa Section -->
+            <div class="mb-4">
+                <button onclick="toggleSection('standard-visa')" class="visa-section-btn w-full text-left text-white p-6 rounded-lg font-bold text-2xl flex justify-between items-center transition-colors">
+                    <span data-translate="visa.standard_visa_section">STANDARD VISA</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="standard-visa" class="visa-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="text-gray-700 space-y-4">
+                        <p data-translate="visa.standard_intro">If your country of residence is not included in any of the above lists, you can obtain a visa to Tajikistan in any country where there is an embassy or consulate of the Republic of Tajikistan.</p>
+                        <p data-translate="visa.standard_fees">The list of documents and consular fees may vary depending on the citizenship of the foreign national and the place of visa issuance. The minimum consular fee is 25 US dollars.</p>
+                        <p class="font-semibold text-lg" data-translate="visa.standard_requirements_title">Standard visa requirements include:</p>
+                        <ul class="list-disc list-inside space-y-2 ml-4">
+                            <li data-translate="visa.req_invitation">Visa support (invitation*);</li>
+                            <li data-translate="visa.req_passport">Valid passport with 2 blank pages for visa and entry/exit stamps. Passport expiration date must be at least 6 months after visa expiration;</li>
+                            <li data-translate="visa.req_form">Visa application form**, filled in 2 copies;</li>
+                            <li data-translate="visa.req_photo">Color photo (3.5 x 4.5);</li>
+                            <li data-translate="visa.req_receipt">Receipt of state duty and consular fee payment;</li>
+                            <li data-translate="visa.req_gbao">Tourists wishing to visit GBAO or Pamir region must provide a request letter for visit permission.</li>
+                        </ul>
+                        <div class="text-sm text-gray-600 italic mt-6 space-y-2">
+                            <p><span data-translate="visa.form_download">* You can download the official Tajik tourist visa application form</span> <a href="https://www.mfa.tj/uploads/main/2013/03/visa_application_form_in_russia.pdf" class="text-blue-600 hover:underline" data-translate="visa.here">here</a>. <span data-translate="visa.form_accepted">This form is accepted at all embassies and consulates of the Republic of Tajikistan</span></p>
+                            <p><span data-translate="visa.invitation_note">** Invitation letter is issued by Bunyod-Tour LLC only to tourists who purchase a tour package from the company website —</span> <a href="https://www.bunyodtour.tj/index.php" class="text-blue-600 hover:underline">bunyodtour.tj</a>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Official Invitation Section -->
+            <div class="mb-4">
+                <button onclick="toggleSection('invitation')" class="visa-section-btn w-full text-left text-white p-6 rounded-lg font-bold text-2xl flex justify-between items-center transition-colors">
+                    <span data-translate="visa.invitation_section">OFFICIAL INVITATION</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="invitation" class="visa-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="text-gray-700 space-y-4">
+                        <p><span data-translate="visa.invitation_intro">Our company can provide an official invitation, but only to our clients/tourists who need to visit our website —</span> <a href="https://www.bunyodtour.tj/index.php" class="text-blue-600 hover:underline">bunyodtour.tj</a> — <span data-translate="visa.invitation_process">select a suitable tour package, then fill out the application form, describe the request for official invitation in the "Other wishes" field and book/pay for the tour; we will contact you shortly.</span></p>
+                        <p data-translate="visa.invitation_dates_note">Please note that the stay dates must match the dates of the selected tour package; if necessary, you can book two or more tour packages - this is a legal requirement.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Requirements Section -->
+            <div class="mb-4">
+                <button onclick="toggleSection('requirements')" class="visa-section-btn w-full text-left text-white p-6 rounded-lg font-bold text-2xl flex justify-between items-center transition-colors">
+                    <span data-translate="visa.requirements_section">DOCUMENT REQUIREMENTS</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="requirements" class="visa-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <div class="text-gray-700 space-y-4">
+                        <ul class="list-disc list-inside space-y-2">
+                            <li data-translate="visa.doc_authenticity">The authenticity of data and electronic copies of passport or other documents submitted by foreign citizens and stateless persons must be beyond doubt.</li>
+                            <li data-translate="visa.doc_validity">The document validity period should generally be at least 6 months before its expiration.</li>
+                        </ul>
+                        <p class="font-semibold text-lg" data-translate="visa.border_entry_title">Entry permit to border areas of the Republic of Tajikistan</p>
+                        <p data-translate="visa.processing_time">The visa processing and issuance period is set at no more than 20 working days from the date of application by a foreign citizen or stateless person, except in cases provided for by these Rules, and unless otherwise provided by regulatory legal acts of the Republic of Tajikistan and international treaties recognized by the Republic of Tajikistan.</p>
+                        <p data-translate="visa.registration_requirement">Foreign citizens with a standard visa and those under the visa-free entry, stay and exit regime of the Republic of Tajikistan are required to register within 10 (ten) working days with the internal affairs authorities or the Ministry of Foreign Affairs of the Republic of Tajikistan (only for diplomatic service employees).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        function toggleSection(sectionId) {
+            const content = document.getElementById(sectionId);
+            const button = content.previousElementSibling;
+            const arrow = button.querySelector('.dropdown-arrow');
+            
+            document.querySelectorAll('.visa-content').forEach(section => {
+                if (section.id !== sectionId) {
+                    section.classList.add('hidden');
+                    section.previousElementSibling.querySelector('.dropdown-arrow').style.transform = 'rotate(0deg)';
+                }
+            });
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function toggleLanguageDropdown() {
+            const dropdown = document.getElementById('languageDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectLanguage(langCode, langName) {
+            document.querySelector('.selected-flag').className = `selected-flag flag-${langCode}`;
+            document.querySelector('.selected-lang').textContent = langName;
+            document.querySelectorAll('#languageDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('languageDropdown').classList.remove('show');
+            console.log(`Переключен язык: ${langName}`);
+            event.preventDefault();
+            return false;
+        }
+
+        function toggleCurrencyDropdown() {
+            const dropdown = document.getElementById('currencyDropdown');
+            dropdown.classList.toggle('show');
+        }
+        
+        function selectCurrency(currencyCode, symbol) {
+            document.querySelector('.selected-currency').textContent = currencyCode;
+            document.querySelector('.currency-symbol').textContent = symbol;
+            document.querySelectorAll('#currencyDropdown .lang-option').forEach(opt => opt.classList.remove('active'));
+            document.querySelector(`[data-currency="${currencyCode.toLowerCase()}"]`).classList.add('active');
+            document.getElementById('currencyDropdown').classList.remove('show');
+            console.log(`Переключена валюта: ${currencyCode}`);
+            event.preventDefault();
+            return false;
+        }
+    </script>
+</body>
+</html>

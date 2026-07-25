@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <!-- Event snippet for Просмотр страницы conversion page -->
+    <script data-cfasync="false">
+      gtag('event', 'conversion', {'send_to': 'AW-713421696/l3EQCM2Dlb0DEIDnl9QC'});
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="about.page_title">About Us - Bunyod-Tour</title>
+    <meta property="og:title" content="About Us - Bunyod-Tour">
+    <meta property="og:description" content="Bunyod-Tour is a leading tourism company in Tajikistan specializing in tours across Central Asia – Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan and Turkmenistan.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://bunyodtour.tj/about-us.html">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About Us - Bunyod-Tour">
+    <meta name="twitter:description" content="Bunyod-Tour is a leading tourism company in Tajikistan specializing in tours across Central Asia – Tajikistan, Uzbekistan, Kazakhstan, Kyrgyzstan and Turkmenistan.">
+    <meta name="twitter:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" defer src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #374151 0%, #6b7280 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #374151;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+        
+        .reason-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+        }
+        
+        .reason-number {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .team-card {
+            background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+            border: 1px solid rgba(229, 231, 235, 0.6);
+        }
+        
+        .team-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .team-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .award-badge {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .scroll-animate.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <div id="header-container"></div>
+
+    <!-- Navigation -->
+    <nav class="sticky-nav py-4">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex justify-center gap-6 flex-wrap text-sm">
+                <a href="#about" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.about">About Us</a>
+                <a href="#why-us" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.why_us">Why Us</a>
+                <a href="#services" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.services">Services</a>
+                <a href="#awards" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.awards">Awards</a>
+                <a href="#associations" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.associations">Associations</a>
+                <a href="#team" class="nav-link text-gray-700 px-2 py-1" data-translate="about.nav.team">Team</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="min-h-screen bg-gray-50">
+        
+        <!-- About Section -->
+        <section id="about" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-lg p-8 scroll-animate">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-center mb-8 gradient-text" data-translate="about.title">ABOUT US</h1>
+                    
+                    <div class="space-y-6 text-gray-700 text-lg leading-relaxed">
+                        <p>
+                            <strong class="gradient-text">Bunyod-Tour LLC</strong> <span data-translate="about.intro_1">was founded in 2017 and is one of the leading tourism companies in Tajikistan and Central Asia. The company specializes in organizing tours and other travel services throughout Central Asia.</span>
+                        </p>
+                        <p data-translate="about.intro_2">
+                            Our Company provides a wide range of tourism services, including group and individual (personal) tours, excursions, domestic and Central Asian, as well as cultural, historical, ecological, adventure, etc.
+                        </p>
+                        <p>
+                            <span data-translate="about.intro_3_part1">Our website operates as a Central Asian tourism platform and is an online sales portal for five types of tourism products:</span> <strong data-translate="about.intro_3_products">(1) tours, (2) excursions, (3) tour guide services, (4) transfers, and (5) B2B partnerships</strong>. <span data-translate="about.intro_3_part2">In the "Create Your Tour" section, you can also design a personalized tour according to your preferences and needs.</span>
+                        </p>
+                        <p>
+                            <span data-translate="about.intro_4_part1">Bunyod-Tour has developed over</span> <strong>150+</strong> <span data-translate="about.intro_4_part2">travel programs in collaboration with</span> <strong>50+</strong> <span data-translate="about.intro_4_part3">national and regional companies (our partners in various countries), enabling us to fulfill the wishes of our guests (tourists).</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Why Us Section -->
+        <section id="why-us" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text" data-translate="about.why_us_title">WHY CHOOSE US?</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Reason 1 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">1</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_1_title">Our Policy</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_1_desc">Our policy is to provide all guests with an atmosphere of trust, comfort and fair treatment. We comply with legal regulations, ethics and generally accepted international standards.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 2 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">2</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_2_title">Local Company</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_2_desc">We are a local company based in Central Asia. We know our region, service market, culture, and customs better than anyone else, which is why we are better able to welcome and serve our guests.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 3 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">3</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_3_title">High Quality Tours</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_3_desc">Our travel products are distinguished by their high quality, realism, and affordable prices, as we regularly update prices in line with the regional travel market.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 4 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">4</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_4_title">B2C Direct Booking</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_4_desc">We interact directly with customers (B2C), anyone can book tours directly on our website without the involvement of third parties.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 5 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">5</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_5_title">E-Tour Services Store</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_5_desc">Our website is presented as a tour services store with a huge variety of options, where everyone can find and instantly book a tour product that suits them.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 6 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">6</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_6_title">Affordable Services</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_6_desc">On our website, anyone can book affordable tourist services such as excursions, tour guide services, transfers, or create their own tour.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 7 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">7</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_7_title">Variety of Products</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_7_desc">We offer a variety of tourism products: private, group, excursion, regional, and combined (in all countries of Central Asia).</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 8 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">8</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_8_title">Experienced Tour Guides</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_8_desc">We provide professional, certified, and experienced tour guides who speak English, Russian, Chinese, and Persian.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 9 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">9</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_9_title">B2B Partnership</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_9_desc">As part of our B2B partnership, anyone can collaborate with us as a Tour partner (Tour agent). Simply visit our website and register.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 10 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">10</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_10_title">Online Booking System</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_10_desc">Our website is one of the first in the region to function as an online booking system.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 11 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">11</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_11_title">Online Payment System</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_11_desc">Our website offers several online payment methods, including Visa, Mastercard, cryptocurrency, MIR, and Korti Milli.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 12 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">12</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_12_title">Recognized Company</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_12_desc">We are proud of our company's reputation; our achievements can be found on several international internet portals, such as Google, TripAdvisor, Trip.com, Viator, GYG, and others.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 13 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">13</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_13_title">International Recognition</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_13_desc">Our achievements are recognized by the international tourism community; we are members of PATA (Pacific Asia Travel Association) and WTTS (World Travel and Tourism Society).</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Reason 14 -->
+                    <div class="reason-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="flex gap-4">
+                            <div class="reason-number">14</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2" data-translate="about.reason_14_title">Regional Leader</h3>
+                                <p class="text-gray-600 text-sm" data-translate="about.reason_14_desc">We are a leading tour operator in Central Asia and Tajikistan.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-lg p-8 scroll-animate">
+                    <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text" data-translate="about.services_title">OUR SERVICES / PRODUCTS</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_1">Private and group tours to Tajikistan & Central Asia</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_2">Combined tours to Central Asia countries</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_3">One-day tours and city excursions</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_4">Trekking tours to Fann & Pamir Mountains</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_5">Tours to M41-Pamir Highway & Wakhan Valley</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_6">Sanatorium and healthy tours</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_7">Visa support, Official Invitation Letter</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_8">MICE – conferences, seminars</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_9">Transfer – transportation services</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_10">Tour-guide services</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_11">Hotel booking, accommodation</span>
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-4 flex items-center gap-3">
+                            <svg class="w-5 h-5 text-gray-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                            <span class="text-gray-700 text-sm" data-translate="about.service_12">B2B partnership, Tour Agent services</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Awards Section -->
+        <section id="awards" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text" data-translate="about.awards_title">OUR AWARDS</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Award 2023 -->
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center card-hover scroll-animate">
+                        <div class="award-badge w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">2023</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-2" data-translate="about.award_2023_title">Dushanbe Mayor's Certificate</h3>
+                        <p class="text-gray-600 text-sm" data-translate="about.award_2023_desc">Certificate from the Dushanbe Mayor's Office for implementing the best initiatives and contributing to the development of Dushanbe's tourism infrastructure.</p>
+                    </div>
+                    
+                    <!-- Award 2024 -->
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center card-hover scroll-animate">
+                        <div class="award-badge w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">2024</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-2" data-translate="about.award_2024_title">Best Tourism Website</h3>
+                        <p class="text-gray-600 text-sm" data-translate="about.award_2024_desc">First-degree diploma "Best Website in the Field of Tourism" from the Committee for Tourism Development under the Government of the Republic of Tajikistan.</p>
+                    </div>
+                    
+                    <!-- Award 2025 -->
+                    <div class="bg-gray-50 rounded-2xl p-6 text-center card-hover scroll-animate">
+                        <div class="award-badge w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">2025</span>
+                        </div>
+                        <h3 class="font-bold text-gray-800 mb-2" data-translate="about.award_2025_title">Best Tourism Services</h3>
+                        <p class="text-gray-600 text-sm" data-translate="about.award_2025_desc">Third-degree diploma "Best Organization Providing Tourism Services in Tajikistan" from the Committee for Tourism Development under the Government of the Republic of Tajikistan.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Associations Section -->
+        <section id="associations" class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-white rounded-2xl shadow-lg p-8 scroll-animate">
+                    <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text" data-translate="about.associations_title">MEMBERSHIPS</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- PATA -->
+                        <div class="bg-gray-50 rounded-xl p-6 text-center card-hover">
+                            <div class="h-24 mx-auto mb-4 flex items-center justify-center">
+                                <img src="/public/images/associations/pata.jpg" alt="PATA - Pacific Asia Travel Association" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2" data-translate="about.pata_title">PATA Member</h3>
+                            <p class="text-gray-500 text-xs mb-3" data-translate="about.pata_since">Since September 2019</p>
+                            <p class="text-gray-600 text-sm" data-translate="about.pata_desc">Pacific Asia Travel Association - a non-profit organization recognized internationally as a responsible catalyst for the development of travel and tourism in the Asia-Pacific region and beyond.</p>
+                        </div>
+                        
+                        <!-- WTTS -->
+                        <div class="bg-gray-50 rounded-xl p-6 text-center card-hover">
+                            <div class="h-24 mx-auto mb-4 flex items-center justify-center">
+                                <img src="/public/images/associations/wtts.jpg" alt="WTTS - World Travel and Tourism Society" class="max-h-full max-w-full object-contain">
+                            </div>
+                            <h3 class="font-bold text-gray-800 mb-2" data-translate="about.wtts_title">WTTS Member</h3>
+                            <p class="text-gray-500 text-xs mb-3" data-translate="about.wtts_since">Since August 2025</p>
+                            <p class="text-gray-600 text-sm" data-translate="about.wtts_desc">World Travel and Tourism Society - demonstrating our commitment to professional development and global connections in the tourism industry.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Team Section -->
+        <section id="team" class="py-16 bg-white">
+            <div class="max-w-6xl mx-auto px-6">
+                <h2 class="text-4xl font-extrabold text-center mb-12 gradient-text" data-translate="about.team_title">OUR TEAM</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Miralieva Sitoramo -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/miralieva-sitoramo.png" alt="Miralieva Sitoramo">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_1_name">MIRALIEVA SITORAMO</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_1_role">General Director</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_1_desc">Founder and General Director of Bunyod-Tour LLC since 2017. Over 15 years of experience in tourism, trade, and sales.</p>
+                    </div>
+                    
+                    <!-- Qiyomiddin Miraliyon -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/miralion-k.jpg" alt="Qiyomiddin Miraliyon">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_2_name">QIYOMIDDIN MIRALIYON</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_2_role">Management Advisor</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_2_desc">Founder of Bunyod-Tour LLC. Over 20 years of experience in tourism management, international relations, and policy development.</p>
+                    </div>
+                    
+                    <!-- Miraliyon Hikmatullo -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/miralion-hikmatullo.jpg" alt="Miraliyon Hikmatullo">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_3_name">MIRALIYON HIKMATULLO</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_3_role">Executive Director</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_3_desc">Higher professional education in economics, with experience in tourism, logistics, and taxation for more than five years.</p>
+                    </div>
+                    
+                    <!-- Oyatullo Miraliyon -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/oyatullo.jpg" alt="Oyatullo Miraliyon">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_4_name">OYATULLO MIRALIYON</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_4_role">Manager for International Relationships</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_4_desc">Higher professional education in diplomacy, with experience in tourism, marketing, and analog for more than six years.</p>
+                    </div>
+                    
+                    <!-- Qurbonov Suhrob -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/qurbonov-suhrob.png" alt="Qurbonov Suhrob">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_5_name">QURBONOV SUHROB</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_5_role">Technic Manager</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_5_desc">Economist with a degree in higher professional education. Experience in tourism, logistics, and taxation for more than 12 years.</p>
+                    </div>
+                    
+                    <!-- Ruziboev Khurshed -->
+                    <div class="team-card rounded-xl p-6 card-hover scroll-animate">
+                        <div class="text-center mb-4">
+                            <div class="team-avatar mx-auto mb-3">
+                                <img src="/public/images/team/khurshed-ruziboev.jpg" alt="Ruziboev Khurshed">
+                            </div>
+                            <h3 class="font-bold text-gray-800" data-translate="about.team_6_name">RUZIBOEV KHURSHED</h3>
+                            <p class="text-gray-500 text-sm" data-translate="about.team_6_role">IT Manager</p>
+                        </div>
+                        <p class="text-gray-600 text-sm text-center" data-translate="about.team_6_desc">Higher education professional and technician-technologist. Over 5 years of experience in information technology and hotel services.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="py-16">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="bg-gradient-to-r from-gray-700 to-gray-900 rounded-2xl p-8 text-white scroll-animate">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                        <div>
+                            <div class="text-4xl font-extrabold mb-2">8+</div>
+                            <p class="text-gray-300 text-sm" data-translate="about.stat_years">Years of Experience</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-extrabold mb-2">150+</div>
+                            <p class="text-gray-300 text-sm" data-translate="about.stat_programs">Travel Programs</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-extrabold mb-2">50+</div>
+                            <p class="text-gray-300 text-sm" data-translate="about.stat_partners">Partner Companies</p>
+                        </div>
+                        <div>
+                            <div class="text-4xl font-extrabold mb-2">5</div>
+                            <p class="text-gray-300 text-sm" data-translate="about.stat_countries">Countries Covered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        function handleScrollAnimations() {
+            document.querySelectorAll('.scroll-animate').forEach(el => {
+                const elementTop = el.getBoundingClientRect().top;
+                if (elementTop < window.innerHeight - 100) {
+                    el.classList.add('in-view');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+
+            handleScrollAnimations();
+        });
+
+        document.addEventListener('DOMContentLoaded', handleScrollAnimations);
+    </script>
+</body>
+</html>

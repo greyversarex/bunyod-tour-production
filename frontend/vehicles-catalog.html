@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="vehicles.page_title">Vehicle Catalog - Bunyod-Tour</title>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/multilingual-utils.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <script data-cfasync="false" src="/public/js/utils.js"></script>
+    <link rel="stylesheet" href="/public/css/layout.css">
+    <style>
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .vehicle-card {
+            position: relative;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(62, 62, 62, 0.1);
+        }
+        .vehicle-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(62, 62, 62, 0.2);
+        }
+        .vehicle-image-container {
+            position: relative;
+            width: 100%;
+            height: 220px;
+        }
+        .vehicle-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .glass-badge {
+            background: #3E3E3E;
+            border-radius: 8px;
+            padding: 4px 12px;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .filter-panel {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+        .filter-label {
+            color: #3E3E3E;
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .filter-input, .filter-select {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            color: #3E3E3E;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        .filter-input:focus, .filter-select:focus {
+            background: #ffffff;
+            border-color: #3E3E3E;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(62, 62, 62, 0.1);
+        }
+        .filter-select option {
+            background: #ffffff;
+            color: #3E3E3E;
+        }
+        .vehicle-card-content {
+            padding: 20px;
+            color: #3E3E3E;
+        }
+        .vehicle-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #2F2F2F;
+            margin-bottom: 8px;
+        }
+        .vehicle-info {
+            color: #6c757d;
+            font-size: 0.875rem;
+        }
+        .vehicle-price {
+            color: #3E3E3E;
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="min-h-screen">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <div class="pt-28">
+        <div class="max-w-6xl mx-auto px-6 py-6">
+            <div class="filter-panel mb-8">
+                <h3 class="text-xl font-bold mb-6 flex items-center" style="color: #3E3E3E;">
+                    <i class="fas fa-filter mr-3"></i>
+                    <span data-translate="vehicles.filters_title">Filters</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.type">Vehicle Type</label>
+                        <select id="typeFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.all_types">All Types</option>
+                            <option value="sedan" data-translate="vehicles.type_sedan">Sedan</option>
+                            <option value="suv" data-translate="vehicles.type_suv">SUV</option>
+                            <option value="minibus" data-translate="vehicles.type_minibus">Minibus</option>
+                            <option value="bus" data-translate="vehicles.type_bus">Bus</option>
+                            <option value="minivan" data-translate="vehicles.type_minivan">Minivan</option>
+                            <option value="luxury" data-translate="vehicles.type_luxury">Luxury</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.country">Country</label>
+                        <select id="countryFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.all_countries">All Countries</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.city">City</label>
+                        <select id="cityFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.all_cities">All Cities</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="filter-label block mb-2" data-translate="vehicles.capacity">Capacity</label>
+                        <select id="capacityFilter" class="filter-select w-full p-3">
+                            <option value="" data-translate="vehicles.capacity_any">Any</option>
+                            <option value="1-4" data-translate="vehicles.capacity_1_4">1-4 passengers</option>
+                            <option value="5-8" data-translate="vehicles.capacity_5_8">5-8 passengers</option>
+                            <option value="9-15" data-translate="vehicles.capacity_9_15">9-15 passengers</option>
+                            <option value="16+" data-translate="vehicles.capacity_16_plus">16+ passengers</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between mt-6">
+                    <button onclick="clearFilters()" class="font-medium transition-colors" style="color: #dc3545;">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        <span data-translate="vehicles.clear_filters">Clear Filters</span>
+                    </button>
+                    <div class="text-sm" style="color: #6c757d;">
+                        <span id="resultsCount" data-translate="vehicles.found_count">Found 0 of 0 vehicles</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Banner -->
+        <div id="errorBanner" class="hidden max-w-6xl mx-auto px-6 mb-6">
+            <div class="border rounded-xl p-4" style="background-color: #fee; border-color: #fcc;">
+                <p class="text-center" style="color: #c00;">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span id="errorMessage"></span>
+                </p>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 pb-12">
+            <div id="vehiclesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Vehicles will be loaded here -->
+            </div>
+        </div>
+
+        <div id="noResults" class="hidden text-center py-12">
+            <i class="fas fa-car text-6xl mb-4" style="color: #ccc;"></i>
+            <h3 class="text-xl font-semibold mb-2" style="color: #3E3E3E;" data-translate="vehicles.no_vehicles">No vehicles found</h3>
+            <p style="color: #6c757d;" data-translate="vehicles.try_change_filters">Try changing search filters</p>
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false" src="/public/js/vehicles-catalog.js?v=1.1"></script>
+</body>
+</html>

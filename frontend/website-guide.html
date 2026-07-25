@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en" id="html-root">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title" data-translate="guide.page_title">Website Guide - Bunyod-Tour</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Noto Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif; }
+    </style>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <style>
+        .faq-btn {
+            background: #4B5563;
+            box-shadow: 0 2px 8px rgba(75, 85, 99, 0.3);
+            transition: all 0.3s ease;
+        }
+        .faq-btn:hover {
+            background: #374151;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(75, 85, 99, 0.4);
+        }
+        .faq-btn.active {
+            background: #1F2937;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .faq-content {
+            animation: slideDown 0.3s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-arrow {
+            transition: transform 0.3s ease;
+        }
+        .faq-btn.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+        .info-list li {
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        .info-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #6B7280;
+        }
+        .numbered-list li {
+            position: relative;
+            padding-left: 2rem;
+        }
+        .warning-box {
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-left: 4px solid #F59E0B;
+        }
+        .note-box {
+            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            border-left: 4px solid #3B82F6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="header-container"></div>
+
+    <div class="min-h-screen py-12 bg-gray-50" style="padding-top: 100px;">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="mb-4">
+                <button onclick="toggleFaq('services')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.services_title">1. Our Services</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="services" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.services_text">Our website is a Central Asian portal for tourism services and offers online sales of five types of tourism products: (1) tours, (2) excursions, (3) tour guide services, (4) transfers, and (5) B2B partnerships. In the "Create your Tour" section, you can also create a personalized tour tailored to your needs and preferences.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('how-to-start')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.how_to_start_title">1A. How to start using the website?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="how-to-start" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.how_to_start_text">Our website is very easy to use and offers several essential services for tourists, including tours to all Central Asian countries. To find your preferred tour package, use the "Search" section, including the tour filter.</p>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.how_to_start_steps">All you need to know is (1) your destination, (2) the category and (3) type of tour you plan to book, and (4) how many tourists you have. Once you select these parameters in the "Search" section filter, you will see all available tours. Note that on the tour cards you will find answers to many organizational questions.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('currency')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.currency_title">1B. Website currency</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="currency" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.currency_text">On our website, prices for all travel products are presented in the following currencies: TJS, US$, EUR, RUB, and CNY. To change the currency, simply select the desired one from the menu. However, the site's primary currency is the Somoni (TJS).</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('language')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.language_title">1C. Website language</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="language" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.language_text">Since our website is a regional portal and its tourism products are intended for our international guests, the primary languages are English and Russian. To change the language, simply select the desired language from the menu.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('tours')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.tours_title">2. Tours</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="tours" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.tours_text">Our tours are divided into 3 types: (i) one-day, (ii) multi-day and (iii) excursions and 15 categories: city, ecological, cultural, historical, adventure, etc., which can be selected in the "Tours" menu or filtered in the "Search" section, and they can also be selected or studied by countries and cities on the main page of the site.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('guide-services')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.guide_services_title">3. Tour Guide Services</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="guide-services" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.guide_services_text1">If you'd like to save money and book only tour guide services, then use the "Tour Guides" portal in the "Services" section. Here you'll find: a list of tour guides and their level of professionalism; tour guide availability according to the hiring location; their personal information, such as gender, age, experience, and languages spoken.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.guide_services_text2">After selecting (by clicking on the full name) the desired tour guide, proceed to the application form, where you need to:</p>
+                    <ul class="info-list text-gray-700 space-y-2 mb-4">
+                        <li data-translate="guide.guide_step1">Select dates (all days) when you need a guide (available dates are highlighted in green)</li>
+                        <li data-translate="guide.guide_step2">Enter your full name, email, and phone number in the appropriate columns</li>
+                        <li data-translate="guide.guide_step3">In the "Comments" column, type a list of tourists and other necessary information</li>
+                    </ul>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.guide_services_text3">Next you will see the cost and you can book and pay online.</p>
+                    <div class="note-box p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm" data-translate="guide.guide_note">Note: We recommend that you read the Payment and Refund Policy before booking.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('transfer')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.transfer_title">4. Transfer</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="transfer" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.transfer_text1">If you'd like to save money and book only transfer services or chauffeured transportation, then use the "Transfer" portal in the "Services" section. Here you'll find information about our fleet (list) of vehicles, including their make, engine size, and year of manufacture; and vehicle availability based on your booking location.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.transfer_text2">After selecting (by clicking on the name) the desired vehicle, proceed to the application form, where you'll need to select/specify:</p>
+                    <ul class="info-list text-gray-700 space-y-2 mb-4">
+                        <li data-translate="guide.transfer_step1">Your route, including pick-up location and drop-off location</li>
+                        <li data-translate="guide.transfer_step2">The start date of the trip and the time of reception</li>
+                        <li data-translate="guide.transfer_step3">Trip completion date and drop-off time</li>
+                        <li data-translate="guide.transfer_step4">We need to collect a list of tourists and other necessary information</li>
+                    </ul>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.transfer_text3">Next you will see the cost and you can book and pay online.</p>
+                    <div class="note-box p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm" data-translate="guide.transfer_note">Note: We recommend that you read the Payment and Refund Policy before booking.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('custom-tour')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.custom_tour_title">5. Custom Tour</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="custom-tour" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.custom_tour_text1">If our packages don't suit you, you can create your own tour – it's easy with us!</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.custom_tour_text2">To do this, go to the "Services" section of the "Custom Tour" portal. Two types of tour products are available here: 1) default and 2) custom. Note that as you select each tour product, the price of your tour is automatically calculated on the right side (for reference).</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.custom_tour_text3">Thus, it will be necessary:</p>
+                    <ul class="info-list text-gray-700 space-y-2 mb-4">
+                        <li data-translate="guide.custom_step1">Type the full name of the tour group leader (if there is only one, then the full name of the tourist)</li>
+                        <li data-translate="guide.custom_step2">Phone number and email address</li>
+                        <li data-translate="guide.custom_step3">Enter a list of tourists, including their gender and year of birth</li>
+                        <li data-translate="guide.custom_step4">Select the tour duration (how many days?)</li>
+                        <li data-translate="guide.custom_step5">Specify the start date and pick-up time</li>
+                        <li data-translate="guide.custom_step6">Select tour destinations – countries and cities</li>
+                        <li data-translate="guide.custom_step7">Select desired places to visit (tourist attractions)</li>
+                        <li data-translate="guide.custom_step8">Select meal plan (full board, breakfast only, or half board)</li>
+                        <li data-translate="guide.custom_step9">Select hotel and room categories</li>
+                        <li data-translate="guide.custom_step10">Vehicle type (make, engine, and year of manufacture) is displayed by default</li>
+                        <li data-translate="guide.custom_step11">Tour guide language is displayed by default</li>
+                    </ul>
+                    <div class="warning-box p-4 rounded-lg mb-4">
+                        <p class="text-gray-700 text-sm" data-translate="guide.custom_tour_note">Note: for a tour of two or more countries, you will need to select 4 or more days (2nd country = 4 days, 3rd country = 8 days, 4th = 12 days, and 5th = 16 days).</p>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.custom_tour_text4">Upon completion, you will see the total cost of the tour and will be able to book and pay online.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('b2b')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.b2b_title">6. B2B Partnership</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="b2b" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.b2b_text1">Our partners are divided into two groups: strategic partners and travel partners. We collaborate with strategic partners in a conventional manner, but we primarily engage with travel partners, also referred to as travel agencies, via online platforms, particularly our website.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.b2b_text2">We offer a commission of 10% of the cost of sold tour packages posted on our website at https://bunyodtour.tj to travel agents interested in becoming our travel partners.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.b2b_text3">Please note that we do not have strict restrictions on the selection of travel agents. Any individual or legal entity that meets the basic criteria and requirements of a travel agent and resides or operates in the countries of Central Asia can become our travel partner.</p>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.b2b_text4">To become our travel partner, please visit the "Tour Agents" portal in the "Services" section. Here you will need to: 1) review the online Agreement, including the partnership terms; 2) sign the Partnership Agreement (by checking the appropriate boxes); 3) complete all fields of the application form; 4) attach a scanned copy of the required documents and submit them for review. If approved, you will receive a notification to the email address you provided to access your personal account.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('personal-tour')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.personal_tour_title">7. What Is a "Private Tour"?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="personal-tour" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.personal_tour_text">Standard tour type, individual, services are provided personally. The tour package can be booked by one or more people; payment is charged per person.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('group-private')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.group_private_title">8. What Is a "Group Tour, Private"?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="group-private" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.group_private_text">A comfortable tour type, group or individual; services are provided on a personal (individual) basis. A group may consist of one or more tourists, up to a specified (limited) number; payment is charged per group.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('group-shared')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.group_shared_title">9. What Is a "Group Tour, Shared"?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="group-shared" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.group_shared_text">This is a budget tour type, group tour, and shared tour. Anyone can join the group, services are provided equally to everyone, and the number of tourists is limited (indicated on the tour card); payment is charged per person.</p>
+                    <div class="warning-box p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm" data-translate="guide.group_shared_warning" data-translate-html></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('one-day')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.one_day_title">10. One-Day Tour</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="one-day" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.one_day_text">A package of tourist services which is provided for one day, lasting 5-12 hours; accommodation is not included.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('multi-day')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.multi_day_title">11. Multi-Day Tour</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="multi-day" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.multi_day_text">A comprehensive package of tourist services which is provided over two or more days. Each day lasts from 5 to 12 hours, depending on travel conditions and the complexity of the tour. Additional time, at the tourist's request, is charged at an additional $10 per hour (per crew).</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('excursion')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.excursion_title">12. Excursion</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="excursion" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.excursion_text">One or more types of tourist services are offered, primarily in central cities, for 2-4 hours. This is a group, budget tour type in which anyone can sign up, services are provided equally to everyone, and the number of tourists is limited (indicated on the tour card).</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('promotion')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.promotion_title">13. Promotion</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="promotion" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.promotion_text1">This is a special privilege for tourists who book any multi-day tour in the "Private Tour" or "Private Group Tour" categories no later than 12 months before the tour start date.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.promotion_text2">Cashback for such tourists amounts to 12% of the booked tour cost according to the following formula: 12 months = 12%; 13 months = 13%; 14 months = 14%; 15 months = 15%, and so on up to 20 months. Cashback is returned to tourists within 10 business days (from the date of payment).</p>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.promotion_text3">Other types of promotions will also be announced on the website.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('last-minute')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.last_minute_title">14. Last Minute Tours</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="last-minute" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.last_minute_text">This is a special but necessary measure by the tour operator, offering tours at discounted prices ranging from 10% to 50%. The booking window for last-minute tours will be limited, so you should book quickly.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('book-now')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.book_now_title">15. Book Now – Pay Later!</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="book-now" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.book_now_text1">This benefit is only available for tours in the "Group Tour, Shared" category.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.book_now_text2">Tourists who have booked (registered) in advance for a group shared tour can make a deposit of just 10% of the tour cost to sign up for the tour, with the balance (90%) due (a) in cash on the first day of the tour or (b) by other accepted payment methods 72 hours before the tour start.</p>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.book_now_text3">However, registration (enrollment) must be completed no later than 30 days before the tour start.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('free-cancel')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.free_cancel_title">16. Free Cancellation</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="free-cancel" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.free_cancel_text1">You can cancel your booked tour (all types of tours) and receive a full refund up to 30 days before the tour start date (local time, UTC +5). In this case, a 100% refund is issued.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.free_cancel_text2">However, this bonus option does not apply to those who booked a tour within this period (30 days before the tour start date).</p>
+                    <div class="note-box p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm" data-translate="guide.free_cancel_note">For more details, see the Payment and Refund Policy.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('accommodation')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.accommodation_title">17. How to Choose Accommodation Options?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="accommodation" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.accommodation_text1">Our website offers a wide range of accommodation options at affordable prices in two options: 1) basic and 2) comfort.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.accommodation_text2">The "Basic" option represents small hotels with limited accommodation services, such as hostels, guesthouses, etc.</p>
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.accommodation_text3">The "Comfort" option offers a choice of various hotels, ranging from 2 to 5 stars; standard rooms with good living conditions.</p>
+                    <ul class="info-list text-gray-700 space-y-3 mb-4">
+                        <li data-translate="guide.accommodation_point1">Please note that all multi-day tour prices include accommodation with the "Basic" option. This means that if you want to save money and book a tour with the "Basic" option, you can skip the second step of booking by clicking the "Continue with Basic Hotel" button.</li>
+                        <li data-translate="guide.accommodation_point2">However, if you wish to book a tour with the "Comfort" option, you will need to select your desired hotels and room type in the second step of the booking process. Therefore, when selecting hotels, the price for the basic option is deducted; you can see this on the right side of the page.</li>
+                        <li data-translate="guide.accommodation_point3">Please be careful when choosing hotels and rooms - you need to select rooms (a) in relation to the number of tourists and (b) the number of nights by city of residence.</li>
+                    </ul>
+                    <div class="warning-box p-4 rounded-lg">
+                        <p class="text-gray-700 text-sm" data-translate="guide.accommodation_warning" data-translate-html></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('payment')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.payment_title">18. How to Pay for Tour / Services?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="payment" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.payment_text1">Our website offers an online payment system. After selecting all components, you will be presented with two payment options at the final stage: (1) full payment and (2) a deposit of 25% (or 10% for group tours, total) of the tour cost.</p>
+                    <div class="warning-box p-4 rounded-lg mb-4">
+                        <p class="text-gray-700 text-sm" data-translate="guide.payment_warning" data-translate-html></p>
+                    </div>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.payment_text2">Visa, Mastercard, Korti Milli, and Mir bank cards are generally accepted for payment.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('other-payment')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.other_payment_title">19. Other Payment Methods</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="other-payment" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.other_payment_text">Other payment methods we accept include online wallets (including Paysend), cryptocurrencies, Visa and Mastercard bank cards, or transfer systems available in the countries such as Western Union, Corona, etc.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('reviews')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.reviews_title">Reviews</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="reviews" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.reviews_text">To read reviews of our services and evaluate the competence of our team, please visit the "Reviews" page.</p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <button onclick="toggleFaq('submit-review')" class="faq-btn w-full text-left text-white p-5 rounded-lg font-bold text-lg flex justify-between items-center">
+                    <span data-translate="guide.submit_review_title">21. How to Submit a Review?</span>
+                    <span class="dropdown-arrow text-xl">▼</span>
+                </button>
+                <div id="submit-review" class="faq-content hidden bg-white border-2 border-gray-200 rounded-b-lg p-6">
+                    <p class="text-gray-700 leading-relaxed mb-4" data-translate="guide.submit_review_text1">We welcome your feedback on our service. A request for feedback will be sent to our tourists via email after their tour (order) is complete.</p>
+                    <p class="text-gray-700 leading-relaxed" data-translate="guide.submit_review_text2">You can rate and review our guide and tour on a five-star scale, marked with the appropriate icons, where 1 is very poor (low rating) and 5 is excellent (highest rating). You can also write your thoughts and advice in the space provided.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        function toggleFaq(id) {
+            const content = document.getElementById(id);
+            const button = content.previousElementSibling;
+            const wasHidden = content.classList.contains('hidden');
+
+            // Закрываем все остальные открытые пункты (режим аккордеона)
+            document.querySelectorAll('.faq-content').forEach(function (item) {
+                if (item !== content) {
+                    item.classList.add('hidden');
+                    const itemButton = item.previousElementSibling;
+                    if (itemButton) itemButton.classList.remove('active');
+                }
+            });
+
+            // Переключаем выбранный пункт
+            if (wasHidden) {
+                content.classList.remove('hidden');
+                button.classList.add('active');
+            } else {
+                content.classList.add('hidden');
+                button.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

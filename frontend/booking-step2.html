@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="booking.step2.page_title">Booking - Tourist Information | Bunyod-Tour</title>
+    <!-- 🌐 ЦЕНТРАЛЬНАЯ СИСТЕМА ИНТЕРНАЦИОНАЛИЗАЦИИ -->
+    <script data-cfasync="false" src="/public/js/i18n.js?v=2.1"></script>
+    <script data-cfasync="false" src="/public/js/booking-state.js"></script>
+    <script data-cfasync="false" src="/public/js/phone-country-selector.js?v=2.1"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .progress-step {
+            transition: all 0.3s ease;
+        }
+        .progress-step.active {
+            background: #6B7280;
+            color: white;
+        }
+        .progress-step.completed {
+            background: #10b981;
+            color: white;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #6B7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+        }
+        .tourist-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+    <script data-cfasync="false" src="/js/date-utils.js"></script>
+    <script data-cfasync="false" src="/js/tour-utils.js"></script>
+    <script data-cfasync="false" src="/js/i18n-utils.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header Container for dynamic header -->
+    <div id="header-container"></div>
+    
+    <!-- Progress Indicator -->
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div id="progress-container" class="flex items-center justify-between">
+                <div id="hotel-step" class="flex items-center space-x-4">
+                    <div class="progress-step completed w-10 h-10 rounded-full flex items-center justify-center font-bold">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step1.title">Hotel Selection</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="tourist-step-number" class="progress-step active w-10 h-10 rounded-full flex items-center justify-center font-bold">2</div>
+                    <span class="font-medium text-gray-700" data-translate="booking.step2.title">Tourist Information</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="payment-step-number" class="progress-step w-10 h-10 rounded-full flex items-center justify-center font-bold bg-gray-200">3</div>
+                    <span class="font-medium text-gray-400" data-translate="booking.step3.title">Payment</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6" data-translate="booking.data_for_booking">Booking Information</h2>
+            
+            <form id="booking-form">
+                <!-- Contact Person Details -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate="booking.contact_person">Contact Person</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="form-group">
+                            <label class="form-label" for="contactName"><span data-translate="booking.full_name">Full Name of Contact Person</span> *</label>
+                            <input type="text" id="contactName" class="form-input" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label"><span data-translate="booking.phone">Phone</span> *</label>
+                            <div id="contactPhoneSelector" data-phone-selector data-default-country="TJ"></div>
+                        </div>
+                        
+                        <div class="form-group md:col-span-2">
+                            <label class="form-label" for="contactEmail"><span data-translate="booking.email">Email</span> *</label>
+                            <input type="email" id="contactEmail" class="form-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tourists -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate="booking.step2.list_of_tourists">List of Tourists</h3>
+                    
+                    <div id="tourists-container">
+                        <!-- Tourists will be added here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Special Requests -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate="booking.special_requests">Special Requests</h3>
+                    <div class="form-group">
+                        <label class="form-label" for="specialRequests" data-translate="booking.additional_requests">Additional Requests</label>
+                        <textarea id="specialRequests" class="form-input" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4" data-translate="booking.agreement">Offer-agreement</h3>
+                    
+                    <div class="space-y-4">
+                        <label class="flex items-start">
+                            <input type="checkbox" id="termsAccepted" class="mt-1 mr-3" required>
+                            <span class="text-gray-700">
+                                <span data-translate="booking.consent_offer_prefix">I have read and agreed to the</span> 
+                                <a id="offer-agreement-link" href="/public/documents/offer-agreement-ru.pdf" target="_blank" class="text-emerald-600 underline font-medium hover:text-emerald-700 transition-colors" data-translate="booking.offer_agreement">Offer-Agreement</a> 
+                                <span data-translate="booking.consent_offer_suffix">and all its terms and conditions. I confirm that the personal data I provided to the Tour operator is accurate and may be processed by the Tour operator and its authorized representatives.</span>
+                            </span>
+                        </label>
+                        
+                        <label class="flex items-start">
+                            <input type="checkbox" id="paymentRulesAccepted" class="mt-1 mr-3" required>
+                            <span class="text-gray-700">
+                                <span data-translate="booking.consent_payment_prefix">I have read</span> 
+                                <a id="payment-rules-link" href="/public/documents/payment-refund-policy-ru.pdf" target="_blank" class="text-emerald-600 underline font-medium hover:text-emerald-700 transition-colors" data-translate="booking.payment_rules">the Payment and Refund Rules</a>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-between">
+                    <button type="button" id="back-btn" class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i><span data-translate="booking.back">Back</span>
+                    </button>
+                    <button type="submit" id="continue-btn" class="bg-sky-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-sky-600 transition-all shadow-md hover:shadow-sky-200">
+                        <span data-translate="booking.confirm_and_pay">Confirm and Proceed to Payment</span>
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+                </form>
+            </div>
+            </div>
+
+            <!-- Tour Details Sidebar -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4" data-translate="booking.tour_details">Tour Details</h3>
+                    
+                    <div id="tour-details" class="space-y-4">
+                        <!-- Tour details will be loaded here -->
+                        <div class="text-center py-4">
+                            <i class="fas fa-spinner fa-spin text-lg text-gray-400"></i>
+                        </div>
+                    </div>
+
+                    <!-- Разделитель -->
+                    <div class="border-t border-gray-200 my-4"></div>
+                    
+                    <!-- Информация об отеле -->
+                    <div id="selected-hotel-info" class="space-y-2" style="display: none;">
+                        <h5 class="font-medium text-gray-800" data-translate="booking.selected_hotel">Selected Hotel</h5>
+                        <div id="hotel-details-content" class="text-sm text-gray-600"></div>
+                    </div>
+                    
+                    <!-- Разделитель (скрытый по умолчанию) -->
+                    <div id="hotel-separator" class="border-t border-gray-200" style="display: none;"></div>
+                    
+                    <!-- Информация о номерах и питании -->
+                    <div id="room-meal-info" class="space-y-2" style="display: none;">
+                        <h5 class="font-medium text-gray-800" data-translate="booking.rooms_and_meals">Rooms and Meals</h5>
+                        <div id="room-details-content" class="text-sm text-gray-600 space-y-1"></div>
+                        <div id="meal-details-content" class="text-sm text-gray-600"></div>
+                        <div id="capacity-info" class="text-xs text-gray-500 mt-2"></div>
+                    </div>
+                    
+                    <!-- Разделитель для расчетов -->
+                    <div class="border-t border-gray-200 my-4"></div>
+                    
+                    <!-- Расчёт стоимости -->
+                    <div id="price-calculation" class="space-y-2">
+                        <h5 class="font-medium text-gray-800" data-translate="booking.price_calculation">Price Calculation</h5>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div class="flex justify-between">
+                                <span id="tour-price-label" data-translate="booking.price_label">Tour Price:</span>
+                                <span id="tour-price-calc" class="price-display" data-original-price="0">0 TJS</span>
+                            </div>
+                            <div id="room-costs-calc" class="space-y-1">
+                                <!-- Room costs calculation will appear here -->
+                            </div>
+                            <div id="meal-costs-calc" class="space-y-1">
+                                <!-- Meal costs calculation will appear here -->
+                            </div>
+                        </div>
+                        <div class="border-t pt-2 mt-2">
+                            <div class="flex justify-between font-bold text-lg text-gray-700">
+                                <span data-translate="booking.total_amount">Total Amount:</span>
+                                <span id="total-price" class="price-display" data-original-price="0">0 TJS</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Служба поддержки -->
+                    <div class="border-t border-gray-200 mt-6 pt-4">
+                        <h5 class="font-medium text-gray-800 mb-2" data-translate="booking.support_service">Support Service</h5>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-gray-600 mr-2 w-4"></i>
+                                <span>+992 915 123 344</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-envelope text-gray-600 mr-2 w-4"></i>
+                                <span>booking@bunyodtour.tj</span>
+                            </div>
+                            <div class="flex items-center">
+                                <i class="fas fa-clock text-gray-600 mr-2 w-4"></i>
+                                <span data-translate="booking.monday_friday">Mon-Fri: 9:00-18:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        let bookingState = {};
+        let touristCount = 0;
+
+        // Currency management
+        let currencyState = {
+            rates: {},
+            selectedCurrency: 'TJS',
+            baseCurrency: 'TJS'
+        };
+
+        // ✅ Helper function to get localized name from multilingual object or string
+        function getLocalizedName(item, lang = null) {
+            if (!item) return '';
+            
+            const currentLang = lang || window.currentLanguage || 'en';
+            
+            // If item has a name property that's an object
+            if (item.name && typeof item.name === 'object') {
+                return item.name[currentLang] || item.name.ru || item.name.en || '';
+            }
+            
+            // If item itself is an object with language keys
+            if (typeof item === 'object' && (item.ru || item.en)) {
+                return item[currentLang] || item.ru || item.en || '';
+            }
+            
+            // If it's a string or has a name property that's a string
+            if (typeof item === 'string') return item;
+            if (item.name && typeof item.name === 'string') return item.name;
+            
+            return '';
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+            setupEventListeners();
+        });
+
+        async function initializePage() {
+            // Initialize language
+            window.currentLanguage = window.currentLanguage || localStorage.getItem('selectedLanguage') || 'en';
+            console.log('🌍 Step 2 initialized with language:', window.currentLanguage);
+            updateDocumentLinks();
+            
+            // Initialize currencies first
+            await initializeCurrencies();
+
+            // Initialize bookingStateManager
+            if (!window.bookingStateManager) {
+                console.error('❌ bookingStateManager not loaded!');
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'Error: Booking system not initialized'
+                    : 'Ошибка: система бронирования не инициализирована';
+                showCenterModal(message, 'error');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+            
+            window.bookingStateManager.init();
+
+            // Get booking ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = urlParams.get('bookingId');
+            
+            if (!bookingId || !window.bookingStateManager.state.bookingId) {
+                console.error('❌ No booking ID found. URL:', bookingId, 'State:', window.bookingStateManager.state.bookingId);
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'Error: Booking data not found'
+                    : 'Ошибка: данные бронирования не найдены';
+                showCenterModal(message, 'error');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+
+            // Use state from bookingStateManager
+            bookingState = window.bookingStateManager.state;
+            console.log('📦 Step 2 loaded booking state:', bookingState);
+
+            // 🆕 CRITICAL: Restore cityNights SYNCHRONOUSLY before any calculations
+            window.bookingCityNights = bookingState.cityNights || {};
+            console.log('🌙 Step 2 - Restored cityNights SYNCHRONOUSLY from state:', window.bookingCityNights);
+
+            // Load booking details from server
+            await loadBookingDetails(bookingId);
+            
+            // ✅ Скрыть шаг "Hotel Selection" если у тура нет отелей
+            hideHotelStepIfNoHotels();
+            
+            // Display tour details in sidebar
+            displayTourDetailsInSidebar();
+
+            // ✅ Initialize with required number of tourists AFTER loading booking data
+            const numberOfTourists = getNumberOfTourists();
+            console.log('👥 Auto-creating tourist fields:', numberOfTourists, 'from bookingState:', bookingState.numberOfTourists);
+            
+            // ✅ Check if tourists already exist in booking (returning from step 3)
+            if (bookingState.tourists && Array.isArray(bookingState.tourists) && bookingState.tourists.length > 0) {
+                console.log('📋 Restoring tourists from booking state:', bookingState.tourists);
+                restoreTouristsFromBooking(bookingState.tourists);
+            } else {
+                // Create empty tourist fields
+                for (let i = 0; i < numberOfTourists; i++) {
+                    addTourist();
+                }
+            }
+        }
+
+        // Currency functions
+        async function initializeCurrencies() {
+            try {
+                const currencyFromStorage = localStorage.getItem('selectedCurrency');
+                currencyState.selectedCurrency = currencyFromStorage || 'TJS';
+                
+                const response = await fetch('/api/exchange-rates');
+                const data = await response.json();
+                
+                if (data.success) {
+                    currencyState.rates = {};
+                    data.data.forEach(rate => {
+                        currencyState.rates[rate.currency] = {
+                            rate: rate.rate,
+                            symbol: rate.symbol,
+                            name: rate.name
+                        };
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Error loading currencies:', error);
+                // Set default rates if API fails (rate = сколько TJS за 1 единицу валюты)
+                currencyState.rates = {
+                    'TJS': { rate: 1, symbol: 'TJS', name: 'Сомони' },
+                    'USD': { rate: 10.6, symbol: '$', name: 'Доллар США' },
+                    'EUR': { rate: 11.6, symbol: '€', name: 'Евро' },
+                    'RUB': { rate: 0.109, symbol: '₽', name: 'Российский рубль' },
+                    'CNY': { rate: 1.54, symbol: '¥', name: 'Китайский юань' }
+                };
+            }
+        }
+
+        function formatCurrencyWithEquivalent(amountTJS, showEquivalent = true) {
+            const selectedCurrency = currencyState.selectedCurrency;
+            const rate = currencyState.rates[selectedCurrency];
+            
+            // ✅ Показываем цену в выбранной валюте
+            if (!rate || selectedCurrency === 'TJS') {
+                return `${Math.round(amountTJS)} TJS`;
+            }
+            
+            // ✅ ВСЕГДА округляем до целого (как на странице тура и карточках)
+            // Формула: amountTJS / rate.rate (где rate = сколько TJS за 1 единицу валюты)
+            const convertedAmount = parseFloat((amountTJS / rate.rate).toFixed(2));
+            
+            // ✅ Показываем конвертированную цену + базовую валюту в скобках
+            if (showEquivalent && selectedCurrency !== 'TJS') {
+                return `${convertedAmount} ${rate.symbol} <span class="text-xs text-gray-500">(${Math.round(amountTJS)} TJS)</span>`;
+            }
+            
+            return `${convertedAmount} ${rate.symbol}`;
+        }
+
+        // Load booking details from server
+        async function loadBookingDetails(bookingId) {
+            try {
+                const lang = window.currentLanguage || 'en';
+                console.log('📥 Loading booking details with language:', lang);
+                const response = await fetch(`/api/booking/${bookingId}?lang=${lang}`);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    // ✅ Update bookingStateManager state directly (single source of truth)
+                    Object.assign(window.bookingStateManager.state, data.data);
+                    window.bookingStateManager.persist();
+                    
+                    // Update local reference
+                    bookingState = window.bookingStateManager.state;
+                    
+                    // 🆕 CRITICAL: Restore window.bookingCityNights for price calculations
+                    window.bookingCityNights = bookingState.cityNights || {};
+                    console.log('✅ Restored cityNights for price calculations:', window.bookingCityNights);
+                    
+                    console.log('✅ Booking details loaded and synced to state manager');
+                } else {
+                    console.error('❌ Failed to load booking details');
+                }
+            } catch (error) {
+                console.error('❌ Error loading booking details:', error);
+            }
+        }
+
+        // ✅ Скрыть шаг "Hotel Selection" если у тура нет привязанных отелей
+        function hideHotelStepIfNoHotels() {
+            const tour = bookingState?.tour;
+            const tourHotels = tour?.tourHotels || [];
+            const hasHotels = tourHotels.length > 0;
+            
+            console.log('🏨 Проверка наличия отелей:', {
+                hasTourData: !!tour,
+                tourHotels: tourHotels,
+                hasHotels: hasHotels
+            });
+            
+            // Если у тура нет отелей, скрываем шаг "Hotel Selection"
+            if (!hasHotels) {
+                const hotelStep = document.getElementById('hotel-step');
+                if (hotelStep) {
+                    hotelStep.style.display = 'none';
+                    console.log('✅ Шаг "Hotel Selection" скрыт (нет привязанных отелей)');
+                }
+                
+                // Обновляем номера шагов: Tourist Info становится шагом 1, Payment шагом 2
+                const touristStepNumber = document.getElementById('tourist-step-number');
+                const paymentStepNumber = document.getElementById('payment-step-number');
+                
+                if (touristStepNumber) {
+                    touristStepNumber.textContent = '1';
+                }
+                if (paymentStepNumber) {
+                    paymentStepNumber.textContent = '2';
+                }
+                
+                console.log('✅ Номера шагов обновлены (1: Данные туриста, 2: Оплата)');
+            } else {
+                console.log('✅ У тура есть отели, показываем все 3 шага');
+            }
+        }
+
+        // Display tour details in sidebar
+        function displayTourDetailsInSidebar() {
+            if (!bookingState.tour) {
+                console.warn('⚠️ No tour data available');
+                return;
+            }
+
+            const tour = bookingState.tour;
+            const tourDetailsContainer = document.getElementById('tour-details');
+            
+            if (!tourDetailsContainer) return;
+
+            // Get current language
+            const lang = window.currentLanguage || 'en';
+            
+            // Get localized tour title
+            const tourTitle = typeof tour.title === 'object' ? 
+                (tour.title[lang] || tour.title.ru || tour.title.en) : tour.title;
+            
+            // Get localized tour type via shared helper (handles enum values like group_shared/group_private)
+            const tourType = localizeTourType(tour.tourType || tour.format, lang);
+            
+            // Format date according to language
+            const dateLocale = lang === 'en' ? 'en-US' : 'ru-RU';
+
+            // Create tour details HTML
+            tourDetailsContainer.innerHTML = `
+                <div class="space-y-3">
+                    <div class="border-b pb-3">
+                        <h4 class="font-semibold text-gray-800 mb-2">${tourTitle}</h4>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div class="flex justify-between">
+                                <span data-translate="booking.date">Дата:</span>
+                                <span class="font-medium">${formatTourDate(bookingState.tourDate, dateLocale)}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span data-translate="booking.duration_label">Продолжительность:</span>
+                                <span class="font-medium">${tour.durationDays || tour.duration || 1} <span>${(tour.durationType || 'days') === 'hours' ? (lang === 'en' ? 'hrs' : 'ч.') : (lang === 'en' ? 'days' : 'дн.')}</span></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span data-translate="booking.tourists">Туристов:</span>
+                                <span class="font-medium">${bookingState.children > 0 ? 
+                                    `${bookingState.adults || bookingState.numberOfTourists} <span data-translate="booking.adults_short">взр.</span> + ${bookingState.children} <span data-translate="booking.children_short">дет.</span>` : 
+                                    `${bookingState.numberOfTourists} <span data-translate="booking.person_short">чел.</span>`}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span data-translate="booking.tour_type">Тип тура:</span>
+                                <span class="font-medium">${tourType}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Display hotel information if selected
+            if (bookingState.hotel) {
+                displaySelectedHotelInfo();
+            }
+
+            // Display room and meal information if available
+            displayRoomMealInfo();
+
+            // Display price calculation
+            displayPriceCalculation();
+        }
+
+        function displaySelectedHotelInfo() {
+            const hotelInfoSection = document.getElementById('selected-hotel-info');
+            const hotelDetailsContent = document.getElementById('hotel-details-content');
+            const hotelSeparator = document.getElementById('hotel-separator');
+            
+            if (!hotelInfoSection || !hotelDetailsContent) return;
+            
+            // ✅ FIX: Get ALL hotels with selected rooms from bookingStateManager
+            const selectedRooms = window.bookingStateManager?.state?.selections?.rooms || bookingState.roomSelection || {};
+            const hotelsWithRooms = [];
+            
+            // Find all hotels that have selected rooms
+            for (const [hotelId, rooms] of Object.entries(selectedRooms)) {
+                const hasRooms = Object.values(rooms).some(qty => parseInt(qty) > 0);
+                if (hasRooms) {
+                    // Try to find hotel in tour.hotels or bookingState
+                    const hotelData = bookingState.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                    bookingState.availableHotels?.find(h => h.id == hotelId);
+                    if (hotelData) {
+                        hotelsWithRooms.push(hotelData);
+                    }
+                }
+            }
+            
+            // If no hotels with rooms, hide the section
+            if (hotelsWithRooms.length === 0) {
+                hotelInfoSection.style.display = 'none';
+                if (hotelSeparator) hotelSeparator.style.display = 'none';
+                return;
+            }
+            
+            // Show hotel information section
+            hotelInfoSection.style.display = 'block';
+            if (hotelSeparator) hotelSeparator.style.display = 'block';
+            
+            // Get current language
+            const lang = window.currentLanguage || 'en';
+            
+            // ✅ Display ALL hotels with selected rooms
+            let hotelsHtml = '';
+            hotelsWithRooms.forEach((hotel, index) => {
+                const starsDisplay = hotel.stars ? '★'.repeat(hotel.stars) : '';
+                const marginClass = index > 0 ? 'mt-3 pt-3 border-t border-gray-200' : '';
+                
+                // Get localized hotel name
+                const hotelName = typeof hotel.name === 'object' ? 
+                    (hotel.name[lang] || hotel.name.ru || hotel.name.en) : hotel.name;
+                
+                hotelsHtml += `
+                    <div class="space-y-1 ${marginClass}">
+                        <div class="font-medium text-gray-800">${hotelName || getTranslation('booking.hotel')}</div>
+                        <div class="text-xs text-gray-500">${hotel.address || ''}</div>
+                        ${starsDisplay ? `<div class="text-yellow-500 text-sm">${starsDisplay}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            hotelDetailsContent.innerHTML = hotelsHtml;
+            
+            console.log(`✅ Step 2: Displaying ${hotelsWithRooms.length} hotel(s) with selected rooms`);
+        }
+
+        function displayRoomMealInfo() {
+            const roomMealInfo = document.getElementById('room-meal-info');
+            const roomDetailsContent = document.getElementById('room-details-content');
+            
+            if (!roomMealInfo || !roomDetailsContent) return;
+
+            // ✅ FIX: Get room selection from bookingStateManager (nested structure)
+            const roomSelection = window.bookingStateManager?.state?.selections?.rooms || bookingState.roomSelection || {};
+            
+            // Check if there are any selected rooms (nested structure: {hotelId: {roomType: quantity}})
+            const hasSelectedRooms = Object.values(roomSelection).some(rooms => 
+                Object.values(rooms).some(qty => parseInt(qty) > 0)
+            );
+            
+            if (!hasSelectedRooms) {
+                roomMealInfo.style.display = 'none';
+                return;
+            }
+            
+            roomMealInfo.style.display = 'block';
+            
+            let roomsHtml = '';
+            
+            // ✅ Iterate through all hotels with selected rooms
+            for (const [hotelId, rooms] of Object.entries(roomSelection)) {
+                // Find hotel data
+                const hotelData = bookingState.tour?.hotels?.find(h => h.hotel?.id == hotelId)?.hotel ||
+                                bookingState.availableHotels?.find(h => h.id == hotelId);
+                
+                if (!hotelData) continue;
+                
+                let roomTypes = {};
+                try {
+                    roomTypes = typeof hotelData.roomTypes === 'string' ? 
+                        JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
+                } catch (e) {
+                    console.warn('Failed to parse room types:', e);
+                }
+                
+                // Get localized hotel name
+                const lang = window.currentLanguage || 'en';
+                const hotelName = typeof hotelData.name === 'object' ? 
+                    (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : hotelData.name;
+                
+                // Display rooms for this hotel
+                for (const [roomType, quantity] of Object.entries(rooms)) {
+                    if (parseInt(quantity) > 0 && roomTypes[roomType]) {
+                        const roomInfo = roomTypes[roomType];
+                        const roomName = getLocalizedName(roomInfo) || roomType;
+                        
+                        roomsHtml += `
+                            <div class="flex justify-between items-center">
+                                <span>${hotelName}: ${roomName} × ${quantity}</span>
+                                <span class="text-green-600 font-medium">${Math.round(roomInfo.price)} TJS<span data-translate="booking.per_day_short">/сутки</span></span>
+                            </div>
+                        `;
+                    }
+                }
+            }
+            
+            roomDetailsContent.innerHTML = roomsHtml || '<div class="text-gray-500 text-xs">Номера не выбраны</div>';
+        }
+
+        function displayPriceCalculation() {
+            if (!bookingState.tour) return;
+
+            const tour = bookingState.tour;
+            const numberOfTourists = bookingState.numberOfTourists || 1;
+            // ✅ Get adults/children for child discount calculation
+            const numAdults = bookingState.adults || numberOfTourists;
+            const numChildren = bookingState.children || 0;
+            const lang = window.currentLanguage || 'en';
+            
+            // Get duration
+            const tourDuration = parseInt(tour.durationDays) || parseInt(tour.duration) || 1;
+            const nightsCount = Math.max(1, tourDuration - 1);
+            
+            // Calculate base tour price
+            const unitPrice = parseFloat(tour.price || tour.basePrice || 0);
+            let baseTourPrice = unitPrice;
+            const isPerPerson = tour.priceType === 'за человека' || tour.priceType === 'per_person';
+            
+            if (isPerPerson) {
+                // ✅ 50% скидка для детей
+                baseTourPrice = unitPrice * numAdults + unitPrice * 0.5 * numChildren;
+                console.log(`💰 Step 2 - Tour price: ${unitPrice} × ${numAdults} adults + ${unitPrice} × 0.5 × ${numChildren} children = ${baseTourPrice} TJS`);
+            }
+            
+            // ✅ Get room and meal selections from bookingState (NOT from state manager selections)
+            let roomSelection = {};
+            try {
+                if (bookingState.roomSelection) {
+                    roomSelection = typeof bookingState.roomSelection === 'string' ? 
+                        JSON.parse(bookingState.roomSelection) : bookingState.roomSelection;
+                }
+            } catch (e) {
+                console.warn('Failed to parse roomSelection:', e);
+            }
+            
+            let mealSelection = {};
+            try {
+                if (bookingState.mealSelection) {
+                    mealSelection = typeof bookingState.mealSelection === 'string' ? 
+                        JSON.parse(bookingState.mealSelection) : bookingState.mealSelection;
+                }
+            } catch (e) {
+                console.warn('Failed to parse mealSelection:', e);
+            }
+            
+            // Calculate accommodation deduction
+            let accommodationDeduction = 0;
+            const hasSelectedRooms = Object.values(roomSelection).some(rooms => 
+                Object.values(rooms).some(quantity => quantity > 0)
+            );
+            
+            if (hasSelectedRooms && tour.services) {
+                try {
+                    console.log('🔍 Step 2 - tour.services type:', typeof tour.services);
+                    console.log('🔍 Step 2 - tour.services value:', tour.services);
+                    
+                    const services = typeof tour.services === 'string' ? JSON.parse(tour.services) : tour.services;
+                    console.log('✅ Step 2 - Parsed services:', services);
+                    
+                    const accommodationService = services.find(service => 
+                        service && service.key && (
+                            service.key === 'accommodation_std' ||
+                            service.key.includes('accommodation') ||
+                            service.key.includes('хостел') ||
+                            service.key.includes('гостиница') ||
+                            (service.name && service.name.toLowerCase().includes('проживан'))
+                        )
+                    );
+                    
+                    console.log('🏨 Step 2 - Found accommodation service:', accommodationService);
+                    
+                    if (accommodationService && accommodationService.price) {
+                        const accommodationPrice = parseFloat(accommodationService.price);
+                        // ✅ 50% скидка для детей при вычете за проживание
+                        accommodationDeduction = isPerPerson ? 
+                            (accommodationPrice * numAdults + accommodationPrice * 0.5 * numChildren) : 
+                            accommodationPrice;
+                        console.log(`💰 Step 2 - Accommodation deduction: ${accommodationPrice} × ${numAdults} adults + ${accommodationPrice} × 0.5 × ${numChildren} children = ${accommodationDeduction} TJS`);
+                    }
+                } catch (e) {
+                    console.warn('Failed to parse services:', e);
+                    console.warn('tour.services was:', tour.services);
+                }
+            } else {
+                console.warn('⚠️ Step 2 - Skipping accommodation deduction:', {
+                    hasSelectedRooms,
+                    hasTourServices: !!tour.services
+                });
+            }
+            
+            // Calculate room costs
+            let totalRoomCost = 0;
+            const roomCostsCalc = document.getElementById('room-costs-calc');
+            const mealCostsCalc = document.getElementById('meal-costs-calc');
+            
+            if (roomCostsCalc) roomCostsCalc.innerHTML = '';
+            if (mealCostsCalc) mealCostsCalc.innerHTML = '';
+            
+            // Add accommodation deduction display
+            if (roomCostsCalc && accommodationDeduction > 0) {
+                roomCostsCalc.innerHTML += `
+                    <div class="flex justify-between text-sm text-red-600">
+                        <span data-translate="booking.accommodation_deduction">Вычет за проживание:</span>
+                        <span>-${formatCurrencyWithEquivalent(accommodationDeduction)}</span>
+                    </div>
+                `;
+            }
+            
+            // Display room costs
+            // ✅ Get hotels from tour.tourHotels (на step2 нет bookingState.availableHotels)
+            const availableHotels = tour.tourHotels?.map(th => th.hotel) || [];
+            
+            // 🆕 Get cityNights from bookingState (restored by loadBookingDetails)
+            const cityNights = window.bookingCityNights || bookingState.cityNights || {};
+            console.log('🌙 Step 2 - Using cityNights for hotel calculations:', cityNights);
+            
+            for (const [hotelId, rooms] of Object.entries(roomSelection)) {
+                const hotelData = availableHotels.find(h => h.id == hotelId);
+                if (!hotelData) {
+                    console.warn(`⚠️ Hotel ${hotelId} not found in tour hotels`);
+                    continue;
+                }
+                
+                let roomTypes = {};
+                try {
+                    roomTypes = typeof hotelData.roomTypes === 'string' ? JSON.parse(hotelData.roomTypes) : (hotelData.roomTypes || {});
+                } catch (e) {
+                    console.warn('Failed to parse room types:', e);
+                }
+                
+                const hotelName = typeof hotelData.name === 'object' ? 
+                    (hotelData.name[lang] || hotelData.name.ru || hotelData.name.en) : (hotelData.name || 'Hotel');
+                
+                // 🆕 CRITICAL: Get nights for THIS hotel's city (not global nightsCount!)
+                const hotelCityId = hotelData.cityId;
+                const nightsForHotel = cityNights[hotelCityId] || nightsCount;
+                console.log(`🏨 ${hotelName} (cityId=${hotelCityId}): ${nightsForHotel} nights from cityNights`);
+                
+                for (const [roomType, quantity] of Object.entries(rooms)) {
+                    if (quantity > 0 && roomTypes[roomType]) {
+                        const roomPrice = parseFloat(roomTypes[roomType].price) || 0;
+                        const roomCost = roomPrice * quantity * nightsForHotel;
+                        totalRoomCost += roomCost;
+                        
+                        const roomName = (typeof roomTypes[roomType].name === 'object' ? 
+                            (roomTypes[roomType].name[lang] || roomTypes[roomType].name.ru || roomTypes[roomType].name.en) : 
+                            roomTypes[roomType].name) || roomType;
+                        
+                        if (roomCostsCalc) {
+                            roomCostsCalc.innerHTML += `
+                                <div class="flex justify-between text-sm">
+                                    <span>${hotelName}: ${roomName} × ${quantity} × ${nightsForHotel} <span data-translate="booking.nights_short">ноч.</span>:</span>
+                                    <span>${formatCurrencyWithEquivalent(roomCost)}</span>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+            }
+            
+            // Calculate final prices
+            const finalTourPrice = baseTourPrice - accommodationDeduction;
+            const finalTotalPrice = finalTourPrice + totalRoomCost;
+            
+            // Update displays
+            const tourPriceLabel = document.getElementById('tour-price-label');
+            if (tourPriceLabel) {
+                // ✅ Показываем разбивку по взрослым/детям если есть дети
+                let multiplier;
+                if (isPerPerson) {
+                    if (numChildren > 0) {
+                        multiplier = `(${numAdults} <span data-translate="booking.adults_short">взр.</span> + ${numChildren} <span data-translate="booking.children_short">дет.</span>)`;
+                    } else {
+                        multiplier = `× ${numAdults} <span data-translate="booking.person_short">чел.</span>`;
+                    }
+                } else {
+                    multiplier = '(<span data-translate="booking.per_group">за группу</span>)';
+                }
+                tourPriceLabel.innerHTML = `<span data-translate="booking.tour_price">Цена тура</span> ${multiplier}:`;
+            }
+            
+            const tourPriceCalc = document.getElementById('tour-price-calc');
+            if (tourPriceCalc) {
+                tourPriceCalc.innerHTML = formatCurrencyWithEquivalent(finalTourPrice);
+            }
+            
+            const totalPrice = document.getElementById('total-price');
+            if (totalPrice) {
+                totalPrice.innerHTML = formatCurrencyWithEquivalent(finalTotalPrice);
+            }
+            
+            // Save to state
+            if (window.bookingStateManager) {
+                // ✅ Ensure pricing object exists before writing to it
+                if (!window.bookingStateManager.state.pricing) {
+                    window.bookingStateManager.state.pricing = {
+                        tourBasePrice: 0,
+                        roomSurcharge: 0,
+                        mealSurcharge: 0,
+                        grandTotal: 0,
+                        currency: 'TJS'
+                    };
+                }
+                
+                window.bookingStateManager.state.pricing.tourBasePrice = finalTourPrice;
+                window.bookingStateManager.state.pricing.roomSurcharge = totalRoomCost;
+                window.bookingStateManager.state.pricing.grandTotal = finalTotalPrice;
+                window.bookingStateManager.persist();
+                
+                console.log('💰 Step 2 - Using final price from Step 1:', finalTotalPrice, 'TJS (NO recalculation)');
+                console.log('💾 Step 2 - Saved price to state:', finalTotalPrice);
+            }
+        }
+
+        // ✅ Красивое модальное уведомление по центру экрана (как на шаге 1)
+        function showCenterModal(message, type = 'warning') {
+            // Создаем overlay (затемненный фон)
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] transition-opacity';
+            overlay.style.opacity = '0';
+            
+            // Создаем модальное окно
+            const modal = document.createElement('div');
+            modal.className = 'bg-white rounded-lg shadow-2xl p-5 max-w-md mx-4 transform transition-all';
+            modal.style.transform = 'scale(0.9)';
+            
+            // Иконка в зависимости от типа
+            const iconMap = {
+                'warning': '<i class="fas fa-exclamation-triangle text-yellow-500 text-4xl mb-3"></i>',
+                'error': '<i class="fas fa-times-circle text-red-500 text-4xl mb-3"></i>',
+                'success': '<i class="fas fa-check-circle text-green-500 text-4xl mb-3"></i>',
+                'info': '<i class="fas fa-info-circle text-blue-500 text-4xl mb-3"></i>'
+            };
+            
+            modal.innerHTML = `
+                <div class="text-center">
+                    ${iconMap[type] || iconMap['info']}
+                    <p class="text-gray-800 text-base leading-snug mb-4">${message}</p>
+                    <button 
+                        onclick="this.closest('.fixed').remove()" 
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-medium px-6 py-2 rounded-lg transition-colors text-sm"
+                        data-translate="common.ok">
+                        Понятно
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            
+            // Анимация появления
+            requestAnimationFrame(() => {
+                overlay.style.opacity = '1';
+                modal.style.transform = 'scale(1)';
+            });
+            
+            // Закрытие по клику на overlay
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            });
+            
+            // Автоматическое закрытие через 5 секунд
+            setTimeout(() => {
+                if (document.body.contains(overlay)) {
+                    overlay.style.opacity = '0';
+                    modal.style.transform = 'scale(0.9)';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        function getNumberOfTourists() {
+            // ✅ Check multiple sources in priority order
+            // 1. From loaded booking data (when returning from Step 3 or refreshing)
+            if (bookingState && bookingState.numberOfTourists) {
+                return parseInt(bookingState.numberOfTourists);
+            }
+            // 2. From bookingStateManager selections
+            if (window.bookingStateManager?.state?.selections?.numberOfTourists) {
+                return parseInt(window.bookingStateManager.state.selections.numberOfTourists);
+            }
+            // 3. From URL parameters (initial load)
+            const urlParams = new URLSearchParams(window.location.search);
+            const tourists = urlParams.get('tourists');
+            if (tourists) {
+                return parseInt(tourists);
+            }
+            // 4. Default fallback
+            return 1;
+        }
+
+        // Update document links based on language
+        function updateDocumentLinks() {
+            const lang = window.currentLanguage || 'en';
+            const offerLink = document.getElementById('offer-agreement-link');
+            const paymentLink = document.getElementById('payment-rules-link');
+            
+            if (offerLink) {
+                offerLink.href = `/public/documents/offer-agreement-${lang}.pdf`;
+            }
+            if (paymentLink) {
+                paymentLink.href = `/public/documents/payment-refund-policy-${lang}.pdf`;
+            }
+        }
+
+        function setupEventListeners() {
+            const backBtn = document.getElementById('back-btn');
+            const bookingForm = document.getElementById('booking-form');
+            
+            if (backBtn) backBtn.addEventListener('click', goBack);
+            if (bookingForm) bookingForm.addEventListener('submit', submitForm);
+            
+            // Listen for language changes
+            window.addEventListener('languageChanged', async (e) => {
+                window.currentLanguage = e.detail.language;
+                console.log('🌍 Step 2 language changed to:', window.currentLanguage);
+                // Reload booking details with new language
+                if (bookingState && bookingState.bookingId) {
+                    await loadBookingDetails(bookingState.bookingId);
+                }
+                // Re-display tour details with new language
+                displayTourDetailsInSidebar();
+                updateDocumentLinks();
+            });
+        }
+
+        function addTourist() {
+            touristCount++;
+            const container = document.getElementById('tourists-container');
+            
+            const touristCard = document.createElement('div');
+            touristCard.className = 'tourist-card';
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            const fioHintText = lang === 'en' ? '(Enter your full name)' : '(Напишите своё ФИО)';
+            const fioHint = touristCount === 1 ? ` <span class="text-gray-500 font-normal">${fioHintText}</span>` : '';
+            const fullNameLabel = lang === 'en' ? 'Full Name' : 'ФИО туриста *';
+            const emailLabel = lang === 'en' ? 'Tourist Email *' : 'Email туриста *';
+            touristCard.innerHTML = `
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-medium text-gray-800"><span data-translate="booking.step2.tourist">Турист</span> ${touristCount}${fioHint}</h4>
+                    ${false ? `
+                        <button type="button" class="text-red-500 hover:text-red-700" onclick="removeTourist(this)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="form-label" data-translate="booking.step2.tourist_fullname">${fullNameLabel}</label>
+                        <input type="text" class="form-input tourist-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">${emailLabel}</label>
+                        <input type="email" class="form-input tourist-email" placeholder="email@example.com" required>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(touristCard);
+            
+            // Пересчитываем цену при добавлении туриста
+            displayPriceCalculation();
+        }
+
+        // ✅ Restore tourist data from booking state (when returning from step 3)
+        function restoreTouristsFromBooking(tourists) {
+            const container = document.getElementById('tourists-container');
+            container.innerHTML = ''; // Clear existing
+            touristCount = 0;
+            
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            tourists.forEach((tourist, index) => {
+                touristCount++;
+                const fioHintText = lang === 'en' ? '(Enter your full name)' : '(Напишите своё ФИО)';
+                const fioHint = touristCount === 1 ? ` <span class="text-gray-500 font-normal">${fioHintText}</span>` : '';
+                const fullNameLabel = lang === 'en' ? 'Full Name' : 'ФИО туриста *';
+                const emailLabel = lang === 'en' ? 'Tourist Email *' : 'Email туриста *';
+                const touristCard = document.createElement('div');
+                touristCard.className = 'tourist-card';
+                touristCard.innerHTML = `
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="font-medium text-gray-800"><span data-translate="booking.step2.tourist">Турист</span> ${touristCount}${fioHint}</h4>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" data-translate="booking.step2.tourist_fullname">${fullNameLabel}</label>
+                            <input type="text" class="form-input tourist-name" value="${tourist.fullName || ''}" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">${emailLabel}</label>
+                            <input type="email" class="form-input tourist-email" value="${tourist.email || ''}" placeholder="email@example.com" required>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(touristCard);
+            });
+            
+            console.log(`✅ Restored ${tourists.length} tourists from booking state`);
+            
+            // Also restore contact info
+            if (bookingState.contactName) {
+                document.getElementById('contactName').value = bookingState.contactName;
+            }
+            if (bookingState.contactPhone) {
+                document.getElementById('contactPhone').value = bookingState.contactPhone;
+            }
+            if (bookingState.contactEmail) {
+                document.getElementById('contactEmail').value = bookingState.contactEmail;
+            }
+        }
+
+        function goBack() {
+            // Get bookingId from current state or URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const bookingId = bookingState?.bookingId || urlParams.get('bookingId');
+            
+            if (!bookingId) {
+                console.warn('⚠️ No booking ID found, going back to tours search');
+                window.location.href = '/tours-search.html';
+                return;
+            }
+            
+            // Get tour info - check both locations where it might be stored
+            const tourId = bookingState?.tour?.id;
+            const tourDate = bookingState?.tourDate || bookingState?.tour?.tourDate;
+            const numberOfTourists = bookingState?.selections?.numberOfTourists || 1;
+            
+            console.log('🔙 Going back to step 1 with:', { tourId, tourDate, numberOfTourists, bookingId });
+            
+            // Always go back to step 1 with bookingId - step 1 will restore all data
+            if (tourId && tourDate) {
+                window.location.href = `/booking-step1.html?tourId=${tourId}&date=${tourDate}&tourists=${numberOfTourists}&bookingId=${bookingId}`;
+            } else {
+                // Even without tour data, try to go to step 1 with just bookingId
+                console.warn('⚠️ Missing tour data, redirecting with bookingId only');
+                window.location.href = `/booking-step1.html?bookingId=${bookingId}`;
+            }
+        }
+
+        async function submitForm(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateForm()) {
+                return;
+            }
+            
+            // Get phone with country code — извлекаем код страны из текста кнопки через regex
+            const _phoneInput = document.getElementById('contactPhoneSelector-input');
+            const _phoneButton = document.getElementById('contactPhoneSelector-button');
+            let phoneWithCode = '';
+            if (_phoneInput && _phoneButton) {
+                const codeMatch = _phoneButton.textContent.match(/(\+\d+)/);
+                const code = codeMatch ? codeMatch[1] : '+992';
+                phoneWithCode = `${code} ${_phoneInput.value.trim()}`.trim();
+            }
+            
+            // Collect form data
+            const formData = {
+                contactName: document.getElementById('contactName').value,
+                contactPhone: phoneWithCode || document.getElementById('contactPhone')?.value || '',
+                contactEmail: document.getElementById('contactEmail').value,
+                specialRequests: document.getElementById('specialRequests').value,
+                tourists: collectTouristsData(),
+                roomSelection: bookingState.roomSelection,
+                mealSelection: bookingState.mealSelection
+            };
+            
+            // Save to bookingStateManager before API call
+            window.bookingStateManager.setContactInfo({
+                name: formData.contactName,
+                phone: formData.contactPhone,
+                email: formData.contactEmail
+            });
+            window.bookingStateManager.setTourists(formData.tourists);
+            window.bookingStateManager.setSpecialRequests(formData.specialRequests);
+            
+            try {
+                const response = await fetch(`/api/booking/${bookingState.bookingId}/details`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // ✅ Sync with server to get canonical pricing and state
+                    await window.bookingStateManager.syncWithServer();
+                    
+                    console.log('✅ Step 2 completed, state synced with server');
+                    
+                    // Navigate to step 3
+                    window.location.href = `/booking-step3.html?bookingId=${window.bookingStateManager.state.bookingId}`;
+                } else {
+                    const lang = window.currentLanguage || 'en';
+                    const message = lang === 'en' 
+                        ? `Error: ${data.message}`
+                        : `Ошибка: ${data.message}`;
+                    showCenterModal(message, 'error');
+                }
+            } catch (error) {
+                console.error('Error updating booking details:', error);
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'Error saving data'
+                    : 'Ошибка при сохранении данных';
+                showCenterModal(message, 'error');
+            }
+        }
+
+        function validateForm() {
+            // Check required fields
+            const requiredFields = ['contactName', 'contactEmail'];
+            for (const field of requiredFields) {
+                const element = document.getElementById(field);
+                if (!element || !element.value.trim()) {
+                    const lang = window.currentLanguage || 'en';
+                    const label = element?.previousElementSibling?.textContent || field;
+                    const message = lang === 'en' 
+                        ? `Please fill in the field: ${label}`
+                        : `Пожалуйста, заполните поле: ${label}`;
+                    showCenterModal(message, 'warning');
+                    if (element) element.focus();
+                    return false;
+                }
+            }
+            
+            // Validate phone separately (uses phone selector)
+            const phoneInput = document.getElementById('contactPhoneSelector-input');
+            if (!phoneInput || !phoneInput.value.trim()) {
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'Please fill in the phone number'
+                    : 'Пожалуйста, заполните номер телефона';
+                showCenterModal(message, 'warning');
+                if (phoneInput) phoneInput.focus();
+                return false;
+            }
+            
+            // ✅ Check that number of added tourists matches the selected number
+            const expectedTourists = bookingState?.numberOfTourists || getNumberOfTourists();
+            const addedTourists = document.querySelectorAll('.tourist-card').length;
+            
+            if (addedTourists < expectedTourists) {
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? `Please fill in all <strong>${expectedTourists} tourists</strong>.<br>Currently filled: <strong>${addedTourists}</strong>.`
+                    : `Пожалуйста, заполните данные всех <strong>${expectedTourists} туристов</strong>.<br>Заполнено: <strong>${addedTourists}</strong>.`;
+                showCenterModal(message, 'warning');
+                return false;
+            }
+            
+            // Check tourists names and emails
+            const touristCards = document.querySelectorAll('.tourist-card');
+            for (const card of touristCards) {
+                const nameInput = card.querySelector('.tourist-name');
+                const emailInput = card.querySelector('.tourist-email');
+                
+                if (!nameInput.value.trim()) {
+                    const lang = window.currentLanguage || 'en';
+                    const message = lang === 'en' 
+                        ? 'Please fill in the full name of all tourists'
+                        : 'Пожалуйста, заполните ФИО всех туристов';
+                    showCenterModal(message, 'warning');
+                    nameInput.focus();
+                    return false;
+                }
+                
+                if (!emailInput || !emailInput.value.trim()) {
+                    const lang = window.currentLanguage || 'en';
+                    const message = lang === 'en' 
+                        ? 'Please fill in email addresses for all tourists'
+                        : 'Пожалуйста, заполните email для всех туристов';
+                    showCenterModal(message, 'warning');
+                    if (emailInput) emailInput.focus();
+                    return false;
+                }
+                
+                // Validate email format
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(emailInput.value.trim())) {
+                    const lang = window.currentLanguage || 'en';
+                    const message = lang === 'en' 
+                        ? 'Please enter a valid email address for all tourists'
+                        : 'Пожалуйста, введите корректный email для всех туристов';
+                    showCenterModal(message, 'warning');
+                    emailInput.focus();
+                    return false;
+                }
+            }
+            
+            // Check checkboxes
+            if (!document.getElementById('termsAccepted').checked) {
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'You must accept the offer terms'
+                    : 'Необходимо принять условия оферты';
+                showCenterModal(message, 'warning');
+                return false;
+            }
+            
+            if (!document.getElementById('paymentRulesAccepted').checked) {
+                const lang = window.currentLanguage || 'en';
+                const message = lang === 'en' 
+                    ? 'You must familiarize yourself with the payment rules'
+                    : 'Необходимо ознакомиться с правилами оплаты';
+                showCenterModal(message, 'warning');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function collectTouristsData() {
+            const tourists = [];
+            const touristCards = document.querySelectorAll('.tourist-card');
+            
+            touristCards.forEach(card => {
+                const name = card.querySelector('.tourist-name').value;
+                const email = card.querySelector('.tourist-email')?.value || '';
+                
+                tourists.push({
+                    fullName: name,
+                    email: email
+                });
+            });
+            
+            return tourists;
+        }
+    </script>
+    
+    <!-- Footer Container for dynamic footer -->
+    <div id="footer-container"></div>
+    
+    <!-- Layout Loader for dynamic header/footer -->
+    <script data-cfasync="false" src="/public/js/layout-loader.js"></script>
+</body>
+</html>

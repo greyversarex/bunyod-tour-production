@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Options | Bunyod-Tour</title>
+    <meta name="description" content="Choose your payment method for booking tours with Bunyod-Tour.">
+    <meta property="og:title" content="Payment Options | Bunyod-Tour">
+    <meta property="og:description" content="Choose your payment method for booking tours with Bunyod-Tour.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Bunyod-Tour">
+    <meta property="og:image" content="https://bunyodtour.tj/Logo-Ru_1754635713718.png">
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js"></script>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <!-- Header -->
+    <div id="header-container"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <!-- Title -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="ps_title">Payment Method Selection</h1>
+            <p class="text-gray-600" data-i18n="ps_subtitle">Order created successfully. Select a payment method to complete</p>
+        </div>
+
+        <!-- Order Info -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="ps_order_info">Order Information</h2>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600" data-i18n="ps_order_number">Order Number:</span>
+                    <span id="orderNumber" class="font-bold text-gray-800">-</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+                    <span class="text-gray-600" data-i18n="ps_service_type">Service Type:</span>
+                    <span id="orderType" class="font-semibold text-gray-800">-</span>
+                </div>
+                
+                <div class="flex justify-between items-center p-6 bg-gradient-to-r from-gray-100 to-gray-50 rounded-lg border-2 border-gray-200">
+                    <div>
+                        <p class="text-sm text-gray-500 mb-1" data-i18n="ps_amount_label">Amount Due</p>
+                        <p id="totalAmount" class="text-3xl font-bold text-gray-800">0 TJS</p>
+                    </div>
+                    <i class="fas fa-money-bill-wave text-4xl text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6" data-i18n="ps_choose_method">Choose Payment Method</h2>
+            
+            <div class="space-y-4">
+                <!-- Payler -->
+                <button onclick="selectPaymentMethod('payler')" class="w-full payment-method border-2 border-gray-300 rounded-lg p-6 hover:border-gray-600 hover:shadow-lg transition-all">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                            <i class="fab fa-cc-visa text-2xl text-gray-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-bold text-gray-800">Payler</h3>
+                            <p class="text-sm text-gray-600">Visa, Mastercard, MIR</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </button>
+
+                <!-- AlifPay -->
+                <button onclick="selectPaymentMethod('alif')" class="w-full payment-method border-2 border-gray-300 rounded-lg p-6 hover:border-gray-600 hover:shadow-lg transition-all">
+                    <div class="flex items-center">
+                        <div class="flex items-center justify-center w-16 h-12 bg-gray-100 rounded-lg mr-4">
+                            <i class="fas fa-credit-card text-2xl text-gray-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <h3 class="font-bold text-gray-800">AlifPay</h3>
+                            <p class="text-sm text-gray-600" data-i18n="ps_alif_desc">Tajikistan bank cards</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-400"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+            <a href="/" class="inline-block text-gray-600 hover:text-gray-800 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>
+                <span data-i18n="ps_back_home">Back to Home</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        function t(key) {
+            const lang = localStorage.getItem('selectedLanguage') || 'en';
+            if (window.translations && window.translations[key]) {
+                return window.translations[key][lang] || window.translations[key]['ru'] || key;
+            }
+            return key;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderNumber = urlParams.get('orderNumber');
+        const orderType = urlParams.get('type');
+
+        function updateOrderTypeText() {
+            let typeKey = 'ps_type_service';
+            if (orderType === 'guide-hire') {
+                typeKey = 'ps_type_guide';
+            } else if (orderType === 'transfer') {
+                typeKey = 'ps_type_transfer';
+            } else if (orderType === 'tour') {
+                typeKey = 'ps_type_tour';
+            }
+            document.getElementById('orderType').textContent = t(typeKey);
+        }
+
+        if (orderNumber) {
+            document.getElementById('orderNumber').textContent = orderNumber;
+            updateOrderTypeText();
+            fetchOrderDetails(orderNumber);
+        } else {
+            alert(t('ps_no_order'));
+            window.location.href = '/';
+        }
+
+        document.addEventListener('languageChanged', function() {
+            updateOrderTypeText();
+        });
+
+        async function fetchOrderDetails(orderNumber) {
+            try {
+                const response = await fetch(`/api/orders/number/${orderNumber}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const order = result.data;
+                    document.getElementById('totalAmount').textContent = `${order.totalAmount} TJS`;
+                } else {
+                    console.error('Failed to fetch order details:', result.message);
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+            }
+        }
+
+        async function selectPaymentMethod(method) {
+            if (!orderNumber) {
+                alert(t('ps_error_no_order'));
+                return;
+            }
+
+            try {
+                const endpoint = method === 'payler' ? '/api/payments/payler/create' : '/api/payments/alif/create';
+                
+                const currentLang = localStorage.getItem('selectedLanguage') || 'en';
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderNumber, language: currentLang })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    if (result.data.paymentUrl) {
+                        window.location.href = result.data.paymentUrl;
+                    } else if (result.data.sessionId) {
+                        window.location.href = `https://merchant.payler.com/gapi/Pay?session_id=${result.data.sessionId}`;
+                    } else if (result.data.method && result.data.action && result.data.formData) {
+                        const form = document.createElement('form');
+                        form.method = result.data.method;
+                        form.action = result.data.action;
+                        
+                        Object.keys(result.data.formData).forEach(key => {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = result.data.formData[key];
+                            form.appendChild(input);
+                        });
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    } else {
+                        alert(t('ps_error_no_url'));
+                    }
+                } else {
+                    alert(t('ps_error_create') + result.message);
+                }
+            } catch (error) {
+                console.error('Error initiating payment:', error);
+                alert(t('ps_error_init'));
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход водителя - Bunyod-Tour</title>
+    <script data-cfasync="false" src="/public/js/i18n.js"></script>
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <script data-cfasync="false" src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <style>
+        body {
+            background: #3E3E3E;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .input-focus:focus {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    
+    <div class="login-card max-w-md w-full rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8">
+            <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <i class="fas fa-car text-white text-2xl"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Кабинет водителя</h1>
+            <p class="text-gray-600">Войдите в свой аккаунт</p>
+        </div>
+
+        <form id="driverLoginForm" class="space-y-6">
+            <div class="space-y-2">
+                <label for="driverLogin" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-user mr-2 text-blue-600"></i>Логин
+                </label>
+                <input 
+                    type="text" 
+                    id="driverLogin" 
+                    name="login" 
+                    required
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200"
+                    placeholder="Введите логин"
+                >
+            </div>
+
+            <div class="space-y-2">
+                <label for="driverPassword" class="block text-sm font-semibold text-gray-700">
+                    <i class="fas fa-lock mr-2 text-blue-600"></i>Пароль
+                </label>
+                <div class="relative">
+                    <input 
+                        type="password" 
+                        id="driverPassword" 
+                        name="password" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus transition-all duration-200 pr-12"
+                        placeholder="Введите пароль"
+                    >
+                    <button type="button" id="togglePassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="errorMessage" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span id="errorText">Ошибка входа</span>
+            </div>
+
+            <div id="successMessage" class="hidden bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-check-circle mr-2"></i>
+                <span id="successText">Успешный вход</span>
+            </div>
+
+            <div id="loadingMessage" class="hidden bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg">
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                <span>Вход в систему...</span>
+            </div>
+
+            <button 
+                type="submit" 
+                id="loginButton"
+                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
+            >
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                <span>Войти</span>
+            </button>
+        </form>
+
+        <div class="mt-8 text-center text-sm text-gray-600">
+            <p>Забыли пароль? Обратитесь к администратору</p>
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <a href="/" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-1"></i>
+                    На главную
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script data-cfasync="false">
+        function getApiUrl() {
+            return window.location.origin + '/api';
+        }
+
+        const togglePassword = document.getElementById('togglePassword');
+        if (togglePassword) {
+            togglePassword.addEventListener('click', function() {
+                const passwordInput = document.getElementById('driverPassword');
+                const toggleIcon = this.querySelector('i');
+                
+                if (passwordInput && passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('fa-eye');
+                        toggleIcon.classList.add('fa-eye-slash');
+                    }
+                } else if (passwordInput) {
+                    passwordInput.type = 'password';
+                    if (toggleIcon) {
+                        toggleIcon.classList.remove('fa-eye-slash');
+                        toggleIcon.classList.add('fa-eye');
+                    }
+                }
+            });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            
+            document.getElementById('successMessage').classList.add('hidden');
+            document.getElementById('loadingMessage').classList.add('hidden');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+            
+            setTimeout(() => {
+                errorDiv.classList.add('hidden');
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const successText = document.getElementById('successText');
+            
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('loadingMessage').classList.add('hidden');
+            successText.textContent = message;
+            successDiv.classList.remove('hidden');
+        }
+
+        function showLoadingState() {
+            document.getElementById('loadingMessage').classList.remove('hidden');
+            document.getElementById('loginButton').disabled = true;
+            document.getElementById('errorMessage').classList.add('hidden');
+            document.getElementById('successMessage').classList.add('hidden');
+        }
+
+        function hideLoadingState() {
+            document.getElementById('loadingMessage').classList.add('hidden');
+            document.getElementById('loginButton').disabled = false;
+        }
+
+        const driverLoginForm = document.getElementById('driverLoginForm');
+        if (driverLoginForm) driverLoginForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const loginEl = document.getElementById('driverLogin');
+            const passwordEl = document.getElementById('driverPassword');
+            const login = loginEl ? loginEl.value.trim() : '';
+            const password = passwordEl ? passwordEl.value : '';
+            
+            if (!login || !password) {
+                showError('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            showLoadingState();
+            
+            try {
+                const response = await fetch(`${getApiUrl()}/drivers/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ login, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('driverToken', data.data.token);
+                    localStorage.setItem('driverInfo', JSON.stringify(data.data.driver));
+                    
+                    showSuccess('Авторизация успешна! Перенаправление...');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/driver-dashboard.html';
+                    }, 1000);
+                } else {
+                    showError(data.message || 'Ошибка авторизации');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('Ошибка подключения к серверу');
+            } finally {
+                hideLoadingState();
+            }
+        });
+
+        if (localStorage.getItem('driverToken')) {
+            fetch(`${getApiUrl()}/drivers/profile`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('driverToken')}`
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/driver-dashboard.html';
+                }
+            })
+            .catch(() => {
+                localStorage.removeItem('driverToken');
+                localStorage.removeItem('driverInfo');
+            });
+        }
+
+        document.getElementById('driverLogin').focus();
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- i18n-early-boot:start -->
+    <!-- РАННЯЯ ИНИЦИАЛИЗАЦИЯ ЯЗЫКА + ЗАЩИТА ОТ FOUC.
+         Выполняется СИНХРОННО при парсинге <head>, ДО первой отрисовки <body>,
+         поэтому браузер никогда не показывает русский текст разметки до перевода.
+         Управляется из /public/js/i18n.js (снятие защиты после перевода).
+         data-cfasync="false" — критично: запрещает Cloudflare Rocket Loader
+         откладывать этот скрипт. Иначе он не выполнится до первой отрисовки и
+         защита от FOUC не сработает (русский текст мелькнёт на продакшене). -->
+    <script data-cfasync="false">
+    (function () {
+        try {
+            var SUPPORTED = ['en', 'ru'];
+            var lang = 'en'; // Язык по умолчанию — английский (фундаментальное правило проекта)
+            try {
+                var sess = sessionStorage.getItem('bt_lang');
+                if (sess && SUPPORTED.indexOf(sess) !== -1) {
+                    lang = sess;
+                } else {
+                    var stored = localStorage.getItem('selectedLanguage');
+                    if (stored && SUPPORTED.indexOf(stored) !== -1) {
+                        lang = stored;
+                        try { sessionStorage.setItem('bt_lang', lang); } catch (e) {}
+                    } else {
+                        try { localStorage.setItem('selectedLanguage', 'en'); } catch (e) {}
+                        try { sessionStorage.setItem('bt_lang', 'en'); } catch (e) {}
+                    }
+                }
+            } catch (e) {}
+
+            window.currentLanguage = lang;
+            try { document.documentElement.lang = lang; } catch (e) {}
+            window._i18nEarlyBoot = true;
+
+            // reveal() снимает защиту от FOUC. Определяем ВСЕГДА (безопасный no-op,
+            // если прятать нечего), т.к. на него могут ссылаться другие скрипты.
+            function reveal() {
+                try {
+                    if (window._foucSafetyTimer) { clearTimeout(window._foucSafetyTimer); window._foucSafetyTimer = null; }
+                    var s = document.getElementById('i18n-fouc-prevention');
+                    if (s && s.parentNode) s.parentNode.removeChild(s);
+                    if (document.body) document.body.style.opacity = '';
+                } catch (e) {}
+            }
+            window._i18nReveal = reveal;
+
+            // КЛЮЧЕВОЕ ДЛЯ СКОРОСТИ: разметка свёрстана на АНГЛИЙСКОМ (язык по умолчанию).
+            // Для английского НЕ прячем body — страница отрисовывается мгновенно, без ожидания
+            // загрузки большого i18n.js. Прячем и ждём перевода ТОЛЬКО если выбран не-английский
+            // язык (напр. русский), чтобы не мелькнул английский текст до перевода на русский.
+            if (lang !== 'en') {
+                var style = document.createElement('style');
+                style.id = 'i18n-fouc-prevention';
+                style.textContent = 'body{opacity:0!important}';
+                (document.head || document.documentElement).appendChild(style);
+
+                // Подстраховка: если i18n.js не загрузится/не выполнится (404, ошибка скрипта),
+                // показываем страницу по событию load, чтобы она не осталась пустой.
+                window.addEventListener('load', function () { setTimeout(reveal, 0); });
+                // Абсолютный предохранитель на случай зависшей сети (страница не должна
+                // остаться пустой навсегда). При нормальной работе таймер снимается в i18n.js.
+                window._foucSafetyTimer = setTimeout(reveal, 8000);
+            }
+        } catch (e) {}
+    })();
+    </script>
+    <!-- i18n-early-boot:end -->
+    <!-- 🍪 Google Consent Mode v2 — должен запускаться ДО GTM/gtag -->
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      // GCM default: все категории denied по умолчанию (глобально), пока пользователь не даст согласие через CookieYes
+      gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'analytics_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'personalization_storage': 'denied',
+        'functionality_storage': 'denied',
+        'security_storage': 'granted',
+        'wait_for_update': 500
+      });
+    </script>
+    <!-- /Consent Mode v2 -->
+
+    <!-- Start cookieyes banner -->
+    <script id="cookieyes" type="text/javascript" data-cfasync="false" src="https://cdn-cookieyes.com/client_data/028b2e07eb73723c6d8d2c60/script.js"></script>
+    <!-- End cookieyes banner -->
+    <!-- Google Tag Manager -->
+    <script data-cfasync="false">(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5DDMKVT');</script>
+    <!-- End Google Tag Manager -->
+    <!-- Google tag (gtag.js) -->
+    <script data-cfasync="false" async src="https://www.googletagmanager.com/gtag/js?id=AW-713421696"></script>
+    <script data-cfasync="false">
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-713421696');
+    </script>
+    <link rel="icon" type="image/png" href="/Logo-Ru_1754635713718.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="custom_tour_page_title">Create Custom Tour - Bunyod-Tour</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="stylesheet" href="/public/css/tailwind.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- ВАЖНО: i18n.js загружается СИНХРОННО, чтобы window.currentLanguage был
+         выставлен ДО других inline-скриптов, читающих его. -->
+    <script data-cfasync="false" src="/public/js/i18n.js?v=1.6"></script>
+    <script data-cfasync="false" src="/public/js/phone-country-selector.js?v=2.1"></script>
+    <script data-cfasync="false" defer src="/public/js/layout-loader.js"></script>
+    <!-- Preload fonts for better LCP -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    
+    <style>
+        
+        body { font-family: 'Inter', sans-serif; }
+        
+        .tourist-item {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .component-card {
+            transition: all 0.2s ease;
+        }
+        
+        .component-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .component-card.selected {
+            border-color: #3E3E3E;
+            background-color: #F3F4F6;
+        }
+        
+        .add-tourist-btn {
+            background-color: #3E3E3E;
+        }
+        
+        .add-tourist-btn:hover {
+            background-color: #2F2F2F;
+        }
+    </style>
+    <!-- Минимальный cookie-баннер (только для EU/EEA посетителей) -->
+</head>
+<body class="bg-gray-50">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5DDMKVT"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
+    <div id="header-container"></div>
+
+    <main class="bg-gray-50 pt-20 md:pt-12 pb-12 px-4 md:px-6">
+        <div class="max-w-5xl mx-auto">
+            <div class="text-center mb-8 md:mb-12">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 md:mb-4" data-i18n="custom_tour_main_title">Create Custom Tour</h1>
+                <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto" data-i18n="custom_tour_main_subtitle">Create a unique tour tailored to your needs. Select countries, cities, and services.</p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 md:p-8 mb-8 md:mb-12">
+                <div class="mb-6">
+                    <h2 class="text-xl sm:text-2xl font-semibold text-gray-900 mb-2" data-i18n="custom_tour_form_title">Order Custom Tour</h2>
+                    <p class="text-sm sm:text-base text-gray-600" data-i18n="custom_tour_form_subtitle">Fill out the form and we will create the perfect tour for you</p>
+                </div>
+
+                <form id="customTourForm" class="space-y-8">
+                    <!-- Контактная информация -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_contact_info">Contact Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
+                            <div>
+                                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <span data-i18n="custom_tour_fullname">Full Name</span> <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" id="fullName" name="fullName" required 
+                                    class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_fullname_placeholder"
+                                    placeholder="Enter your full name">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                                    <span data-i18n="custom_tour_email">Email</span>
+                                </label>
+                                <input type="email" id="email" name="email" 
+                                    class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_email_placeholder"
+                                    placeholder="your@email.com">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <span data-i18n="custom_tour_phone">Phone</span> <span class="text-red-500">*</span>
+                                </label>
+                                <div id="customTourPhoneSelector" data-phone-selector data-default-country="TJ"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Продолжительность тура -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_duration_title">Tour Duration</h3>
+                        <div>
+                            <label for="tourDuration" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
+                                <span data-i18n="custom_tour_days_label">Number of Days</span> <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="tourDuration" name="tourDuration" required min="3"
+                                class="w-full sm:w-2/3 md:w-1/3 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                data-i18n-placeholder="custom_tour_days_placeholder"
+                                placeholder="For example: 7"
+                                onchange="validateDuration()">
+                            <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_days_hint">Each country requires a minimum of 3 days. For example: 6 days = up to 2 countries, 9 days = up to 3 countries</p>
+                            <div id="durationWarning" class="hidden mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div class="flex items-start gap-2">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
+                                    <p id="durationWarningText" class="text-sm text-yellow-800">Недостаточно дней для выбранного количества стран</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Выбор стран и городов -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_destinations">Destinations</h3>
+                        
+                        <!-- Страны -->
+                        <div class="mb-6">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-3">
+                                <span data-i18n="custom_tour_select_countries">Select Countries</span> <span class="text-red-500">*</span>
+                            </label>
+                            <div id="countriesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 gap-2 sm:gap-3">
+                                <div class="text-center text-gray-500 py-4">
+                                    <i class="fas fa-spinner fa-spin mr-2"></i>
+                                    <span data-i18n="loading">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Города -->
+                        <div id="citiesSection" class="hidden">
+                            <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-3" data-i18n="custom_tour_select_cities">Select Cities (optional)</label>
+                            <div id="citiesContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Список туристов -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_tourists_list">Tourists List</h3>
+                        <div class="mb-4">
+                            <label for="touristName" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_tourist_name">Tourist Full Name</label>
+                            <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+                                <input type="text" id="touristName" 
+                                    class="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                                    data-i18n-placeholder="custom_tour_tourist_name_placeholder"
+                                    placeholder="Enter name and click 'Add'">
+                                <button type="button" onclick="addTourist()" 
+                                    class="add-tourist-btn px-4 sm:px-6 py-2 sm:py-3 text-white text-sm sm:text-base font-semibold rounded-lg transition-colors whitespace-nowrap">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    <span data-i18n="custom_tour_add_tourist">Add Tourist</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="touristsList" class="space-y-2"></div>
+                        <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_tourists_required">At least one tourist is required</p>
+                    </div>
+
+                    <!-- Компоненты тура -->
+                    <div class="border-b pb-6">
+                        <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_components">Tour Components</h3>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-4" data-i18n="custom_tour_select_countries_hint">Select countries above to see available components</p>
+                        <div id="componentsContainer" class="space-y-6"></div>
+                    </div>
+
+                    <!-- Дополнительные пожелания -->
+                    <div class="border-b pb-6">
+                        <label for="customerNotes" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2" data-i18n="custom_tour_notes">Your Wishes and Comments</label>
+                        <textarea id="customerNotes" name="customerNotes" rows="4"
+                            class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
+                            data-i18n-placeholder="custom_tour_notes_placeholder"
+                            placeholder="Tell us about your preferences, special requirements..."></textarea>
+                    </div>
+
+                    <!-- Итоговая цена -->
+                    <div class="bg-gray-50 p-4 sm:p-6 rounded-lg">
+                        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                            <span class="text-base sm:text-xl font-semibold text-gray-800" data-i18n="custom_tour_total_price">Estimated Price</span>
+                            <span id="totalPrice" class="text-2xl sm:text-2xl font-bold text-gray-800">0 TJS</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-500 mt-2" data-i18n="custom_tour_price_note">Final price will be calculated after processing your request</p>
+                    </div>
+
+                    <!-- Кнопка отправки -->
+                    <div class="pt-4">
+                        <button type="submit" id="submitBtn"
+                            class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 sm:py-4 px-4 sm:px-6 text-sm sm:text-base rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+                            <span id="submitText" data-i18n="custom_tour_submit_btn">Pay</span>
+                            <span id="loadingText" class="hidden">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>
+                                <span data-i18n="custom_tour_submit_sending">Sending...</span>
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <div id="notification" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script data-cfasync="false">
+        let selectedCountries = [];
+        let selectedCities = [];
+        let tourists = [];
+        let selectedComponents = [];
+        let allCountries = [];
+        let allCities = [];
+        let allComponents = [];
+
+        // Load countries
+        async function loadCountries() {
+            console.log('🔄 loadCountries() called - fetching countries...');
+            try {
+                const response = await fetch('/api/countries');
+                console.log('📡 Countries API response status:', response.status);
+                const data = await response.json();
+                console.log('📊 Countries data:', data);
+                
+                if (data.success) {
+                    allCountries = data.data;
+                    console.log('✅ Loaded', allCountries.length, 'countries');
+                    renderCountries();
+                } else {
+                    console.error('❌ Failed to load countries:', data);
+                }
+            } catch (error) {
+                console.error('❌ Error loading countries:', error);
+            }
+        }
+
+        function renderCountries() {
+            const container = document.getElementById('countriesContainer');
+            const lang = window.currentLanguage || 'en';
+            container.innerHTML = allCountries.map(country => {
+                const countryName = lang === 'en' ? country.nameEn : country.nameRu;
+                return `
+                    <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" value="${country.id}" 
+                            onchange="toggleCountry(${country.id})"
+                            class="mr-3 h-5 w-5 text-gray-600">
+                        <span class="font-medium">${countryName}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        async function toggleCountry(countryId) {
+            const checkbox = event.target;
+            
+            if (checkbox.checked) {
+                // Проверка: каждая страна требует минимум 3 дня
+                const durationInput = document.getElementById('tourDuration');
+                const duration = parseInt(durationInput?.value) || 0;
+                
+                // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
+                const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
+                
+                // Если пытаемся выбрать больше стран, чем позволяет количество дней
+                if (selectedCountries.length >= maxCountries) {
+                    // Отменяем выбор - снимаем галочку
+                    checkbox.checked = false;
+                    
+                    // Показываем предупреждение с конкретным количеством доступных стран
+                    const warningDiv = document.getElementById('durationWarning');
+                    const warningText = document.getElementById('durationWarningText');
+                    if (warningDiv && warningText) {
+                        if (duration === 0) {
+                            warningText.textContent = getTranslation('custom_tour_specify_days_first');
+                        } else {
+                            const minDaysNeeded = (selectedCountries.length + 1) * 3;
+                            const template = getTranslation('custom_tour_validation_warning');
+                            warningText.textContent = template
+                                .replace('{days}', duration)
+                                .replace('{maxCountries}', maxCountries)
+                                .replace('{countryWord}', getCountryWord(maxCountries))
+                                .replace('{neededCountries}', selectedCountries.length + 1)
+                                .replace('{neededCountryWord}', getCountryWord(selectedCountries.length + 1))
+                                .replace('{minDays}', minDaysNeeded);
+                        }
+                        warningDiv.classList.remove('hidden');
+                    }
+                    
+                    return; // Прерываем выполнение функции
+                }
+                
+                selectedCountries.push(countryId);
+                await loadCitiesForCountries();
+                await loadComponentsForCountries();
+            } else {
+                selectedCountries = selectedCountries.filter(id => id !== countryId);
+                // Remove cities from this country
+                const countryCity = allCities.filter(c => c.countryId === countryId).map(c => c.id);
+                selectedCities = selectedCities.filter(id => !countryCity.includes(id));
+                await loadCitiesForCountries();
+                await loadComponentsForCountries();
+            }
+            
+            updateCitiesVisibility();
+            updateTotalPrice();
+            validateDuration();
+        }
+        
+        // Функция для правильного склонения слова "страна" / "countries"
+        function getCountryWord(count) {
+            const lang = window.currentLanguage || 'en';
+            
+            if (lang === 'en') {
+                // В английском просто "country" или "countries"
+                return count === 1 ? getTranslation('custom_tour_country_1') : getTranslation('custom_tour_country_2_4');
+            } else {
+                // В русском есть разные формы
+                if (count === 1) return getTranslation('custom_tour_country_1');
+                if (count >= 2 && count <= 4) return getTranslation('custom_tour_country_2_4');
+                return getTranslation('custom_tour_country_5plus');
+            }
+        }
+        
+        // Вспомогательная функция для получения перевода
+        function getTranslation(key) {
+            const lang = window.currentLanguage || 'en';
+            return window.translations && window.translations[key] && window.translations[key][lang] 
+                ? window.translations[key][lang] 
+                : key;
+        }
+
+        async function loadCitiesForCountries() {
+            if (selectedCountries.length === 0) {
+                allCities = [];
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/cities');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allCities = data.data.filter(city => 
+                        selectedCountries.includes(city.countryId)
+                    );
+                    renderCities();
+                }
+            } catch (error) {
+                console.error('Error loading cities:', error);
+            }
+            
+            // Validate duration when countries change
+            validateDuration();
+        }
+
+        // Validate tour duration based on selected countries
+        function validateDuration() {
+            const durationInput = document.getElementById('tourDuration');
+            const warningDiv = document.getElementById('durationWarning');
+            const warningText = document.getElementById('durationWarningText');
+            
+            if (!durationInput || !warningDiv || !warningText) return;
+            
+            const duration = parseInt(durationInput.value) || 0;
+            const countriesCount = selectedCountries.length;
+            
+            // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
+            const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
+            
+            // Если выбрано больше стран, чем позволяет длительность
+            if (countriesCount > maxCountries) {
+                // Показываем предупреждение
+                const minDaysNeeded = countriesCount * 3;
+                const template = getTranslation('custom_tour_validation_warning');
+                warningText.textContent = template
+                    .replace('{days}', duration)
+                    .replace('{maxCountries}', maxCountries)
+                    .replace('{countryWord}', getCountryWord(maxCountries))
+                    .replace('{neededCountries}', countriesCount)
+                    .replace('{neededCountryWord}', getCountryWord(countriesCount))
+                    .replace('{minDays}', minDaysNeeded);
+                warningDiv.classList.remove('hidden');
+                
+                // Автоматически снимаем лишние галочки (оставляем только первые maxCountries стран)
+                const countriesToRemove = selectedCountries.slice(maxCountries);
+                selectedCountries = selectedCountries.slice(0, maxCountries);
+                
+                // Обновляем чекбоксы в интерфейсе
+                countriesToRemove.forEach(countryId => {
+                    const checkbox = document.querySelector(`input[type="checkbox"][value="${countryId}"]`);
+                    if (checkbox) checkbox.checked = false;
+                });
+                
+                // Обновляем города и компоненты
+                loadCitiesForCountries();
+                loadComponentsForCountries();
+            } else {
+                warningDiv.classList.add('hidden');
+            }
+        }
+
+        function renderCities() {
+            const container = document.getElementById('citiesContainer');
+            const lang = window.currentLanguage || 'en';
+            
+            if (allCities.length === 0) {
+                const hint = getTranslation('custom_tour_select_cities_hint');
+                container.innerHTML = `<p class="text-gray-500 col-span-full text-center py-4">${hint}</p>`;
+                return;
+            }
+            
+            container.innerHTML = allCities.map(city => {
+                const cityName = lang === 'en' ? city.nameEn : city.nameRu;
+                return `
+                    <label class="flex items-center p-2 border rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-sm">
+                        <input type="checkbox" value="${city.id}" 
+                            ${selectedCities.includes(city.id) ? 'checked' : ''}
+                            onchange="toggleCity(${city.id})"
+                            class="mr-2 h-4 w-4 text-gray-600">
+                        <span>${cityName}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function toggleCity(cityId) {
+            if (event.target.checked) {
+                selectedCities.push(cityId);
+            } else {
+                selectedCities = selectedCities.filter(id => id !== cityId);
+            }
+        }
+
+        function updateCitiesVisibility() {
+            const section = document.getElementById('citiesSection');
+            section.classList.toggle('hidden', selectedCountries.length === 0);
+        }
+
+        async function loadComponentsForCountries() {
+            console.log('🔄 loadComponentsForCountries() called for countries:', selectedCountries);
+            if (selectedCountries.length === 0) {
+                console.log('⚠️ No countries selected, clearing components');
+                allComponents = [];
+                renderComponents();
+                return;
+            }
+            
+            try {
+                const promises = selectedCountries.map(countryId => {
+                    console.log(`📡 Fetching components for country ${countryId}...`);
+                    return fetch(`/api/custom-tour-components/country/${countryId}`).then(r => r.json());
+                });
+                
+                const results = await Promise.all(promises);
+                console.log('📊 Components API results:', results);
+                allComponents = results.flatMap(r => r.success ? r.data : []);
+                console.log('✅ Loaded', allComponents.length, 'components');
+                renderComponents();
+            } catch (error) {
+                console.error('❌ Error loading components:', error);
+            }
+        }
+
+        function renderComponents() {
+            const container = document.getElementById('componentsContainer');
+            const lang = window.currentLanguage || 'en';
+            
+            if (allComponents.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">Выберите страны, чтобы увидеть доступные компоненты</p>';
+                return;
+            }
+            
+            // Group by country
+            const byCountry = {};
+            allComponents.forEach(comp => {
+                if (!byCountry[comp.countryId]) byCountry[comp.countryId] = [];
+                byCountry[comp.countryId].push(comp);
+            });
+            
+            container.innerHTML = Object.entries(byCountry).map(([countryId, components]) => {
+                // Find country name from allCountries
+                const country = allCountries.find(c => c.id === parseInt(countryId));
+                const countryName = country 
+                    ? (typeof country.name === 'object' ? country.name[lang] || country.name.ru : country.name)
+                    : 'Страна';
+                
+                return `
+                    <div class="mb-6">
+                        <h4 class="font-semibold text-gray-700 mb-3 text-lg">${countryName}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${components.map(comp => {
+                                const nameRu = typeof comp.name === 'object' ? comp.name.ru : comp.name;
+                                const isSelected = selectedComponents.some(sc => sc.id === comp.id);
+                                return `
+                                    <div class="component-card border rounded-lg p-4 cursor-pointer ${isSelected ? 'selected' : ''}"
+                                        onclick="toggleComponent(${comp.id})">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <div class="font-medium text-gray-900">${nameRu}</div>
+                                                <div class="text-sm text-gray-600 mt-1">${comp.price} TJS / ${comp.unit}</div>
+                                            </div>
+                                            <input type="checkbox" ${isSelected ? 'checked' : ''} 
+                                                class="h-5 w-5 text-gray-600 pointer-events-none">
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleComponent(componentId) {
+            const comp = allComponents.find(c => c.id === componentId);
+            if (!comp) return;
+            
+            const index = selectedComponents.findIndex(sc => sc.id === componentId);
+            
+            if (index >= 0) {
+                selectedComponents.splice(index, 1);
+            } else {
+                selectedComponents.push({ 
+                    id: comp.id, 
+                    price: comp.price, 
+                    unit: comp.unit 
+                });
+            }
+            
+            renderComponents();
+            updateTotalPrice();
+        }
+
+
+        function updateTotalPrice() {
+            const touristCount = tourists.length || 1; // Минимум 1 турист
+            
+            const total = selectedComponents.reduce((sum, comp) => {
+                // Если компонент рассчитывается "за человека", умножаем на количество туристов
+                const multiplier = comp.unit === 'человек' ? touristCount : 1;
+                return sum + (comp.price * multiplier);
+            }, 0);
+            
+            document.getElementById('totalPrice').textContent = `${total.toFixed(2)} TJS`;
+        }
+
+        function addTourist() {
+            const input = document.getElementById('touristName');
+            const name = input.value.trim();
+            
+            if (!name) {
+                showNotification('Введите имя туриста', 'error');
+                return;
+            }
+            
+            tourists.push(name);
+            input.value = '';
+            renderTourists();
+            updateTotalPrice(); // Пересчитать цену при добавлении туриста
+        }
+
+        function renderTourists() {
+            const container = document.getElementById('touristsList');
+            
+            if (tourists.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 text-sm">Туристы не добавлены</p>';
+                return;
+            }
+            
+            container.innerHTML = tourists.map((name, index) => `
+                <div class="tourist-item flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-user text-gray-400"></i>
+                        <span class="font-medium">${index + 1}. ${name}</span>
+                    </div>
+                    <button type="button" onclick="removeTourist(${index})" 
+                        class="text-red-500 hover:text-red-700 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeTourist(index) {
+            tourists.splice(index, 1);
+            renderTourists();
+            updateTotalPrice(); // Пересчитать цену при удалении туриста
+        }
+
+        // Form submission
+        document.getElementById('customTourForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validation
+            if (selectedCountries.length === 0) {
+                showNotification(getTranslation('custom_tour_error_no_countries'), 'error');
+                return;
+            }
+            
+            if (tourists.length === 0) {
+                showNotification(getTranslation('custom_tour_error_no_tourists'), 'error');
+                return;
+            }
+            
+            if (selectedComponents.length === 0) {
+                showNotification(getTranslation('custom_tour_error_no_components'), 'error');
+                return;
+            }
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const loadingText = document.getElementById('loadingText');
+            
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            
+            try {
+                // Get tour duration from manual input
+                const tourDuration = parseInt(document.getElementById('tourDuration').value) || 0;
+                
+                // Validate duration
+                if (tourDuration < 3) {
+                    showNotification(getTranslation('custom_tour_error_min_days'), 'error');
+                    submitBtn.disabled = false;
+                    submitText.classList.remove('hidden');
+                    loadingText.classList.add('hidden');
+                    return;
+                }
+                
+                const currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+                
+                // Get full phone with country code — извлекаем код страны из текста кнопки через regex
+                const _ctPhoneInput = document.getElementById('customTourPhoneSelector-input');
+                const _ctPhoneButton = document.getElementById('customTourPhoneSelector-button');
+                let fullPhone = '';
+                if (_ctPhoneInput && _ctPhoneButton) {
+                    const codeMatch = _ctPhoneButton.textContent.match(/(\+\d+)/);
+                    const code = codeMatch ? codeMatch[1] : '+992';
+                    fullPhone = `${code} ${_ctPhoneInput.value.trim()}`.trim();
+                }
+                
+                const formData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    email: document.getElementById('email').value.trim() || null,
+                    phone: fullPhone || document.getElementById('phone')?.value?.trim() || '',
+                    selectedCountries,
+                    selectedCities,
+                    tourists,
+                    selectedComponents,
+                    customerNotes: document.getElementById('customerNotes').value.trim() || null,
+                    totalPrice: parseFloat(document.getElementById('totalPrice').textContent),
+                    totalDays: tourDuration,
+                    language: currentLanguage
+                };
+                
+                // DIRECT PAYMENT: Create payable order and redirect to payment
+                const response = await fetch('/api/custom-tour-orders/create-payable-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showNotification(getTranslation('custom_tour_success_message'), 'success');
+                    
+                    // Redirect to payment page after 1 second
+                    setTimeout(() => {
+                        window.location.href = data.data.paymentUrl;
+                    }, 1000);
+                } else {
+                    showNotification(data.message || getTranslation('custom_tour_error_submit'), 'error');
+                }
+            } catch (error) {
+                console.error('Error submitting order:', error);
+                showNotification(getTranslation('custom_tour_error_try_later'), 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+            }
+        });
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.className = `mt-6 p-4 rounded-lg ${
+                type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Обработчик смены языка - перерисовать страны и города
+        document.addEventListener('languageChanged', (event) => {
+            console.log('Language changed to:', event.detail.language);
+            // Перерисовать страны
+            if (allCountries.length > 0) {
+                renderCountries();
+                // Восстановить выбранные страны
+                selectedCountries.forEach(countryId => {
+                    const checkbox = document.querySelector(`input[type="checkbox"][value="${countryId}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+            // Перерисовать города
+            if (allCities.length > 0) {
+                renderCities();
+            }
+            // Обновить плейсхолдеры
+            updatePlaceholders();
+        });
+
+        // Обновить плейсхолдеры при смене языка
+        function updatePlaceholders() {
+            const elementsWithPlaceholder = document.querySelectorAll('[data-i18n-placeholder]');
+            elementsWithPlaceholder.forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (key) {
+                    el.placeholder = getTranslation(key);
+                }
+            });
+        }
+
+        // Initialize
+        // Since script is at the end of body, DOM is already loaded
+        // Check if DOM is ready, if so execute immediately, otherwise wait
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadCountries();
+                updatePlaceholders();
+            });
+        } else {
+            // DOM already loaded, execute immediately
+            loadCountries();
+            updatePlaceholders();
+        }
+    </script>
+</body>
+</html>
