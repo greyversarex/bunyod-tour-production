@@ -398,10 +398,10 @@ export const createDirectCustomTourOrder = async (req: Request, res: Response): 
     }
 
     // Validate totalDays
-    if (!totalDays || typeof totalDays !== 'number' || totalDays < 3) {
+    if (!totalDays || typeof totalDays !== 'number' || totalDays < 1) {
       res.status(400).json({
         success: false,
-        message: 'Минимальная продолжительность тура - 3 дня'
+        message: 'Укажите продолжительность тура — минимум 1 день'
       });
       return;
     }

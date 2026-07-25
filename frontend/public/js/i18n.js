@@ -355,13 +355,25 @@ window.translations = window.translations || {
     'custom_tour_submit_sending': { ru: 'Отправляется...', en: 'Sending...' },
     'custom_tour_duration_title': { ru: 'Продолжительность тура', en: 'Tour Duration' },
     'custom_tour_days_label': { ru: 'Количество дней', en: 'Number of Days' },
-    'custom_tour_days_hint': { ru: 'Каждая страна требует минимум 3 дня. Например: 6 дней = до 2 стран, 9 дней = до 3 стран', en: 'Each country requires a minimum of 3 days. For example: 6 days = up to 2 countries, 9 days = up to 3 countries' },
+    'custom_tour_days_hint': { ru: 'Один день тура — это до 10 часов обслуживания. Это не значит, что услуги предоставляются все 10 часов: день считается завершённым, когда выполнена программа тура. Поэтому один день может занять как 1–2 часа, так и все 9–10.', en: 'One tour day means up to 10 hours of service. It does not mean that services are provided for the whole day: the day ends once the tour programme is complete. So a single day may take 1–2 hours or a full 9–10 hours.' },
     'custom_tour_specify_days_first': { ru: 'Сначала укажите количество дней тура', en: 'Please specify the number of tour days first' },
     'custom_tour_validation_warning': { ru: 'При {days} днях можно выбрать максимум {maxCountries} {countryWord}. Для {neededCountries} {neededCountryWord} нужно минимум {minDays} дней.', en: 'With {days} days you can select maximum {maxCountries} {countryWord}. For {neededCountries} {neededCountryWord} you need at least {minDays} days.' },
     'custom_tour_country_1': { ru: 'страну', en: 'country' },
     'custom_tour_country_2_4': { ru: 'страны', en: 'countries' },
     'custom_tour_country_5plus': { ru: 'стран', en: 'countries' },
-    
+
+    // Подсказка в разделе «Компоненты тура»
+    'custom_tour_components_note': { ru: 'Вы можете выбрать несколько достопримечательностей, которые хотели бы посетить. Любые другие пожелания укажите ниже, в разделе «Ваши пожелания и комментарии».', en: 'You can select several attractions you would like to visit. Any other preferences can be described below, in the "Your Wishes and Comments" section.' },
+
+    // Блок «Нужна только одна услуга?» — гид и трансфер отдельно
+    'custom_tour_separate_services_title': { ru: 'Нужна только одна услуга?', en: 'Need just one service?' },
+    'custom_tour_guide_only_title': { ru: 'Нужен только гид?', en: 'Only need a guide?' },
+    'custom_tour_guide_only_text': { ru: 'Гида можно нанять отдельно, без оформления тура. Выберите гида по городу, языку и специализации.', en: 'You can hire a guide separately, without booking a full tour. Choose a guide by city, language and specialisation.' },
+    'custom_tour_guide_only_btn': { ru: 'Нанять гида', en: 'Hire a guide' },
+    'custom_tour_transfer_only_title': { ru: 'Нужен только трансфер?', en: 'Only need a transfer?' },
+    'custom_tour_transfer_only_text': { ru: 'Трансфер можно заказать отдельно — выберите маршрут, класс автомобиля и дату поездки, без оформления тура.', en: 'You can order a transfer separately — pick the route, the vehicle class and the travel date, without booking a full tour.' },
+    'custom_tour_transfer_only_btn': { ru: 'Заказать трансфер', en: 'Order a transfer' },
+
     // Плейсхолдеры для формы заказа тура
     'custom_tour_fullname_placeholder': { ru: 'Введите ваше полное имя', en: 'Enter your full name' },
     'custom_tour_email_placeholder': { ru: 'your@email.com', en: 'your@email.com' },
@@ -377,7 +389,7 @@ window.translations = window.translations || {
     'custom_tour_error_no_countries': { ru: 'Выберите хотя бы одну страну', en: 'Select at least one country' },
     'custom_tour_error_no_tourists': { ru: 'Добавьте хотя бы одного туриста', en: 'Add at least one tourist' },
     'custom_tour_error_no_components': { ru: 'Выберите хотя бы один компонент тура', en: 'Select at least one tour component' },
-    'custom_tour_error_min_days': { ru: 'Минимальное количество дней для тура - 3 дня', en: 'Minimum tour duration is 3 days' },
+    'custom_tour_error_min_days': { ru: 'Укажите количество дней тура — минимум 1 день', en: 'Please specify the tour duration — at least 1 day' },
     'custom_tour_success_message': { ru: 'Заказ успешно отправлен! Мы свяжемся с вами в ближайшее время.', en: 'Order successfully submitted! We will contact you shortly.' },
     'custom_tour_error_submit': { ru: 'Ошибка при отправке заказа', en: 'Error submitting order' },
     'custom_tour_error_try_later': { ru: 'Ошибка при отправке заказа. Попробуйте позже.', en: 'Error submitting order. Please try again later.' },

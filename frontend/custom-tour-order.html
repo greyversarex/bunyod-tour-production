@@ -217,12 +217,12 @@
                             <label for="tourDuration" class="block text-xs sm:text-sm font-medium text-gray-700 mb-2">
                                 <span data-i18n="custom_tour_days_label">Number of Days</span> <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" id="tourDuration" name="tourDuration" required min="3"
+                            <input type="number" id="tourDuration" name="tourDuration" required min="1"
                                 class="w-full sm:w-2/3 md:w-1/3 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-600 focus:border-transparent"
                                 data-i18n-placeholder="custom_tour_days_placeholder"
                                 placeholder="For example: 7"
                                 onchange="validateDuration()">
-                            <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_days_hint">Each country requires a minimum of 3 days. For example: 6 days = up to 2 countries, 9 days = up to 3 countries</p>
+                            <p class="text-sm text-gray-500 mt-2" data-i18n="custom_tour_days_hint">One tour day means up to 10 hours of service. It does not mean that services are provided for the whole day: the day ends once the tour programme is complete. So a single day may take 1–2 hours or a full 9–10 hours.</p>
                             <div id="durationWarning" class="hidden mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                                 <div class="flex items-start gap-2">
                                     <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5"></i>
@@ -281,6 +281,10 @@
                     <div class="border-b pb-6">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-4" data-i18n="custom_tour_components">Tour Components</h3>
                         <p class="text-xs sm:text-sm text-gray-600 mb-4" data-i18n="custom_tour_select_countries_hint">Select countries above to see available components</p>
+                        <div class="flex items-start gap-3 p-3 sm:p-4 mb-4 bg-gray-50 border border-gray-200 rounded-lg">
+                            <i class="fas fa-circle-info text-gray-500 mt-0.5"></i>
+                            <p class="text-xs sm:text-sm text-gray-700" data-i18n="custom_tour_components_note">You can select several attractions you would like to visit. Any other preferences can be described in the "Your Wishes and Comments" section below.</p>
+                        </div>
                         <div id="componentsContainer" class="space-y-6"></div>
                     </div>
 
@@ -316,6 +320,40 @@
                 </form>
 
                 <div id="notification" class="hidden mt-6 p-4 rounded-lg"></div>
+            </div>
+
+            <!-- Отдельные услуги: гид и трансфер без оформления тура -->
+            <div class="mt-6 sm:mt-8">
+                <h3 class="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4" data-i18n="custom_tour_separate_services_title">Need just one service?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div class="flex flex-col bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-user-tie text-gray-600 text-lg"></i>
+                            <h4 class="text-sm sm:text-base font-semibold text-gray-800" data-i18n="custom_tour_guide_only_title">Only need a guide?</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-4 flex-grow" data-i18n="custom_tour_guide_only_text">You can hire a professional guide separately, without booking a full tour. Choose a guide by city, language and specialisation.</p>
+                        <a href="/tour-guides.html"
+                           class="inline-flex items-center justify-center gap-2 w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 sm:py-3 px-4 text-sm sm:text-base rounded-lg transition-colors duration-200">
+                            <span data-i18n="custom_tour_guide_only_btn">Hire a guide</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+
+                    <div class="flex flex-col bg-white border border-gray-200 rounded-lg p-4 sm:p-6">
+                        <div class="flex items-center gap-3 mb-2">
+                            <i class="fas fa-car text-gray-600 text-lg"></i>
+                            <h4 class="text-sm sm:text-base font-semibold text-gray-800" data-i18n="custom_tour_transfer_only_title">Only need a transfer?</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-gray-600 mb-4 flex-grow" data-i18n="custom_tour_transfer_only_text">You can order a transfer separately — pick the route, the vehicle class and the travel date, without booking a full tour.</p>
+                        <a href="/transfer.html"
+                           class="inline-flex items-center justify-center gap-2 w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2.5 sm:py-3 px-4 text-sm sm:text-base rounded-lg transition-colors duration-200">
+                            <span data-i18n="custom_tour_transfer_only_btn">Order a transfer</span>
+                            <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </main>
@@ -372,41 +410,6 @@
             const checkbox = event.target;
             
             if (checkbox.checked) {
-                // Проверка: каждая страна требует минимум 3 дня
-                const durationInput = document.getElementById('tourDuration');
-                const duration = parseInt(durationInput?.value) || 0;
-                
-                // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
-                const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
-                
-                // Если пытаемся выбрать больше стран, чем позволяет количество дней
-                if (selectedCountries.length >= maxCountries) {
-                    // Отменяем выбор - снимаем галочку
-                    checkbox.checked = false;
-                    
-                    // Показываем предупреждение с конкретным количеством доступных стран
-                    const warningDiv = document.getElementById('durationWarning');
-                    const warningText = document.getElementById('durationWarningText');
-                    if (warningDiv && warningText) {
-                        if (duration === 0) {
-                            warningText.textContent = getTranslation('custom_tour_specify_days_first');
-                        } else {
-                            const minDaysNeeded = (selectedCountries.length + 1) * 3;
-                            const template = getTranslation('custom_tour_validation_warning');
-                            warningText.textContent = template
-                                .replace('{days}', duration)
-                                .replace('{maxCountries}', maxCountries)
-                                .replace('{countryWord}', getCountryWord(maxCountries))
-                                .replace('{neededCountries}', selectedCountries.length + 1)
-                                .replace('{neededCountryWord}', getCountryWord(selectedCountries.length + 1))
-                                .replace('{minDays}', minDaysNeeded);
-                        }
-                        warningDiv.classList.remove('hidden');
-                    }
-                    
-                    return; // Прерываем выполнение функции
-                }
-                
                 selectedCountries.push(countryId);
                 await loadCitiesForCountries();
                 await loadComponentsForCountries();
@@ -479,42 +482,9 @@
             
             if (!durationInput || !warningDiv || !warningText) return;
             
-            const duration = parseInt(durationInput.value) || 0;
-            const countriesCount = selectedCountries.length;
-            
-            // Вычисляем максимальное количество стран: макс = дни ÷ 3 (округляем вниз)
-            const maxCountries = duration > 0 ? Math.floor(duration / 3) : 0;
-            
-            // Если выбрано больше стран, чем позволяет длительность
-            if (countriesCount > maxCountries) {
-                // Показываем предупреждение
-                const minDaysNeeded = countriesCount * 3;
-                const template = getTranslation('custom_tour_validation_warning');
-                warningText.textContent = template
-                    .replace('{days}', duration)
-                    .replace('{maxCountries}', maxCountries)
-                    .replace('{countryWord}', getCountryWord(maxCountries))
-                    .replace('{neededCountries}', countriesCount)
-                    .replace('{neededCountryWord}', getCountryWord(countriesCount))
-                    .replace('{minDays}', minDaysNeeded);
-                warningDiv.classList.remove('hidden');
-                
-                // Автоматически снимаем лишние галочки (оставляем только первые maxCountries стран)
-                const countriesToRemove = selectedCountries.slice(maxCountries);
-                selectedCountries = selectedCountries.slice(0, maxCountries);
-                
-                // Обновляем чекбоксы в интерфейсе
-                countriesToRemove.forEach(countryId => {
-                    const checkbox = document.querySelector(`input[type="checkbox"][value="${countryId}"]`);
-                    if (checkbox) checkbox.checked = false;
-                });
-                
-                // Обновляем города и компоненты
-                loadCitiesForCountries();
-                loadComponentsForCountries();
-            } else {
-                warningDiv.classList.add('hidden');
-            }
+            // Ограничение «минимум 3 дня на страну» снято: количество стран
+            // больше не зависит от продолжительности тура.
+            warningDiv.classList.add('hidden');
         }
 
         function renderCities() {
@@ -738,7 +708,7 @@
                 const tourDuration = parseInt(document.getElementById('tourDuration').value) || 0;
                 
                 // Validate duration
-                if (tourDuration < 3) {
+                if (tourDuration < 1) {
                     showNotification(getTranslation('custom_tour_error_min_days'), 'error');
                     submitBtn.disabled = false;
                     submitText.classList.remove('hidden');
